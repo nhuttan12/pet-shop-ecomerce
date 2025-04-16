@@ -6,10 +6,12 @@ export const schema = Joi.object({
     port: Joi.number().required(),
   }),
   db: Joi.object({
-    postgres: Joi.object({
-      url: Joi.string().required(),
+    mysql: Joi.object({
+      host: Joi.string().required(),
       port: Joi.number().required(),
       database: Joi.string().required(),
+      dialect: Joi.string().required(),
+      username: Joi.string().required(),
     }),
   }),
 });
