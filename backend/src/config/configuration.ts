@@ -16,6 +16,7 @@ export default () => {
   const value = validateObject.value as ValidationType;
 
   if (error) {
+    console.log(error.message);
     throw new NotAcceptableException();
   }
 

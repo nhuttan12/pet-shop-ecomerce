@@ -12,6 +12,7 @@ export const schema = Joi.object({
       database: Joi.string().required(),
       dialect: Joi.string().required(),
       username: Joi.string().required(),
+      password: Joi.string().required(),
     }),
   }),
 });
