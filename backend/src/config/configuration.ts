@@ -7,6 +7,7 @@ import { ValidationType } from './interface/config-type.interface';
 import * as appRootPath from 'app-root-path';
 
 const YAML_CONFIG_FILENAME = 'config.env.yaml';
+// const YAML_CONFIG_FILENAME = 'config.env.yml';
 
 export default () => {
   const configPath = path.join(appRootPath.path, YAML_CONFIG_FILENAME);
