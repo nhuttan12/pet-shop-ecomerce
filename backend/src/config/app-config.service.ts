@@ -6,15 +6,14 @@ import { ValidationType } from './interface/config-type.interface';
 export class AppConfigService {
   constructor(private configService: ConfigService) {}
 
-  get config(): ValidationType {
+  private get config(): ValidationType {
     return this.configService.get<ValidationType>('')!;
   }
-
-  get port() {
-    return this.config.http.port;
+  get jwtKey(): string {
+    return this.config.http.jwtKey;
   }
 
-  get host() {
-    return this.config.http.host;
+  get expireTime(): number | string {
+    return this.config.http.expireTime;
   }
 }
