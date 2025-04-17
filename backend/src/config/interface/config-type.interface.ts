@@ -2,6 +2,8 @@ export interface ValidationType {
   http: {
     host: string;
     port: number;
+    jwtKey: string;
+    expireTime: number | string;
   };
   db: {
     mysql: {

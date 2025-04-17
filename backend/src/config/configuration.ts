@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import * as yaml from 'js-yaml';
 import * as path from 'path';
-import { schema } from './config.validation';
+import { schema } from './app-config.validation';
 import { NotAcceptableException } from '@nestjs/common';
 import { ValidationType } from './interface/config-type.interface';
 import * as appRootPath from 'app-root-path';
