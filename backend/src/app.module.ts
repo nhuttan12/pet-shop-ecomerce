@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import configuration from './config/configuration';
 import { AppConfigService } from './config/app-config.service';
 import { DrizzleAsyncProvider } from './config/drizzle/drizzle.provider';
+import { UsersModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { DrizzleAsyncProvider } from './config/drizzle/drizzle.provider';
       isGlobal: true,
     }),
     AuthModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [],
