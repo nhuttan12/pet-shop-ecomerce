@@ -5,6 +5,10 @@ import { users } from './users.schema';
 import { paymentMethods } from './payment-methods.schema';
 import { shippingMethods } from './shipping-methods.schema';
 import { categories } from './categories.schema';
+import { carts } from './carts.schema';
+import { petTypes } from './pet-types.schema';
+import { products } from './products.schema';
+import { orders } from './orders.schema';
 
 export const status = mysqlTable('status', {
   id: int().primaryKey().notNull().autoincrement(),
@@ -30,4 +34,20 @@ export const statusToShippingMethod = relations(status, ({ many }) => ({
 
 export const statusToCategory = relations(status, ({ many }) => ({
   categories: many(categories),
+}));
+
+export const statusToCart = relations(status, ({ many }) => ({
+  carts: many(carts),
+}));
+
+export const statusToPetType = relations(status, ({ many }) => ({
+  petTypes: many(petTypes),
+}));
+
+export const statusToProduct = relations(status, ({ many }) => ({
+  products: many(products),
+}));
+
+export const statusToOrders = relations(status, ({ many }) => ({
+  orders: many(orders),
 }));

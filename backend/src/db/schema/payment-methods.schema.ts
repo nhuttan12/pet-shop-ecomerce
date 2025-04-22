@@ -1,6 +1,8 @@
 import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { status } from './status.schema';
 import { timestamps } from '../columns-helper/timestamp';
+import { orders } from './orders.schema';
+import { relations } from 'drizzle-orm';
 
 export const paymentMethods = mysqlTable('payment_methods', {
   id: int().primaryKey().notNull().autoincrement(),
@@ -10,3 +12,7 @@ export const paymentMethods = mysqlTable('payment_methods', {
     .notNull(),
   ...timestamps,
 });
+
+export const paymentMethodsToOrders = relations(paymentMethods, ({ many }) => ({
+  orders: many(orders),
+}));
