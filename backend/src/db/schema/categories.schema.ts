@@ -1,6 +1,8 @@
 import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { status } from './status.schema';
 import { timestamps } from '../columns-helper/timestamp';
+import { relations } from 'drizzle-orm';
+import { categoriesMapping } from './categories-mapping.schema';
 
 export const categories = mysqlTable('categories', {
   id: int().primaryKey().notNull().autoincrement(),
@@ -11,3 +13,10 @@ export const categories = mysqlTable('categories', {
     .notNull(),
   ...timestamps,
 });
+
+export const categoriesToCategoryMapping = relations(
+  categories,
+  ({ many }) => ({
+    categoriesMapping: many(categoriesMapping),
+  }),
+);

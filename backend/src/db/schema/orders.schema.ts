@@ -4,6 +4,8 @@ import { paymentMethods } from './payment-methods.schema';
 import { shippingMethods } from './shipping-methods.schema';
 import { status } from './status.schema';
 import { timestamps } from '../columns-helper/timestamp';
+import { relations } from 'drizzle-orm';
+import { orderDetails } from './order-details.schema';
 
 export const orders = mysqlTable('orders', {
   id: int().primaryKey().notNull().autoincrement(),
@@ -22,3 +24,7 @@ export const orders = mysqlTable('orders', {
     .notNull(),
   ...timestamps,
 });
+
+export const orderToOrderDetails = relations(orders, ({ many }) => ({
+  orderDetails: many(orderDetails),
+}));

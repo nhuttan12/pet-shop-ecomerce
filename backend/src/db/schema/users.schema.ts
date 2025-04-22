@@ -2,6 +2,9 @@ import { status } from './status.schema';
 import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { timestamps } from '../columns-helper/timestamp';
 import { roles } from './roles.schema';
+import { relations } from 'drizzle-orm';
+import { carts } from './carts.schema';
+import { favorites } from './favorites.schema';
 
 export const users = mysqlTable('users', {
   id: int().notNull().primaryKey().autoincrement(),
@@ -19,3 +22,11 @@ export const users = mysqlTable('users', {
     .notNull(),
   ...timestamps,
 });
+
+export const usersToCarts = relations(users, ({ many }) => ({
+  carts: many(carts),
+}));
+
+export const usersToFavorites = relations(users, ({ many }) => ({
+  favorites: many(favorites),
+}));

@@ -9,6 +9,7 @@ import { carts } from './carts.schema';
 import { petTypes } from './pet-types.schema';
 import { products } from './products.schema';
 import { orders } from './orders.schema';
+import { images } from './images.schema';
 
 export const status = mysqlTable('status', {
   id: int().primaryKey().notNull().autoincrement(),
@@ -50,4 +51,8 @@ export const statusToProduct = relations(status, ({ many }) => ({
 
 export const statusToOrders = relations(status, ({ many }) => ({
   orders: many(orders),
+}));
+
+export const statusToImages = relations(status, ({ many }) => ({
+  images: many(images),
 }));
