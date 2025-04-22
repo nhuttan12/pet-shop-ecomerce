@@ -1,4 +1,4 @@
-import { int, mysqlTable } from 'drizzle-orm/mysql-core';
+import { int, mysqlTable, primaryKey } from 'drizzle-orm/mysql-core';
 import { users } from './users.schema';
 import { products } from './products.schema';
 
@@ -12,7 +12,5 @@ export const favorites = mysqlTable(
       .references(() => products.id)
       .notNull(),
   },
-  (t) => ({
-    primaryKey: [t.userId, t.productId],
-  }),
+  (t) => [primaryKey({ columns: [t.userId, t.productId] })],
 );

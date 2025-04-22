@@ -11,5 +11,5 @@ export const categoriesMapping = mysqlTable(
       .references(() => categories.id)
       .notNull(),
   },
-  (t) => [primaryKey({ columns: [t.productId, t.productId] })],
+  (t) => [primaryKey({ columns: [t.productId, t.categoryId] })],
 );
