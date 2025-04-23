@@ -3,7 +3,7 @@ import { users } from './users.schema';
 import { paymentMethods } from './payment-methods.schema';
 import { shippingMethods } from './shipping-methods.schema';
 import { status } from './status.schema';
-import { timestamps } from '../columns-helper/timestamp';
+import { timestamps } from '../helper/timestamp';
 import { relations } from 'drizzle-orm';
 import { orderDetails } from './order-details.schema';
 

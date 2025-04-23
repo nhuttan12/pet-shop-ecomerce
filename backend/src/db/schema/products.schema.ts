@@ -2,7 +2,7 @@ import { images } from './images.schema';
 import { int, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core';
 import { brands } from './brands.schema';
 import { status } from './status.schema';
-import { timestamps } from '../columns-helper/timestamp';
+import { timestamps } from '../helper/timestamp';
 import { relations } from 'drizzle-orm';
 import { orderDetails } from './order-details.schema';
 import { inventories } from './inventories.schema';

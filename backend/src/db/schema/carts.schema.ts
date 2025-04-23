@@ -1,7 +1,7 @@
 import { int, mysqlTable } from 'drizzle-orm/mysql-core';
 import { users } from './users.schema';
 import { status } from './status.schema';
-import { timestamps } from '../columns-helper/timestamp';
+import { timestamps } from '../helper/timestamp';
 import { relations } from 'drizzle-orm';
 
 export const carts = mysqlTable('carts', {

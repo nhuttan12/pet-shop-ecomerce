@@ -1,6 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
-import { timestamps } from '../columns-helper/timestamp';
+import { timestamps } from '../helper/timestamp';
 import { users } from './users.schema';
 import { paymentMethods } from './payment-methods.schema';
 import { shippingMethods } from './shipping-methods.schema';

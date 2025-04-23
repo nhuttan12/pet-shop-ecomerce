@@ -1,6 +1,6 @@
 import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { status } from './status.schema';
-import { timestamps } from '../columns-helper/timestamp';
+import { timestamps } from '../helper/timestamp';
 import { orders } from './orders.schema';
 import { relations } from 'drizzle-orm';
 
