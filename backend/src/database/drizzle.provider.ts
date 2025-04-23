@@ -1,8 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import mysql from 'mysql2/promise';
-import configuration from '../configuration';
 import { drizzle } from 'drizzle-orm/mysql2';
-// import { schema } from '../../db/schema';
+import configuration from 'src/config/configuration';
 
 export const DrizzleAsyncProvider = 'DrizzleAsyncProvider';
 export const drizzleProvider = [
