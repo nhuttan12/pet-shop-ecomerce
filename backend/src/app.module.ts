@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
 import configuration from './config/configuration';
-import { AppConfigService } from './config/app-config.service';
-import { DrizzleAsyncProvider } from './config/drizzle/drizzle.provider';
+import { AppConfigModule } from './config/app-config.module';
+import { AuthModule } from './auth/auth.module';
+import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './user/user.module';
 
 @Module({
@@ -13,10 +13,9 @@ import { UsersModule } from './user/user.module';
       isGlobal: true,
     }),
     AuthModule,
+    AppConfigModule,
+    DatabaseModule,
     UsersModule,
   ],
-  controllers: [],
-  providers: [],
-  exports: [ConfigModule, AppConfigService, DrizzleAsyncProvider],
 })
 export class AppModule {}
