@@ -9,6 +9,7 @@ export class AppConfigService {
   private get config(): ValidationType {
     return this.configService.get<ValidationType>('')!;
   }
+
   get jwtKey(): string {
     return this.config.http.jwtKey;
   }
