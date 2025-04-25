@@ -13,9 +13,12 @@ export class UserLoginDto {
 }
 
 export class UserLoginResponseDto {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
-  status: string;
+  access_token: string;
+  user: {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+    status: string;
+  };
 }

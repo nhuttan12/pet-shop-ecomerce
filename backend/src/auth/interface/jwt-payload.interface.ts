@@ -1,8 +1,8 @@
 export interface JwtPayload {
-  sub: string;
+  sub: number;
   username: string;
   role: string;
-  expire: number;
   email?: string;
-  issue?: number;
+  iat?: number; //issued at
+  exp?: number; //expiration time
 }
