@@ -12,4 +12,8 @@ export const ErrorMessage = {
     'Tên người dùng phải có ít nhất 3 ký tự',
   PASSWORD_HAVE_AT_LEAST_3_CHARACTERS: 'Mật khẩu phải có ít nhất 6 ký tự',
   USERNAME_OR_EMAIL_EXISTS: 'Tài khoản hoặc email đã tồn tại',
+  USER_NOT_ACTIVE: 'Tài khoản chưa được kích hoạt',
+  USER_BANNED: 'Tài khoản đã bị cấm',
+  ROLE_NOT_FOUND: 'Vai trò hiện tại của người dùng không tồn tại',
+  STATUS_NOT_FOUND: 'Trạng thái hiện tại của người dùng không tồn tại',
 } as const;
