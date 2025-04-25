@@ -8,6 +8,8 @@ import { LocalStrategy } from './strategy/local.strategy';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { UsersModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
+import { RoleModule } from 'src/role/role.module';
+import { StatusModule } from 'src/status/status.module';
 
 @Module({
   providers: [AuthService, LocalStrategy, JwtStrategy],
@@ -15,6 +17,8 @@ import { AuthController } from './auth.controller';
     PassportModule,
     ConfigModule,
     UsersModule,
+    StatusModule,
+    RoleModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [AppConfigService],

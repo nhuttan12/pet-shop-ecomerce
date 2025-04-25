@@ -1,35 +1,33 @@
-import { UserLoginDto, UserLoginResponseDto } from './dto/user-login.dto';
-import {
-  Body,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { Role, Status, User, UserInsert } from 'src/db/helper/schema-type';
+import { users } from 'src/db/schema';
+import { ErrorMessage } from 'src/helper/error-message';
 import { UserService } from 'src/user/user.service';
+import { StatusService } from './../status/status.service';
+import { UserLoginDto, UserLoginResponseDto } from './dto/user-login.dto';
 import {
   UserRegisterDto,
   UserRegisterResponseDto,
 } from './dto/user-register.dto';
-import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
-import { MySql2Database } from 'drizzle-orm/mysql2';
-import { roles, status, users } from 'src/db/schema';
-import { eq, or } from 'drizzle-orm';
-import { ErrorMessage } from 'src/helper/error-message';
+
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
+import { MySql2Database } from 'drizzle-orm/mysql2';
+import { RoleName } from 'src/helper/role.enum';
+import { StatusType } from 'src/helper/status.enum';
+import { RoleService } from 'src/role/role.service';
+import { JwtPayload } from './interface/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     @Inject(DrizzleAsyncProvider)
-    private userSelect: MySql2Database<User>,
-    @Inject(DrizzleAsyncProvider)
     private userInsert: MySql2Database<UserInsert>,
-    @Inject(DrizzleAsyncProvider)
-    private roleSelect: MySql2Database<Role>,
-    @Inject(DrizzleAsyncProvider)
-    private statusSelect: MySql2Database<Status>,
+    private jwtService: JwtService,
+    private roleService: RoleService,
+    private statusService: StatusService,
   ) {}
 
   async validateUser(id: number): Promise<User> {
@@ -45,13 +43,14 @@ export class AuthService {
     userRegisterDto: UserRegisterDto,
   ): Promise<UserRegisterResponseDto> {
     const { username, email, password, retypePassword } = userRegisterDto;
-    const [existingUser]: User[] = await this.userSelect
-      .select()
-      .from(users)
-      .where(or(eq(users.username, username), eq(users.email, email)))
-      .execute();
 
-    if (existingUser) {
+    const existingUserWithUsername: User =
+      await this.userService.getUserByName(username);
+
+    const existingUserWithEmail: User =
+      await this.userService.getUserByEmail(email);
+
+    if (existingUserWithUsername || existingUserWithEmail) {
       throw new UnauthorizedException(ErrorMessage.USERNAME_OR_EMAIL_EXISTS);
     }
 
@@ -62,17 +61,19 @@ export class AuthService {
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltOrRounds);
 
-    const [role]: Role[] = await this.roleSelect
-      .select()
-      .from(roles)
-      .where(eq(roles.name, 'user'))
-      .execute();
+    const role = await this.roleService.getRoleByName(RoleName.USER);
 
-    const [statusRecord]: Status[] = await this.statusSelect
-      .select()
-      .from(status)
-      .where(eq(status.name, 'active'))
-      .execute();
+    if (!role) {
+      throw new UnauthorizedException(ErrorMessage.ROLE_NOT_FOUND);
+    }
+
+    const statusRecord: Status = await this.statusService.getStatusByName(
+      StatusType.ACTIVE,
+    );
+
+    if (!statusRecord) {
+      throw new UnauthorizedException(ErrorMessage.STATUS_NOT_FOUND);
+    }
 
     const [userCreatedId]: { id: number }[] = await this.userInsert
       .insert(users)
@@ -100,39 +101,54 @@ export class AuthService {
 
   async login(userLoginDto: UserLoginDto): Promise<UserLoginResponseDto> {
     const { username, password } = userLoginDto;
-    const [user]: User[] = await this.userSelect
-      .select()
-      .from(users)
-      .where(eq(users.username, username))
-      .execute();
+    const user: User = await this.userService.getUserByUsername(username);
+    const isPasswordValid = user
+      ? await bcrypt.compare(password, user.password)
+      : false;
 
-    if (!user) {
-      throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    if (!isPasswordValid || !user) {
       throw new UnauthorizedException(ErrorMessage.INVALID_PASSWORD);
     }
 
-    const [role]: Role[] = await this.roleSelect
-      .select()
-      .from(roles)
-      .where(eq(roles.id, user.roleId))
-      .execute();
+    const role: Role = await this.roleService.getRoleById(user.roleId);
 
-    const [statusRecord]: Status[] = await this.statusSelect
-      .select()
-      .from(status)
-      .where(eq(status.id, user.statusId))
-      .execute();
+    if (!role) {
+      throw new UnauthorizedException(ErrorMessage.ROLE_NOT_FOUND);
+    }
+
+    const statusRecord: Status = await this.statusService.getStatusById(
+      user.statusId,
+    );
+
+    if (!statusRecord) {
+      throw new UnauthorizedException(ErrorMessage.STATUS_NOT_FOUND);
+    }
+
+    if ((statusRecord.name as StatusType) === StatusType.BANNED) {
+      throw new UnauthorizedException(ErrorMessage.USER_BANNED);
+    }
+
+    if ((statusRecord.name as StatusType) !== StatusType.ACTIVE) {
+      throw new UnauthorizedException(ErrorMessage.USER_NOT_ACTIVE);
+    }
+
+    const payload: JwtPayload = {
+      sub: user.id,
+      username: user.username,
+      role: role.name,
+    };
+
+    const token = this.jwtService.sign(payload);
 
     const userLogin: UserLoginResponseDto = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: role.name,
-      status: statusRecord.name,
+      access_token: token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: role.name,
+        status: statusRecord.name,
+      },
     };
 
     return userLogin;
