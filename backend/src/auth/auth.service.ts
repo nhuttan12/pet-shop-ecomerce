@@ -30,12 +30,16 @@ export class AuthService {
     private statusService: StatusService,
   ) {}
 
-  async validateUser(id: number): Promise<User> {
-    const user = await this.userService.getUserById(id);
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
-    const { ...safeUser } = user;
+  async validateUser(
+    id: number,
+    username: string,
+  ): Promise<Omit<User, 'password'>> {
+    const user: User = await this.userService.getUserByIdAndUsername(
+      id,
+      username,
+    );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...safeUser } = user;
     return safeUser;
   }
 
@@ -63,17 +67,9 @@ export class AuthService {
 
     const role = await this.roleService.getRoleByName(RoleName.USER);
 
-    if (!role) {
-      throw new UnauthorizedException(ErrorMessage.ROLE_NOT_FOUND);
-    }
-
     const statusRecord: Status = await this.statusService.getStatusByName(
       StatusType.ACTIVE,
     );
-
-    if (!statusRecord) {
-      throw new UnauthorizedException(ErrorMessage.STATUS_NOT_FOUND);
-    }
 
     const [userCreatedId]: { id: number }[] = await this.userInsert
       .insert(users)
@@ -112,17 +108,9 @@ export class AuthService {
 
     const role: Role = await this.roleService.getRoleById(user.roleId);
 
-    if (!role) {
-      throw new UnauthorizedException(ErrorMessage.ROLE_NOT_FOUND);
-    }
-
     const statusRecord: Status = await this.statusService.getStatusById(
       user.statusId,
     );
-
-    if (!statusRecord) {
-      throw new UnauthorizedException(ErrorMessage.STATUS_NOT_FOUND);
-    }
 
     if ((statusRecord.name as StatusType) === StatusType.BANNED) {
       throw new UnauthorizedException(ErrorMessage.USER_BANNED);
