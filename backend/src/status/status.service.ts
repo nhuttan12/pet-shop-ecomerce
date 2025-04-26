@@ -1,9 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { Status } from 'src/db/helper/schema-type';
 import { status } from 'src/db/schema';
+import { ErrorMessage } from 'src/helper/error-message';
 
 @Injectable()
 export class StatusService {
@@ -20,6 +21,9 @@ export class StatusService {
       .limit(1)
       .execute();
 
+    if (!statusRecord) {
+      throw new UnauthorizedException(ErrorMessage.STATUS_NOT_FOUND);
+    }
     return statusRecord;
   }
 
@@ -30,6 +34,10 @@ export class StatusService {
       .where(eq(status.id, id))
       .limit(1)
       .execute();
+
+    if (!statusRecord) {
+      throw new UnauthorizedException(ErrorMessage.STATUS_NOT_FOUND);
+    }
 
     return statusRecord;
   }

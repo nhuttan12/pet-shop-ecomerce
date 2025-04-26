@@ -21,6 +21,10 @@ export class RoleService {
       .limit(1)
       .execute();
 
+    if (!role) {
+      throw new UnauthorizedException(ErrorMessage.ROLE_NOT_FOUND);
+    }
+
     return role;
   }
   async getRoleByName(name: string): Promise<Role> {
@@ -30,6 +34,10 @@ export class RoleService {
       .where(eq(roles.name, name))
       .limit(1)
       .execute();
+
+    if (!role) {
+      throw new UnauthorizedException(ErrorMessage.ROLE_NOT_FOUND);
+    }
 
     return role;
   }
