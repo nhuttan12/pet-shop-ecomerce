@@ -1,5 +1,6 @@
-import { IsEmailOptions } from 'validator';
 /* eslint-disable @typescript-eslint/no-unsafe-call */
+
+import { IsEmailOptions } from 'validator';
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 import { ErrorMessage } from 'src/helper/error-message';
 
