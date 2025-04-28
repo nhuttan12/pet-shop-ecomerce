@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
 import { StatusModule } from './status/status.module';
+import { RolesGuard } from './helper/guard/roles.guard';
 
 @Module({
   imports: [
@@ -20,6 +21,12 @@ import { StatusModule } from './status/status.module';
     UsersModule,
     RoleModule,
     StatusModule,
+  ],
+  providers: [
+    {
+      provide: 'APP_GUARD',
+      useClass: RolesGuard,
+    },
   ],
 })
 export class AppModule {}
