@@ -16,4 +16,5 @@ export const ErrorMessage = {
   USER_BANNED: 'Tài khoản đã bị cấm',
   ROLE_NOT_FOUND: 'Vai trò hiện tại của người dùng không tồn tại',
   STATUS_NOT_FOUND: 'Trạng thái hiện tại của người dùng không tồn tại',
+  INTERNAL_SERVER_ERROR: 'Có lỗi xảy ra, vui lòng thử lại sau',
 } as const;
