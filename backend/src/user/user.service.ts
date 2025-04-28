@@ -1,13 +1,20 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { User } from 'src/db/helper/schema-type';
 import { users } from 'src/db/schema';
 import { ErrorMessage } from 'src/helper/message/error-message';
+import { MessageLog } from 'src/helper/message/message-log';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(
     @Inject(DrizzleAsyncProvider)
     private userSelect: MySql2Database<User>,
@@ -25,17 +32,29 @@ export class UserService {
     return user;
   }
 
-  async getUserByName(username: string): Promise<User> {
+  async getUserByName(name: string): Promise<User> {
     const [user]: User[] = await this.userSelect
       .select()
       .from(users)
-      .where(eq(users.username, username))
+      .where(eq(users.username, name))
       .limit(1)
       .execute();
 
     if (!user) {
+      this.logger.error(MessageLog.USER_NOT_FOUND);
       throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
     }
+    return user;
+  }
+
+  async findUserByName(name: string): Promise<User | undefined> {
+    const [user]: User[] | undefined = await this.userSelect
+      .select()
+      .from(users)
+      .where(eq(users.username, name))
+      .limit(1)
+      .execute();
+
     return user;
   }
 
@@ -48,6 +67,7 @@ export class UserService {
       .execute();
 
     if (!user) {
+      this.logger.error(MessageLog.USER_NOT_FOUND);
       throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
     }
 
@@ -62,8 +82,19 @@ export class UserService {
       .limit(1);
 
     if (!user) {
+      this.logger.error(MessageLog.USER_NOT_FOUND);
       throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
     }
+    return user;
+  }
+
+  async findUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await this.userSelect
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
     return user;
   }
 
