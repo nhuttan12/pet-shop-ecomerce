@@ -22,7 +22,6 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('auth/v1/login')
   async login(@Body() userLoginDto: UserLoginDto) {
     this.logger.debug('Logging in user', userLoginDto);
     return this.authService.login(userLoginDto);
