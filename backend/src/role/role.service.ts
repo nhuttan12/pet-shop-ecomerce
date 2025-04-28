@@ -4,7 +4,7 @@ import { MySql2Database } from 'drizzle-orm/mysql2';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { Role } from 'src/db/helper/schema-type';
 import { roles } from 'src/db/schema';
-import { ErrorMessage } from 'src/helper/error-message';
+import { ErrorMessage } from 'src/helper/message/error-message';
 
 @Injectable()
 export class RoleService {

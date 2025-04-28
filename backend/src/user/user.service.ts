@@ -4,7 +4,7 @@ import { MySql2Database } from 'drizzle-orm/mysql2';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { User } from 'src/db/helper/schema-type';
 import { users } from 'src/db/schema';
-import { ErrorMessage } from 'src/helper/error-message';
+import { ErrorMessage } from 'src/helper/message/error-message';
 
 @Injectable()
 export class UserService {

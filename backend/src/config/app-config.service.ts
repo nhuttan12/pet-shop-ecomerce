@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpConfig } from './interface/http.interface';
-import { MessageLog } from 'src/helper/message-log';
+import { MessageLog } from 'src/helper/message/message-log';
 import { DatabaseConfig } from './interface/database.interface';
 
 @Injectable()

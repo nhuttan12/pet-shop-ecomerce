@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import { MessageLog } from 'src/helper/message-log';
+import { MessageLog } from 'src/helper/message/message-log';
 
 export const schema = Joi.object({
   http: Joi.object({

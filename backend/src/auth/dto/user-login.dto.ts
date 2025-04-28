@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IsString, MinLength } from 'class-validator';
-import { ErrorMessage } from 'src/helper/error-message';
+import { ErrorMessage } from 'src/helper/message/error-message';
 
 export class UserLoginDto {
   @IsString({ message: ErrorMessage.USERNAME_IS_NOT_EMPTY })

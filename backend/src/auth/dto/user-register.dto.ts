@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
-import { IsEmailOptions } from 'validator';
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
-import { ErrorMessage } from 'src/helper/error-message';
+import { ErrorMessage } from 'src/helper/message/error-message';
 
 export class UserRegisterDto {
   @IsNotEmpty({ message: ErrorMessage.USERNAME_IS_NOT_EMPTY })
@@ -16,7 +13,7 @@ export class UserRegisterDto {
   retypePassword: string;
 
   @IsNotEmpty({ message: ErrorMessage.EMAIL_IS_NOT_EMPTY })
-  @IsEmail({ message: ErrorMessage.INVALID_EMAIL } as IsEmailOptions)
+  @IsEmail({}, { message: ErrorMessage.INVALID_EMAIL })
   email: string;
 }
 
