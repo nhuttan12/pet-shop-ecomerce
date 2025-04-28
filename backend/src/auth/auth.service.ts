@@ -1,7 +1,7 @@
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { Role, Status, User, UserInsert } from 'src/db/helper/schema-type';
 import { users } from 'src/db/schema';
-import { ErrorMessage } from 'src/helper/error-message';
+import { ErrorMessage } from 'src/helper/message/error-message';
 import { UserService } from 'src/user/user.service';
 import { StatusService } from './../status/status.service';
 import { UserLoginDto, UserLoginResponseDto } from './dto/user-login.dto';
@@ -14,10 +14,10 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { RoleName } from 'src/helper/role.enum';
-import { StatusType } from 'src/helper/status.enum';
+import { Role as RoleName } from 'src/helper/enum/role.enum';
+import { StatusType } from 'src/helper/enum/status.enum';
 import { RoleService } from 'src/role/role.service';
-import { JwtPayload } from './interface/jwt-payload.interface';
+import { JwtPayload } from '../helper/interface/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
