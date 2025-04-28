@@ -6,3 +6,7 @@ export interface JwtPayload {
   iat?: number; //issued at
   exp?: number; //expiration time
 }
+
+export interface AuthenticatedRequest extends Request {
+  user: JwtPayload;
+}
