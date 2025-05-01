@@ -1,3 +1,6 @@
+/**
+ * @description: error message to return to user client when meeting error
+ */
 export const ErrorMessage = {
   USER_NOT_FOUND: 'Tài khoản không tồn tại',
   USER_ALREADY_EXISTS: 'Tài khoản đã tồn tại',

@@ -1,3 +1,7 @@
+/**
+ * @description: message to throw out the console or terminal when
+ *  meeting error in dev, or run in production
+ */
 export const MessageLog = {
   INVALID_TOKEN: 'Invalid token',
   TOKEN_EXPIRED: 'Token expired',

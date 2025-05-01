@@ -20,6 +20,12 @@ export class UserService {
     private userSelect: MySql2Database<User>,
   ) {}
 
+  /**
+   * @description: get user information with given
+   *  id from database, if not found, throw error
+   * @param id: id of user
+   * @returns: user
+   */
   async getUserById(id: number): Promise<User> {
     const [user] = await this.userSelect
       .select()
@@ -32,6 +38,12 @@ export class UserService {
     return user;
   }
 
+  /**
+   * @description: get user information with given
+   *  name from database, if not found, throw error
+   * @param name: name of user
+   * @returns: user
+   */
   async getUserByName(name: string): Promise<User> {
     const [user]: User[] = await this.userSelect
       .select()
@@ -47,6 +59,12 @@ export class UserService {
     return user;
   }
 
+  /**
+   * @description: get user information with given
+   *  name from database, if not found, return udefined
+   * @param name: name of user
+   * @returns: user | undefinded
+   */
   async findUserByName(name: string): Promise<User | undefined> {
     const [user]: User[] | undefined = await this.userSelect
       .select()
@@ -58,6 +76,12 @@ export class UserService {
     return user;
   }
 
+  /**
+   * @description: get user information with given
+   *  username from database, if not found, throw error
+   * @param username: username of user
+   * @returns: user
+   */
   async getUserByUsername(username: string): Promise<User> {
     const [user]: User[] = await this.userSelect
       .select()
@@ -74,6 +98,12 @@ export class UserService {
     return user;
   }
 
+  /**
+   * @description: get user information with given
+   *  email from database, if not found, throw error
+   * @param email: email of user
+   * @returns: user
+   */
   async getUserByEmail(email: string): Promise<User> {
     const [user] = await this.userSelect
       .select()
@@ -88,6 +118,12 @@ export class UserService {
     return user;
   }
 
+  /**
+   * @description: get user information with given
+   *  email from database, if not found, return udefined
+   * @param email: email of user
+   * @returns: user | undefinded
+   */
   async findUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await this.userSelect
       .select()
@@ -98,6 +134,13 @@ export class UserService {
     return user;
   }
 
+  /**
+   * @description: get user information with given
+   *  username, id from database, if not found, throw error
+   * @param id: id of user
+   * @param username: username of user
+   * @returns: user
+   */
   async getUserByIdAndUsername(id: number, username: string): Promise<User> {
     const [user]: User[] = await this.userSelect
       .select()

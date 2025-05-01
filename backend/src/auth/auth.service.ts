@@ -53,6 +53,11 @@ export class AuthService {
     return safeUser;
   }
 
+  /**
+   * @description register user
+   * @param userRegisterDto: the params is validated of user for register
+   * @returns UserRegisterResponseDto
+   */
   async register(
     userRegisterDto: UserRegisterDto,
   ): Promise<UserRegisterResponseDto> {

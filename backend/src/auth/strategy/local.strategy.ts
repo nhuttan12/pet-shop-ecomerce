@@ -10,6 +10,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super();
   }
 
+  /**
+   * @description: validate user when the client send a request
+   * @param id: id in jwt payload
+   * @param username: name in jwt payload
+   * @returns user
+   */
   async validate(
     id: number,
     username: string,
