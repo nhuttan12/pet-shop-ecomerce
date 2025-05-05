@@ -8,6 +8,9 @@ import { UsersModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
 import { StatusModule } from './status/status.module';
 import { RolesGuard } from './helper/guard/roles.guard';
+import { ProductModule } from './product/product.module';
+import { APP_FILTER } from '@nestjs/core';
+import { CatchEverythingFilter } from './helper/filter/exception.filter';
 
 @Module({
   imports: [
@@ -21,11 +24,16 @@ import { RolesGuard } from './helper/guard/roles.guard';
     UsersModule,
     RoleModule,
     StatusModule,
+    ProductModule,
   ],
   providers: [
     {
       provide: 'APP_GUARD',
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: CatchEverythingFilter,
     },
   ],
 })

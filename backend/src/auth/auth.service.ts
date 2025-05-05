@@ -1,6 +1,5 @@
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { Role, Status, User, UserInsert } from 'src/db/helper/schema-type';
-import { users } from 'src/db/schema';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { UserService } from 'src/user/user.service';
 import { StatusService } from './../status/status.service';
@@ -96,21 +95,16 @@ export class AuthService {
         StatusType.ACTIVE,
       );
 
-      const [userCreatedId]: { id: number }[] = await this.userInsert
-        .insert(users)
-        .values({
-          username: username,
-          email: email,
-          password: hashedPassword,
-          roleId: role.id,
-          statusId: statusRecord.id,
-          created_at: new Date(),
-          updated_at: new Date(),
-        })
-        .$returningId();
+      const userCreatedId: number = await this.userService.createUser({
+        username,
+        email,
+        hashedPassword,
+        roleId: role.id,
+        statusId: statusRecord.id,
+      });
 
       userCreated = {
-        id: userCreatedId.id,
+        id: userCreatedId,
         username: username,
         email: email,
         role: role.name,
