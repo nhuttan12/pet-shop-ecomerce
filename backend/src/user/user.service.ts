@@ -4,13 +4,14 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
+import { and, asc, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
-import { User } from 'src/db/helper/schema-type';
+import { User, UserInsert } from 'src/db/helper/schema-type';
 import { users } from 'src/db/schema';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
+import { CreateUserDto } from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -18,6 +19,7 @@ export class UserService {
   constructor(
     @Inject(DrizzleAsyncProvider)
     private userSelect: MySql2Database<User>,
+    private userInsert: MySql2Database<UserInsert>,
   ) {}
 
   /**
@@ -27,6 +29,8 @@ export class UserService {
    * @returns: user
    */
   async getUserById(id: number): Promise<User> {
+    this.logger.debug('Id to get user', id);
+
     const [user] = await this.userSelect
       .select()
       .from(users)
@@ -35,6 +39,9 @@ export class UserService {
     if (!user) {
       throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
     }
+
+    this.logger.debug('Uset getted by id', user);
+
     return user;
   }
 
@@ -45,6 +52,8 @@ export class UserService {
    * @returns: user
    */
   async getUserByName(name: string): Promise<User> {
+    this.logger.debug('Name to get user', name);
+
     const [user]: User[] = await this.userSelect
       .select()
       .from(users)
@@ -56,6 +65,9 @@ export class UserService {
       this.logger.error(MessageLog.USER_NOT_FOUND);
       throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
     }
+
+    this.logger.debug('Uset getted by name', user);
+
     return user;
   }
 
@@ -66,12 +78,16 @@ export class UserService {
    * @returns: user | undefinded
    */
   async findUserByName(name: string): Promise<User | undefined> {
+    this.logger.debug('Name to get find', name);
+
     const [user]: User[] | undefined = await this.userSelect
       .select()
       .from(users)
       .where(eq(users.username, name))
       .limit(1)
       .execute();
+
+    this.logger.debug('User finded by name', user);
 
     return user;
   }
@@ -83,6 +99,8 @@ export class UserService {
    * @returns: user
    */
   async getUserByUsername(username: string): Promise<User> {
+    this.logger.debug('Username to get user:', username);
+
     const [user]: User[] = await this.userSelect
       .select()
       .from(users)
@@ -95,6 +113,8 @@ export class UserService {
       throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
     }
 
+    this.logger.debug('User getted by username', user);
+
     return user;
   }
 
@@ -105,6 +125,7 @@ export class UserService {
    * @returns: user
    */
   async getUserByEmail(email: string): Promise<User> {
+    this.logger.debug('Email to get user', email);
     const [user] = await this.userSelect
       .select()
       .from(users)
@@ -115,6 +136,9 @@ export class UserService {
       this.logger.error(MessageLog.USER_NOT_FOUND);
       throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
     }
+
+    this.logger.debug('User getted by email', user);
+
     return user;
   }
 
@@ -125,11 +149,15 @@ export class UserService {
    * @returns: user | undefinded
    */
   async findUserByEmail(email: string): Promise<User | undefined> {
+    this.logger.debug('Email to find', email);
+
     const [user] = await this.userSelect
       .select()
       .from(users)
       .where(eq(users.email, email))
       .limit(1);
+
+    this.logger.debug('User finded', user);
 
     return user;
   }
@@ -142,6 +170,8 @@ export class UserService {
    * @returns: user
    */
   async getUserByIdAndUsername(id: number, username: string): Promise<User> {
+    this.logger.debug('Id and username', id, username);
+
     const [user]: User[] = await this.userSelect
       .select()
       .from(users)
@@ -150,6 +180,63 @@ export class UserService {
     if (!user) {
       throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
     }
+
+    this.logger.debug('User', user);
+
+    return user;
+  }
+
+  async getAllUsers(limit: number, offset: number): Promise<User[]> {
+    this.logger.debug('Limit and offset for pagination', limit, offset);
+
+    const user: User[] = await this.userSelect
+      .select()
+      .from(users)
+      .orderBy(asc(users.id))
+      .limit(limit)
+      .offset(offset);
+
+    this.logger.debug('User list', user);
+
+    return user;
+  }
+
+  async createUser(createUserDto: CreateUserDto): Promise<number> {
+    this.logger.debug('User information to create', createUserDto);
+
+    const [userCreatedId]: { id: number }[] = await this.userInsert.transaction(
+      async (tx) => {
+        return await tx
+          .insert(users)
+          .values({
+            username: createUserDto.username,
+            email: createUserDto.email,
+            password: createUserDto.hashedPassword,
+            roleId: createUserDto.roleId,
+            statusId: createUserDto.statusId,
+            created_at: new Date(),
+            updated_at: new Date(),
+          })
+          .$returningId();
+      },
+    );
+
+    this.logger.debug('User created id', userCreatedId);
+
+    return userCreatedId.id;
+  }
+
+  async findUserById(id: number): Promise<User[]> {
+    this.logger.debug('Id to get user', id);
+
+    const user = await this.userSelect
+      .select()
+      .from(users)
+      .where(eq(users.id, id))
+      .orderBy(asc(users.id));
+
+    this.logger.debug('Uset getted by id', user);
+
     return user;
   }
 }
