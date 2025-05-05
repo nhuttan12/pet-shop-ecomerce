@@ -1,9 +1,17 @@
 import { ConfigService } from '@nestjs/config';
 import mysql from 'mysql2/promise';
-import configuration from '../configuration';
 import { drizzle } from 'drizzle-orm/mysql2';
-// import { schema } from '../../db/schema';
+import configuration from 'src/config/configuration';
 
+/**
+ * @description: providing connection pool to the database
+ * @var DrizzleAsyncProvider: driver to connect for service file
+ * @var drizzleProvider: config file to connect to the database
+ * @var config: loading config infro from configuration.ts file
+ * @var poolConnection: providing connection pool to the database
+ *  with host, port, user, password, database variable load from config file
+ * @returns: return the drizzle connection pool
+ */
 export const DrizzleAsyncProvider = 'DrizzleAsyncProvider';
 export const drizzleProvider = [
   {
