@@ -1,19 +1,32 @@
-import { Body, Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Query,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
+import { User } from 'src/db/helper/schema-type';
 import { HasRole } from 'src/helper/decorator/roles.decorator';
 import { Role } from 'src/helper/enum/role.enum';
+import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
 import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
 import { LocalAuthGuard } from 'src/helper/guard/local-ath.guard';
+import { FindUserById, FindUserByName, GetAllUsersDto, UserUpdateDTO } from './user.dto';
 import { UserService } from './user.service';
-import { FindUserById, GetAllUsersDto } from './user.dto';
 
 @Controller('v2/users')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   @UseGuards(JwtAuthGuard)
   @HasRole(Role.ADMIN)
+  @UseFilters(CatchEverythingFilter)
   async getAllUsers(
     @Param() params: GetAllUsersDto,
     @Query() query: GetAllUsersDto,
@@ -24,16 +37,44 @@ export class UserController {
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   @UseGuards(JwtAuthGuard)
   @HasRole(Role.ADMIN)
+  @UseFilters(CatchEverythingFilter)
   async findUserById(
     @Param() idParam: FindUserById,
     @Query() idQuery: FindUserById,
-  ) {
+  ): Promise<User[]> {
     const id: number = idParam.id ?? idQuery.id;
     return this.userService.findUserById(id);
   }
 
-  async findUserByName();
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
+  @HasRole(Role.ADMIN)
+  @UseFilters(CatchEverythingFilter)
+  async findUserByName(
+    @Param() nameParam: FindUserByName,
+    @Query() nameQuery: FindUserByName,
+  ): Promise<User[]> {
+    const name: string = nameParam.name ?? nameQuery.name;
+    return this.userService.findUserByName(name);
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
+  @HasRole(Role.ADMIN)
+  @UseFilters(CatchEverythingFilter)
+  async updateUser(
+    @Param() userParam: UserUpdateDTO,
+    @Query() userQuery: UserUpdateDTO,
+  ): Promise<void> {
+    const user: UserUpdateDTO = userParam ?? userQuery;
+    return this.userService.updateUser(user);
+  }
 }

@@ -1,6 +1,7 @@
 import {
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -11,7 +12,7 @@ import { User, UserInsert } from 'src/db/helper/schema-type';
 import { users } from 'src/db/schema';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
-import { CreateUserDto } from './user.dto';
+import { CreateUserDto, UserUpdateDTO } from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -77,10 +78,10 @@ export class UserService {
    * @param name: name of user
    * @returns: user | undefinded
    */
-  async findUserByName(name: string): Promise<User | undefined> {
+  async findUserByName(name: string): Promise<User[]> {
     this.logger.debug('Name to get find', name);
 
-    const [user]: User[] | undefined = await this.userSelect
+    const user: User[] | undefined = await this.userSelect
       .select()
       .from(users)
       .where(eq(users.username, name))
@@ -238,5 +239,44 @@ export class UserService {
     this.logger.debug('Uset getted by id', user);
 
     return user;
+  }
+
+  async updateUser({
+    id,
+    name,
+    email,
+    phone,
+    address,
+  }: UserUpdateDTO): Promise<void> {
+    let user: User | undefined;
+    try {
+      this.logger.debug('User info', id, name, email, phone, address);
+
+      user = await this.getUserById(id);
+
+      this.logger.debug('User getted by id', user);
+
+      const userId: number = user.id;
+
+      await this.userInsert.transaction(async (tx) => {
+        return await tx
+          .update(users)
+          .set({
+            name: name,
+            email: email,
+            phone: phone,
+            adresss: address,
+            updated_at: new Date(),
+          })
+          .where(eq(users.id, userId));
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
+      this.logger.verbose(`User ${user?.id} updated`);
+    }
   }
 }

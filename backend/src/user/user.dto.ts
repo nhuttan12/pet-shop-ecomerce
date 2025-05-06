@@ -1,4 +1,5 @@
-import { IsEmail, IsInt, IsString, IsUrl, Min } from 'class-validator';
+import { IsEmail, IsInt, IsString, Min, Validate } from 'class-validator';
+import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
 import { ErrorMessage } from 'src/helper/message/error-message';
 
 export class GetAllUsersDto {
@@ -13,12 +14,15 @@ export class GetAllUsersDto {
 
 export class CreateUserDto {
   @IsString({ message: ErrorMessage.PARAM_NOT_VALID })
+  @Validate(NotUrlValidator)
   username: string;
 
   @IsEmail({}, { message: ErrorMessage.INVALID_EMAIL })
+  @Validate(NotUrlValidator)
   email: string;
 
   @IsString({ message: ErrorMessage.PARAM_NOT_VALID })
+  @Validate(NotUrlValidator)
   hashedPassword: string;
 
   @IsInt({ message: ErrorMessage.PARAM_NOT_VALID })
@@ -35,6 +39,27 @@ export class FindUserById {
 
 export class FindUserByName {
   @IsString({ message: ErrorMessage.USER_FULL_NAME_MUST_BE_STRING })
-  @IsUrl({}, { message: ErrorMessage.PARAM_MUST_NOT_BE_A_LINK })
+  @Validate(NotUrlValidator)
   name: string;
+}
+
+export class UserUpdateDTO {
+  @IsInt({ message: ErrorMessage.USER_ID_MUST_BE_INTEGER })
+  id: number;
+
+  @IsString({ message: ErrorMessage.USER_FULL_NAME_MUST_BE_STRING })
+  @Validate(NotUrlValidator)
+  name: string;
+
+  @IsString({ message: ErrorMessage.USER_FULL_NAME_MUST_BE_STRING })
+  @Validate(NotUrlValidator)
+  email: string;
+
+  @IsString({ message: ErrorMessage.USER_FULL_NAME_MUST_BE_STRING })
+  @Validate(NotUrlValidator)
+  phone: string;
+
+  @IsString({ message: ErrorMessage.USER_FULL_NAME_MUST_BE_STRING })
+  @Validate(NotUrlValidator)
+  address: string;
 }
