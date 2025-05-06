@@ -64,7 +64,7 @@ export class AuthService {
     try {
       const { username, email, password, retypePassword } = userRegisterDto;
 
-      const existingUserWithUsername: User | undefined =
+      const [existingUserWithUsername]: User[] =
         await this.userService.findUserByName(username);
       this.logger.debug(
         'Get existing user with username',
