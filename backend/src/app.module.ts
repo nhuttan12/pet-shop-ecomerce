@@ -11,6 +11,7 @@ import { RolesGuard } from './helper/guard/roles.guard';
 import { ProductModule } from './product/product.module';
 import { APP_FILTER } from '@nestjs/core';
 import { CatchEverythingFilter } from './helper/filter/exception.filter';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { CatchEverythingFilter } from './helper/filter/exception.filter';
     RoleModule,
     StatusModule,
     ProductModule,
+    CloudinaryModule,
   ],
   providers: [
     {
