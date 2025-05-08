@@ -9,6 +9,12 @@ import {
 import { CatchEverythingFilter } from './helper/filter/exception.filter';
 
 async function bootstrap() {
+  /**
+   * @description: config for logging globaL
+   * @param color: show color of text for each level of log
+   * @param logLevels: all level of logging
+   * @param timestamp: time the log was wrote
+   */
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
     new ExpressAdapter(),
@@ -21,12 +27,25 @@ async function bootstrap() {
     },
   );
 
+  /**
+   * @description: config for global filter exception
+   */
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new CatchEverythingFilter(httpAdapterHost));
 
+  /**
+   * @description: get configuration information to run the server
+   * @param configService: call config service file to get the information from yaml file
+   * @param port: port to run the http server
+   */
   const configService: ConfigService = app.get(ConfigService);
   const port: number = configService.get<number>('http.port') || 3000;
 
+  /**
+   * @description: global pipe
+   * @param enableDebugMessages: turn on debug message
+   * @param transform: transform data when get
+   */
   app.useGlobalPipes(
     new ValidationPipe({
       enableDebugMessages: true,

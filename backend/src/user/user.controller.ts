@@ -14,7 +14,12 @@ import { Role } from 'src/helper/enum/role.enum';
 import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
 import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
 import { LocalAuthGuard } from 'src/helper/guard/local-ath.guard';
-import { FindUserById, FindUserByName, GetAllUsersDto, UserUpdateDTO } from './user.dto';
+import {
+  FindUserById,
+  FindUserByName,
+  GetAllUsersDto,
+  UserUpdateDTO,
+} from './user.dto';
 import { UserService } from './user.service';
 
 @Controller('v2/users')
@@ -38,8 +43,8 @@ export class UserController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LocalAuthGuard)
   @UseGuards(JwtAuthGuard)
+  @UseGuards(LocalAuthGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
   async findUserById(
@@ -52,8 +57,8 @@ export class UserController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LocalAuthGuard)
   @UseGuards(JwtAuthGuard)
+  @UseGuards(LocalAuthGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
   async findUserByName(

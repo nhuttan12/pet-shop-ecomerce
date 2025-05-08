@@ -26,6 +26,23 @@ export const schema = Joi.object({
         'any.required': MessageLog.EXPIRE_TIME_IS_REQUIRED,
         'string.empty': MessageLog.EXPIRE_TIME_CANNT_BE_EMPTY,
       }),
+    cloudinary: Joi.object({
+      name: Joi.string().required().messages({
+        'string.base': MessageLog.CLOUDINARY_NAME_MUST_BE_A_STRING,
+        'any.required': MessageLog.CLOUDINARY_NAME_IS_REQUIRED,
+        'string.empty': MessageLog.CLOUDINARY_NAME_CANNOT_BE_EMPTY,
+      }),
+      api_key: Joi.string().required().messages({
+        'string.base': MessageLog.CLOUDINARY_API_KEY_MUST_BE_A_STRING,
+        'any.required': MessageLog.CLOUDINARY_API_KEY_IS_REQUIRED,
+        'string.empty': MessageLog.CLOUDINARY_API_KEY_CANNOT_BE_EMPTY,
+      }),
+      api_secret: Joi.string().required().messages({
+        'string.base': MessageLog.CLOUDINARY_API_SECRET_MUST_BE_A_STRING,
+        'any.required': MessageLog.CLOUDINARY_API_SECRET_IS_REQUIRED,
+        'string.empty': MessageLog.CLOUDINARY_API_SECRET_CANNOT_BE_EMPTY,
+      }),
+    }),
   }),
   db: Joi.object({
     mysql: Joi.object({
