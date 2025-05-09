@@ -9,7 +9,7 @@ import { and, asc, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { User, UserInsert } from 'src/db/helper/schema-type';
-import { users } from 'src/db/schema';
+import { userDetail, users } from 'src/db/schema';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
 import { CreateUserDto, UserUpdateDTO } from './user.dto';
@@ -20,6 +20,7 @@ export class UserService {
   constructor(
     @Inject(DrizzleAsyncProvider)
     private userSelect: MySql2Database<User>,
+    @Inject(DrizzleAsyncProvider)
     private userInsert: MySql2Database<UserInsert>,
   ) {}
 
@@ -214,7 +215,7 @@ export class UserService {
             email: createUserDto.email,
             password: createUserDto.hashedPassword,
             roleId: createUserDto.roleId,
-            statusId: createUserDto.statusId,
+            status: createUserDto.status,
             created_at: new Date(),
             updated_at: new Date(),
           })
@@ -259,16 +260,21 @@ export class UserService {
       const userId: number = user.id;
 
       await this.userInsert.transaction(async (tx) => {
-        return await tx
+        await tx
           .update(users)
           .set({
             name: name,
             email: email,
-            phone: phone,
-            adresss: address,
-            updated_at: new Date(),
           })
           .where(eq(users.id, userId));
+
+        await tx
+          .update(userDetail)
+          .set({
+            phone: phone,
+            adresss: address,
+          })
+          .where(eq(userDetail.id, userId));
       });
     } catch (error) {
       this.logger.error(error);

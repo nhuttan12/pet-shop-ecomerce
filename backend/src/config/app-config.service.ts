@@ -1,8 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotAcceptableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpConfig } from './interface/http.interface';
 import { MessageLog } from 'src/helper/message/message-log';
 import { DatabaseConfig } from './interface/database.interface';
+import { CloudinaryConfig } from './interface/cloudinary.interface';
+import { ErrorMessage } from 'src/helper/message/error-message';
 
 @Injectable()
 export class AppConfigService {
@@ -29,6 +31,10 @@ export class AppConfigService {
     return config;
   }
 
+  private get getCloudinaryConfig(): CloudinaryConfig {
+    return this.getHttpConfig.cloudinary;
+  }
+
   get jwtKey(): string {
     const config = this.getHttpConfig;
     const jwtKey = config.jwtKey;
@@ -47,5 +53,31 @@ export class AppConfigService {
       this.logger.error(MessageLog.EXPIRE_TIME_NOT_FOUND);
     }
     return expireTime;
+  }
+
+  get cloudName(): string {
+    const cloudName = this.getCloudinaryConfig.name;
+
+    if (!cloudName) {
+      this.logger.error(MessageLog.CLOUINARY_NAME_NOT_FOUND);
+      throw new NotAcceptableException(ErrorMessage.CLOUINARY_NAME_NOT_FOUND);
+    }
+
+    this.logger.debug('Cloud name', cloudName);
+    return cloudName;
+  }
+
+  get cloudApiKey(): string {
+    const apiKey = this.getCloudinaryConfig.api_key;
+
+    if (!apiKey) {
+      this.logger.error(MessageLog.CLOUINARY_API_KEY_NOT_FOUND);
+      throw new NotAcceptableException(
+        ErrorMessage.CLOUINARY_API_KEY_NOT_FOUND,
+      );
+    }
+
+    this.logger.debug('Api key', apiKey);
+    return apiKey;
   }
 }
