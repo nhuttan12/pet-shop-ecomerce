@@ -28,4 +28,8 @@ export const ErrorMessage = {
   USER_ID_MUST_BE_INTEGER: 'Mã người dùng nên là số nguyên',
   USER_FULL_NAME_MUST_BE_STRING: 'Tên người dùng phải là một chuỗi',
   PARAM_MUST_NOT_BE_A_LINK: 'Đữ liệu đầu vào không phải là 1 đường dẫn',
+  PUBLIC_ID_MUST_BE_A_STRING: 'publicId phải là một chuỗi.',
+  FOLDER_NAME_MUST_BE_STRING: 'Tên thư mục (folder) phải là một chuỗi.',
+  CLOUINARY_NAME_NOT_FOUND: 'Không tìm thấy cloud name của cloudinary',
+  CLOUINARY_API_KEY_NOT_FOUND: 'Không tìm thấy api key của cloudinary',
 } as const;

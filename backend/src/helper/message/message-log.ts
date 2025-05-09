@@ -76,5 +76,10 @@ export const MessageLog = {
   CLOUDINARY_API_SECRET_CANNOT_BE_EMPTY:
     'Cloudinary API secret cannot be empty',
 
+  /**
+   * @description: throw error for get infor from cloudinary
+   */
   NO_RESULT_FROM_CLOUDINARY: 'No result fromt cloudinary',
+  CLOUINARY_NAME_NOT_FOUND: 'cloudinary name was not found',
+  CLOUINARY_API_KEY_NOT_FOUND: 'cloudinary api key was not found',
 } as const;

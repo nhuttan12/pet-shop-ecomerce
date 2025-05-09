@@ -6,7 +6,6 @@ import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
-import { StatusModule } from './status/status.module';
 import { RolesGuard } from './helper/guard/roles.guard';
 import { ProductModule } from './product/product.module';
 import { APP_FILTER } from '@nestjs/core';
@@ -24,7 +23,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     DatabaseModule,
     UsersModule,
     RoleModule,
-    StatusModule,
     ProductModule,
     CloudinaryModule,
   ],

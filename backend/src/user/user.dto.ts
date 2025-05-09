@@ -1,5 +1,13 @@
-import { IsEmail, IsInt, IsString, Min, Validate } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsString,
+  Min,
+  Validate,
+} from 'class-validator';
 import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
+import { UserStatus } from 'src/helper/enum/user-status.enum';
 import { ErrorMessage } from 'src/helper/message/error-message';
 
 export class GetAllUsersDto {
@@ -28,8 +36,8 @@ export class CreateUserDto {
   @IsInt({ message: ErrorMessage.PARAM_NOT_VALID })
   roleId: number;
 
-  @IsInt({ message: ErrorMessage.PARAM_NOT_VALID })
-  statusId: number;
+  @IsEnum({ message: ErrorMessage.PARAM_NOT_VALID })
+  status: UserStatus;
 }
 
 export class FindUserById {

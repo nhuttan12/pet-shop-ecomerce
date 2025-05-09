@@ -1,8 +1,7 @@
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
-import { Role, Status, User, UserInsert } from 'src/db/helper/schema-type';
+import { Role, User, UserInsert } from 'src/db/helper/schema-type';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { UserService } from 'src/user/user.service';
-import { StatusService } from './../status/status.service';
 import { UserLoginDto, UserLoginResponseDto } from './dto/user-login.dto';
 import {
   UserRegisterDto,
@@ -20,10 +19,10 @@ import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { Role as RoleName } from 'src/helper/enum/role.enum';
-import { StatusType } from 'src/helper/enum/status.enum';
+import { UserStatus } from 'src/helper/enum/user-status.enum';
+import { MessageLog } from 'src/helper/message/message-log';
 import { RoleService } from 'src/role/role.service';
 import { JwtPayload } from '../helper/interface/jwt-payload.interface';
-import { MessageLog } from 'src/helper/message/message-log';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +33,6 @@ export class AuthService {
     private userInsert: MySql2Database<UserInsert>,
     private jwtService: JwtService,
     private roleService: RoleService,
-    private statusService: StatusService,
   ) {}
 
   async validateUser(
@@ -91,16 +89,12 @@ export class AuthService {
 
       const role = await this.roleService.getRoleByName(RoleName.USER);
 
-      const statusRecord: Status = await this.statusService.getStatusByName(
-        StatusType.ACTIVE,
-      );
-
       const userCreatedId: number = await this.userService.createUser({
         username,
         email,
         hashedPassword,
         roleId: role.id,
-        statusId: statusRecord.id,
+        status: UserStatus.ACTIVE,
       });
 
       userCreated = {
@@ -108,7 +102,7 @@ export class AuthService {
         username: username,
         email: email,
         role: role.name,
-        status: statusRecord.name,
+        status: UserStatus.ACTIVE,
       };
 
       return userCreated;
@@ -142,16 +136,12 @@ export class AuthService {
 
       const role: Role = await this.roleService.getRoleById(user.roleId);
 
-      const statusRecord: Status = await this.statusService.getStatusById(
-        user.statusId,
-      );
-
-      if ((statusRecord.name as StatusType) === StatusType.BANNED) {
+      if (user.status === UserStatus.BANNED) {
         this.logger.log(MessageLog.USER_BANNED, user.id);
         throw new UnauthorizedException(ErrorMessage.USER_BANNED);
       }
 
-      if ((statusRecord.name as StatusType) !== StatusType.ACTIVE) {
+      if (user.status !== UserStatus.ACTIVE) {
         this.logger.log(MessageLog.USER_NOT_ACTIVE, user.id);
         throw new UnauthorizedException(ErrorMessage.USER_NOT_ACTIVE);
       }
@@ -171,7 +161,7 @@ export class AuthService {
           username: user.username,
           email: user.email,
           role: role.name,
-          status: statusRecord.name,
+          status: user.status,
         },
       };
 
