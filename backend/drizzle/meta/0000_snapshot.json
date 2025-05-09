@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "58eb69a6-d3be-422f-ab29-3bc13a238561",
+  "id": "c5ffc195-79d7-4251-a2a0-ff83b23b9191",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "brands": {
@@ -147,13 +147,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "status_id": {
-          "name": "status_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -179,19 +172,6 @@
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "carts_status_id_status_id_fk": {
-          "name": "carts_status_id_status_id_fk",
-          "tableFrom": "carts",
-          "tableTo": "status",
-          "columnsFrom": [
-            "status_id"
           ],
           "columnsTo": [
             "id"
@@ -294,11 +274,11 @@
           "notNull": false,
           "autoincrement": false
         },
-        "status_id": {
-          "name": "status_id",
-          "type": "int",
+        "status": {
+          "name": "status",
+          "type": "enum('active','inactive','removed')",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "created_at": {
@@ -319,13 +299,65 @@
         }
       },
       "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "categories_id": {
+          "name": "categories_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "comments": {
+      "name": "comments",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "comment_id": {
+          "name": "comment_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('active','inactive','removed')",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
       "foreignKeys": {
-        "categories_status_id_status_id_fk": {
-          "name": "categories_status_id_status_id_fk",
-          "tableFrom": "categories",
-          "tableTo": "status",
+        "comments_user_id_users_id_fk": {
+          "name": "comments_user_id_users_id_fk",
+          "tableFrom": "comments",
+          "tableTo": "users",
           "columnsFrom": [
-            "status_id"
+            "user_id"
           ],
           "columnsTo": [
             "id"
@@ -335,8 +367,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "categories_id": {
-          "name": "categories_id",
+        "comments_id": {
+          "name": "comments_id",
           "columns": [
             "id"
           ]
@@ -383,6 +415,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "status": {
+          "name": "status",
+          "type": "enum('received','processed')",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -405,14 +444,28 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "favorites": {
-      "name": "favorites",
+    "customer-rating": {
+      "name": "customer-rating",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
         "user_id": {
           "name": "user_id",
           "type": "int",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "star_rated": {
+          "name": "star_rated",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "product_id": {
@@ -425,9 +478,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "favorites_user_id_users_id_fk": {
-          "name": "favorites_user_id_users_id_fk",
-          "tableFrom": "favorites",
+        "customer-rating_user_id_users_id_fk": {
+          "name": "customer-rating_user_id_users_id_fk",
+          "tableFrom": "customer-rating",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -438,9 +491,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "favorites_product_id_products_id_fk": {
-          "name": "favorites_product_id_products_id_fk",
-          "tableFrom": "favorites",
+        "customer-rating_product_id_products_id_fk": {
+          "name": "customer-rating_product_id_products_id_fk",
+          "tableFrom": "customer-rating",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
@@ -453,40 +506,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "favorites_user_id_product_id_pk": {
-          "name": "favorites_user_id_product_id_pk",
-          "columns": [
-            "user_id",
-            "product_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "image_types": {
-      "name": "image_types",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "image_types_id": {
-          "name": "image_types_id",
+        "customer-rating_id": {
+          "name": "customer-rating_id",
           "columns": [
             "id"
           ]
@@ -519,25 +540,25 @@
           "notNull": true,
           "autoincrement": false
         },
+        "status": {
+          "name": "status",
+          "type": "enum('active','inactive','removed')",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "image_type": {
+          "name": "image_type",
+          "type": "enum('product','thumbnail','banner','avatar','store_logo','review','category','promotion','blog','slider')",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "url": {
           "name": "url",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
-        },
-        "status_id": {
-          "name": "status_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "image_type_id": {
-          "name": "image_type_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
           "autoincrement": false
         }
       },
@@ -555,32 +576,6 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "images_status_id_status_id_fk": {
-          "name": "images_status_id_status_id_fk",
-          "tableFrom": "images",
-          "tableTo": "status",
-          "columnsFrom": [
-            "status_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "images_image_type_id_image_types_id_fk": {
-          "name": "images_image_type_id_image_types_id_fk",
-          "tableFrom": "images",
-          "tableTo": "image_types",
-          "columnsFrom": [
-            "image_type_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -588,51 +583,6 @@
           "name": "images_id",
           "columns": [
             "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "inventories": {
-      "name": "inventories",
-      "columns": {
-        "product_id": {
-          "name": "product_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "stocking": {
-          "name": "stocking",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "inventories_product_id_products_id_fk": {
-          "name": "inventories_product_id_products_id_fk",
-          "tableFrom": "inventories",
-          "tableTo": "products",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "inventories_product_id": {
-          "name": "inventories_product_id",
-          "columns": [
-            "product_id"
           ]
         }
       },
@@ -736,8 +686,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "total_invoice": {
-          "name": "total_invoice",
+        "total_price": {
+          "name": "total_price",
           "type": "int",
           "primaryKey": false,
           "notNull": true,
@@ -745,23 +695,23 @@
         },
         "payment_method": {
           "name": "payment_method",
-          "type": "int",
+          "type": "enum('cod','transfer','e-wallet')",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "shipping_method": {
           "name": "shipping_method",
-          "type": "int",
+          "type": "enum('fast ship','economy delivery','pick up at store')",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
-        "status_id": {
-          "name": "status_id",
-          "type": "int",
+        "status": {
+          "name": "status",
+          "type": "enum('pending','confirmed','processing','shipping','delivered','canceled','returned','failed')",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "created_at": {
@@ -795,45 +745,6 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "orders_payment_method_payment_methods_id_fk": {
-          "name": "orders_payment_method_payment_methods_id_fk",
-          "tableFrom": "orders",
-          "tableTo": "payment_methods",
-          "columnsFrom": [
-            "payment_method"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "orders_shipping_method_shipping_methods_id_fk": {
-          "name": "orders_shipping_method_shipping_methods_id_fk",
-          "tableFrom": "orders",
-          "tableTo": "shipping_methods",
-          "columnsFrom": [
-            "shipping_method"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "orders_status_id_status_id_fk": {
-          "name": "orders_status_id_status_id_fk",
-          "tableFrom": "orders",
-          "tableTo": "status",
-          "columnsFrom": [
-            "status_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -847,123 +758,53 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "payment_methods": {
-      "name": "payment_methods",
+    "posts": {
+      "name": "posts",
       "columns": {
         "id": {
           "name": "id",
           "type": "int",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
         },
-        "name": {
-          "name": "name",
-          "type": "varchar(45)",
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "status_id": {
-          "name": "status_id",
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "author_id": {
+          "name": "author_id",
           "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "payment_methods_status_id_status_id_fk": {
-          "name": "payment_methods_status_id_status_id_fk",
-          "tableFrom": "payment_methods",
-          "tableTo": "status",
-          "columnsFrom": [
-            "status_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "payment_methods_id": {
-          "name": "payment_methods_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "pet_types": {
-      "name": "pet_types",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(45)",
+        "status": {
+          "name": "status",
+          "type": "enum('active','inactive','removed')",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "status_id": {
-          "name": "status_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "pet_types_status_id_status_id_fk": {
-          "name": "pet_types_status_id_status_id_fk",
-          "tableFrom": "pet_types",
-          "tableTo": "status",
+        "posts_author_id_users_id_fk": {
+          "name": "posts_author_id_users_id_fk",
+          "tableFrom": "posts",
+          "tableTo": "users",
           "columnsFrom": [
-            "status_id"
+            "author_id"
           ],
           "columnsTo": [
             "id"
@@ -973,69 +814,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "pet_types_id": {
-          "name": "pet_types_id",
+        "posts_id": {
+          "name": "posts_id",
           "columns": [
             "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "product_pet_mapping": {
-      "name": "product_pet_mapping",
-      "columns": {
-        "pet_type_id": {
-          "name": "pet_type_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "product_id": {
-          "name": "product_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "product_pet_mapping_pet_type_id_pet_types_id_fk": {
-          "name": "product_pet_mapping_pet_type_id_pet_types_id_fk",
-          "tableFrom": "product_pet_mapping",
-          "tableTo": "pet_types",
-          "columnsFrom": [
-            "pet_type_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "product_pet_mapping_product_id_products_id_fk": {
-          "name": "product_pet_mapping_product_id_products_id_fk",
-          "tableFrom": "product_pet_mapping",
-          "tableTo": "products",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "product_pet_mapping_pet_type_id_product_id_pk": {
-          "name": "product_pet_mapping_pet_type_id_product_id_pk",
-          "columns": [
-            "pet_type_id",
-            "product_id"
           ]
         }
       },
@@ -1073,13 +855,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "feature": {
-          "name": "feature",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "brand_id": {
           "name": "brand_id",
           "type": "int",
@@ -1087,11 +862,39 @@
           "notNull": true,
           "autoincrement": false
         },
-        "status_id": {
-          "name": "status_id",
+        "feature": {
+          "name": "feature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('active','inactive','removed')",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "stocking": {
+          "name": "stocking",
           "type": "int",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dícount": {
+          "name": "dícount",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "total_price": {
+          "name": "total_price",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "created_at": {
@@ -1119,19 +922,6 @@
           "tableTo": "brands",
           "columnsFrom": [
             "brand_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "products_status_id_status_id_fk": {
-          "name": "products_status_id_status_id_fk",
-          "tableFrom": "products",
-          "tableTo": "status",
-          "columnsFrom": [
-            "status_id"
           ],
           "columnsTo": [
             "id"
@@ -1168,147 +958,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "statusId": {
-          "name": "statusId",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "roles_statusId_status_id_fk": {
-          "name": "roles_statusId_status_id_fk",
-          "tableFrom": "roles",
-          "tableTo": "status",
-          "columnsFrom": [
-            "statusId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "roles_id": {
-          "name": "roles_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "shipping_methods": {
-      "name": "shipping_methods",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(45)",
+        "status": {
+          "name": "status",
+          "type": "enum('active','inactive','removed')",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
-        },
-        "estimate_time": {
-          "name": "estimate_time",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "status_id": {
-          "name": "status_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "shipping_methods_status_id_status_id_fk": {
-          "name": "shipping_methods_status_id_status_id_fk",
-          "tableFrom": "shipping_methods",
-          "tableTo": "status",
-          "columnsFrom": [
-            "status_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "shipping_methods_id": {
-          "name": "shipping_methods_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "status": {
-      "name": "status",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(45)",
-          "primaryKey": false,
-          "notNull": true,
           "autoincrement": false
         },
         "created_at": {
@@ -1331,14 +985,73 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "status_id": {
-          "name": "status_id",
+        "roles_id": {
+          "name": "roles_id",
           "columns": [
             "id"
           ]
         }
       },
       "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "user_details": {
+      "name": "user_details",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "adresss": {
+          "name": "adresss",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_details_id_users_id_fk": {
+          "name": "user_details_id_users_id_fk",
+          "tableFrom": "user_details",
+          "tableTo": "users",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "user_details_id": {
+          "name": "user_details_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "user_details_phone_unique": {
+          "name": "user_details_phone_unique",
+          "columns": [
+            "phone"
+          ]
+        }
+      },
       "checkConstraint": {}
     },
     "users": {
@@ -1379,20 +1092,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "phone": {
-          "name": "phone",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "adresss": {
-          "name": "adresss",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "role_id": {
           "name": "role_id",
           "type": "int",
@@ -1400,11 +1099,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "status_id": {
-          "name": "status_id",
-          "type": "int",
+        "status": {
+          "name": "status",
+          "type": "enum('active','inactive','pending','banned')",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "created_at": {
@@ -1438,19 +1137,6 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "users_status_id_status_id_fk": {
-          "name": "users_status_id_status_id_fk",
-          "tableFrom": "users",
-          "tableTo": "status",
-          "columnsFrom": [
-            "status_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -1473,14 +1159,153 @@
           "columns": [
             "email"
           ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "vouchers": {
+      "name": "vouchers",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
         },
-        "users_phone_unique": {
-          "name": "users_phone_unique",
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "voucher_code": {
+          "name": "voucher_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('not use','used')",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "discount": {
+          "name": "discount",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "vouchers_user_id_users_id_fk": {
+          "name": "vouchers_user_id_users_id_fk",
+          "tableFrom": "vouchers",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "vouchers_product_id_products_id_fk": {
+          "name": "vouchers_product_id_products_id_fk",
+          "tableFrom": "vouchers",
+          "tableTo": "products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "vouchers_id": {
+          "name": "vouchers_id",
           "columns": [
-            "phone"
+            "id"
           ]
         }
       },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "wishlists": {
+      "name": "wishlists",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "wishlists_user_id_users_id_fk": {
+          "name": "wishlists_user_id_users_id_fk",
+          "tableFrom": "wishlists",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "wishlists_product_id_products_id_fk": {
+          "name": "wishlists_product_id_products_id_fk",
+          "tableFrom": "wishlists",
+          "tableTo": "products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "wishlists_user_id_product_id_pk": {
+          "name": "wishlists_user_id_product_id_pk",
+          "columns": [
+            "user_id",
+            "product_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
       "checkConstraint": {}
     }
   },

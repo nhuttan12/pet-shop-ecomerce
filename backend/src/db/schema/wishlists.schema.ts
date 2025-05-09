@@ -2,8 +2,8 @@ import { int, mysqlTable, primaryKey } from 'drizzle-orm/mysql-core';
 import { users } from './users.schema';
 import { products } from './products.schema';
 
-export const favorites = mysqlTable(
-  'favorites',
+export const wishlists = mysqlTable(
+  'wishlists',
   {
     userId: int('user_id')
       .references(() => users.id)

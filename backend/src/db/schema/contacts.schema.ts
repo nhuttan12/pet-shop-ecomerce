@@ -1,10 +1,12 @@
 import {
   int,
+  mysqlEnum,
   mysqlTable,
   text,
   timestamp,
   varchar,
 } from 'drizzle-orm/mysql-core';
+import { ContactStatus } from 'src/helper/enum/contact-status.enum copy';
 
 export const contacts = mysqlTable('contacts', {
   id: int().primaryKey().notNull().autoincrement(),
@@ -12,5 +14,6 @@ export const contacts = mysqlTable('contacts', {
   email: varchar('email', { length: 100 }),
   title: varchar('title', { length: 255 }),
   message: text(),
+  status: mysqlEnum(Object.values(ContactStatus) as [string, ...string[]]),
   created_at: timestamp().defaultNow().notNull(),
 });
