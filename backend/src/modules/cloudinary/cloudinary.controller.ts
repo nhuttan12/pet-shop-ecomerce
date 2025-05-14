@@ -7,7 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CloudinaryService } from './cloudinary.service';
-import { SignUrlDTO } from './cloudinary.dto';
+import { SignUrlDTO } from '../../helper/dto/cloudinary.dto';
 import { HasRole } from 'src/helper/decorator/roles.decorator';
 import { Role } from 'src/helper/enum/role.enum';
 import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';

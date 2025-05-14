@@ -8,8 +8,8 @@ import {
   UseFilters,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserRegisterDto } from './dto/user-register.dto';
-import { UserLoginDto } from './dto/user-login.dto';
+import { UserRegisterDto } from '../../helper/dto/user-register.dto';
+import { UserLoginDto } from '../../helper/dto/user-login.dto';
 import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
 
 @Controller('auth')

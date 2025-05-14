@@ -1,10 +1,10 @@
 import { Injectable, Logger, NotAcceptableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { HttpConfig } from './interface/http.interface';
 import { MessageLog } from 'src/helper/message/message-log';
-import { DatabaseConfig } from './interface/database.interface';
-import { CloudinaryConfig } from './interface/cloudinary.interface';
 import { ErrorMessage } from 'src/helper/message/error-message';
+import { HttpConfig } from 'src/helper/interface/http.interface';
+import { DatabaseConfig } from 'src/helper/interface/database.interface';
+import { CloudinaryConfig } from 'src/helper/interface/cloudinary.interface';
 
 @Injectable()
 export class AppConfigService {

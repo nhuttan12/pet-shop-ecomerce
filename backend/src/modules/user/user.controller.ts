@@ -19,7 +19,7 @@ import {
   FindUserByName,
   GetAllUsersDto,
   UserUpdateDTO,
-} from './user.dto';
+} from '../../helper/dto/user.dto';
 import { UserService } from './user.service';
 
 @Controller('v2/users')

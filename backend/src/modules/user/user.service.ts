@@ -7,12 +7,12 @@ import {
 } from '@nestjs/common';
 import { and, asc, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
+import { DrizzleAsyncProvider } from 'src/modules/database/drizzle.provider';
 import { User, UserInsert } from 'src/db/helper/schema-type';
 import { userDetail, users } from 'src/db/schema';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
-import { CreateUserDto, UserUpdateDTO } from './user.dto';
+import { CreateUserDto, UserUpdateDTO } from '../../helper/dto/user.dto';
 
 @Injectable()
 export class UserService {

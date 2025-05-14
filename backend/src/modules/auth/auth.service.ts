@@ -1,15 +1,16 @@
-import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
-import { Role, User, UserInsert } from 'src/db/helper/schema-type';
+import { Role, User } from 'src/db/helper/schema-type';
 import { ErrorMessage } from 'src/helper/message/error-message';
-import { UserService } from 'src/user/user.service';
-import { UserLoginDto, UserLoginResponseDto } from './dto/user-login.dto';
+import { UserService } from 'src/modules/user/user.service';
+import {
+  UserLoginDto,
+  UserLoginResponseDto,
+} from '../../helper/dto/user-login.dto';
 import {
   UserRegisterDto,
   UserRegisterResponseDto,
-} from './dto/user-register.dto';
+} from '../../helper/dto/user-register.dto';
 
 import {
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -17,20 +18,17 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
-import { MySql2Database } from 'drizzle-orm/mysql2';
 import { Role as RoleName } from 'src/helper/enum/role.enum';
 import { UserStatus } from 'src/helper/enum/user-status.enum';
 import { MessageLog } from 'src/helper/message/message-log';
-import { RoleService } from 'src/role/role.service';
-import { JwtPayload } from '../helper/interface/jwt-payload.interface';
+import { JwtPayload } from '../../helper/interface/jwt-payload.interface';
+import { RoleService } from '../role/role.service';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   constructor(
     private userService: UserService,
-    @Inject(DrizzleAsyncProvider)
-    private userInsert: MySql2Database<UserInsert>,
     private jwtService: JwtService,
     private roleService: RoleService,
   ) {}

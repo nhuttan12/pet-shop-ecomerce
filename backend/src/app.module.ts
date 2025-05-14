@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import configuration from './config/configuration';
-import { AppConfigModule } from './config/app-config.module';
-import { AuthModule } from './auth/auth.module';
-import { DatabaseModule } from './database/database.module';
-import { UsersModule } from './user/user.module';
-import { RoleModule } from './role/role.module';
+import configuration from './modules/config/configuration';
+import { AppConfigModule } from './modules/config/app-config.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { DatabaseModule } from './modules/database/database.module';
+import { UsersModule } from './modules/user/user.module';
 import { RolesGuard } from './helper/guard/roles.guard';
-import { ProductModule } from './product/product.module';
 import { APP_FILTER } from '@nestjs/core';
 import { CatchEverythingFilter } from './helper/filter/exception.filter';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { RoleModule } from './modules/role/role.module';
+import { ProductModule } from './modules/product/product.module';
 
 @Module({
   imports: [

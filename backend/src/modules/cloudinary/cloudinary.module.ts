@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CloudinaryController } from './cloudinary.controller';
 import { CloudinaryService } from './cloudinary.service';
-import { AppConfigModule } from 'src/config/app-config.module';
+import { AppConfigModule } from 'src/modules/config/app-config.module';
 
 @Module({
   imports: [AppConfigModule],

@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, MinLength, Validate } from 'class-validator';
 import { ErrorMessage } from 'src/helper/message/error-message';
-import { IsPasswordMatch } from '../../helper/class-validator-contraint/password-match.validator';
+import { IsPasswordMatch } from '../class-validator-contraint/password-match.validator';
 
 export class UserRegisterDto {
   @IsNotEmpty({ message: ErrorMessage.USERNAME_IS_NOT_EMPTY })

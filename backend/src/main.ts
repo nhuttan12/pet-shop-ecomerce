@@ -19,11 +19,7 @@ async function bootstrap() {
     AppModule,
     new ExpressAdapter(),
     {
-      logger: new ConsoleLogger({
-        colors: true,
-        logLevels: ['log', 'error', 'warn', 'debug', 'verbose'],
-        timestamp: true,
-      }),
+      logger: new ConsoleLogger('App'),
     },
   );
 

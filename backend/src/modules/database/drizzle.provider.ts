@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import mysql from 'mysql2/promise';
 import { drizzle } from 'drizzle-orm/mysql2';
-import configuration from 'src/config/configuration';
+import configuration from 'src/modules/config/configuration';
 
 /**
  * @description: providing connection pool to the database
