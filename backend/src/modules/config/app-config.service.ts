@@ -5,6 +5,7 @@ import { ErrorMessage } from 'src/helper/message/error-message';
 import { HttpConfig } from 'src/helper/interface/http.interface';
 import { DatabaseConfig } from 'src/helper/interface/database.interface';
 import { CloudinaryConfig } from 'src/helper/interface/cloudinary.interface';
+import { NodeMailerConfig } from 'src/helper/interface/nodemailer.interface';
 
 @Injectable()
 export class AppConfigService {
@@ -33,6 +34,10 @@ export class AppConfigService {
 
   private get getCloudinaryConfig(): CloudinaryConfig {
     return this.getHttpConfig.cloudinary;
+  }
+
+  private get getNodeMailerConfig(): NodeMailerConfig {
+    return this.getHttpConfig.mail;
   }
 
   get jwtKey(): string {
@@ -79,5 +84,29 @@ export class AppConfigService {
 
     this.logger.debug('Api key', apiKey);
     return apiKey;
+  }
+
+  get email(): string {
+    const mail = this.getNodeMailerConfig.email;
+
+    if (!mail) {
+      this.logger.error(MessageLog.EMAIL_IS_NOT_FOUND);
+      throw new NotAcceptableException(ErrorMessage.EMAIL_IS_NOT_FOUND);
+    }
+
+    this.logger.debug('Email', mail);
+    return mail;
+  }
+
+  get appPassword(): string {
+    const appPassword = this.getNodeMailerConfig.app_password;
+
+    if (!appPassword) {
+      this.logger.error(MessageLog.APP_PASSWORD_IS_NOT_FOUND);
+      throw new NotAcceptableException(ErrorMessage.APP_PASSWORD_IS_NOT_FOUND);
+    }
+
+    this.logger.debug('App password', appPassword);
+    return appPassword;
   }
 }

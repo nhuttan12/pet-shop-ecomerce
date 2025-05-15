@@ -82,4 +82,10 @@ export const MessageLog = {
   NO_RESULT_FROM_CLOUDINARY: 'No result fromt cloudinary',
   CLOUINARY_NAME_NOT_FOUND: 'cloudinary name was not found',
   CLOUINARY_API_KEY_NOT_FOUND: 'cloudinary api key was not found',
+
+  /**
+   * @description: throw error for get infor from gmail, and app password
+   */
+  EMAIL_IS_NOT_FOUND: 'Email go with app password is not found',
+  APP_PASSWORD_IS_NOT_FOUND: 'App password is not found',
 } as const;

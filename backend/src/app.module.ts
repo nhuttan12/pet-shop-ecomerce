@@ -11,6 +11,7 @@ import { CatchEverythingFilter } from './helper/filter/exception.filter';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { RoleModule } from './modules/role/role.module';
 import { ProductModule } from './modules/product/product.module';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProductModule } from './modules/product/product.module';
     RoleModule,
     ProductModule,
     CloudinaryModule,
+    MailModule,
   ],
   providers: [
     {

@@ -1,4 +1,5 @@
 import { CloudinaryConfig } from './cloudinary.interface';
+import { NodeMailerConfig } from './nodemailer.interface';
 
 /**
  * @description: configuration info of http config
@@ -14,4 +15,5 @@ export interface HttpConfig {
   jwtKey: string;
   expireTime: number | string;
   cloudinary: CloudinaryConfig;
+  mail: NodeMailerConfig;
 }

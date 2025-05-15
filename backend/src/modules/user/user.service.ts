@@ -12,7 +12,8 @@ import { User, UserInsert } from 'src/db/helper/schema-type';
 import { userDetail, users } from 'src/db/schema';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
-import { CreateUserDto, UserUpdateDTO } from '../../helper/dto/user.dto';
+import { CreateUserDto } from 'src/helper/dto/user/create-user.dto';
+import { UserUpdateDTO } from 'src/helper/dto/user/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -224,6 +225,13 @@ export class UserService {
     );
 
     this.logger.debug('User created id', userCreatedId);
+
+    if (!userCreatedId) {
+      this.logger.error(MessageLog.USER_NOT_FOUND);
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     return userCreatedId.id;
   }

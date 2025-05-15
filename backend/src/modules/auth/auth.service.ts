@@ -4,11 +4,11 @@ import { UserService } from 'src/modules/user/user.service';
 import {
   UserLoginDto,
   UserLoginResponseDto,
-} from '../../helper/dto/user-login.dto';
+} from '../../helper/dto/user/user-login.dto';
 import {
   UserRegisterDto,
   UserRegisterResponseDto,
-} from '../../helper/dto/user-register.dto';
+} from '../../helper/dto/user/user-register.dto';
 
 import {
   Injectable,
@@ -23,6 +23,9 @@ import { UserStatus } from 'src/helper/enum/user-status.enum';
 import { MessageLog } from 'src/helper/message/message-log';
 import { JwtPayload } from '../../helper/interface/jwt-payload.interface';
 import { RoleService } from '../role/role.service';
+import { MailService } from '../mail/mail.service';
+import { NotifyMessage } from 'src/helper/message/notify-message';
+import { UserResetPasswordDTO } from 'src/helper/dto/user/user-reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +34,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private roleService: RoleService,
+    private mailService: MailService,
   ) {}
 
   async validateUser(
@@ -94,6 +98,16 @@ export class AuthService {
         roleId: role.id,
         status: UserStatus.ACTIVE,
       });
+
+      await this.mailService.sendMail(
+        email,
+        NotifyMessage.REGISTER_SUCCESSFUL,
+        NotifyMessage.YOUR_ACCOUNT_WITH_USERNAME +
+          ' ' +
+          username +
+          ' ' +
+          NotifyMessage.REGISTER_SUCCESSFUL,
+      );
 
       userCreated = {
         id: userCreatedId,
@@ -174,5 +188,24 @@ export class AuthService {
         this.logger.warn(MessageLog.USER_LOGIN_FAILED);
       }
     }
+  }
+
+  async resetPassword({ email }: UserResetPasswordDTO) {
+    const existingUser: User = await this.userService.getUserByEmail(email);
+
+    const role: Role = await this.roleService.getRoleById(existingUser.roleId);
+
+    const payload: JwtPayload = {
+      sub: existingUser.id,
+      username: existingUser.username,
+      role: role.name,
+    };
+
+    const token = this.jwtService.sign(payload, { expiresIn: '15m' });
+
+    const content: string =
+      NotifyMessage.RESET_PASSWORD + ' ' + NotifyMessage.AT_THE_LINK_BELOW + ;
+
+    this.mailService.sendMail(email, NotifyMessage.RESET_PASSWORD, content);
   }
 }

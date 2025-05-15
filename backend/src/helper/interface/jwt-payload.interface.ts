@@ -12,8 +12,6 @@ export interface JwtPayload {
   username: string;
   role: string;
   email?: string;
-  iat?: number; //issued at
-  exp?: number; //expiration time
 }
 
 export interface AuthenticatedRequest extends Request {

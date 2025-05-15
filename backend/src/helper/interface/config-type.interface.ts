@@ -1,4 +1,5 @@
 import { DatabaseConfig } from './database.interface';
+import { DomainValidation } from './domain.interface';
 import { HttpConfig } from './http.interface';
 
 /**
@@ -9,4 +10,5 @@ import { HttpConfig } from './http.interface';
 export interface ValidationType {
   http: HttpConfig;
   db: DatabaseConfig;
+  domain: DomainValidation;
 }

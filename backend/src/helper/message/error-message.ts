@@ -32,4 +32,6 @@ export const ErrorMessage = {
   FOLDER_NAME_MUST_BE_STRING: 'Tên thư mục (folder) phải là một chuỗi.',
   CLOUINARY_NAME_NOT_FOUND: 'Không tìm thấy cloud name của cloudinary',
   CLOUINARY_API_KEY_NOT_FOUND: 'Không tìm thấy api key của cloudinary',
+  EMAIL_IS_NOT_FOUND: 'Không tìm thấy Email dùng cho mật khẩu ứng dụng',
+  APP_PASSWORD_IS_NOT_FOUND: 'Không tìm thấy mật khẩu ứng dụng',
 } as const;

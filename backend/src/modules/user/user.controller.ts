@@ -14,13 +14,10 @@ import { Role } from 'src/helper/enum/role.enum';
 import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
 import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
 import { LocalAuthGuard } from 'src/helper/guard/local-ath.guard';
-import {
-  FindUserById,
-  FindUserByName,
-  GetAllUsersDto,
-  UserUpdateDTO,
-} from '../../helper/dto/user.dto';
+import { GetAllUsersDto } from '../../helper/dto/user/get-all-user.dto';
 import { UserService } from './user.service';
+import { FindUserById, FindUserByName } from 'src/helper/dto/user/find-user.dto';
+import { UserUpdateDTO } from 'src/helper/dto/user/update-user.dto';
 
 @Controller('v2/users')
 export class UserController {

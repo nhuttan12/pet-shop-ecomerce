@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { LocalStrategy } from './strategy/local.strategy';
 import { RoleModule } from '../role/role.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RoleModule } from '../role/role.module';
     UsersModule,
     RoleModule,
     AppConfigModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [AppConfigModule],
       inject: [AppConfigService],
