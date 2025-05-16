@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MinLength, Validate } from 'class-validator';
 import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
 import { IsPasswordMatch } from 'src/helper/class-validator-contraint/password-match.validator';
@@ -7,15 +8,18 @@ export class UserResetPasswordDTO {
   @IsString()
   @IsNotEmpty()
   @Validate(NotUrlValidator)
+  @ApiProperty()
   token: string;
 
   @IsNotEmpty({ message: ErrorMessage.PASSWORD_IS_NOT_EMPTY })
   @MinLength(6, { message: ErrorMessage.PASSWORD_HAVE_AT_LEAST_3_CHARACTERS })
   @Validate(NotUrlValidator)
+  @ApiProperty()
   password: string;
 
   @IsNotEmpty({ message: ErrorMessage.PASSWORD_MISMATCH })
   @Validate(IsPasswordMatch)
   @Validate(NotUrlValidator)
+  @ApiProperty()
   retypePassword: string;
 }
