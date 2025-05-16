@@ -35,6 +35,15 @@ async function bootstrap() {
     .setTitle('Thương mại điện tử')
     .setDescription('API test for Tmdt-ck')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Enter token',
+      },
+      'jwt',
+    )
     .addTag('Tmdt-ck')
     .build();
 

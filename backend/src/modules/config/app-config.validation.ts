@@ -42,7 +42,7 @@ export const schema = Joi.object({
         'any.required': MessageLog.CLOUDINARY_API_SECRET_IS_REQUIRED,
         'string.empty': MessageLog.CLOUDINARY_API_SECRET_CANNOT_BE_EMPTY,
       }),
-    }),
+    }).required(),
     mail: Joi.object({
       app_password: Joi.string().required().messages({
         'string.base': MessageLog.APP_PASSWORD_MUST_BE_STRING,
@@ -54,8 +54,8 @@ export const schema = Joi.object({
         'any.required': MessageLog.EMAIL_REQUIRED,
         'string.empty': MessageLog.EMAIL_EMPTY,
       }),
-    }),
-  }),
+    }).required(),
+  }).required(),
   db: Joi.object({
     mysql: Joi.object({
       host: Joi.string().required().messages({
@@ -88,8 +88,8 @@ export const schema = Joi.object({
         'any.required': MessageLog.PASSWORD_IS_REQUIRED,
         'string.empty': MessageLog.PASSWORD_CANNT_BE_EMPTY,
       }),
-    }),
-  }),
+    }).required(),
+  }).required(),
   domain: Joi.object({
     client_1: Joi.object({
       host: Joi.string().required().messages({
@@ -108,5 +108,5 @@ export const schema = Joi.object({
         'number.empty': MessageLog.PORT_CANNT_BE_EMPTY,
       }),
     }),
-  }),
-});
+  }).required(),
+}).required();
