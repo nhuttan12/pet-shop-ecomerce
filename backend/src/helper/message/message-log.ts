@@ -104,4 +104,16 @@ export const MessageLog = {
   EMAIL_MUST_BE_STRING: 'Email must be a string',
   EMAIL_REQUIRED: 'Email is required',
   EMAIL_EMPTY: 'Email is empty',
+
+  /**
+   * @description: throw error when user not loggin
+   */
+  USER_NOT_LOG_IN: 'User is not log in',
+  INVALID_LOGIN_INFO: 'Invalid log in info',
+
+  /**
+   * @description: throw error when user have no permission to approach the resource
+   */
+  USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE:
+    'User is forbidden to approach the resource',
 } as const;

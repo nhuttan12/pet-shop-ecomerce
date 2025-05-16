@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { AuthService } from '../auth.service';
 import { User } from 'src/db/helper/schema-type';
+import { AuthService } from '../auth.service';
+import { plainToInstance } from 'class-transformer';
+import { UserLoginDTO } from 'src/helper/dto/user/user-login.dto';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -16,14 +19,14 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
    * @param username: name in jwt payload
    * @returns user
    */
-  async validate(
-    id: number,
-    username: string,
-  ): Promise<Omit<User, 'password'>> {
-    const user: Omit<User, 'password'> = await this.authService.validateUser(
-      id,
-      username,
-    );
-    return user;
+  async validate(username: string, password: string): Promise<User> {
+    const dto = plainToInstance(UserLoginDTO, { username, password });
+    const errors = await validate(dto);
+
+    if (errors.length > 0) {
+      throw new BadRequestException(errors);
+    }
+
+    return await this.authService.validateUser(username, password);
   }
 }

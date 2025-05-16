@@ -2,10 +2,6 @@ import { Role, User } from 'src/db/helper/schema-type';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { UserService } from 'src/modules/user/user.service';
 import {
-  UserLoginDto,
-  UserLoginResponseDto,
-} from '../../helper/dto/user/user-login.dto';
-import {
   UserRegisterDto,
   UserRegisterResponseDto,
 } from '../../helper/dto/user/user-register.dto';
@@ -13,13 +9,13 @@ import {
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { UserForgotPasswordDTO } from 'src/helper/dto/user/user-forgot-password.dto';
+import { UserLoginResponseDTO } from 'src/helper/dto/user/user-login.dto';
 import { UserResetPasswordDTO } from 'src/helper/dto/user/user-reset-password.dto';
 import { Role as RoleName } from 'src/helper/enum/role.enum';
 import { UserStatus } from 'src/helper/enum/user-status.enum';
@@ -41,19 +37,70 @@ export class AuthService {
     private appConfigService: AppConfigService,
   ) {}
 
-  async validateUser(
-    id: number,
-    username: string,
-  ): Promise<Omit<User, 'password'>> {
+  /**
+   * Used to get user from payload, validate every a request is sent to server
+   * @param id: id of user
+   * @param username: username of user
+   * @returns JwtPayload: {sub: number; username: string; role: string; email?: string;}
+   */
+  async getUserFromPayload(id: number, username: string): Promise<JwtPayload> {
     const user: User = await this.userService.getUserByIdAndUsername(
       id,
       username,
     );
-    this.logger.debug('Get user info', user);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...safeUser } = user;
+    this.logger.debug(`Get user info ${JSON.stringify(user)}`);
+
+    if (!user) {
+      this.logger.error(MessageLog.INVALID_LOGIN_INFO);
+      throw new UnauthorizedException(ErrorMessage.INVALID_LOGIN_INFO);
+    }
+
+    const role: Role = await this.roleService.getRoleById(user.roleId);
+
+    const safeUser: JwtPayload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+      role: role.name,
+    };
     this.logger.debug('Get safe user', safeUser);
+
     return safeUser;
+  }
+
+  /**
+   * Use for validate when login
+   * @param username: username of user
+   * @param password: password of user
+   * @returns User
+   */
+  async validateUser(username: string, password: string): Promise<User> {
+    const user: User = await this.userService.getUserByUsername(username);
+    this.logger.debug(`Get user info ${JSON.stringify(user)}`);
+
+    if (!user) {
+      this.logger.error(MessageLog.INVALID_LOGIN_INFO);
+      throw new UnauthorizedException(ErrorMessage.INVALID_LOGIN_INFO);
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    this.logger.debug(`Compare password: ${isPasswordValid}`);
+    if (!isPasswordValid) {
+      this.logger.error(MessageLog.INVALID_LOGIN_INFO);
+      throw new UnauthorizedException(ErrorMessage.INVALID_LOGIN_INFO);
+    }
+
+    if (user.status === UserStatus.BANNED) {
+      this.logger.log(MessageLog.USER_BANNED, user.id);
+      throw new UnauthorizedException(ErrorMessage.USER_BANNED);
+    }
+
+    if (user.status !== UserStatus.ACTIVE) {
+      this.logger.log(MessageLog.USER_NOT_ACTIVE, user.id);
+      throw new UnauthorizedException(ErrorMessage.USER_NOT_ACTIVE);
+    }
+
+    return user;
   }
 
   /**
@@ -91,7 +138,7 @@ export class AuthService {
 
       const saltOrRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltOrRounds);
-      this.logger.debug('Get hashed password', hashedPassword);
+      this.logger.debug(`Get hashed password ${hashedPassword}`);
 
       const role = await this.roleService.getRoleByName(RoleName.USER);
 
@@ -106,11 +153,7 @@ export class AuthService {
       await this.mailService.sendMail(
         email,
         NotifyMessage.REGISTER_SUCCESSFUL,
-        NotifyMessage.YOUR_ACCOUNT_WITH_USERNAME +
-          ' ' +
-          username +
-          ' ' +
-          NotifyMessage.REGISTER_SUCCESSFUL,
+        NotifyMessage.YOUR_ACCOUNT_WITH_USERNAME + ' ' + username,
       );
 
       userCreated = {
@@ -124,9 +167,7 @@ export class AuthService {
       return userCreated;
     } catch (error) {
       this.logger.error('Error during registration', error);
-      throw new InternalServerErrorException(
-        ErrorMessage.INTERNAL_SERVER_ERROR,
-      );
+      throw error;
     } finally {
       if (userCreated) {
         this.logger.log(MessageLog.USER_CREATED_SUCCESS, userCreated.id);
@@ -136,76 +177,22 @@ export class AuthService {
     }
   }
 
-  async login(userLoginDto: UserLoginDto): Promise<UserLoginResponseDto> {
-    let userLogin: UserLoginResponseDto | undefined;
-    try {
-      const { username, password } = userLoginDto;
-      const user: User = await this.userService.getUserByUsername(username);
-      const isPasswordValid = user
-        ? await bcrypt.compare(password, user.password)
-        : false;
-
-      if (!isPasswordValid || !user) {
-        this.logger.warn(MessageLog.INVALID_PASSWORD);
-        throw new UnauthorizedException(ErrorMessage.INVALID_PASSWORD);
-      }
-
-      const role: Role = await this.roleService.getRoleById(user.roleId);
-
-      if (user.status === UserStatus.BANNED) {
-        this.logger.log(MessageLog.USER_BANNED, user.id);
-        throw new UnauthorizedException(ErrorMessage.USER_BANNED);
-      }
-
-      if (user.status !== UserStatus.ACTIVE) {
-        this.logger.log(MessageLog.USER_NOT_ACTIVE, user.id);
-        throw new UnauthorizedException(ErrorMessage.USER_NOT_ACTIVE);
-      }
-
-      const payload: JwtPayload = {
-        sub: user.id,
-        username: user.username,
-        role: role.name,
-      };
-
-      const token = this.jwtService.sign(payload);
-
-      userLogin = {
-        access_token: token,
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          role: role.name,
-          status: user.status,
-        },
-      };
-
-      return userLogin;
-    } catch (error) {
-      this.logger.error('Error during login', error);
-      throw new UnauthorizedException(ErrorMessage.INTERNAL_SERVER_ERROR);
-    } finally {
-      if (userLogin) {
-        this.logger.log(MessageLog.USER_LOGIN_SUCCESS, userLogin.user.id);
-      } else {
-        this.logger.warn(MessageLog.USER_LOGIN_FAILED);
-      }
-    }
-  }
-
   async forgotPassword({ email }: UserForgotPasswordDTO): Promise<void> {
     const existingUser: User = await this.userService.getUserByEmail(email);
+    this.logger.debug(`Get user ${JSON.stringify(existingUser)}`);
 
     const role: Role = await this.roleService.getRoleById(existingUser.roleId);
+    this.logger.debug(`Get role ${JSON.stringify(role)}`);
 
     const payload: JwtPayload = {
       sub: existingUser.id,
       username: existingUser.username,
       role: role.name,
     };
+    this.logger.debug(`Payload ${JSON.stringify(payload)}`);
 
-    const token = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const token: string = this.jwtService.sign(payload, { expiresIn: '15m' });
+    this.logger.debug(`Token ${token}`);
 
     const domain: string =
       this.appConfigService.domainConfig.client_1.host +
@@ -215,18 +202,48 @@ export class AuthService {
       this.appConfigService.domainConfig.client_1.reset_password +
       '/' +
       token;
+    this.logger.debug(`Domain ${domain}`);
 
-    const content: string =
-      NotifyMessage.RESET_PASSWORD +
-      ' ' +
-      NotifyMessage.AT_THE_LINK_BELOW +
-      domain;
+    const content: string = `
+      <p>${NotifyMessage.RESET_PASSWORD} ${NotifyMessage.AT_THE_LINK_BELOW}</p>
+      <a href="${domain}" target="_blank">${NotifyMessage.RESET_PASSWORD}</a>
+    `;
+    this.logger.debug(`Html content ${content}`);
 
     await this.mailService.sendMail(
       email,
       NotifyMessage.RESET_PASSWORD,
       content,
     );
+    this.logger.verbose('Email sent');
+  }
+
+  async loginWithUser(user: User): Promise<UserLoginResponseDTO> {
+    const role: Role = await this.roleService.getRoleById(user.roleId);
+
+    const payload: JwtPayload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+      role: role.name,
+    };
+    this.logger.debug('Get safe user', payload);
+
+    const token: string = this.jwtService.sign(payload);
+    this.logger.debug(`Token: ${token}`);
+
+    const userLogin: UserLoginResponseDTO = {
+      access_token: token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: role.name,
+        status: user.status!,
+      },
+    };
+
+    return userLogin;
   }
 
   async resetPassword({
@@ -237,11 +254,17 @@ export class AuthService {
     const decodeInfo: JwtPayload = await this.jwtService.decode(token);
 
     if (password != retypePassword) {
+      this.logger.error(MessageLog.PASSWORD_MISMATCH);
       throw new BadRequestException(ErrorMessage.PASSWORD_MISMATCH);
     }
 
     const userId: number = decodeInfo.sub;
+    this.logger.debug(`Get user id ${userId}`);
 
-    await this.userService.updatePassword(userId, password);
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltOrRounds);
+    this.logger.debug(`Hashed password ${hashedPassword}`);
+
+    await this.userService.updatePassword(userId, hashedPassword);
   }
 }

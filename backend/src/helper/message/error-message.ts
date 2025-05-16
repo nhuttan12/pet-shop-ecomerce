@@ -7,33 +7,48 @@ export const ErrorMessage = {
   INVALID_PASSWORD: 'Mật khẩu không hợp lệ',
   INVALID_EMAIL: 'Email không hợp lệ',
   EMAIL_IS_NOT_EMPTY: 'Email không được để trống',
+
   PASSWORD_IS_NOT_EMPTY: 'Mật khẩu không được để trống',
   PASSWORD_MISMATCH: 'Mật khẩu không khớp',
+
   USERNAME_IS_NOT_EMPTY: 'Tài khoản không được để trống',
   NAME_IS_NOT_EMPTY: 'Tên người dùng không được để trống',
   USER_NAME_HAVE_AT_LEAST_3_CHARACTERS:
     'Tên người dùng phải có ít nhất 3 ký tự',
   PASSWORD_HAVE_AT_LEAST_3_CHARACTERS: 'Mật khẩu phải có ít nhất 6 ký tự',
   USERNAME_OR_EMAIL_EXISTS: 'Tài khoản hoặc email đã tồn tại',
+
   USER_NOT_ACTIVE: 'Tài khoản chưa được kích hoạt',
   USER_BANNED: 'Tài khoản đã bị cấm',
   ROLE_NOT_FOUND: 'Vai trò hiện tại của người dùng không tồn tại',
   STATUS_NOT_FOUND: 'Trạng thái hiện tại của người dùng không tồn tại',
   INTERNAL_SERVER_ERROR: 'Có lỗi xảy ra, vui lòng thử lại sau',
   PARAM_NOT_VALID: 'Dữ liệu đầu vào không phù hợp, vui lòng thử lại sau',
+
   PAGE_SHOULD_NOT_A_NEGATIVE_NUMBER: 'Số trang không được là số âm',
   LIMIT_HAVE_AT_LEAST_10: 'Khoảng giá trị tối thiểu là 10',
   PAGE_MUST_BE_INTETER: 'Số trang phải là số nguyên',
   LIMIT_MUST_BE_INTETER: 'Khoảng giá trị phải là số nguyên',
+
   USER_ID_MUST_BE_INTEGER: 'Mã người dùng nên là số nguyên',
   USER_FULL_NAME_MUST_BE_STRING: 'Tên người dùng phải là một chuỗi',
   PARAM_MUST_NOT_BE_A_LINK: 'Đữ liệu đầu vào không phải là 1 đường dẫn',
+
   PUBLIC_ID_MUST_BE_A_STRING: 'publicId phải là một chuỗi.',
   FOLDER_NAME_MUST_BE_STRING: 'Tên thư mục (folder) phải là một chuỗi.',
+
   CLOUINARY_NAME_NOT_FOUND: 'Không tìm thấy cloud name của cloudinary',
   CLOUINARY_API_KEY_NOT_FOUND: 'Không tìm thấy api key của cloudinary',
+
   EMAIL_IS_NOT_FOUND: 'Không tìm thấy Email dùng cho mật khẩu ứng dụng',
   APP_PASSWORD_IS_NOT_FOUND: 'Không tìm thấy mật khẩu ứng dụng',
   DOMAIN_CONFIG_NOT_FOUND: 'Không tìm thấy domain cần thiết',
+
   DB_CONFIG_NOT_FOUND: 'Không tìm thấy thông tin về db',
+
+  USER_NOT_LOG_IN: 'Người dùng chưa đăng nhập',
+  INVALID_LOGIN_INFO: 'Sai thông tin đăng nhập',
+
+  USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE:
+    'Bạn không có quyền để truy cập tài nguyên này',
 } as const;
