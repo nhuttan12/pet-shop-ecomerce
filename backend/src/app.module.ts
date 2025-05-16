@@ -5,7 +5,6 @@ import { AppConfigModule } from './modules/config/app-config.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { UsersModule } from './modules/user/user.module';
-import { RolesGuard } from './helper/guard/roles.guard';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { CatchEverythingFilter } from './helper/filter/exception.filter';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
@@ -29,10 +28,6 @@ import { MailModule } from './modules/mail/mail.module';
     MailModule,
   ],
   providers: [
-    {
-      provide: 'APP_GUARD',
-      useClass: RolesGuard,
-    },
     {
       provide: APP_FILTER,
       useClass: CatchEverythingFilter,

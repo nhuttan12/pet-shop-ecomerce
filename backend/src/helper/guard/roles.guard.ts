@@ -1,8 +1,16 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from '../enum/role.enum';
 import { ROLES_KEY } from '../decorator/roles.decorator';
-import { AuthenticatedRequest } from '../interface/jwt-payload.interface';
+import { Role } from '../enum/role.enum';
+import { AuthenticatedRequest } from '../interface/authenticated.interface';
+import { ErrorMessage } from '../message/error-message';
+import { MessageLog } from '../message/message-log';
 
 /**
  * @description: create HasRole() decorator by get role from meta data
@@ -11,18 +19,34 @@ import { AuthenticatedRequest } from '../interface/jwt-payload.interface';
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
+  private readonly logger = new Logger(RolesGuard.name);
   constructor(private reflector: Reflector) {}
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const { user } = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    this.logger.log(`Get user: ${JSON.stringify(user)}`);
+
+    const requiredRoles: Role[] = this.reflector.getAllAndOverride<Role[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (requiredRoles) {
+      this.logger.log(`Required role: ${requiredRoles.toString()}`);
+    }
     if (!requiredRoles) {
       return true;
     }
-    const { user } = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    return requiredRoles.some((roleName) =>
+
+    const hasRole: boolean = requiredRoles.some((roleName) =>
       user.role?.includes(roleName.toString()),
     );
+
+    if (!hasRole) {
+      this.logger.error(MessageLog.USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE);
+      throw new ForbiddenException(
+        ErrorMessage.USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE,
+      );
+    }
+
+    return true;
   }
 }
