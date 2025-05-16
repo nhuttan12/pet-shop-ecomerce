@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { AuthenticatedRequest } from '../interface/jwt-payload.interface';
+import { AuthenticatedRequest } from '../interface/authenticated.interface';
 
 /**
  * @description: create param decorator to get user
