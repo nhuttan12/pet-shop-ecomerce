@@ -14,6 +14,7 @@ import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
 import { CreateUserDto } from 'src/helper/dto/user/create-user.dto';
 import { UserUpdateDTO } from 'src/helper/dto/user/update-user.dto';
+import { UserStatus } from 'src/helper/enum/user-status.enum';
 
 @Injectable()
 export class UserService {
@@ -37,7 +38,7 @@ export class UserService {
     const [user] = await this.userSelect
       .select()
       .from(users)
-      .where(eq(users.id, id));
+      .where(and(eq(users.id, id), eq(users.status, UserStatus.ACTIVE)));
 
     if (!user) {
       throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
@@ -54,25 +55,25 @@ export class UserService {
    * @param name: name of user
    * @returns: user
    */
-  async getUserByName(name: string): Promise<User> {
-    this.logger.debug('Name to get user', name);
+  // async getUserByName(name: string): Promise<User> {
+  //   this.logger.debug('Name to get user', name);
 
-    const [user]: User[] = await this.userSelect
-      .select()
-      .from(users)
-      .where(eq(users.username, name))
-      .limit(1)
-      .execute();
+  //   const [user]: User[] = await this.userSelect
+  //     .select()
+  //     .from(users)
+  //     .where(eq(users.username, name))
+  //     .limit(1)
+  //     .execute();
 
-    if (!user) {
-      this.logger.error(MessageLog.USER_NOT_FOUND);
-      throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
-    }
+  //   if (!user) {
+  //     this.logger.error(MessageLog.USER_NOT_FOUND);
+  //     throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
+  //   }
 
-    this.logger.debug('Uset getted by name', user);
+  //   this.logger.debug('Uset getted by name', user);
 
-    return user;
-  }
+  //   return user;
+  // }
 
   /**
    * @description: get user information with given
@@ -107,7 +108,9 @@ export class UserService {
     const [user]: User[] = await this.userSelect
       .select()
       .from(users)
-      .where(eq(users.username, username))
+      .where(
+        and(eq(users.username, username), eq(users.status, UserStatus.ACTIVE)),
+      )
       .limit(1)
       .execute();
 
@@ -132,7 +135,7 @@ export class UserService {
     const [user] = await this.userSelect
       .select()
       .from(users)
-      .where(eq(users.email, email))
+      .where(and(eq(users.email, email), eq(users.status, UserStatus.ACTIVE)))
       .limit(1);
 
     if (!user) {
@@ -178,7 +181,13 @@ export class UserService {
     const [user]: User[] = await this.userSelect
       .select()
       .from(users)
-      .where(and(eq(users.id, id), eq(users.username, username)));
+      .where(
+        and(
+          eq(users.id, id),
+          eq(users.username, username),
+          eq(users.status, UserStatus.ACTIVE),
+        ),
+      );
 
     if (!user) {
       throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
@@ -190,7 +199,9 @@ export class UserService {
   }
 
   async getAllUsers(limit: number, offset: number): Promise<User[]> {
-    this.logger.debug('Limit and offset for pagination', limit, offset);
+    this.logger.debug(`Limit and offset for pagination ${limit}, ${offset}`);
+
+    offset = offset < 0 ? (offset = 0) : offset - 1;
 
     const user: User[] = await this.userSelect
       .select()
@@ -199,7 +210,7 @@ export class UserService {
       .limit(limit)
       .offset(offset);
 
-    this.logger.debug('User list', user);
+    this.logger.debug(`User list ${JSON.stringify(user)}`);
 
     return user;
   }
