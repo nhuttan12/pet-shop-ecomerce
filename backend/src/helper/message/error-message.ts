@@ -34,4 +34,6 @@ export const ErrorMessage = {
   CLOUINARY_API_KEY_NOT_FOUND: 'Không tìm thấy api key của cloudinary',
   EMAIL_IS_NOT_FOUND: 'Không tìm thấy Email dùng cho mật khẩu ứng dụng',
   APP_PASSWORD_IS_NOT_FOUND: 'Không tìm thấy mật khẩu ứng dụng',
+  DOMAIN_CONFIG_NOT_FOUND: 'Không tìm thấy domain cần thiết',
+  DB_CONFIG_NOT_FOUND: 'Không tìm thấy thông tin về db',
 } as const;

@@ -1,4 +1,8 @@
-import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConsoleLogger,
+  ValidationPipe,
+} from '@nestjs/common';
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
@@ -7,6 +11,7 @@ import {
   NestExpressApplication,
 } from '@nestjs/platform-express';
 import { CatchEverythingFilter } from './helper/filter/exception.filter';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   /**
@@ -22,6 +27,19 @@ async function bootstrap() {
       logger: new ConsoleLogger('App'),
     },
   );
+
+  /**
+   * @description: config info for swagger
+   */
+  const config = new DocumentBuilder()
+    .setTitle('Thương mại điện tử')
+    .setDescription('API test for Tmdt-ck')
+    .setVersion('1.0')
+    .addTag('Tmdt-ck')
+    .build();
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
 
   /**
    * @description: config for global filter exception
@@ -46,6 +64,15 @@ async function bootstrap() {
     new ValidationPipe({
       enableDebugMessages: true,
       transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => {
+        const formattedErrors = errors.map((err) => ({
+          field: err.property,
+          errors: Object.values(err.constraints || {}),
+        }));
+        return new BadRequestException(formattedErrors);
+      },
     }),
   );
   await app.listen(port);

@@ -43,6 +43,18 @@ export const schema = Joi.object({
         'string.empty': MessageLog.CLOUDINARY_API_SECRET_CANNOT_BE_EMPTY,
       }),
     }),
+    mail: Joi.object({
+      app_password: Joi.string().required().messages({
+        'string.base': MessageLog.APP_PASSWORD_MUST_BE_STRING,
+        'any.required': MessageLog.APP_PASSWORD_REQUIRED,
+        'string.empty': MessageLog.APP_PASSWORD_EMPTY,
+      }),
+      email: Joi.string().required().messages({
+        'string.base': MessageLog.EMAIL_MUST_BE_STRING,
+        'any.required': MessageLog.EMAIL_REQUIRED,
+        'string.empty': MessageLog.EMAIL_EMPTY,
+      }),
+    }),
   }),
   db: Joi.object({
     mysql: Joi.object({
@@ -75,6 +87,25 @@ export const schema = Joi.object({
         'string.base': MessageLog.PASSWORD_MUST_BE_STRING,
         'any.required': MessageLog.PASSWORD_IS_REQUIRED,
         'string.empty': MessageLog.PASSWORD_CANNT_BE_EMPTY,
+      }),
+    }),
+  }),
+  domain: Joi.object({
+    client_1: Joi.object({
+      host: Joi.string().required().messages({
+        'string.base': MessageLog.HOST_MUST_BE_STRING,
+        'any.required': MessageLog.HOST_MUST_BE_STRING,
+        'string.empty': MessageLog.HOST_CANNT_BE_EMPTY,
+      }),
+      port: Joi.number().required().messages({
+        'number.base': MessageLog.PORT_MUST_BE_NUMBER,
+        'any.required': MessageLog.PORT_MUST_BE_NUMBER,
+        'number.empty': MessageLog.PORT_CANNT_BE_EMPTY,
+      }),
+      reset_password: Joi.string().messages({
+        'number.base': MessageLog.PORT_MUST_BE_NUMBER,
+        'any.required': MessageLog.PORT_MUST_BE_NUMBER,
+        'number.empty': MessageLog.PORT_CANNT_BE_EMPTY,
       }),
     }),
   }),

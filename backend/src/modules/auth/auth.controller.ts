@@ -7,10 +7,11 @@ import {
   Post,
   UseFilters,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { UserRegisterDto } from '../../helper/dto/user/user-register.dto';
-import { UserLoginDto } from '../../helper/dto/user/user-login.dto';
+import { UserForgotPasswordDTO } from 'src/helper/dto/user/user-forgot-password.dto';
 import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
+import { UserLoginDto } from '../../helper/dto/user/user-login.dto';
+import { UserRegisterDto } from '../../helper/dto/user/user-register.dto';
+import { AuthService } from './auth.service';
 import { UserResetPasswordDTO } from 'src/helper/dto/user/user-reset-password.dto';
 
 @Controller('auth')
@@ -34,8 +35,21 @@ export class AuthController {
     return this.authService.login(userLoginDto);
   }
 
-  async resetPassword(@Body() userResetPassword: UserResetPasswordDTO) {
-    this.logger.debug('User reset password', userResetPassword);
-    return this.authService
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @UseFilters(CatchEverythingFilter)
+  async forgotPassword(
+    @Body() userForgotPasswordDTO: UserForgotPasswordDTO,
+  ): Promise<void> {
+    this.logger.debug('User reset password', userForgotPasswordDTO);
+    return this.authService.forgotPassword(userForgotPasswordDTO);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @UseFilters(CatchEverythingFilter)
+  async resetPassword(@Body() userResetPasswordDTO: UserResetPasswordDTO) {
+    this.logger.debug('User reset password', userResetPasswordDTO);
+    return this.authService.resetPassword(userResetPasswordDTO);
   }
 }

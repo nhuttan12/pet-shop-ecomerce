@@ -293,4 +293,22 @@ export class UserService {
       this.logger.verbose(`User ${user?.id} updated`);
     }
   }
+
+  async updatePassword(id: number, password: string): Promise<void> {
+    try {
+      await this.userInsert.transaction(async (tx) => {
+        await tx
+          .update(users)
+          .set({ password: password })
+          .where(eq(users.id, id));
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
+      this.logger.verbose(`User with ${id} updated`);
+    }
+  }
 }

@@ -11,6 +11,7 @@ import {
 } from '../../helper/dto/user/user-register.dto';
 
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -18,14 +19,16 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
+import { UserForgotPasswordDTO } from 'src/helper/dto/user/user-forgot-password.dto';
+import { UserResetPasswordDTO } from 'src/helper/dto/user/user-reset-password.dto';
 import { Role as RoleName } from 'src/helper/enum/role.enum';
 import { UserStatus } from 'src/helper/enum/user-status.enum';
 import { MessageLog } from 'src/helper/message/message-log';
-import { JwtPayload } from '../../helper/interface/jwt-payload.interface';
-import { RoleService } from '../role/role.service';
-import { MailService } from '../mail/mail.service';
 import { NotifyMessage } from 'src/helper/message/notify-message';
-import { UserResetPasswordDTO } from 'src/helper/dto/user/user-reset-password.dto';
+import { JwtPayload } from '../../helper/interface/jwt-payload.interface';
+import { AppConfigService } from '../config/app-config.service';
+import { MailService } from '../mail/mail.service';
+import { RoleService } from '../role/role.service';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +38,7 @@ export class AuthService {
     private jwtService: JwtService,
     private roleService: RoleService,
     private mailService: MailService,
+    private appConfigService: AppConfigService,
   ) {}
 
   async validateUser(
@@ -190,7 +194,7 @@ export class AuthService {
     }
   }
 
-  async resetPassword({ email }: UserResetPasswordDTO) {
+  async forgotPassword({ email }: UserForgotPasswordDTO): Promise<void> {
     const existingUser: User = await this.userService.getUserByEmail(email);
 
     const role: Role = await this.roleService.getRoleById(existingUser.roleId);
@@ -203,9 +207,41 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload, { expiresIn: '15m' });
 
-    const content: string =
-      NotifyMessage.RESET_PASSWORD + ' ' + NotifyMessage.AT_THE_LINK_BELOW + ;
+    const domain: string =
+      this.appConfigService.domainConfig.client_1.host +
+      ':' +
+      this.appConfigService.domainConfig.client_1.port +
+      '/' +
+      this.appConfigService.domainConfig.client_1.reset_password +
+      '/' +
+      token;
 
-    this.mailService.sendMail(email, NotifyMessage.RESET_PASSWORD, content);
+    const content: string =
+      NotifyMessage.RESET_PASSWORD +
+      ' ' +
+      NotifyMessage.AT_THE_LINK_BELOW +
+      domain;
+
+    await this.mailService.sendMail(
+      email,
+      NotifyMessage.RESET_PASSWORD,
+      content,
+    );
+  }
+
+  async resetPassword({
+    token,
+    password,
+    retypePassword,
+  }: UserResetPasswordDTO): Promise<void> {
+    const decodeInfo: JwtPayload = await this.jwtService.decode(token);
+
+    if (password != retypePassword) {
+      throw new BadRequestException(ErrorMessage.PASSWORD_MISMATCH);
+    }
+
+    const userId: number = decodeInfo.sub;
+
+    await this.userService.updatePassword(userId, password);
   }
 }

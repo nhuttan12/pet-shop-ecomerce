@@ -6,6 +6,7 @@ import { HttpConfig } from 'src/helper/interface/http.interface';
 import { DatabaseConfig } from 'src/helper/interface/database.interface';
 import { CloudinaryConfig } from 'src/helper/interface/cloudinary.interface';
 import { NodeMailerConfig } from 'src/helper/interface/nodemailer.interface';
+import { DomainValidation } from 'src/helper/interface/domain.interface';
 
 @Injectable()
 export class AppConfigService {
@@ -26,9 +27,21 @@ export class AppConfigService {
     const config = this.configService.get<DatabaseConfig>('db');
     if (!config) {
       this.logger.error(MessageLog.DB_CONFIG_NOT_FOUND);
-      throw new Error(MessageLog.DB_CONFIG_NOT_FOUND);
+      throw new Error(ErrorMessage.DB_CONFIG_NOT_FOUND);
     }
     this.logger.debug('database config information', config);
+    return config;
+  }
+
+  get domainConfig(): DomainValidation {
+    const config = this.configService.get<DomainValidation>('domain');
+
+    if (!config) {
+      this.logger.error(MessageLog.DOMAIN_CONFIG_NOT_FOUND);
+      throw new NotAcceptableException(ErrorMessage.DOMAIN_CONFIG_NOT_FOUND);
+    }
+
+    this.logger.debug('Config info', config);
     return config;
   }
 
