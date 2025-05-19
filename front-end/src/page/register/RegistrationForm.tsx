@@ -82,11 +82,11 @@ const RegistrationForm: React.FC = () => {
     };
 
     return (
-        <div className="w-full max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
-            <h1 className="text-3xl font-medium text-black mb-6">Đăng ký</h1>
+        <div className="w-full max-w-[600px] ml-auto">
+            <h1 className="text-3xl mb-6">Đăng ký</h1>
 
             <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-y-5">
+                <div className="flex flex-col gap-y-3 p-3">
                     <InputField
                         label="Tên"
                         placeholder="Điền tên của bạn vào đây"
@@ -95,7 +95,6 @@ const RegistrationForm: React.FC = () => {
                         onChange={handleChange}
                         error={errors.name}
                         required
-                        // className="mb-4"
                     />
 
                     <InputField
@@ -159,14 +158,14 @@ const RegistrationForm: React.FC = () => {
                         type="submit"
                         variant="primary"
                         fullWidth
-                        className="h-8 font-bold text-sm mt-6"
+                        className="h-8 font-bold text-sm mt-2"
                     >
                         Đăng ký
                     </Button>
                 </div>
             </form>
 
-            <SocialLogin className="mt-4" />
+            <SocialLogin className="mt-1" />
 
             <div className="mt-6 text-center">
                 <p className="text-sm text-black">
