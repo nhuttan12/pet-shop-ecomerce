@@ -1,12 +1,11 @@
-/* ✅ 1. Font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 
-/* ✅ 2. Tailwind directives – LUÔN để trên đầu */
+/* @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
-
-/* ✅ 3. Custom base variables */
+@tailwind utilities; */
+/* 
 @layer base {
     :root {
         --primary-background: #3a5b22;
@@ -30,7 +29,6 @@
     }
 }
 
-/* ✅ 4. Custom utility classes */
 @layer utilities {
     .bg-primary-green {
         background-color: var(--primary-background);
@@ -73,7 +71,7 @@
     }
 }
 
-/* ✅ 5. Other custom CSS */
+
 html, body {
     height: 100%;
     margin: 0;
@@ -124,57 +122,5 @@ input[type="checkbox"]:checked::after {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%; /* Đảm bảo phần tử này chiếm 100% chiều cao */
-}
-
-/*@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');*/
-/*@import './tailwind.css';*/
-
-/*html, body {*/
-/*    height: 100%;*/
-/*    margin: 0;*/
-/*    padding: 0;*/
-/*}*/
-/*!* Input placeholder styles *!*/
-/*::placeholder {*/
-/*    color: #d9d9d9;*/
-/*    opacity: 1;*/
-/*}*/
-
-/*!* Focus styles *!*/
-/**:focus {*/
-/*    outline: none;*/
-/*}*/
-
-/*!* Custom checkbox styles *!*/
-/*input[type="checkbox"] {*/
-/*    appearance: none;*/
-/*    -webkit-appearance: none;*/
-/*    width: 9px;*/
-/*    height: 9px;*/
-/*    border: 1px solid #000000;*/
-/*    border-radius: 2px;*/
-/*    display: inline-block;*/
-/*    position: relative;*/
-/*}*/
-
-/*input[type="checkbox"]:checked {*/
-/*    background-color: #3a5b22;*/
-/*    border-color: #3a5b22;*/
-/*}*/
-
-/*input[type="checkbox"]:checked::after {*/
-/*    content: "";*/
-/*    position: absolute;*/
-/*    left: 2px;*/
-/*    top: 0px;*/
-/*    width: 3px;*/
-/*    height: 5px;*/
-/*    border: solid white;*/
-/*    border-width: 0 1px 1px 0;*/
-/*    transform: rotate(45deg);*/
-/*}*/
-
-/*#root {*/
-/*    height: 100%;*/
-/*}*/
+    height: 100%;
+} */

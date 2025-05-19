@@ -1,16 +1,22 @@
 import React from "react";
+// import image from "../assets/im.png";
 
 
 const Illustration: React.FC = () => {
     return (
-        <div className="w-full h-full">
+        <div className="w-full max-w-[800px] flex items-center justify-center">
             <img
                 src="/images/logologin.png"
                 alt="Pet illustration"
-                className="w-full h-full object-cover rounded-tl-[45px] rounded-br-[45px]"
+                className="w-full h-auto  object-contain"
             />
         </div>
-        // <div className="hidden lg:block relative w-full h-full">
+    );
+};
+
+export default Illustration;
+
+ // <div className="hidden lg:block relative w-full h-full">
         //     <img
         //         src="/images/logologin.png"
         //         alt="Pet illustration"
@@ -22,7 +28,3 @@ const Illustration: React.FC = () => {
         //         className="absolute inset-0 w-full h-full object-cover rounded-tl-[45px] rounded-br-[45px]"
         //     />
         // </div>
-    );
-};
-
-export default Illustration;

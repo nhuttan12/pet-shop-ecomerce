@@ -1,4 +1,6 @@
 import React from "react";
+import { FcGoogle } from "react-icons/fc";
+import { FaApple } from "react-icons/fa";
 
 interface SocialLoginProps {
   className?: string;
@@ -19,29 +21,29 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ className = "" }) => {
     <div className={`w-full ${className}`}>
       <div className="relative flex items-center py-5">
         <div className="flex-grow border-t border-gray-200"></div>
-        <span className="flex-shrink mx-4 text-[9px] font-medium text-black">
-          Or
+        <span className="flex-shrink mx-1 text-[9px] font-medium text-black">
+          Hoặc
         </span>
         <div className="flex-grow border-t border-gray-200"></div>
       </div>
 
-      <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-between">
+      <div className="mt-2 flex flex-col gap-3">
         <button
           onClick={handleGoogleLogin}
-          className="flex items-center justify-center h-8 px-4 border border-[#d9d9d9] rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center justify-center h-10 px-4 border border-gray-300 rounded-md hover:bg-gray-100"
         >
-          <img src="/images/img_icons8google_1.svg" alt="Google" className="w-6 h-6" />
-          <span className="ml-2 text-xs font-medium text-black">
+          <FcGoogle className="w-5 h-5" />
+          <span className="ml-3 text-sm font-medium">
             Đăng ký với Google
           </span>
         </button>
 
         <button
           onClick={handleAppleLogin}
-          className="flex items-center justify-center h-8 px-4 border border-[#d9d9d9] rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center justify-center h-10 px-4 border border-gray-300 rounded-md hover:bg-gray-100"
         >
-          <img src="/images/img_icons8applelogo_1.svg" alt="Apple" className="w-6 h-6" />
-          <span className="ml-2 text-xs font-medium text-black">
+          <FaApple className="w-5 h-5"/>
+          <span className="ml-3 text-sm font-medium">
             Đăng ký với apple
           </span>
         </button>
