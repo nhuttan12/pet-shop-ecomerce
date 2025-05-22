@@ -4,7 +4,7 @@ import { IsPasswordMatch } from '../../class-validator-contraint/password-match.
 import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UserRegisterDto {
+export class UserRegisterDTO {
   @IsNotEmpty({ message: ErrorMessage.USERNAME_IS_NOT_EMPTY })
   @MinLength(3, { message: ErrorMessage.USER_NAME_HAVE_AT_LEAST_3_CHARACTERS })
   @Validate(NotUrlValidator)
@@ -29,7 +29,7 @@ export class UserRegisterDto {
   email: string;
 }
 
-export class UserRegisterResponseDto {
+export class UserRegisterResponseDTO {
   id: number;
   username: string;
   email: string;

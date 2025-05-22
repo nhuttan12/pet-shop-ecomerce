@@ -1,4 +1,4 @@
-import { IsInt, IsString, Validate } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, Min, Validate } from 'class-validator';
 import { NotUrlValidator } from '../../class-validator-contraint/not-url.validator';
 import { ErrorMessage } from '../../message/error-message';
 import { ApiProperty } from '@nestjs/swagger';
@@ -27,4 +27,10 @@ export class UserUpdateDTO {
   @Validate(NotUrlValidator)
   @ApiProperty()
   address: string;
+
+  @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })
+  @ApiProperty()
+  @IsNotEmpty()
+  @Min(1)
+  imageId: number;
 }
