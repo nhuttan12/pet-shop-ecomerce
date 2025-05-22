@@ -21,7 +21,7 @@ import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
 import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
 import { GetAllUsersDto } from '../../helper/dto/user/get-all-user.dto';
 import { UserService } from './user.service';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { RolesGuard } from 'src/helper/guard/roles.guard';
 
 @Controller('v2/users')
@@ -45,8 +45,9 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
-  async findUserById(@Param() idParam: FindUserById): Promise<User[]> {
-    const id: number = idParam.id;
+  @ApiParam({ name: 'id', type: Number, description: 'User id' })
+  async findUserById(@Param() findUser: FindUserById): Promise<User[]> {
+    const id: number = findUser.id;
     return this.userService.findUserById(id);
   }
 

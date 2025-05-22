@@ -244,6 +244,16 @@ export class UserService {
       );
     }
 
+    this.logger.verbose(
+      `Inser deffault image to user detail with id: ${userCreatedId.id}`,
+    );
+
+    await this.userInsert.transaction(async (tx) => {
+      return await tx
+        .insert(userDetail)
+        .values({ id: userCreatedId.id, imageId: 1 });
+    });
+
     return userCreatedId.id;
   }
 
@@ -267,6 +277,7 @@ export class UserService {
     email,
     phone,
     address,
+    imageId,
   }: UserUpdateDTO): Promise<void> {
     let user: User | undefined;
     try {
@@ -284,6 +295,7 @@ export class UserService {
           .set({
             name: name,
             email: email,
+            updated_at: new Date(),
           })
           .where(eq(users.id, userId));
 
@@ -292,14 +304,13 @@ export class UserService {
           .set({
             phone: phone,
             adresss: address,
+            imageId: imageId,
           })
           .where(eq(userDetail.id, userId));
       });
     } catch (error) {
-      this.logger.error(error);
-      throw new InternalServerErrorException(
-        ErrorMessage.INTERNAL_SERVER_ERROR,
-      );
+      this.logger.error(`Error: ${error}`);
+      throw error;
     } finally {
       this.logger.verbose(`User ${user?.id} updated`);
     }
@@ -310,14 +321,12 @@ export class UserService {
       await this.userInsert.transaction(async (tx) => {
         await tx
           .update(users)
-          .set({ password: password })
+          .set({ password: password, updated_at: new Date() })
           .where(eq(users.id, id));
       });
     } catch (error) {
-      this.logger.error(error);
-      throw new InternalServerErrorException(
-        ErrorMessage.INTERNAL_SERVER_ERROR,
-      );
+      this.logger.error(`Error: ${error}`);
+      throw error;
     } finally {
       this.logger.verbose(`User with ${id} updated`);
     }
