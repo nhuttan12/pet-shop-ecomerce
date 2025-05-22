@@ -1,5 +1,6 @@
 import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { users } from './users.schema';
+import { images } from './images.schema';
 
 export const userDetail = mysqlTable('user_details', {
   id: int()
@@ -8,4 +9,7 @@ export const userDetail = mysqlTable('user_details', {
     .references(() => users.id),
   phone: varchar('phone', { length: 10 }).unique(),
   adresss: varchar('adresss', { length: 255 }),
+  imageId: int('image_id')
+    .notNull()
+    .references(() => images.id),
 });

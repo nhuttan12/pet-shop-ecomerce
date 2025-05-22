@@ -7,6 +7,7 @@ export { carts } from './carts.schema';
 export { products } from './products.schema';
 export { orderDetails } from './order-details.schema';
 export { orders } from './orders.schema';
+export { productImages } from './product-images.schema';
 export { images } from './images.schema';
 export { categoriesMapping } from './categories-mapping.schema';
 export { wishlists } from './wishlists.schema';

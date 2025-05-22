@@ -8,6 +8,27 @@
       "when": 1746761981582,
       "tag": "0000_long_madame_web",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1747808540983,
+      "tag": "0001_safe_felicia_hardy",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1747819044753,
+      "tag": "0002_salty_harpoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1747904059342,
+      "tag": "0003_clear_korvac",
+      "breakpoints": true
     }
   ]
 }
