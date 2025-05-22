@@ -7,10 +7,11 @@ import { DatabaseModule } from './modules/database/database.module';
 import { UsersModule } from './modules/user/user.module';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { CatchEverythingFilter } from './helper/filter/exception.filter';
-import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { ImageModule } from './modules/image/image.module';
 import { RoleModule } from './modules/role/role.module';
 import { ProductModule } from './modules/product/product.module';
 import { MailModule } from './modules/mail/mail.module';
+import { BrandModule } from './modules/brand/brand.module';
 
 @Module({
   imports: [
@@ -24,10 +25,21 @@ import { MailModule } from './modules/mail/mail.module';
     UsersModule,
     RoleModule,
     ProductModule,
-    CloudinaryModule,
+    ImageModule,
     MailModule,
+    BrandModule,
   ],
   providers: [
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+        enableDebugMessages: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    },
     {
       provide: APP_FILTER,
       useClass: CatchEverythingFilter,

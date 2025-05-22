@@ -30,12 +30,24 @@ export const ErrorMessage = {
   PAGE_MUST_BE_INTETER: 'Số trang phải là số nguyên',
   LIMIT_MUST_BE_INTETER: 'Khoảng giá trị phải là số nguyên',
 
-  USER_ID_MUST_BE_INTEGER: 'Mã người dùng nên là số nguyên',
+  USER_ID_MUST_BE_INTEGER: 'Mã người dùng phải là số nguyên',
+  ID_MUST_BE_INTEGER: 'Mã số phải là là số nguyên',
   USER_FULL_NAME_MUST_BE_STRING: 'Tên người dùng phải là một chuỗi',
   PARAM_MUST_NOT_BE_A_LINK: 'Đữ liệu đầu vào không phải là 1 đường dẫn',
 
   PUBLIC_ID_MUST_BE_A_STRING: 'publicId phải là một chuỗi.',
   FOLDER_NAME_MUST_BE_STRING: 'Tên thư mục (folder) phải là một chuỗi.',
+  URL_MUST_BE_A_STRING: 'Đường dẫn hình ảnh phải là một chuỗi',
+  TYPE_MUST_BE_A_STRING: 'loại ảnh phải là một chuỗi.',
+  CREATE_AT_MUST_BE_A_STRING: 'Thời gian tạo phải là một chuỗi.',
+  WIDTH_MUST_BE_A_INT: 'Chiều rộng phải là một số nguyên.',
+  HEIGHT_MUST_BE_A_INT: 'Chiều cao phải là một số nguyên.',
+  BYTES_MUST_BE_A_INT: 'Dung lượng phải là một số nguyên.',
+
+  STATUS_IS_UNVALID: 'Trạng thái không hợp lệ',
+  IMAGE_TYPE_IS_UNVALID: 'Loại hình ảnh không hợp lệ',
+  RELATED_NUMBER_MUST_BE_INT: 'ID liên kết phải là số nguyên',
+  RELATED_TYPE_IS_UNVALID: 'Loại liên kết không hợp lệ',
 
   CLOUINARY_NAME_NOT_FOUND: 'Không tìm thấy cloud name của cloudinary',
   CLOUINARY_API_KEY_NOT_FOUND: 'Không tìm thấy api key của cloudinary',
@@ -51,4 +63,7 @@ export const ErrorMessage = {
 
   USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE:
     'Bạn không có quyền để truy cập tài nguyên này',
+
+  IMAGE_NOT_FOUND: 'Không tìm thấy hình ảnh',
+  NAME_MUST_BE_STRING: 'Tên phải là kiểu chuỗi',
 } as const;

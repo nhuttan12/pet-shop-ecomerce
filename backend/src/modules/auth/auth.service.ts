@@ -2,8 +2,8 @@ import { Role, User } from 'src/db/helper/schema-type';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { UserService } from 'src/modules/user/user.service';
 import {
-  UserRegisterDto,
-  UserRegisterResponseDto,
+  UserRegisterDTO,
+  UserRegisterResponseDTO,
 } from '../../helper/dto/user/user-register.dto';
 
 import {
@@ -85,6 +85,7 @@ export class AuthService {
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     this.logger.debug(`Compare password: ${isPasswordValid}`);
+
     if (!isPasswordValid) {
       this.logger.error(MessageLog.INVALID_LOGIN_INFO);
       throw new UnauthorizedException(ErrorMessage.INVALID_LOGIN_INFO);
@@ -105,16 +106,18 @@ export class AuthService {
 
   /**
    * @description register user
-   * @param userRegisterDto: the params is validated of user for register
-   * @returns UserRegisterResponseDto
+   * @param UserRegisterDTO: the params is validated of user for register
+   * @returns UserRegisterResponseDTO
    */
-  async register(
-    userRegisterDto: UserRegisterDto,
-  ): Promise<UserRegisterResponseDto> {
-    let userCreated: UserRegisterResponseDto | undefined;
+  async register({
+    username,
+    email,
+    password,
+    retypePassword,
+  }: UserRegisterDTO): Promise<UserRegisterResponseDTO> {
+    let userCreated: UserRegisterResponseDTO | undefined;
     try {
-      const { username, email, password, retypePassword } = userRegisterDto;
-
+      // Find user by user name
       const [existingUserWithUsername]: User[] =
         await this.userService.findUserByName(username);
       this.logger.debug(
@@ -122,6 +125,7 @@ export class AuthService {
         existingUserWithUsername,
       );
 
+      // Find user with email
       const existingUserWithEmail: User | undefined =
         await this.userService.findUserByEmail(email);
       this.logger.debug('Get existing user with email', existingUserWithEmail);
@@ -131,6 +135,7 @@ export class AuthService {
         throw new UnauthorizedException(ErrorMessage.USERNAME_OR_EMAIL_EXISTS);
       }
 
+      // Check password and retype password match
       if (password !== retypePassword) {
         this.logger.warn(MessageLog.PASSWORD_MISMATCH);
         throw new UnauthorizedException(ErrorMessage.PASSWORD_MISMATCH);
@@ -150,11 +155,14 @@ export class AuthService {
         status: UserStatus.ACTIVE,
       });
 
-      await this.mailService.sendMail(
-        email,
-        NotifyMessage.REGISTER_SUCCESSFUL,
-        NotifyMessage.YOUR_ACCOUNT_WITH_USERNAME + ' ' + username,
-      );
+      // Send mail when create user success
+      if (userCreatedId) {
+        await this.mailService.sendMail(
+          email,
+          NotifyMessage.REGISTER_SUCCESSFUL,
+          NotifyMessage.YOUR_ACCOUNT_WITH_USERNAME + ' ' + username,
+        );
+      }
 
       userCreated = {
         id: userCreatedId,
