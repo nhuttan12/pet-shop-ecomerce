@@ -116,4 +116,10 @@ export const MessageLog = {
    */
   USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE:
     'User is forbidden to approach the resource',
+
+  /**
+   * @description: throw error when code with brand
+   */
+  BRAND_NOT_FOUND: 'Brand was not found',
+  BRAND_CANNOT_BE_UPDATED: "Brand can't not be update",
 } as const;

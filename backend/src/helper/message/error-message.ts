@@ -66,4 +66,10 @@ export const ErrorMessage = {
 
   IMAGE_NOT_FOUND: 'Không tìm thấy hình ảnh',
   NAME_MUST_BE_STRING: 'Tên phải là kiểu chuỗi',
+
+  /**
+   * Throw error for input invalid
+   */
+  BRAND_ID_MUST_BE_INTEGER: 'Mã số thương hiệu phải là số nguyên',
+  BRAND_FULL_NAME_MUST_BE_STRING: 'Tên thương hiệu phải là một chuỗi',
 } as const;
