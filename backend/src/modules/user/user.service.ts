@@ -8,13 +8,15 @@ import {
 import { and, asc, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { DrizzleAsyncProvider } from 'src/modules/database/drizzle.provider';
-import { User, UserInsert } from 'src/db/helper/schema-type';
-import { userDetail, users } from 'src/db/schema';
+import { Role, User, UserDetail, UserInsert } from 'src/db/helper/schema-type';
+import { images, roles, userDetails, users } from 'src/db/schema';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
 import { CreateUserDto } from 'src/helper/dto/user/create-user.dto';
 import { UserUpdateDTO } from 'src/helper/dto/user/update-user.dto';
 import { UserStatus } from 'src/helper/enum/user-status.enum';
+import { GetAllUsersResponseDTO } from 'src/helper/dto/user/get-all-user-response.dto';
+import { RoleService } from '../role/role.service';
 
 @Injectable()
 export class UserService {
@@ -24,6 +26,11 @@ export class UserService {
     private userSelect: MySql2Database<User>,
     @Inject(DrizzleAsyncProvider)
     private userInsert: MySql2Database<UserInsert>,
+    @Inject(DrizzleAsyncProvider)
+    private roleSelect: MySql2Database<Role>,
+    private roleService: RoleService,
+    @Inject(DrizzleAsyncProvider)
+    private userDetail: MySql2Database<UserDetail>,
   ) {}
 
   /**
@@ -198,21 +205,43 @@ export class UserService {
     return user;
   }
 
-  async getAllUsers(limit: number, offset: number): Promise<User[]> {
+  async getAllUsers(
+    limit: number,
+    offset: number,
+  ): Promise<GetAllUsersResponseDTO[]> {
     this.logger.debug(`Limit and offset for pagination ${limit}, ${offset}`);
-
     offset = offset < 0 ? (offset = 0) : offset - 1;
 
-    const user: User[] = await this.userSelect
+    const user = await this.userSelect
       .select()
       .from(users)
+      .innerJoin(userDetails, eq(users.id, userDetails.id))
+      .innerJoin(roles, eq(users.roleId, roles.id))
+      .innerJoin(images, eq(userDetails.imageId, images.id))
       .orderBy(asc(users.id))
       .limit(limit)
       .offset(offset);
 
-    this.logger.debug(`User list ${JSON.stringify(user)}`);
+    this.logger.debug(`User get from db ${JSON.stringify(user)}`);
 
-    return user;
+    const result: GetAllUsersResponseDTO[] = user.map(
+      (row): GetAllUsersResponseDTO => ({
+        id: row.users.id,
+        username: row.users.username,
+        password: row.users.password,
+        name: row.users.name!,
+        email: row.users.email,
+        role: row.roles.name,
+        status: row.users.status as UserStatus,
+        phone: row.user_details.phone!,
+        adresss: row.user_details.adresss!,
+        image: row.images.url,
+      }),
+    );
+
+    this.logger.debug(`User list: ${JSON.stringify(result)}`);
+
+    return result;
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<number> {
@@ -250,7 +279,7 @@ export class UserService {
 
     await this.userInsert.transaction(async (tx) => {
       return await tx
-        .insert(userDetail)
+        .insert(userDetails)
         .values({ id: userCreatedId.id, imageId: 1 });
     });
 
@@ -300,13 +329,13 @@ export class UserService {
           .where(eq(users.id, userId));
 
         await tx
-          .update(userDetail)
+          .update(userDetails)
           .set({
             phone: phone,
             adresss: address,
             imageId: imageId,
           })
-          .where(eq(userDetail.id, userId));
+          .where(eq(userDetails.id, userId));
       });
     } catch (error) {
       this.logger.error(`Error: ${error}`);

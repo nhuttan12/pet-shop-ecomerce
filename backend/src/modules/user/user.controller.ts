@@ -23,6 +23,7 @@ import { GetAllUsersDto } from '../../helper/dto/user/get-all-user.dto';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { RolesGuard } from 'src/helper/guard/roles.guard';
+import { GetAllUsersResponseDTO } from 'src/helper/dto/user/get-all-user-response.dto';
 
 @Controller('v2/users')
 export class UserController {
@@ -34,7 +35,9 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
-  async getAllUsers(@Query() query: GetAllUsersDto) {
+  async getAllUsers(
+    @Query() query: GetAllUsersDto,
+  ): Promise<GetAllUsersResponseDTO[]> {
     const { page, limit }: GetAllUsersDto = query;
     return this.userService.getAllUsers(limit, page);
   }
