@@ -14,6 +14,6 @@ export { wishlists } from './wishlists.schema';
 export { contacts } from './contacts.schema';
 export { vouchers } from './vouchers.schema';
 export { comments } from './comments.schema';
-export { userDetail } from './user-details.schema';
+export { userDetails } from './user-details.schema';
 export { posts } from './posts.schema';
 export { customerRating } from './customer-rating.schema';

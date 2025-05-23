@@ -1,8 +1,9 @@
 import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { users } from './users.schema';
 import { images } from './images.schema';
+import { relations } from 'drizzle-orm';
 
-export const userDetail = mysqlTable('user_details', {
+export const userDetails = mysqlTable('user_details', {
   id: int()
     .notNull()
     .primaryKey()
@@ -13,3 +14,7 @@ export const userDetail = mysqlTable('user_details', {
     .notNull()
     .references(() => images.id),
 });
+
+export const usersDetailToImage = relations(userDetails, ({ many }) => ({
+  images: many(images),
+}));
