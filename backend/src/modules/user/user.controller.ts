@@ -23,7 +23,7 @@ import { GetAllUsersDto } from '../../helper/dto/user/get-all-user.dto';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { RolesGuard } from 'src/helper/guard/roles.guard';
-import { GetAllUsersResponseDTO } from 'src/helper/dto/user/get-all-user-response.dto';
+import { GetAllUsersResponseDTO } from 'src/helper/dto/response/user/get-all-user-response.dto';
 
 @Controller('v2/users')
 export class UserController {

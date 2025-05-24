@@ -1,4 +1,5 @@
 import {
+  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -16,6 +17,8 @@ import { asc, eq } from 'drizzle-orm';
 import { GetAllBrandsDTO } from 'src/helper/dto/brand/get-all-brand.dto';
 import { FindBrandById } from 'src/helper/dto/brand/find-brand-by-id.dto';
 import { FindBrandByName } from 'src/helper/dto/brand/find-brand-by-name.dto';
+import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
+import { NotifyMessage } from 'src/helper/message/notify-message';
 
 @Injectable()
 export class BrandService {
@@ -27,7 +30,7 @@ export class BrandService {
     private brandSelect: MySql2Database<Brand>,
   ) {}
 
-  async getAllBrands(brand: GetAllBrandsDTO): Promise<Brand[]> {
+  async getAllBrands(brand: GetAllBrandsDTO): Promise<ApiResponse<Brand[]>> {
     this.logger.debug(
       `Limit and offset for pagination ${brand.limit}, ${brand.page}`,
     );
@@ -46,10 +49,14 @@ export class BrandService {
 
     this.logger.debug(`Brand list ${JSON.stringify(brandList)}`);
 
-    return brandList;
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_ALL_BRAND_SUCCESSFUL,
+      data: brandList,
+    };
   }
 
-  async findBrandsById(brand: FindBrandById): Promise<Brand[]> {
+  async findBrandsById(brand: FindBrandById): Promise<ApiResponse<Brand[]>> {
     this.logger.debug('Id to get brand', brand.id);
 
     const brandList: Brand[] = await this.brandSelect
@@ -60,10 +67,16 @@ export class BrandService {
 
     this.logger.debug(`Uset getted by id: ${JSON.stringify(brandList)}`);
 
-    return brandList;
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      data: brandList,
+    };
   }
 
-  async findBrandsByName(brand: FindBrandByName): Promise<Brand[]> {
+  async findBrandsByName(
+    brand: FindBrandByName,
+  ): Promise<ApiResponse<Brand[]>> {
     this.logger.debug(`Name to find brand: ${brand.name}`);
 
     const brandList: Brand[] | undefined = await this.brandSelect
@@ -75,49 +88,73 @@ export class BrandService {
 
     this.logger.debug(`User finded by name ${JSON.stringify(brandList)}`);
 
-    return brandList;
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      data: brandList,
+    };
   }
 
-  async insertBrand(brand: BrandCreateDTO): Promise<number> {
-    this.logger.debug(`Brand: ${JSON.stringify(brand)}`);
+  async insertBrand(brand: BrandCreateDTO): Promise<ApiResponse<Brand>> {
+    try {
+      this.logger.debug(`Brand: ${JSON.stringify(brand)}`);
 
-    const value: BrandInsert = {
-      name: brand.name,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
-    this.logger.debug(`Value ${JSON.stringify(value)}`);
+      const value: BrandInsert = {
+        name: brand.name,
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+      this.logger.debug(`Value ${JSON.stringify(value)}`);
 
-    const [brandCreatedId]: { id: number }[] =
-      await this.brandInsert.transaction(async (tx) => {
-        return await tx.insert(brands).values(value).$returningId();
-      });
+      const [brandCreatedId]: { id: number }[] =
+        await this.brandInsert.transaction(async (tx) => {
+          return await tx.insert(brands).values(value).$returningId();
+        });
 
-    this.logger.debug(`Brand created id ${brandCreatedId.id}`);
+      this.logger.debug(`Brand created id ${brandCreatedId.id}`);
 
-    if (!brandCreatedId) {
-      this.logger.error(MessageLog.BRAND_NOT_FOUND);
-      throw new InternalServerErrorException(
-        ErrorMessage.INTERNAL_SERVER_ERROR,
-      );
+      if (!brandCreatedId) {
+        this.logger.error(MessageLog.BRAND_NOT_FOUND);
+        throw new InternalServerErrorException(
+          ErrorMessage.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      const [newBrand]: Brand[] = await this.brandSelect
+        .select()
+        .from(brands)
+        .where(eq(brands.id, brandCreatedId.id));
+      this.logger.debug(`Get new brand from db ${JSON.stringify(newBrand)}`);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: NotifyMessage.BRAND_INSERT_SUCCESSFUL,
+        data: newBrand,
+      };
+    } catch (error) {
+      this.logger.error(`Error: ${error}`);
+      throw error;
+    } finally {
+      this.logger.verbose(`Adding brand ${brand.name} successfully`);
     }
-
-    return brandCreatedId.id;
   }
 
-  async updateBrand(brand: BrandUpdateDTO): Promise<void> {
+  async updateBrand(brand: BrandUpdateDTO): Promise<ApiResponse<Brand>> {
     const value: BrandInsert = {
       name: brand.name,
       updated_at: new Date(),
     };
+    this.logger.debug(`Value to update ${JSON.stringify(value)}`);
 
     const brandId: number = brand.id;
+    this.logger.debug(`Get brand id ${brandId}`);
 
     const result: MySqlRawQueryResult = await this.brandInsert.transaction(
       async (tx) => {
         return await tx.update(brands).set(value).where(eq(brands.id, brandId));
       },
     );
+    this.logger.verbose(`Update result ${JSON.stringify(result)}`);
 
     if (!result) {
       this.logger.error(MessageLog.BRAND_CANNOT_BE_UPDATED);
@@ -125,5 +162,17 @@ export class BrandService {
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );
     }
+
+    const [newBrand]: Brand[] = await this.brandSelect
+      .select()
+      .from(brands)
+      .where(eq(brands.id, brand.id));
+    this.logger.debug(`Get new brand from db ${JSON.stringify(newBrand)}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.UPDATE_BRAND_SUCCESSFUL,
+      data: newBrand,
+    };
   }
 }

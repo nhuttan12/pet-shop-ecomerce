@@ -12,7 +12,12 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOkResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 import { Brand } from 'src/db/helper/schema-type';
 import { HasRole } from 'src/helper/decorator/roles.decorator';
 import { BrandCreateDTO } from 'src/helper/dto/brand/create-brand.dto';
@@ -25,6 +30,7 @@ import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/helper/guard/roles.guard';
 import { FindBrandById } from './../../helper/dto/brand/find-brand-by-id.dto';
 import { BrandService } from './brand.service';
+import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
 
 @Controller('brand')
 export class BrandController {
@@ -38,8 +44,10 @@ export class BrandController {
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
   @ApiBody({ type: BrandCreateDTO })
-  async addingNewBrand(@Body() brand: BrandCreateDTO): Promise<number> {
-    this.logger.debug(JSON.stringify(brand));
+  @ApiOkResponse({ type: ApiResponse })
+  async addingNewBrand(
+    @Body() brand: BrandCreateDTO,
+  ): Promise<ApiResponse<Brand>> {
     return await this.brandSerivce.insertBrand(brand);
   }
 
@@ -48,7 +56,9 @@ export class BrandController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @UseFilters(CatchEverythingFilter)
-  async getAllBrand(@Query() brand: GetAllBrandsDTO) {
+  async getAllBrand(
+    @Query() brand: GetAllBrandsDTO,
+  ): Promise<ApiResponse<Brand[]>> {
     return await this.brandSerivce.getAllBrands(brand);
   }
 
@@ -58,7 +68,9 @@ export class BrandController {
   @UseGuards(JwtAuthGuard)
   @UseFilters(CatchEverythingFilter)
   @ApiParam({ name: 'id', type: Number, description: 'User id' })
-  async findUserById(@Param() brand: FindBrandById): Promise<Brand[]> {
+  async findUserById(
+    @Param() brand: FindBrandById,
+  ): Promise<ApiResponse<Brand[]>> {
     return this.brandSerivce.findBrandsById(brand);
   }
 
@@ -67,7 +79,9 @@ export class BrandController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @UseFilters(CatchEverythingFilter)
-  async findUserByName(@Param() brand: FindBrandByName): Promise<Brand[]> {
+  async findUserByName(
+    @Param() brand: FindBrandByName,
+  ): Promise<ApiResponse<Brand[]>> {
     return this.brandSerivce.findBrandsByName(brand);
   }
 
@@ -78,7 +92,9 @@ export class BrandController {
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
   @ApiBody({ type: BrandUpdateDTO })
-  async updateBrand(@Body() brand: BrandUpdateDTO): Promise<void> {
+  async updateBrand(
+    @Body() brand: BrandUpdateDTO,
+  ): Promise<ApiResponse<Brand>> {
     return await this.brandSerivce.updateBrand(brand);
   }
 }
