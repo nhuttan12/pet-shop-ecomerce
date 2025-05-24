@@ -6,7 +6,7 @@ import {
   varchar,
 } from 'drizzle-orm/mysql-core';
 import { users } from './users.schema';
-import { PostStatus } from 'src/helper/enum/posts-status.enum';
+import { PostStatus } from 'src/helper/enum/status/posts-status.enum';
 
 export const posts = mysqlTable('posts', {
   id: int().primaryKey().notNull(),

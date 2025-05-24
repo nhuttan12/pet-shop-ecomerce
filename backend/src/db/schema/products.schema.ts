@@ -6,7 +6,7 @@ import {
   text,
   varchar,
 } from 'drizzle-orm/mysql-core';
-import { ProductStatus } from 'src/helper/enum/product-status.enum';
+import { ProductStatus } from 'src/helper/enum/status/product-status.enum';
 import { timestamps } from '../helper/timestamp';
 import { brands } from './brands.schema';
 import { cartDetails } from './cart-details.schema';

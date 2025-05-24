@@ -16,3 +16,5 @@ export type Role = typeof schema.roles.$inferSelect;
 export type ImageInsert = typeof schema.images.$inferInsert;
 export type Image = typeof schema.images.$inferSelect;
 export type UserDetail = typeof schema.userDetails.$inferSelect;
+export type Category = typeof schema.categories.$inferSelect;
+export type CategoryInsert = typeof schema.categories.$inferInsert;

@@ -12,6 +12,8 @@ import { RoleModule } from './modules/role/role.module';
 import { ProductModule } from './modules/product/product.module';
 import { MailModule } from './modules/mail/mail.module';
 import { BrandModule } from './modules/brand/brand.module';
+import { CategoryController } from './modules/category/category.controller';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { BrandModule } from './modules/brand/brand.module';
     ImageModule,
     MailModule,
     BrandModule,
+    CategoryModule,
   ],
   providers: [
     {
@@ -49,5 +52,6 @@ import { BrandModule } from './modules/brand/brand.module';
       useClass: ValidationPipe,
     },
   ],
+  controllers: [CategoryController],
 })
 export class AppModule {}

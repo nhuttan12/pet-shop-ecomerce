@@ -1,6 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { int, mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
-import { CategoryStatus } from 'src/helper/enum/categories-status.enum';
+import { CategoryStatus } from 'src/helper/enum/status/categories-status.enum';
 import { timestamps } from '../helper/timestamp';
 import { categoriesMapping } from './categories-mapping.schema';
 import { images } from './images.schema';
@@ -8,7 +8,6 @@ import { images } from './images.schema';
 export const categories = mysqlTable('categories', {
   id: int().primaryKey().notNull().autoincrement(),
   name: varchar('name', { length: 45 }),
-  description: varchar('description', { length: 255 }),
   status: mysqlEnum(Object.values(CategoryStatus) as [string, ...string[]]),
   imageId: int('image_id')
     .notNull()

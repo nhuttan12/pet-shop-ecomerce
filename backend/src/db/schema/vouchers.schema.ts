@@ -1,5 +1,5 @@
 import { int, mysqlEnum, mysqlTable, text } from 'drizzle-orm/mysql-core';
-import { VoucherStatus } from 'src/helper/enum/vouchers-status.enum';
+import { VoucherStatus } from 'src/helper/enum/status/vouchers-status.enum';
 import { users } from './users.schema';
 import { products } from './products.schema';
 

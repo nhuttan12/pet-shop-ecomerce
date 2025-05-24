@@ -6,7 +6,7 @@ import {
   timestamp,
   varchar,
 } from 'drizzle-orm/mysql-core';
-import { ContactStatus } from 'src/helper/enum/contact-status.enum copy';
+import { ContactStatus } from 'src/helper/enum/status/contact-status.enum copy';
 
 export const contacts = mysqlTable('contacts', {
   id: int().primaryKey().notNull().autoincrement(),

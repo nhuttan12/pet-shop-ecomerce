@@ -5,7 +5,7 @@ import { relations } from 'drizzle-orm';
 import { orderDetails } from './order-details.schema';
 import { PaymentMethod } from 'src/helper/enum/payment-method.enum';
 import { ShippingMethod } from 'src/helper/enum/shipping_method.enum';
-import { OrderStatus } from 'src/helper/enum/order-status.enum';
+import { OrderStatus } from 'src/helper/enum/status/order-status.enum';
 
 export const orders = mysqlTable('orders', {
   id: int().primaryKey().notNull().autoincrement(),

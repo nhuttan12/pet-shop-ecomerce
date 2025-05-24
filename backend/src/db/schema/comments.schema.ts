@@ -1,6 +1,6 @@
 import { int, mysqlEnum, mysqlTable, text } from 'drizzle-orm/mysql-core';
 import { users } from './users.schema';
-import { CommentStatus } from 'src/helper/enum/comment-status.enum';
+import { CommentStatus } from 'src/helper/enum/status/comment-status.enum';
 import { relations } from 'drizzle-orm';
 
 export const comments = mysqlTable('comments', {

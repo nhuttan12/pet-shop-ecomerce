@@ -4,7 +4,7 @@ import { roles } from './roles.schema';
 import { relations } from 'drizzle-orm';
 import { carts } from './carts.schema';
 import { wishlists } from './wishlists.schema';
-import { UserStatus } from 'src/helper/enum/user-status.enum';
+import { UserStatus } from 'src/helper/enum/status/user-status.enum';
 import { vouchers } from './vouchers.schema';
 import { customerRating } from './customer-rating.schema';
 
