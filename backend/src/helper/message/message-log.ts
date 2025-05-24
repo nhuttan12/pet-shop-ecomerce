@@ -121,5 +121,15 @@ export const MessageLog = {
    * @description: throw error when code with brand
    */
   BRAND_NOT_FOUND: 'Brand was not found',
-  BRAND_CANNOT_BE_UPDATED: "Brand can't not be update",
+  BRAND_CANNOT_BE_UPDATED: "Brand can't be update",
+
+  /**
+   * @description: throw error when code with image
+   */
+  IMAGE_CANNOT_BE_FOUND: "Image can't be found",
+
+  /**
+   * @description: throw error when code with category
+   */
+  CATEGORY_NOT_FOUND: 'Category cannot be found',
 } as const;

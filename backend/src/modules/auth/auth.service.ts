@@ -18,7 +18,7 @@ import { UserForgotPasswordDTO } from 'src/helper/dto/user/user-forgot-password.
 import { UserLoginResponseDTO } from 'src/helper/dto/user/user-login.dto';
 import { UserResetPasswordDTO } from 'src/helper/dto/user/user-reset-password.dto';
 import { Role as RoleName } from 'src/helper/enum/role.enum';
-import { UserStatus } from 'src/helper/enum/user-status.enum';
+import { UserStatus } from 'src/helper/enum/status/user-status.enum';
 import { MessageLog } from 'src/helper/message/message-log';
 import { NotifyMessage } from 'src/helper/message/notify-message';
 import { JwtPayload } from '../../helper/interface/jwt-payload.interface';

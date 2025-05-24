@@ -1,24 +1,22 @@
 import {
-  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { asc, eq } from 'drizzle-orm';
 import { MySql2Database, MySqlRawQueryResult } from 'drizzle-orm/mysql2';
 import { Brand, BrandInsert } from 'src/db/helper/schema-type';
 import { brands } from 'src/db/schema';
 import { BrandCreateDTO } from 'src/helper/dto/brand/create-brand.dto';
+import { FindBrandById } from 'src/helper/dto/brand/find-brand-by-id.dto';
+import { FindBrandByName } from 'src/helper/dto/brand/find-brand-by-name.dto';
+import { GetAllBrandsDTO } from 'src/helper/dto/brand/get-all-brand.dto';
+import { BrandUpdateDTO } from 'src/helper/dto/brand/update-brand.dto';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
 import { DrizzleAsyncProvider } from '../database/drizzle.provider';
-import { BrandUpdateDTO } from 'src/helper/dto/brand/update-brand.dto';
-import { asc, eq } from 'drizzle-orm';
-import { GetAllBrandsDTO } from 'src/helper/dto/brand/get-all-brand.dto';
-import { FindBrandById } from 'src/helper/dto/brand/find-brand-by-id.dto';
-import { FindBrandByName } from 'src/helper/dto/brand/find-brand-by-name.dto';
-import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
-import { NotifyMessage } from 'src/helper/message/notify-message';
+import { BrandStatus } from 'src/helper/enum/status/brand-status.enum';
 
 @Injectable()
 export class BrandService {
@@ -30,7 +28,7 @@ export class BrandService {
     private brandSelect: MySql2Database<Brand>,
   ) {}
 
-  async getAllBrands(brand: GetAllBrandsDTO): Promise<ApiResponse<Brand[]>> {
+  async getAllBrands(brand: GetAllBrandsDTO): Promise<Brand[]> {
     this.logger.debug(
       `Limit and offset for pagination ${brand.limit}, ${brand.page}`,
     );
@@ -49,14 +47,10 @@ export class BrandService {
 
     this.logger.debug(`Brand list ${JSON.stringify(brandList)}`);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_ALL_BRAND_SUCCESSFUL,
-      data: brandList,
-    };
+    return brandList;
   }
 
-  async findBrandsById(brand: FindBrandById): Promise<ApiResponse<Brand[]>> {
+  async findBrandsById(brand: FindBrandById): Promise<Brand[]> {
     this.logger.debug('Id to get brand', brand.id);
 
     const brandList: Brand[] = await this.brandSelect
@@ -67,16 +61,10 @@ export class BrandService {
 
     this.logger.debug(`Uset getted by id: ${JSON.stringify(brandList)}`);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
-      data: brandList,
-    };
+    return brandList;
   }
 
-  async findBrandsByName(
-    brand: FindBrandByName,
-  ): Promise<ApiResponse<Brand[]>> {
+  async findBrandsByName(brand: FindBrandByName): Promise<Brand[]> {
     this.logger.debug(`Name to find brand: ${brand.name}`);
 
     const brandList: Brand[] | undefined = await this.brandSelect
@@ -88,19 +76,16 @@ export class BrandService {
 
     this.logger.debug(`User finded by name ${JSON.stringify(brandList)}`);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
-      data: brandList,
-    };
+    return brandList;
   }
 
-  async insertBrand(brand: BrandCreateDTO): Promise<ApiResponse<Brand>> {
+  async insertBrand(brand: BrandCreateDTO): Promise<Brand> {
     try {
       this.logger.debug(`Brand: ${JSON.stringify(brand)}`);
 
       const value: BrandInsert = {
         name: brand.name,
+        status: BrandStatus.ACTIVE,
         created_at: new Date(),
         updated_at: new Date(),
       };
@@ -126,11 +111,7 @@ export class BrandService {
         .where(eq(brands.id, brandCreatedId.id));
       this.logger.debug(`Get new brand from db ${JSON.stringify(newBrand)}`);
 
-      return {
-        statusCode: HttpStatus.OK,
-        message: NotifyMessage.BRAND_INSERT_SUCCESSFUL,
-        data: newBrand,
-      };
+      return newBrand;
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;
@@ -139,9 +120,10 @@ export class BrandService {
     }
   }
 
-  async updateBrand(brand: BrandUpdateDTO): Promise<ApiResponse<Brand>> {
+  async updateBrand(brand: BrandUpdateDTO): Promise<Brand> {
     const value: BrandInsert = {
       name: brand.name,
+      status: brand.status,
       updated_at: new Date(),
     };
     this.logger.debug(`Value to update ${JSON.stringify(value)}`);
@@ -169,10 +151,6 @@ export class BrandService {
       .where(eq(brands.id, brand.id));
     this.logger.debug(`Get new brand from db ${JSON.stringify(newBrand)}`);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: NotifyMessage.UPDATE_BRAND_SUCCESSFUL,
-      data: newBrand,
-    };
+    return newBrand;
   }
 }

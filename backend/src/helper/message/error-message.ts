@@ -72,4 +72,6 @@ export const ErrorMessage = {
    */
   BRAND_ID_MUST_BE_INTEGER: 'Mã số thương hiệu phải là số nguyên',
   BRAND_FULL_NAME_MUST_BE_STRING: 'Tên thương hiệu phải là một chuỗi',
+
+  STATUS_MUST_BE_ENUM: 'Trạng thái không hợp lệ',
 } as const;

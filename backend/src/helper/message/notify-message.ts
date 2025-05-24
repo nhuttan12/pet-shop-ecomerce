@@ -9,4 +9,6 @@ export const NotifyMessage = {
   GET_BRAND_SUCCESSFUL: 'Lấy thương hiệu thành công',
   GET_USER_SUCCESSFUL: 'Lấy thông tin người dùng thành công',
   UPDATE_USER_SUCCESSFUL: 'Thay đổi thông tin người dùng thành công',
+  GET_CATEGORY_SUCCESSFUL: 'Lấy thông tin danh mục thành công',
+  UPDATE_CATEGORY_SUCCESSFUL: 'Thay đổi thông tin danh mục thành công',
 };

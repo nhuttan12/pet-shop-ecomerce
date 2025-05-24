@@ -31,6 +31,7 @@ import { RolesGuard } from 'src/helper/guard/roles.guard';
 import { FindBrandById } from './../../helper/dto/brand/find-brand-by-id.dto';
 import { BrandService } from './brand.service';
 import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
+import { NotifyMessage } from 'src/helper/message/notify-message';
 
 @Controller('brand')
 export class BrandController {
@@ -48,7 +49,16 @@ export class BrandController {
   async addingNewBrand(
     @Body() brand: BrandCreateDTO,
   ): Promise<ApiResponse<Brand>> {
-    return await this.brandSerivce.insertBrand(brand);
+    const newBrand: Brand = await this.brandSerivce.insertBrand(brand);
+    this.logger.debug(
+      `Get brand after insert in controller ${JSON.stringify(newBrand)}`,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      data: newBrand,
+    };
   }
 
   @Get()
@@ -56,10 +66,19 @@ export class BrandController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @UseFilters(CatchEverythingFilter)
+  @ApiOkResponse({ type: ApiResponse })
+  @ApiBody({ type: GetAllBrandsDTO })
   async getAllBrand(
     @Query() brand: GetAllBrandsDTO,
   ): Promise<ApiResponse<Brand[]>> {
-    return await this.brandSerivce.getAllBrands(brand);
+    const newBrand: Brand[] = await this.brandSerivce.getAllBrands(brand);
+    this.logger.debug(`Get brand in controller ${JSON.stringify(newBrand)}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      data: newBrand,
+    };
   }
 
   @Get(':id')
@@ -67,22 +86,41 @@ export class BrandController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @UseFilters(CatchEverythingFilter)
-  @ApiParam({ name: 'id', type: Number, description: 'User id' })
+  @ApiOkResponse({ type: ApiResponse })
+  @ApiParam({ name: 'id', type: Number, description: 'Brand id' })
+  @ApiBody({ type: FindBrandById })
   async findUserById(
     @Param() brand: FindBrandById,
   ): Promise<ApiResponse<Brand[]>> {
-    return this.brandSerivce.findBrandsById(brand);
+    const newBrand: Brand[] = await this.brandSerivce.findBrandsById(brand);
+    this.logger.debug(`Get brand in controller ${JSON.stringify(newBrand)}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      data: newBrand,
+    };
   }
 
   @Get(':name')
   @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: ApiResponse })
+  @ApiParam({ name: 'id', type: String, description: 'Brand name' })
   @UseFilters(CatchEverythingFilter)
+  @ApiBody({ type: FindBrandByName })
   async findUserByName(
     @Param() brand: FindBrandByName,
   ): Promise<ApiResponse<Brand[]>> {
-    return this.brandSerivce.findBrandsByName(brand);
+    const newBrand: Brand[] = await this.brandSerivce.findBrandsByName(brand);
+    this.logger.debug(`Get brand in controller ${JSON.stringify(newBrand)}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      data: newBrand,
+    };
   }
 
   @Put('update')
@@ -91,10 +129,20 @@ export class BrandController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
+  @ApiOkResponse({ type: ApiResponse })
   @ApiBody({ type: BrandUpdateDTO })
   async updateBrand(
     @Body() brand: BrandUpdateDTO,
   ): Promise<ApiResponse<Brand>> {
-    return await this.brandSerivce.updateBrand(brand);
+    const newBrand: Brand = await this.brandSerivce.updateBrand(brand);
+    this.logger.debug(
+      `Get brand after insert in controller ${JSON.stringify(newBrand)}`,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      data: newBrand,
+    };
   }
 }

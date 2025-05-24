@@ -1,5 +1,4 @@
 import {
-  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -8,18 +7,16 @@ import {
 } from '@nestjs/common';
 import { and, asc, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { DrizzleAsyncProvider } from 'src/modules/database/drizzle.provider';
 import { Role, User, UserDetail, UserInsert } from 'src/db/helper/schema-type';
 import { images, roles, userDetails, users } from 'src/db/schema';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { MessageLog } from 'src/helper/message/message-log';
+import { GetAllUsersResponseDTO } from 'src/helper/dto/response/user/get-all-user-response.dto';
 import { CreateUserDto } from 'src/helper/dto/user/create-user.dto';
 import { UserUpdateDTO } from 'src/helper/dto/user/update-user.dto';
-import { UserStatus } from 'src/helper/enum/user-status.enum';
+import { UserStatus } from 'src/helper/enum/status/user-status.enum';
+import { ErrorMessage } from 'src/helper/message/error-message';
+import { MessageLog } from 'src/helper/message/message-log';
+import { DrizzleAsyncProvider } from 'src/modules/database/drizzle.provider';
 import { RoleService } from '../role/role.service';
-import { GetAllUsersResponseDTO } from 'src/helper/dto/response/user/get-all-user-response.dto';
-import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
-import { NotifyMessage } from 'src/helper/message/notify-message';
 
 @Injectable()
 export class UserService {
@@ -42,7 +39,7 @@ export class UserService {
    * @param id: id of user
    * @returns: user
    */
-  async getUserById(id: number): Promise<ApiResponse<User>> {
+  async getUserById(id: number): Promise<User> {
     this.logger.debug('Id to get user', id);
 
     const [user] = await this.userSelect
@@ -65,7 +62,7 @@ export class UserService {
    * @param name: name of user
    * @returns: user
    */
-  // async getUserByName(name: string): Promise<ApiResponse<User>> {
+  // async getUserByName(name: string): Promise<User> {
   //   this.logger.debug('Name to get user', name);
 
   //   const [user]: User[] = await this.userSelect
@@ -91,7 +88,7 @@ export class UserService {
    * @param name: name of user
    * @returns: user | undefinded
    */
-  async findUserByName(name: string): Promise<ApiResponse<User[]>> {
+  async findUserByName(name: string): Promise<User[]> {
     this.logger.debug('Name to get find', name);
 
     const user: User[] | undefined = await this.userSelect
@@ -103,11 +100,7 @@ export class UserService {
 
     this.logger.debug('User finded by name', user);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_USER_SUCCESSFUL,
-      data: user,
-    };
+    return user;
   }
 
   /**
@@ -116,7 +109,7 @@ export class UserService {
    * @param username: username of user
    * @returns: user
    */
-  async getUserByUsername(username: string): Promise<ApiResponse<User>> {
+  async getUserByUsername(username: string): Promise<User> {
     this.logger.debug('Username to get user:', username);
 
     const [user]: User[] = await this.userSelect
@@ -135,11 +128,7 @@ export class UserService {
 
     this.logger.debug('User getted by username', user);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_USER_SUCCESSFUL,
-      data: user,
-    };
+    return user;
   }
 
   /**
@@ -148,7 +137,7 @@ export class UserService {
    * @param email: email of user
    * @returns: user
    */
-  async getUserByEmail(email: string): Promise<ApiResponse<User>> {
+  async getUserByEmail(email: string): Promise<User> {
     this.logger.debug('Email to get user', email);
     const [user] = await this.userSelect
       .select()
@@ -163,11 +152,7 @@ export class UserService {
 
     this.logger.debug('User getted by email', user);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_USER_SUCCESSFUL,
-      data: user,
-    };
+    return user;
   }
 
   /**
@@ -197,10 +182,7 @@ export class UserService {
    * @param username: username of user
    * @returns: user
    */
-  async getUserByIdAndUsername(
-    id: number,
-    username: string,
-  ): Promise<ApiResponse<User>> {
+  async getUserByIdAndUsername(id: number, username: string): Promise<User> {
     this.logger.debug('Id and username', id, username);
 
     const [user]: User[] = await this.userSelect
@@ -220,11 +202,7 @@ export class UserService {
 
     this.logger.debug('User', user);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_USER_SUCCESSFUL,
-      data: user,
-    };
+    return user;
   }
 
   async getAllUsers(
@@ -308,7 +286,7 @@ export class UserService {
     return userCreatedId.id;
   }
 
-  async findUserById(id: number): Promise<ApiResponse<User[]>> {
+  async findUserById(id: number): Promise<User[]> {
     this.logger.debug('Id to get user', id);
 
     const user = await this.userSelect
@@ -319,11 +297,7 @@ export class UserService {
 
     this.logger.debug('Uset getted by id', user);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_USER_SUCCESSFUL,
-      data: user,
-    };
+    return user;
   }
 
   async updateUser({
@@ -333,12 +307,12 @@ export class UserService {
     phone,
     address,
     imageId,
-  }: UserUpdateDTO): Promise<void> {
+  }: UserUpdateDTO): Promise<User> {
     let user: User | undefined;
     try {
       this.logger.debug('User info', id, name, email, phone, address);
 
-      user = (await this.getUserById(id)).data!;
+      user = await this.getUserById(id);
 
       this.logger.debug('User getted by id', user);
 
@@ -363,6 +337,20 @@ export class UserService {
           })
           .where(eq(userDetails.id, userId));
       });
+
+      const [newUser]: User[] = await this.userSelect
+        .select()
+        .from(users)
+        .where(eq(users.id, id));
+
+      if (!newUser) {
+        this.logger.error(MessageLog.USER_NOT_FOUND);
+        throw new InternalServerErrorException(
+          ErrorMessage.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      return newUser;
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;
@@ -371,10 +359,7 @@ export class UserService {
     }
   }
 
-  async updatePassword(
-    id: number,
-    password: string,
-  ): Promise<ApiResponse<User>> {
+  async updatePassword(id: number, password: string): Promise<User> {
     try {
       await this.userInsert.transaction(async (tx) => {
         await tx
@@ -395,11 +380,7 @@ export class UserService {
         );
       }
 
-      return {
-        statusCode: HttpStatus.OK,
-        message: NotifyMessage.UPDATE_USER_SUCCESSFUL,
-        data: newUser,
-      };
+      return newUser;
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;

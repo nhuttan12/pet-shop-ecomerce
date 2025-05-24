@@ -3,6 +3,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Param,
   Put,
   Query,
@@ -24,9 +25,12 @@ import { UserService } from './user.service';
 import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { RolesGuard } from 'src/helper/guard/roles.guard';
 import { GetAllUsersResponseDTO } from 'src/helper/dto/response/user/get-all-user-response.dto';
+import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
+import { NotifyMessage } from 'src/helper/message/notify-message';
 
 @Controller('v2/users')
 export class UserController {
+  private readonly logger = new Logger();
   constructor(private userService: UserService) {}
 
   @Get()
@@ -37,9 +41,21 @@ export class UserController {
   @UseFilters(CatchEverythingFilter)
   async getAllUsers(
     @Query() query: GetAllUsersDto,
-  ): Promise<GetAllUsersResponseDTO[]> {
+  ): Promise<ApiResponse<GetAllUsersResponseDTO[]>> {
     const { page, limit }: GetAllUsersDto = query;
-    return this.userService.getAllUsers(limit, page);
+    this.logger.debug(`Info to get all user ${page} ${limit}`);
+
+    const userList: GetAllUsersResponseDTO[] =
+      await this.userService.getAllUsers(limit, page);
+    this.logger.debug(
+      `Get user list in controller ${JSON.stringify(userList)}`,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_USER_SUCCESSFUL,
+      data: userList,
+    };
   }
 
   @Get(':id')
@@ -49,9 +65,20 @@ export class UserController {
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
   @ApiParam({ name: 'id', type: Number, description: 'User id' })
-  async findUserById(@Param() findUser: FindUserById): Promise<User[]> {
+  async findUserById(
+    @Param() findUser: FindUserById,
+  ): Promise<ApiResponse<User[]>> {
     const id: number = findUser.id;
-    return this.userService.findUserById(id);
+    const userList: User[] = await this.userService.findUserById(id);
+    this.logger.debug(
+      `Get user list in controller ${JSON.stringify(userList)}`,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_USER_SUCCESSFUL,
+      data: userList,
+    };
   }
 
   @Get(':name')
@@ -60,9 +87,20 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
-  async findUserByName(@Param() nameParam: FindUserByName): Promise<User[]> {
+  async findUserByName(
+    @Param() nameParam: FindUserByName,
+  ): Promise<ApiResponse<User[]>> {
     const name: string = nameParam.name;
-    return this.userService.findUserByName(name);
+    const userList: User[] = await this.userService.findUserByName(name);
+    this.logger.debug(
+      `Get user list in controller ${JSON.stringify(userList)}`,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_USER_SUCCESSFUL,
+      data: userList,
+    };
   }
 
   @Put()
@@ -71,8 +109,18 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
-  async updateUser(@Query() userQuery: UserUpdateDTO): Promise<void> {
+  async updateUser(
+    @Query() userQuery: UserUpdateDTO,
+  ): Promise<ApiResponse<User>> {
     const user: UserUpdateDTO = userQuery;
-    return this.userService.updateUser(user);
+    const newUser: User = await this.userService.updateUser(user);
+
+    this.logger.debug(`Get user list in controller ${JSON.stringify(newUser)}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.UPDATE_USER_SUCCESSFUL,
+      data: newUser,
+    };
   }
 }
