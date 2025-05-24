@@ -9,10 +9,11 @@ import {
   Validate,
 } from 'class-validator';
 import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
-import { BrandStatus } from 'src/helper/enum/status/brand-status.enum';
+import { CategoryStatus } from 'src/helper/enum/status/categories-status.enum';
 import { ErrorMessage } from 'src/helper/message/error-message';
+import { SavedImageDTO } from '../image/saved-image.dto';
 
-export class BrandUpdateDTO {
+export class CategoryUpdateDTO {
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })
   @IsNotEmpty()
   @ApiProperty()
@@ -30,5 +31,7 @@ export class BrandUpdateDTO {
   @Validate(NotUrlValidator)
   @MinLength(1)
   @ApiProperty()
-  status: BrandStatus;
+  status: CategoryStatus;
+
+  savedImageDTO: SavedImageDTO;
 }

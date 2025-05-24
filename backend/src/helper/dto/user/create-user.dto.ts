@@ -1,7 +1,7 @@
 import { IsEmail, IsEnum, IsInt, IsString, Validate } from 'class-validator';
 import { NotUrlValidator } from '../../class-validator-contraint/not-url.validator';
 import { ErrorMessage } from '../../message/error-message';
-import { UserStatus } from '../../enum/user-status.enum';
+import { UserStatus } from '../../enum/status/user-status.enum';
 
 export class CreateUserDto {
   @IsString({ message: ErrorMessage.PARAM_NOT_VALID })

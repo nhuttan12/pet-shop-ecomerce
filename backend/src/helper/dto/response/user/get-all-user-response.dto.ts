@@ -1,4 +1,4 @@
-import { UserStatus } from 'src/helper/enum/user-status.enum';
+import { UserStatus } from 'src/helper/enum/status/user-status.enum';
 
 export class GetAllUsersResponseDTO {
   id: number;
