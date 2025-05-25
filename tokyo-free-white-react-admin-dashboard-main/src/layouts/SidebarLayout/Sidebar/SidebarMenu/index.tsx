@@ -31,6 +31,8 @@ import ChromeReaderModeTwoToneIcon from '@mui/icons-material/ChromeReaderModeTwo
 import WorkspacePremiumTwoToneIcon from '@mui/icons-material/WorkspacePremiumTwoTone';
 import CameraFrontTwoToneIcon from '@mui/icons-material/CameraFrontTwoTone';
 import DisplaySettingsTwoToneIcon from '@mui/icons-material/DisplaySettingsTwoTone';
+import Inventory2TwoToneIcon from '@mui/icons-material/Inventory2TwoTone';
+
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
@@ -253,6 +255,19 @@ function SidebarMenu() {
                   Transactions List
                 </Button>
               </ListItem>
+
+              <ListItem component="div">
+                  <Button
+                    disableRipple
+                    component={RouterLink}
+                    onClick={closeSidebar}
+                    to="/management/products"
+                    startIcon={<Inventory2TwoToneIcon />}
+                >
+                    Product Management
+                  </Button>
+              </ListItem>
+
             </List>
           </SubMenuWrapper>
         </List>

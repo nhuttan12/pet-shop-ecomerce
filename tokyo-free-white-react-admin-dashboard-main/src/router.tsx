@@ -37,6 +37,11 @@ const UserSettings = Loader(
   lazy(() => import('src/content/applications/Users/settings'))
 );
 
+const ProductManagement = Loader(
+  lazy(() => import('src/content/applications/ProductManagement'))
+);
+
+
 // Components
 
 const Buttons = Loader(
@@ -166,7 +171,13 @@ const routes: RouteObject[] = [
             element: <UserSettings />
           }
         ]
+      },
+
+      {
+            path: 'products',
+            element: <ProductManagement />
       }
+
     ]
   },
   {
