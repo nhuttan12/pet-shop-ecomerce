@@ -23,9 +23,11 @@ import {
   UserLoginDTO,
   UserLoginResponseDTO,
 } from 'src/helper/dto/user/user-login.dto';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
+@UseFilters(CatchEverythingFilter)
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
   constructor(private readonly authService: AuthService) {}
@@ -39,7 +41,15 @@ export class AuthController {
    */
   @Post('v1/register')
   @HttpCode(HttpStatus.OK)
-  @UseFilters(CatchEverythingFilter)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User registered successfully',
+    type: UserRegisterResponseDTO,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Validation failed or user already exists',
+  })
   async register(
     @Body() userRegisterDTO: UserRegisterDTO,
   ): Promise<UserRegisterResponseDTO> {
@@ -56,15 +66,27 @@ export class AuthController {
   @Post('v1/login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
-  @UseFilters(CatchEverythingFilter)
   @ApiBody({ type: UserLoginDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User logged in successfully',
+    type: UserLoginResponseDTO,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid credentials',
+  })
   async login(@Request() req: RequestWithUser): Promise<UserLoginResponseDTO> {
     return this.authService.loginWithUser(req.user);
   }
 
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
-  @UseFilters(CatchEverythingFilter)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset email sent',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Email not found' })
   async forgotPassword(
     @Body() userForgotPasswordDTO: UserForgotPasswordDTO,
   ): Promise<void> {
@@ -76,7 +98,14 @@ export class AuthController {
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  @UseFilters(CatchEverythingFilter)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid token or password',
+  })
   async resetPassword(@Body() userResetPasswordDTO: UserResetPasswordDTO) {
     this.logger.debug(
       `User reset password ${JSON.stringify(userResetPasswordDTO)}`,

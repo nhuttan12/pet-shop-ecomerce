@@ -3,11 +3,10 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  UnauthorizedException,
 } from '@nestjs/common';
-import { and, asc, eq } from 'drizzle-orm';
+import { and, asc, eq, SQL } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { Role, User, UserDetail, UserInsert } from 'src/db/helper/schema-type';
+import { User } from 'src/db/helper/schema-type';
 import { images, roles, userDetails, users } from 'src/db/schema';
 import { GetAllUsersResponseDTO } from 'src/helper/dto/response/user/get-all-user-response.dto';
 import { CreateUserDto } from 'src/helper/dto/user/create-user.dto';
@@ -15,22 +14,18 @@ import { UserUpdateDTO } from 'src/helper/dto/user/update-user.dto';
 import { UserStatus } from 'src/helper/enum/status/user-status.enum';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
+import { SearchService } from 'src/helper/services/search.service';
 import { DrizzleAsyncProvider } from 'src/modules/database/drizzle.provider';
-import { RoleService } from '../role/role.service';
+
+type UsersTable = typeof users;
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
   constructor(
     @Inject(DrizzleAsyncProvider)
-    private userSelect: MySql2Database<User>,
-    @Inject(DrizzleAsyncProvider)
-    private userInsert: MySql2Database<UserInsert>,
-    @Inject(DrizzleAsyncProvider)
-    private roleSelect: MySql2Database<Role>,
-    private roleService: RoleService,
-    @Inject(DrizzleAsyncProvider)
-    private userDetail: MySql2Database<UserDetail>,
+    private db: MySql2Database<any>,
+    private searchService: SearchService,
   ) {}
 
   /**
@@ -40,47 +35,14 @@ export class UserService {
    * @returns: user
    */
   async getUserById(id: number): Promise<User> {
-    this.logger.debug('Id to get user', id);
-
-    const [user] = await this.userSelect
-      .select()
-      .from(users)
-      .where(and(eq(users.id, id), eq(users.status, UserStatus.ACTIVE)));
-
-    if (!user) {
-      throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
-    }
-
-    this.logger.debug('Uset getted by id', user);
-
-    return user;
+    return this.searchService.findOneOrThrow<User>(
+      this.db,
+      users,
+      (u: UsersTable): SQL =>
+        and(eq(u.id, id), eq(u.status, UserStatus.ACTIVE)) as SQL,
+      ErrorMessage.USER_NOT_FOUND,
+    );
   }
-
-  /**
-   * @description: get user information with given
-   *  name from database, if not found, throw error
-   * @param name: name of user
-   * @returns: user
-   */
-  // async getUserByName(name: string): Promise<User> {
-  //   this.logger.debug('Name to get user', name);
-
-  //   const [user]: User[] = await this.userSelect
-  //     .select()
-  //     .from(users)
-  //     .where(eq(users.username, name))
-  //     .limit(1)
-  //     .execute();
-
-  //   if (!user) {
-  //     this.logger.error(MessageLog.USER_NOT_FOUND);
-  //     throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
-  //   }
-
-  //   this.logger.debug('Uset getted by name', user);
-
-  //   return user;
-  // }
 
   /**
    * @description: get user information with given
@@ -89,18 +51,15 @@ export class UserService {
    * @returns: user | undefinded
    */
   async findUserByName(name: string): Promise<User[]> {
-    this.logger.debug('Name to get find', name);
-
-    const user: User[] | undefined = await this.userSelect
-      .select()
-      .from(users)
-      .where(eq(users.username, name))
-      .limit(1)
-      .execute();
-
-    this.logger.debug('User finded by name', user);
-
-    return user;
+    return await this.searchService.findManyOrReturnEmptyArray(
+      this.db,
+      users,
+      (u: UsersTable): SQL =>
+        and(eq(u.name, name), eq(u.status, UserStatus.ACTIVE)) as SQL,
+      undefined,
+      undefined,
+      asc(users.id),
+    );
   }
 
   /**
@@ -110,25 +69,20 @@ export class UserService {
    * @returns: user
    */
   async getUserByUsername(username: string): Promise<User> {
-    this.logger.debug('Username to get user:', username);
+    return await this.searchService.findOneOrThrow(
+      this.db,
+      users,
+      eq(users.username, username),
+      ErrorMessage.USER_NOT_FOUND,
+    );
+  }
 
-    const [user]: User[] = await this.userSelect
-      .select()
-      .from(users)
-      .where(
-        and(eq(users.username, username), eq(users.status, UserStatus.ACTIVE)),
-      )
-      .limit(1)
-      .execute();
-
-    if (!user) {
-      this.logger.error(MessageLog.USER_NOT_FOUND);
-      throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
-    }
-
-    this.logger.debug('User getted by username', user);
-
-    return user;
+  async findUserByUsername(username: string): Promise<User[]> {
+    return this.searchService.findManyOrReturnEmptyArray<User, any>(
+      this.db,
+      users,
+      (u: UsersTable) => eq(u.username, username),
+    );
   }
 
   /**
@@ -138,21 +92,12 @@ export class UserService {
    * @returns: user
    */
   async getUserByEmail(email: string): Promise<User> {
-    this.logger.debug('Email to get user', email);
-    const [user] = await this.userSelect
-      .select()
-      .from(users)
-      .where(and(eq(users.email, email), eq(users.status, UserStatus.ACTIVE)))
-      .limit(1);
-
-    if (!user) {
-      this.logger.error(MessageLog.USER_NOT_FOUND);
-      throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
-    }
-
-    this.logger.debug('User getted by email', user);
-
-    return user;
+    return await this.searchService.findOneOrThrow(
+      this.db,
+      users,
+      eq(users.email, email),
+      ErrorMessage.EMAIL_IS_NOT_FOUND,
+    );
   }
 
   /**
@@ -164,7 +109,7 @@ export class UserService {
   async findUserByEmail(email: string): Promise<User | undefined> {
     this.logger.debug('Email to find', email);
 
-    const [user] = await this.userSelect
+    const [user] = await this.db
       .select()
       .from(users)
       .where(eq(users.email, email))
@@ -183,26 +128,17 @@ export class UserService {
    * @returns: user
    */
   async getUserByIdAndUsername(id: number, username: string): Promise<User> {
-    this.logger.debug('Id and username', id, username);
-
-    const [user]: User[] = await this.userSelect
-      .select()
-      .from(users)
-      .where(
+    return this.searchService.findOneOrThrow(
+      this.db,
+      users,
+      (u: UsersTable) =>
         and(
-          eq(users.id, id),
-          eq(users.username, username),
-          eq(users.status, UserStatus.ACTIVE),
-        ),
-      );
-
-    if (!user) {
-      throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
-    }
-
-    this.logger.debug('User', user);
-
-    return user;
+          eq(u.id, id),
+          eq(u.username, username),
+          eq(u.status, UserStatus.ACTIVE),
+        ) as SQL,
+      ErrorMessage.USER_NOT_FOUND,
+    );
   }
 
   async getAllUsers(
@@ -212,7 +148,7 @@ export class UserService {
     this.logger.debug(`Limit and offset for pagination ${limit}, ${offset}`);
     offset = offset < 0 ? (offset = 0) : offset - 1;
 
-    const user = await this.userSelect
+    const user = await this.db
       .select()
       .from(users)
       .innerJoin(userDetails, eq(users.id, userDetails.id))
@@ -244,10 +180,10 @@ export class UserService {
     return result;
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<number> {
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
     this.logger.debug('User information to create', createUserDto);
 
-    const [userCreatedId]: { id: number }[] = await this.userInsert.transaction(
+    const [userCreatedId]: { id: number }[] = await this.db.transaction(
       async (tx) => {
         return await tx
           .insert(users)
@@ -273,31 +209,35 @@ export class UserService {
       );
     }
 
+    await this.db.transaction(async (tx) => {
+      return await tx
+        .update(users)
+        .set({
+          name: `Người dùng ${userCreatedId.id}`,
+        })
+        .where(eq(users.id, userCreatedId.id));
+    });
+
     this.logger.verbose(
       `Inser deffault image to user detail with id: ${userCreatedId.id}`,
     );
 
-    await this.userInsert.transaction(async (tx) => {
+    await this.db.transaction(async (tx) => {
       return await tx
         .insert(userDetails)
         .values({ id: userCreatedId.id, imageId: 1 });
     });
 
-    return userCreatedId.id;
+    return this.findUserById(userCreatedId.id);
   }
 
-  async findUserById(id: number): Promise<User[]> {
-    this.logger.debug('Id to get user', id);
-
-    const user = await this.userSelect
-      .select()
-      .from(users)
-      .where(eq(users.id, id))
-      .orderBy(asc(users.id));
-
-    this.logger.debug('Uset getted by id', user);
-
-    return user;
+  async findUserById(id: number): Promise<User> {
+    return await this.searchService.findOneOrThrow(
+      this.db,
+      users,
+      eq(users.id, id),
+      ErrorMessage.USER_NOT_FOUND,
+    );
   }
 
   async updateUser({
@@ -318,7 +258,7 @@ export class UserService {
 
       const userId: number = user?.id;
 
-      await this.userInsert.transaction(async (tx) => {
+      await this.db.transaction(async (tx) => {
         await tx
           .update(users)
           .set({
@@ -338,19 +278,7 @@ export class UserService {
           .where(eq(userDetails.id, userId));
       });
 
-      const [newUser]: User[] = await this.userSelect
-        .select()
-        .from(users)
-        .where(eq(users.id, id));
-
-      if (!newUser) {
-        this.logger.error(MessageLog.USER_NOT_FOUND);
-        throw new InternalServerErrorException(
-          ErrorMessage.INTERNAL_SERVER_ERROR,
-        );
-      }
-
-      return newUser;
+      return this.findUserById(userId);
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;
@@ -361,26 +289,14 @@ export class UserService {
 
   async updatePassword(id: number, password: string): Promise<User> {
     try {
-      await this.userInsert.transaction(async (tx) => {
+      await this.db.transaction(async (tx) => {
         await tx
           .update(users)
           .set({ password: password, updated_at: new Date() })
           .where(eq(users.id, id));
       });
 
-      const [newUser]: User[] = await this.userSelect
-        .select()
-        .from(users)
-        .where(eq(users.id, id));
-
-      if (!newUser) {
-        this.logger.error(MessageLog.USER_NOT_FOUND);
-        throw new InternalServerErrorException(
-          ErrorMessage.INTERNAL_SERVER_ERROR,
-        );
-      }
-
-      return newUser;
+      return this.findUserById(id);
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;

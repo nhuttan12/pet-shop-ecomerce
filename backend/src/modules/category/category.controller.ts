@@ -17,6 +17,8 @@ import {
   ApiBody,
   ApiOkResponse,
   ApiParam,
+  ApiQuery,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Category } from 'src/db/helper/schema-type';
 import { HasRole } from 'src/helper/decorator/roles.decorator';
@@ -33,17 +35,19 @@ import { FindCategoryById } from 'src/helper/dto/category/find-category-by-id.dt
 import { FindCategoryByName } from 'src/helper/dto/category/find-category-by-name.dto';
 import { CategoryUpdateDTO } from 'src/helper/dto/category/update-category.dto';
 
+@ApiTags('Category')
 @Controller('category')
+@ApiBearerAuth('jwt')
+@UseFilters(CatchEverythingFilter)
+@UseGuards(JwtAuthGuard)
 export class CategoryController {
   private readonly logger = new Logger();
   constructor(private categoryService: CategoryService) {}
 
   @Post('adding')
-  @ApiBearerAuth('jwt')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @HasRole(Role.ADMIN)
-  @UseFilters(CatchEverythingFilter)
+  @HttpCode(HttpStatus.OK)
   @ApiBody({ type: CategoryCreateDTO })
   @ApiOkResponse({ type: ApiResponse })
   async addingnewCategory(
@@ -63,59 +67,50 @@ export class CategoryController {
   }
 
   @Get()
-  @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  @UseFilters(CatchEverythingFilter)
-  @ApiBody({ type: GetAllCategoryDTO })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiOkResponse({ type: ApiResponse })
   async getAllBrand(
     @Query() category: GetAllCategoryDTO,
   ): Promise<ApiResponse<Category[]>> {
-    const newCategory: Category[] =
-      await this.categoryService.getAllBrands(category);
+    const categories: Category[] =
+      await this.categoryService.getAllCategories(category);
     this.logger.debug(
-      `Get category in controller ${JSON.stringify(newCategory)}`,
+      `Get category in controller ${JSON.stringify(categories)}`,
     );
 
     return {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.GET_BRAND_SUCCESSFUL,
-      data: newCategory,
+      data: categories,
     };
   }
 
-  @Get(':id')
+  @Get('id/:id')
   @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  @UseFilters(CatchEverythingFilter)
-  @ApiBody({ type: FindCategoryById })
-  @ApiParam({ name: 'id', type: Number, description: 'Category id' })
+  @ApiParam({ name: 'id', type: Number, description: 'Category ID' })
   @ApiOkResponse({ type: ApiResponse })
-  async findUserById(
+  async getCategoryById(
     @Param() category: FindCategoryById,
   ): Promise<ApiResponse<Category[]>> {
-    const newCategory: Category[] =
+    const categories: Category[] =
       await this.categoryService.findCategoriesById(category);
     this.logger.debug(
-      `Get category in controller ${JSON.stringify(newCategory)}`,
+      `Get category in controller ${JSON.stringify(categories)}`,
     );
 
     return {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.GET_BRAND_SUCCESSFUL,
-      data: newCategory,
+      data: categories,
     };
   }
 
-  @Get(':name')
-  @ApiBearerAuth('jwt')
+  @Get('name/:name')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  @UseFilters(CatchEverythingFilter)
-  @ApiBody({ type: FindCategoryByName })
-  @ApiParam({ name: 'id', type: String, description: 'Category name' })
+  @ApiParam({ name: 'name', type: String, description: 'Category name' })
   @ApiOkResponse({ type: ApiResponse })
   async findUserByName(
     @Param() category: FindCategoryByName,
@@ -134,26 +129,24 @@ export class CategoryController {
   }
 
   @Put('update')
-  @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @HasRole(Role.ADMIN)
-  @UseFilters(CatchEverythingFilter)
   @ApiBody({ type: CategoryUpdateDTO })
   @ApiOkResponse({ type: ApiResponse })
   async updateBrand(
     @Body() category: CategoryUpdateDTO,
   ): Promise<ApiResponse<Category>> {
-    const newCategory: Category =
+    const updatedCategory: Category =
       await this.categoryService.updateCategory(category);
     this.logger.debug(
-      `Get category after insert in controller ${JSON.stringify(newCategory)}`,
+      `Get category after insert in controller ${JSON.stringify(updatedCategory)}`,
     );
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
-      data: newCategory,
+      message: NotifyMessage.UPDATE_CATEGORY_SUCCESSFUL,
+      data: updatedCategory,
     };
   }
 }

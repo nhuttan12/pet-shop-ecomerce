@@ -29,6 +29,7 @@ import { RoleService } from '../role/role.service';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly saltOrRounds = 10;
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
@@ -84,7 +85,6 @@ export class AuthService {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    this.logger.debug(`Compare password: ${isPasswordValid}`);
 
     if (!isPasswordValid) {
       this.logger.error(MessageLog.INVALID_LOGIN_INFO);
@@ -117,9 +117,15 @@ export class AuthService {
   }: UserRegisterDTO): Promise<UserRegisterResponseDTO> {
     let userCreated: UserRegisterResponseDTO | undefined;
     try {
-      // Find user by user name
+      // Check password and retype password match
+      if (password !== retypePassword) {
+        this.logger.warn(MessageLog.PASSWORD_MISMATCH);
+        throw new UnauthorizedException(ErrorMessage.PASSWORD_MISMATCH);
+      }
+
+      // Gind user by user name
       const [existingUserWithUsername]: User[] =
-        await this.userService.findUserByName(username);
+        await this.userService.findUserByUsername(username);
       this.logger.debug(
         'Get existing user with username',
         existingUserWithUsername,
@@ -135,14 +141,7 @@ export class AuthService {
         throw new UnauthorizedException(ErrorMessage.USERNAME_OR_EMAIL_EXISTS);
       }
 
-      // Check password and retype password match
-      if (password !== retypePassword) {
-        this.logger.warn(MessageLog.PASSWORD_MISMATCH);
-        throw new UnauthorizedException(ErrorMessage.PASSWORD_MISMATCH);
-      }
-
-      const saltOrRounds = 10;
-      const hashedPassword = await bcrypt.hash(password, saltOrRounds);
+      const hashedPassword = await bcrypt.hash(password, this.saltOrRounds);
       this.logger.debug(`Get hashed password ${hashedPassword}`);
 
       const role = await this.roleService.getRoleByName(RoleName.USER);
@@ -259,18 +258,20 @@ export class AuthService {
     password,
     retypePassword,
   }: UserResetPasswordDTO): Promise<void> {
-    const decodeInfo: JwtPayload = await this.jwtService.decode(token);
-
-    if (password != retypePassword) {
+    if (password !== retypePassword) {
       this.logger.error(MessageLog.PASSWORD_MISMATCH);
       throw new BadRequestException(ErrorMessage.PASSWORD_MISMATCH);
     }
 
+    const decodeInfo: JwtPayload = await this.jwtService.decode(token);
+    if (!decodeInfo || !decodeInfo.sub) {
+      this.logger.error('Invalid or expired reset token');
+      throw new BadRequestException(ErrorMessage.INVALID_RESET_TOKEN);
+    }
     const userId: number = decodeInfo.sub;
     this.logger.debug(`Get user id ${userId}`);
 
-    const saltOrRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltOrRounds);
+    const hashedPassword = await bcrypt.hash(password, this.saltOrRounds);
     this.logger.debug(`Hashed password ${hashedPassword}`);
 
     await this.userService.updatePassword(userId, hashedPassword);

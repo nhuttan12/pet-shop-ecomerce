@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { asc, eq } from 'drizzle-orm';
+import { eq, like } from 'drizzle-orm';
 import { MySql2Database, MySqlRawQueryResult } from 'drizzle-orm/mysql2';
 import { Category, CategoryInsert, Image } from 'src/db/helper/schema-type';
 import { categories } from 'src/db/schema';
@@ -16,6 +16,7 @@ import { CategoryUpdateDTO } from 'src/helper/dto/category/update-category.dto';
 import { CategoryStatus } from 'src/helper/enum/status/categories-status.enum';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
+import { SearchService } from 'src/helper/services/search.service';
 import { DrizzleAsyncProvider } from 'src/modules/database/drizzle.provider';
 import { ImageService } from './../image/image.service';
 
@@ -24,63 +25,49 @@ export class CategoryService {
   private readonly logger = new Logger();
   constructor(
     @Inject(DrizzleAsyncProvider)
-    private categoryInsert: MySql2Database<CategoryInsert>,
-    @Inject(DrizzleAsyncProvider)
-    private categorySelect: MySql2Database<Category>,
+    private db: MySql2Database<any>,
     private imageService: ImageService,
+    private searchService: SearchService,
   ) {}
 
-  async getAllBrands(category: GetAllCategoryDTO): Promise<Category[]> {
-    this.logger.debug(
-      `Limit and offset for pagination ${category.limit}, ${category.page}`,
+  async getAllCategories({
+    limit,
+    page,
+  }: GetAllCategoryDTO): Promise<Category[]> {
+    const offset = Math.max(0, page - 1);
+    this.logger.debug(`Pagination - limit: ${limit}, offset: ${offset}`);
+
+    return await this.searchService.findManyOrReturnEmptyArray<Category, any>(
+      this.db,
+      categories,
+      undefined,
+      limit,
+      offset,
     );
-
-    let offset: number = category.page;
-    const limit: number = category.limit;
-
-    offset = offset < 0 ? (offset = 0) : offset - 1;
-
-    const categoryList: Category[] = await this.categorySelect
-      .select()
-      .from(categories)
-      .orderBy(asc(categories.id))
-      .limit(limit)
-      .offset(offset);
-
-    this.logger.debug(`Category list ${JSON.stringify(categoryList)}`);
-
-    return categoryList;
   }
 
-  async findCategoriesById(category: FindCategoryById): Promise<Category[]> {
-    this.logger.debug('Id to get category', category.id);
-
-    const categoryList: Category[] = await this.categorySelect
-      .select()
-      .from(categories)
-      .where(eq(categories.id, categories.id))
-      .orderBy(asc(categories.id));
-
-    this.logger.debug(`Uset getted by id: ${JSON.stringify(categoryList)}`);
-
-    return categoryList;
+  async findCategoriesById({ id }: FindCategoryById): Promise<Category[]> {
+    return await this.searchService.findManyOrReturnEmptyArray<Category, any>(
+      this.db,
+      categories,
+      eq(categories.id, id),
+    );
   }
 
-  async findCategoriesByName(
-    category: FindCategoryByName,
-  ): Promise<Category[]> {
-    this.logger.debug(`Name to find category: ${category.name}`);
-
-    const categoryList: Category[] | undefined = await this.categorySelect
-      .select()
-      .from(categories)
-      .where(eq(categories.name, categories.name))
-      .limit(1)
-      .execute();
-
-    this.logger.debug(`User finded by name ${JSON.stringify(categoryList)}`);
-
-    return categoryList;
+  async findCategoriesByName({
+    name,
+    page,
+    limit,
+  }: FindCategoryByName): Promise<Category[]> {
+    const offset = Math.max(0, page - 1);
+    this.logger.debug(`Pagination - limit: ${limit}, offset: ${offset}`);
+    return await this.searchService.findManyOrReturnEmptyArray<Category, any>(
+      this.db,
+      categories,
+      like(categories.name, `%${name}%`),
+      limit,
+      offset,
+    );
   }
 
   async insertCategory(category: CategoryCreateDTO): Promise<Category> {
@@ -100,12 +87,11 @@ export class CategoryService {
       };
       this.logger.debug(`Value ${JSON.stringify(value)}`);
 
-      const [categoryCreatedId]: { id: number }[] =
-        await this.categoryInsert.transaction(async (tx) => {
-          return await tx.insert(categories).values(value).$returningId();
-        });
-
-      this.logger.debug(`Category created id ${categoryCreatedId.id}`);
+      const [categoryCreatedId]: { id: number }[] = await this.db.transaction(
+        (tx) => {
+          return tx.insert(categories).values(value).$returningId();
+        },
+      );
 
       if (!categoryCreatedId) {
         this.logger.error(MessageLog.CATEGORY_NOT_FOUND);
@@ -114,15 +100,12 @@ export class CategoryService {
         );
       }
 
-      const [newCategory]: Category[] = await this.categorySelect
-        .select()
-        .from(categories)
-        .where(eq(categories.id, categoryCreatedId.id));
-      this.logger.debug(
-        `Get new category from db ${JSON.stringify(newCategory)}`,
+      return await this.searchService.findOneOrThrow<Category>(
+        this.db,
+        categories,
+        eq(categories.id, categoryCreatedId.id),
+        ErrorMessage.INTERNAL_SERVER_ERROR,
       );
-
-      return newCategory;
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;
@@ -136,18 +119,20 @@ export class CategoryService {
       const image: Image = await this.imageService.saveImage(
         category.savedImageDTO,
       );
+
       const value: CategoryInsert = {
         name: category.name,
         status: category.status,
         imageId: image.id,
         updated_at: new Date(),
       };
+
       this.logger.debug(`Value to update ${JSON.stringify(value)}`);
 
       const categoryId: number = category.id;
       this.logger.debug(`Get category id ${categoryId}`);
 
-      const result: MySqlRawQueryResult = await this.categoryInsert.transaction(
+      const result: MySqlRawQueryResult = await this.db.transaction(
         async (tx) => {
           return await tx
             .update(categories)
@@ -155,6 +140,7 @@ export class CategoryService {
             .where(eq(categories.id, categoryId));
         },
       );
+
       this.logger.verbose(`Update result ${JSON.stringify(result)}`);
 
       if (!result) {
@@ -164,15 +150,12 @@ export class CategoryService {
         );
       }
 
-      const [newCategory]: Category[] = await this.categorySelect
-        .select()
-        .from(categories)
-        .where(eq(categories.id, category.id));
-      this.logger.debug(
-        `Get new category from db ${JSON.stringify(newCategory)}`,
+      return await this.searchService.findOneOrThrow<Category>(
+        this.db,
+        categories,
+        eq(categories.id, category.id),
+        ErrorMessage.INTERNAL_SERVER_ERROR,
       );
-
-      return newCategory;
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;

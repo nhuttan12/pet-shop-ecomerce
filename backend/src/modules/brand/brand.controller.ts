@@ -17,6 +17,8 @@ import {
   ApiBody,
   ApiOkResponse,
   ApiParam,
+  ApiQuery,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Brand } from 'src/db/helper/schema-type';
 import { HasRole } from 'src/helper/decorator/roles.decorator';
@@ -33,17 +35,20 @@ import { BrandService } from './brand.service';
 import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
 import { NotifyMessage } from 'src/helper/message/notify-message';
 
+@ApiTags('Brand')
+@Controller('brand')
+@ApiBearerAuth('jwt')
+@UseGuards(JwtAuthGuard)
+@UseFilters(CatchEverythingFilter)
 @Controller('brand')
 export class BrandController {
   private readonly logger = new Logger();
   constructor(private brandSerivce: BrandService) {}
 
   @Post('adding')
-  @ApiBearerAuth('jwt')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
-  @UseFilters(CatchEverythingFilter)
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
   @ApiBody({ type: BrandCreateDTO })
   @ApiOkResponse({ type: ApiResponse })
   async addingNewBrand(
@@ -62,12 +67,11 @@ export class BrandController {
   }
 
   @Get()
-  @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  @UseFilters(CatchEverythingFilter)
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'offset', required: false, type: Number })
+  @ApiQuery({ name: 'sort', required: false, type: String })
   @ApiOkResponse({ type: ApiResponse })
-  @ApiBody({ type: GetAllBrandsDTO })
   async getAllBrand(
     @Query() brand: GetAllBrandsDTO,
   ): Promise<ApiResponse<Brand[]>> {
@@ -81,18 +85,15 @@ export class BrandController {
     };
   }
 
-  @Get(':id')
-  @ApiBearerAuth('jwt')
+  @Get('id/:id')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  @UseFilters(CatchEverythingFilter)
   @ApiOkResponse({ type: ApiResponse })
-  @ApiParam({ name: 'id', type: Number, description: 'Brand id' })
-  @ApiBody({ type: FindBrandById })
-  async findUserById(
+  @ApiParam({ name: 'id', type: Number, description: 'Brand ID' })
+  @ApiOkResponse({ type: ApiResponse })
+  async getBrandById(
     @Param() brand: FindBrandById,
-  ): Promise<ApiResponse<Brand[]>> {
-    const newBrand: Brand[] = await this.brandSerivce.findBrandsById(brand);
+  ): Promise<ApiResponse<Brand>> {
+    const newBrand: Brand = await this.brandSerivce.getBrandsById(brand);
     this.logger.debug(`Get brand in controller ${JSON.stringify(newBrand)}`);
 
     return {
@@ -102,47 +103,40 @@ export class BrandController {
     };
   }
 
-  @Get(':name')
-  @ApiBearerAuth('jwt')
+  @Get('name/:name')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: ApiResponse })
-  @ApiParam({ name: 'id', type: String, description: 'Brand name' })
-  @UseFilters(CatchEverythingFilter)
-  @ApiBody({ type: FindBrandByName })
-  async findUserByName(
+  @ApiParam({ name: 'name', type: String, description: 'Brand Name' })
+  @ApiOkResponse({ type: ApiResponse })
+  async findBrandByName(
     @Param() brand: FindBrandByName,
   ): Promise<ApiResponse<Brand[]>> {
-    const newBrand: Brand[] = await this.brandSerivce.findBrandsByName(brand);
-    this.logger.debug(`Get brand in controller ${JSON.stringify(newBrand)}`);
+    const brands = await this.brandSerivce.findBrandsByName(brand);
+    this.logger.debug(`Brands by name":  ${JSON.stringify(brands)}`);
 
     return {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.GET_BRAND_SUCCESSFUL,
-      data: newBrand,
+      data: brands,
     };
   }
 
   @Put('update')
-  @ApiBearerAuth('jwt')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
-  @UseFilters(CatchEverythingFilter)
-  @ApiOkResponse({ type: ApiResponse })
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
   @ApiBody({ type: BrandUpdateDTO })
+  @ApiOkResponse({ type: ApiResponse })
   async updateBrand(
     @Body() brand: BrandUpdateDTO,
   ): Promise<ApiResponse<Brand>> {
-    const newBrand: Brand = await this.brandSerivce.updateBrand(brand);
-    this.logger.debug(
-      `Get brand after insert in controller ${JSON.stringify(newBrand)}`,
-    );
+    const updatedBrand: Brand = await this.brandSerivce.updateBrand(brand);
+    this.logger.debug(`Updated brand: ${JSON.stringify(updatedBrand)}`);
 
     return {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.GET_BRAND_SUCCESSFUL,
-      data: newBrand,
+      data: updatedBrand,
     };
   }
 }
