@@ -13,23 +13,25 @@ import { cartDetails } from './cart-details.schema';
 import { categoriesMapping } from './categories-mapping.schema';
 import { customerRating } from './customer-rating.schema';
 import { orderDetails } from './order-details.schema';
+import { productImages } from './product-images.schema';
 import { vouchers } from './vouchers.schema';
 import { wishlists } from './wishlists.schema';
-import { productImages } from './product-images.schema';
 
 export const products = mysqlTable('products', {
   id: int().primaryKey().notNull().autoincrement(),
-  name: varchar('name', { length: 100 }),
+  name: varchar('name', { length: 100 }).notNull(),
   description: text(),
-  price: int(),
+  price: int().notNull(),
   brandId: int('brand_id')
     .references(() => brands.id)
     .notNull(),
   feature: text(),
-  status: mysqlEnum(Object.values(ProductStatus) as [string, ...string[]]),
-  stocking: int(),
+  status: mysqlEnum(
+    Object.values(ProductStatus) as [string, ...string[]],
+  ).notNull(),
+  stocking: int().notNull(),
   dícount: int(),
-  total_price: int(),
+  total_price: int().notNull(),
   ...timestamps,
 });
 

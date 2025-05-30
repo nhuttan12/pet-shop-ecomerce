@@ -1,6 +1,7 @@
 CREATE TABLE `brands` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`name` varchar(45) NOT NULL,
+	`status` enum('active','inactive','removed'),
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()),
 	CONSTRAINT `brands_id` PRIMARY KEY(`id`)
@@ -12,28 +13,31 @@ CREATE TABLE `cart_details` (
 	`product_id` int NOT NULL,
 	`quantity` int NOT NULL,
 	`price` int NOT NULL,
+	`status` enum('active','removed'),
 	CONSTRAINT `cart_details_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `carts` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`user_id` int NOT NULL,
+	`status` enum('active','removed'),
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()),
 	CONSTRAINT `carts_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `categories_mapping` (
+	`id` int AUTO_INCREMENT NOT NULL,
 	`product_id` int NOT NULL,
 	`category_id` int NOT NULL,
-	CONSTRAINT `categories_mapping_product_id_category_id_pk` PRIMARY KEY(`product_id`,`category_id`)
+	CONSTRAINT `categories_mapping_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `categories` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`name` varchar(45),
-	`description` varchar(255),
 	`status` enum('active','inactive','removed'),
+	`image_id` int NOT NULL,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()),
 	CONSTRAINT `categories_id` PRIMARY KEY(`id`)
@@ -69,21 +73,22 @@ CREATE TABLE `customer-rating` (
 --> statement-breakpoint
 CREATE TABLE `images` (
 	`id` int AUTO_INCREMENT NOT NULL,
-	`name` varchar(45) NOT NULL,
-	`product_id` int NOT NULL,
-	`status` enum('active','inactive','removed'),
-	`image_type` enum('product','thumbnail','banner','avatar','store_logo','review','category','promotion','blog','slider'),
-	`url` text,
+	`url` text NOT NULL,
+	`type` enum('product','thumbnail','banner','avatar','store_logo','review','category','promotion','blog','slider'),
+	`folder` varchar(255),
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()),
 	CONSTRAINT `images_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `order_details` (
+	`id` int AUTO_INCREMENT NOT NULL,
 	`order_id` int NOT NULL,
 	`product_id` int NOT NULL,
 	`quantity` int,
 	`price` int,
 	`total_price` int,
-	CONSTRAINT `order_details_order_id_product_id_pk` PRIMARY KEY(`order_id`,`product_id`)
+	CONSTRAINT `order_details_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `orders` (
@@ -105,6 +110,17 @@ CREATE TABLE `posts` (
 	`author_id` int NOT NULL,
 	`status` enum('active','inactive','removed'),
 	CONSTRAINT `posts_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `product-images` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`product_id` int NOT NULL,
+	`image_id` int NOT NULL,
+	`url` text NOT NULL,
+	`folder` varchar(255),
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `product-images_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `products` (
@@ -136,6 +152,7 @@ CREATE TABLE `user_details` (
 	`id` int NOT NULL,
 	`phone` varchar(10),
 	`adresss` varchar(255),
+	`image_id` int NOT NULL,
 	CONSTRAINT `user_details_id` PRIMARY KEY(`id`),
 	CONSTRAINT `user_details_phone_unique` UNIQUE(`phone`)
 );
@@ -166,9 +183,10 @@ CREATE TABLE `vouchers` (
 );
 --> statement-breakpoint
 CREATE TABLE `wishlists` (
+	`id` int AUTO_INCREMENT NOT NULL,
 	`user_id` int NOT NULL,
 	`product_id` int NOT NULL,
-	CONSTRAINT `wishlists_user_id_product_id_pk` PRIMARY KEY(`user_id`,`product_id`)
+	CONSTRAINT `wishlists_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 ALTER TABLE `cart_details` ADD CONSTRAINT `cart_details_cart_id_carts_id_fk` FOREIGN KEY (`cart_id`) REFERENCES `carts`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -176,16 +194,19 @@ ALTER TABLE `cart_details` ADD CONSTRAINT `cart_details_product_id_products_id_f
 ALTER TABLE `carts` ADD CONSTRAINT `carts_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `categories_mapping` ADD CONSTRAINT `categories_mapping_product_id_products_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `categories_mapping` ADD CONSTRAINT `categories_mapping_category_id_categories_id_fk` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `categories` ADD CONSTRAINT `categories_image_id_images_id_fk` FOREIGN KEY (`image_id`) REFERENCES `images`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `comments` ADD CONSTRAINT `comments_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `customer-rating` ADD CONSTRAINT `customer-rating_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `customer-rating` ADD CONSTRAINT `customer-rating_product_id_products_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `images` ADD CONSTRAINT `images_product_id_products_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `order_details` ADD CONSTRAINT `order_details_order_id_orders_id_fk` FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `order_details` ADD CONSTRAINT `order_details_product_id_products_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `orders` ADD CONSTRAINT `orders_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `posts` ADD CONSTRAINT `posts_author_id_users_id_fk` FOREIGN KEY (`author_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `product-images` ADD CONSTRAINT `product-images_product_id_products_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `product-images` ADD CONSTRAINT `product-images_image_id_images_id_fk` FOREIGN KEY (`image_id`) REFERENCES `images`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `products` ADD CONSTRAINT `products_brand_id_brands_id_fk` FOREIGN KEY (`brand_id`) REFERENCES `brands`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `user_details` ADD CONSTRAINT `user_details_id_users_id_fk` FOREIGN KEY (`id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `user_details` ADD CONSTRAINT `user_details_image_id_images_id_fk` FOREIGN KEY (`image_id`) REFERENCES `images`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `users` ADD CONSTRAINT `users_role_id_roles_id_fk` FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `vouchers` ADD CONSTRAINT `vouchers_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `vouchers` ADD CONSTRAINT `vouchers_product_id_products_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
