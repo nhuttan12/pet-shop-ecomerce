@@ -14,6 +14,8 @@ import { MailModule } from './modules/mail/mail.module';
 import { BrandModule } from './modules/brand/brand.module';
 import { CategoryController } from './modules/category/category.controller';
 import { CategoryModule } from './modules/category/category.module';
+import { CartModule } from './modules/cart/cart.module';
+import { CartDetailModule } from './modules/cart-detail/cart-detail.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { CategoryModule } from './modules/category/category.module';
     MailModule,
     BrandModule,
     CategoryModule,
+    CartModule,
+    CartDetailModule,
   ],
   providers: [
     {

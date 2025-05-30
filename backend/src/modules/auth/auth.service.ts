@@ -146,7 +146,7 @@ export class AuthService {
 
       const role = await this.roleService.getRoleByName(RoleName.USER);
 
-      const userCreatedId: number = await this.userService.createUser({
+      const userCreated: User = await this.userService.createUser({
         username,
         email,
         hashedPassword,
@@ -155,7 +155,7 @@ export class AuthService {
       });
 
       // Send mail when create user success
-      if (userCreatedId) {
+      if (userCreated) {
         await this.mailService.sendMail(
           email,
           NotifyMessage.REGISTER_SUCCESSFUL,
@@ -163,15 +163,13 @@ export class AuthService {
         );
       }
 
-      userCreated = {
-        id: userCreatedId,
+      return {
+        id: userCreated.id,
         username: username,
         email: email,
         role: role.name,
         status: UserStatus.ACTIVE,
       };
-
-      return userCreated;
     } catch (error) {
       this.logger.error('Error during registration', error);
       throw error;

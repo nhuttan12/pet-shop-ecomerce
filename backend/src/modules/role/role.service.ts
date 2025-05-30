@@ -1,16 +1,18 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { DrizzleAsyncProvider } from 'src/modules/database/drizzle.provider';
 import { Role } from 'src/db/helper/schema-type';
 import { roles } from 'src/db/schema';
 import { ErrorMessage } from 'src/helper/message/error-message';
+import { SearchService } from 'src/helper/services/search.service';
+import { DrizzleAsyncProvider } from 'src/modules/database/drizzle.provider';
 
 @Injectable()
 export class RoleService {
   constructor(
     @Inject(DrizzleAsyncProvider)
-    private roleSelect: MySql2Database<Role>,
+    private db: MySql2Database<any>,
+    private searchService: SearchService,
   ) {}
 
   /**
@@ -20,18 +22,12 @@ export class RoleService {
    * @returns: role
    */
   async getRoleById(id: number): Promise<Role> {
-    const [role]: Role[] = await this.roleSelect
-      .select()
-      .from(roles)
-      .where(eq(roles.id, id))
-      .limit(1)
-      .execute();
-
-    if (!role) {
-      throw new UnauthorizedException(ErrorMessage.ROLE_NOT_FOUND);
-    }
-
-    return role;
+    return this.searchService.findOneOrThrow(
+      this.db,
+      roles,
+      eq(roles.id, id),
+      ErrorMessage.ROLE_NOT_FOUND,
+    );
   }
 
   /**
@@ -41,17 +37,11 @@ export class RoleService {
    * @returns: role
    */
   async getRoleByName(name: string): Promise<Role> {
-    const [role]: Role[] = await this.roleSelect
-      .select()
-      .from(roles)
-      .where(eq(roles.name, name))
-      .limit(1)
-      .execute();
-
-    if (!role) {
-      throw new UnauthorizedException(ErrorMessage.ROLE_NOT_FOUND);
-    }
-
-    return role;
+    return this.searchService.findOneOrThrow(
+      this.db,
+      roles,
+      eq(roles.name, name),
+      ErrorMessage.ROLE_NOT_FOUND,
+    );
   }
 }

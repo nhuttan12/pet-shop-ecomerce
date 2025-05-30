@@ -76,4 +76,10 @@ export const ErrorMessage = {
 
   STATUS_MUST_BE_ENUM: 'Trạng thái không hợp lệ',
   INVALID_RESET_TOKEN: 'Token không hợp lệ',
+
+  /**
+   * Cart
+   */
+  CART_NOT_FOUND: 'Không tìm thấy giỏ hàng',
+  CART_ITEM_NOT_FOUND: 'Không tìm thấy sản phẩm trong giỏ hàng',
 } as const;

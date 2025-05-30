@@ -11,4 +11,8 @@ export const NotifyMessage = {
   UPDATE_BRAND_SUCCESSFUL: 'Thay đổi thông tin thương hiệu thành công',
   GET_CATEGORY_SUCCESSFUL: 'Lấy thông tin danh mục thành công',
   UPDATE_CATEGORY_SUCCESSFUL: 'Thay đổi thông tin danh mục thành công',
+  GET_CART_SUCCESSFUL: 'Lấy ra thông tin giỏ hàng thành công',
+  CREATE_CART_DETAIL_SUCCESSFUL: 'Tạo chi tiết giỏ hàng thành công',
+  GET_CART_DETAIL_SUCCESSFUL: 'Lấy ra chi tiết giỏ hàng tính công',
+  REMOVE_CART_DETAIL_SUCCESSFUL: 'Xoa chi tiết giỏ hàng tính công',
 };

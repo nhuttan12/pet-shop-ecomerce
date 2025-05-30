@@ -22,12 +22,13 @@ import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
 import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
 import { GetAllUsersDto } from '../../helper/dto/user/get-all-user.dto';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/helper/guard/roles.guard';
 import { GetAllUsersResponseDTO } from 'src/helper/dto/response/user/get-all-user-response.dto';
 import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
 import { NotifyMessage } from 'src/helper/message/notify-message';
 
+@ApiTags('User')
 @Controller('v2/users')
 export class UserController {
   private readonly logger = new Logger();
@@ -67,17 +68,15 @@ export class UserController {
   @ApiParam({ name: 'id', type: Number, description: 'User id' })
   async findUserById(
     @Param() findUser: FindUserById,
-  ): Promise<ApiResponse<User[]>> {
+  ): Promise<ApiResponse<User>> {
     const id: number = findUser.id;
-    const userList: User[] = await this.userService.findUserById(id);
-    this.logger.debug(
-      `Get user list in controller ${JSON.stringify(userList)}`,
-    );
+    const user: User = await this.userService.findUserById(id);
+    this.logger.debug(`Get user list in controller ${JSON.stringify(user)}`);
 
     return {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.GET_USER_SUCCESSFUL,
-      data: userList,
+      data: user,
     };
   }
 

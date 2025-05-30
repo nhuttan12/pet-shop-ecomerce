@@ -132,4 +132,13 @@ export const MessageLog = {
    * @description: throw error when code with category
    */
   CATEGORY_NOT_FOUND: 'Category cannot be found',
+
+  /**
+   * @description: throw error when code with cart
+   */
+  CART_NOT_FOUND: 'Cart not found',
+  CART_CANNOT_BE_DELETED: 'Cart cannot be delete',
+  CART_DETAIL_NOT_FOUND: 'Cart detail not found',
+
+  ERROR_IN_UPDATE: 'Error in updating',
 } as const;
