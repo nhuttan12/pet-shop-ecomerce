@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { RoleService } from './role.service';
-import { SearchModule } from 'src/helper/services/utility.module';
+import { UtilityModule } from 'src/helper/services/utility.module';
 
 @Module({
-  imports: [SearchModule],
+  imports: [UtilityModule],
   providers: [RoleService],
   exports: [RoleService],
 })

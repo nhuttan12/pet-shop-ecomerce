@@ -20,18 +20,16 @@ import { wishlists } from './wishlists.schema';
 export const products = mysqlTable('products', {
   id: int().primaryKey().notNull().autoincrement(),
   name: varchar('name', { length: 100 }).notNull(),
-  description: text(),
+  description: text().notNull(),
   price: int().notNull(),
   brandId: int('brand_id')
     .references(() => brands.id)
     .notNull(),
-  feature: text(),
   status: mysqlEnum(
     Object.values(ProductStatus) as [string, ...string[]],
   ).notNull(),
   stocking: int().notNull(),
-  dícount: int(),
-  total_price: int().notNull(),
+  discount: int().notNull(),
   ...timestamps,
 });
 

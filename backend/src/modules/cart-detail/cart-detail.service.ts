@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { CartDetail } from 'src/db/helper/schema-type';
 import { images, productImages, products } from 'src/db/schema';
@@ -80,7 +80,12 @@ export class CartDetailService {
         .innerJoin(products, eq(cartDetails.productId, products.id))
         .leftJoin(productImages, eq(productImages.productId, products.id))
         .leftJoin(images, eq(productImages.imageId, images.id))
-        .where(eq(cartDetails.cartId, cartId))
+        .where(
+          and(
+            eq(cartDetails.cartId, cartId),
+            eq(cartDetails.status, CartDetailStatus.ACTIVE),
+          ),
+        )
         .limit(limit)
         .offset(offset)
         .groupBy(cartDetails.id);
@@ -111,7 +116,7 @@ export class CartDetailService {
       await this.updateService.updateOrThrowError(
         this.db,
         cartDetails,
-        { status: CartDetailStatus.REMOVED },
+        { status: CartDetailStatus.REMOVED, updated_at: new Date() },
         eq(cartDetails.id, id),
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );

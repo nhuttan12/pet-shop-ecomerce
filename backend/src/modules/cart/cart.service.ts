@@ -33,7 +33,7 @@ export class CartService {
     return await this.searchService.findManyOrReturnEmptyArray<Cart, any>(
       this.db,
       carts,
-      undefined,
+      eq(carts.status, CartStatus.ACTIVE),
       limit,
       offset,
     );
@@ -89,7 +89,7 @@ export class CartService {
       const result = await this.db.transaction((tx) =>
         tx
           .update(carts)
-          .set({ status: CartStatus.REMOVED })
+          .set({ status: CartStatus.REMOVED, updated_at: new Date() })
           .where(eq(carts.id, cartId)),
       );
 

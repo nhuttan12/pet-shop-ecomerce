@@ -82,4 +82,24 @@ export const ErrorMessage = {
    */
   CART_NOT_FOUND: 'Không tìm thấy giỏ hàng',
   CART_ITEM_NOT_FOUND: 'Không tìm thấy sản phẩm trong giỏ hàng',
+
+  /**
+   * Category
+   */
+  CATEGORY_MUST_BE_STRING: 'Tên danh phải là một chuỗi',
+
+  /**
+   * Product
+   */
+  PRICE_MUST_BE_INTEGER: 'Giá tiền phải là số nguyên',
+  QUANTITY_MUST_BE_INTEGER: 'Số lượng tiền phải là số nguyên',
+  PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER: 'Giá trị không được phép là số âm',
+
+  /**
+   * Property check
+   */
+  SHOULD_NOT_BE_A_NEGATIVE_NUMBER: 'không được phép là số âm',
+  MUST_BE_INTEGER: 'phải là số nguyên',
+  MUST_BE_STRING: 'phải là một chuỗi',
+  IS_NOT_EMPTY: 'không được phép để trống',
 } as const;

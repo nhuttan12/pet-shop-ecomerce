@@ -1,6 +1,7 @@
 import { int, mysqlTable } from 'drizzle-orm/mysql-core';
 import { categories } from './categories.schema';
 import { products } from './products.schema';
+import { timestamps } from '../helper/timestamp';
 
 export const categoriesMapping = mysqlTable('categories_mapping', {
   id: int('id').primaryKey().autoincrement().notNull(),
@@ -10,4 +11,5 @@ export const categoriesMapping = mysqlTable('categories_mapping', {
   categoryId: int('category_id')
     .references(() => categories.id)
     .notNull(),
+  ...timestamps,
 });

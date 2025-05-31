@@ -21,7 +21,10 @@ export const images = mysqlTable('images', {
   /**
    * Kiểu ảnh (ví dụ: 'thumbnail', 'banner', 'avatar'...), dùng enum `ImageType`.
    */
-  type: mysqlEnum('type', Object.values(ImageType) as [string, ...string[]]),
+  type: mysqlEnum(
+    'type',
+    Object.values(ImageType) as [string, ...string[]],
+  ).notNull(),
 
   /**
    * Tên thư mục lưu trữ trong dịch vụ lưu trữ ảnh (ví dụ: 'home/tmdt-ck').

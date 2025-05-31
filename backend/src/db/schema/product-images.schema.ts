@@ -1,4 +1,4 @@
-import { int, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core';
+import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { timestamps } from '../helper/timestamp';
 import { images } from './images.schema';
 import { products } from './products.schema';
@@ -7,7 +7,7 @@ import { products } from './products.schema';
  * Bảng `product-images` lưu thông tin các hình ảnh liên kết với sản phẩm.
  * Cho phép một sản phẩm có nhiều ảnh và mỗi ảnh có thể kèm theo metadata như URL, folder.
  */
-export const productImages = mysqlTable('product-images', {
+export const productImages = mysqlTable('product_images', {
   /**
    * ID tự tăng, khóa chính.
    */
@@ -26,11 +26,6 @@ export const productImages = mysqlTable('product-images', {
   imageId: int('image_id')
     .notNull()
     .references(() => images.id),
-
-  /**
-   * Đường dẫn URL công khai tới ảnh (thường là từ Cloudinary hoặc S3).
-   */
-  url: text('url').notNull(),
 
   /**
    * Tên thư mục lưu trữ trong dịch vụ lưu trữ ảnh (ví dụ: 'home/tmdt-ck').
