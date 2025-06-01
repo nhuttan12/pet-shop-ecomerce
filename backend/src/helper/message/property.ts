@@ -1,5 +1,5 @@
 export const Property = {
-  ID: 'id',
+  ID: 'mã',
   NAME: 'tên',
   DESCRIPTION: 'mô tả',
   STATUS: 'trạng thái',
@@ -8,4 +8,5 @@ export const Property = {
   BRAND_NAME: 'thương hiệu',
   CATEGORY_NAME: 'danh mục',
   PRODUCT_THUMNAIL: 'hình ảnh đại diện của sản phẩm',
+  PRODUCT: 'sản phẩm',
 };

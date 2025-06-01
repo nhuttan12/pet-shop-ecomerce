@@ -227,16 +227,81 @@ export class ProductService {
     return productMap;
   }
 
-  async findProductByName(name: string, limit: number, offset: number) {
-    return await this.searchService.findManyOrReturnEmptyArray(
-      this.db,
-      products,
-      and(eq(products.name, name), eq(products.status, ProductStatus.ACTIVE)),
-      limit,
-      offset,
-    );
+  async findProductByName(
+    name: string,
+    limit: number,
+    offset: number,
+  ): Promise<GetAllProductResponseDto[]> {
+    const productList = await this.db
+      .select()
+      .from(products)
+      .where(
+        and(eq(products.name, name), eq(products.status, ProductStatus.ACTIVE)),
+      )
+      .limit(limit)
+      .offset(offset);
+
+    const productIds = productList.map((p) => p.id);
+    const brandIds = productList.map((p) => p.brandId);
+
+    const iamgeList = await this.db
+      .select()
+      .from(productImages)
+      .innerJoin(images, eq(productImages.imageId, images.id))
+      .where(inArray(productImages.productId, productIds));
+
+    const categoryList = await this.db
+      .select()
+      .from(categoriesMapping)
+      .innerJoin(categories, eq(categoriesMapping.categoryId, categories.id))
+      .where(inArray(categoriesMapping.productId, productIds));
+
+    const brandList = await this.db
+      .select()
+      .from(brands)
+      .where(inArray(brands.id, brandIds));
+
+    const productMap: GetAllProductResponseDto[] = productList.map((prod) => ({
+      id: prod.id,
+      name: prod.name,
+      description: prod.description,
+      price: prod.price,
+      brandName: '',
+      categoryName: '',
+      thumbnailUrl: '',
+      status: prod.status,
+      stock: prod.stocking,
+    }));
+
+    for (const prod of productMap) {
+      const img = iamgeList.find(
+        (img) =>
+          img.product_images.productId === prod.id &&
+          (img.images.type as ImageType) === ImageType.THUMBNAIL,
+      );
+
+      if (img) {
+        prod.thumbnailUrl = img.images.url;
+      }
+
+      const cate = categoryList.find(
+        (c) => c.categories_mapping.productId === prod.id,
+      );
+
+      if (cate) {
+        prod.categoryName = cate.categories.name;
+      }
+
+      const brand = brandList.find((b) => b.id === prod.id);
+
+      if (brand) {
+        prod.brandName = brand.name;
+      }
+    }
+
+    return productMap;
   }
-  async getProductById(producId: number) {
+  async getProductById(producId: number): Promise<Product> {
     return this.searchService.findOneOrThrow(
       this.db,
       products,
@@ -254,7 +319,7 @@ export class ProductService {
     status,
     mainImage,
     subImages,
-  }: UpdateProductInforRequestDTO) {
+  }: UpdateProductInforRequestDTO): Promise<Product> {
     //Check product exist
     await this.searchService.findOneOrThrow(
       this.db,
