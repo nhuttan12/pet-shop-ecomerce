@@ -9,6 +9,7 @@ import { ImageType } from 'src/helper/enum/image-type.enum';
 import { timestamps } from '../helper/timestamp';
 import { productImages } from './product-images.schema';
 import { relations } from 'drizzle-orm';
+import { ImageStatus } from 'src/helper/enum/status/image-status.enum';
 
 export const images = mysqlTable('images', {
   id: int().primaryKey().notNull().autoincrement(),
@@ -30,6 +31,8 @@ export const images = mysqlTable('images', {
    * Tên thư mục lưu trữ trong dịch vụ lưu trữ ảnh (ví dụ: 'home/tmdt-ck').
    */
   folder: varchar('folder', { length: 255 }),
+
+  status: mysqlEnum(Object.values(ImageStatus) as [string, ...string[]]),
   ...timestamps,
 });
 

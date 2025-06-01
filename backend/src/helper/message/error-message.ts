@@ -102,4 +102,5 @@ export const ErrorMessage = {
   MUST_BE_INTEGER: 'phải là số nguyên',
   MUST_BE_STRING: 'phải là một chuỗi',
   IS_NOT_EMPTY: 'không được phép để trống',
+  NOT_EXIST: 'không tồn tại',
 } as const;

@@ -7,4 +7,5 @@ export const Property = {
   STOCK: 'số lượng',
   BRAND_NAME: 'thương hiệu',
   CATEGORY_NAME: 'danh mục',
+  PRODUCT_THUMNAIL: 'hình ảnh đại diện của sản phẩm',
 };

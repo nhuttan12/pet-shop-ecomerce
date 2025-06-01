@@ -1,5 +1,5 @@
-import { UpdateProductInforRequestDTO } from './../../helper/dto/product/update-product-infor-request.dto';
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -24,16 +24,19 @@ import {
 } from 'src/db/schema';
 import { CreateProductRequest } from 'src/helper/dto/product/create-product-request.dto';
 import { GetAllProductResponseDto } from 'src/helper/dto/product/get-all-product-response.dto';
+import { GetProductDetailResponseDto } from 'src/helper/dto/product/get-product-detail-response.dto';
 import { ImageType } from 'src/helper/enum/image-type.enum';
+import { BrandStatus } from 'src/helper/enum/status/brand-status.enum';
+import { CategoryStatus } from 'src/helper/enum/status/categories-status.enum';
+import { ImageStatus } from 'src/helper/enum/status/image-status.enum';
 import { ProductStatus } from 'src/helper/enum/status/product-status.enum';
+import { ErrorMessage } from 'src/helper/message/error-message';
+import { MessageLog } from 'src/helper/message/message-log';
+import { Property } from 'src/helper/message/property';
 import { SearchService } from 'src/helper/services/search.service';
 import { DrizzleAsyncProvider } from 'src/modules/database/drizzle.provider';
+import { UpdateProductInforRequestDTO } from './../../helper/dto/product/update-product-infor-request.dto';
 import { ImageService } from './../image/image.service';
-import { GetProductDetailResponseDto } from 'src/helper/dto/product/get-product-detail-response.dto';
-import { CategoryStatus } from 'src/helper/enum/status/categories-status.enum';
-import { BrandStatus } from 'src/helper/enum/status/brand-status.enum';
-import { MessageLog } from 'src/helper/message/message-log';
-import { ErrorMessage } from 'src/helper/message/error-message';
 
 @Injectable()
 export class ProductService {
@@ -252,12 +255,14 @@ export class ProductService {
     mainImage,
     subImages,
   }: UpdateProductInforRequestDTO) {
+    //Check product exist
     await this.searchService.findOneOrThrow(
       this.db,
       products,
       eq(products.id, id),
     );
 
+    //save image to db
     let thumbnail: Image;
 
     if (mainImage) {
@@ -276,6 +281,30 @@ export class ProductService {
       imageList = await this.imageService.saveImages(subImages);
     }
 
+    //get image list id
+    const imageListIds = await this.db
+      .select()
+      .from(productImages)
+      .innerJoin(images, eq(productImages.imageId, images.id))
+      .where(
+        and(
+          eq(productImages.productId, id),
+          eq(images.status, ImageStatus.ACTIVE),
+        ),
+      );
+
+    //get thumbnail image
+    const productThumbnail = imageListIds.find(
+      (img) => (img.images.type as ImageType) === ImageType.THUMBNAIL,
+    );
+
+    if (!productThumbnail) {
+      throw new BadRequestException(
+        `${Property.PRODUCT_THUMNAIL} ${ErrorMessage.NOT_EXIST}`,
+      );
+    }
+
+    //get brand and category from name
     const brand: Brand = await this.searchService.findOneOrThrow(
       this.db,
       brands,
@@ -288,8 +317,10 @@ export class ProductService {
       eq(categories.name, categoryName),
     );
 
+    //update product
     const updateResult = await this.db.transaction(async (tx) => {
-      await tx
+      //update product with new product info
+      const updatedProduct = await tx
         .update(products)
         .set({
           name,
@@ -302,11 +333,13 @@ export class ProductService {
         })
         .where(eq(products.id, id));
 
+      //update category mapping
       await tx
         .update(categoriesMapping)
         .set({ categoryId: category.id, updated_at: new Date() })
         .where(eq(categoriesMapping.productId, id));
 
+      //update thumnail image
       await tx
         .update(productImages)
         .set({
@@ -314,21 +347,49 @@ export class ProductService {
           imageId: thumbnail.id,
           updated_at: new Date(),
         })
-        .where();
+        .where(eq(productImages.imageId, productThumbnail.images.id));
 
-      await Promise.all(
-        imageList.map(
-          (img) =>
-            tx
-              .update(productImages)
-              .set({
-                productId: id,
-                imageId: img.id,
-                updated_at: new Date(),
-              })
-              .where(eq(productImages.imageId, img.id)), // hoặc .where(...) phù hợp
-        ),
-      );
+      //sub image list use for soft delete
+      const subImageIds = await tx
+        .select({ imageId: productImages.imageId })
+        .from(productImages)
+        .innerJoin(images, eq(productImages.imageId, images.id))
+        .where(
+          and(
+            eq(productImages.productId, id),
+            eq(images.type, ImageType.PRODUCT),
+          ),
+        );
+
+      await tx
+        .update(images)
+        .set({ status: ImageStatus.REMOVED, updated_at: new Date() })
+        .where(
+          inArray(
+            images.id,
+            subImageIds.map((row) => row.imageId),
+          ),
+        );
+
+      //inser new sub image
+      if (imageList && imageList.length > 0) {
+        await tx
+          .insert(productImages)
+          .values(
+            imageList.map((img) => ({
+              productId: id,
+              imageId: img.id,
+              updated_at: new Date(),
+              imageType: ImageType.PRODUCT,
+              status: ImageStatus.ACTIVE,
+            })),
+          )
+          .$returningId();
+      }
+
+      return {
+        updatedProduct,
+      };
     });
 
     if (!updateResult) {
@@ -337,10 +398,12 @@ export class ProductService {
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );
     }
+
+    return await this.getProductById(id);
   }
 
   async removeProductById(productId: number): Promise<Product> {
-    const product = await this.searchService.findOneOrThrow(
+    const product: Product = await this.searchService.findOneOrThrow(
       this.db,
       products,
       eq(products.id, productId),

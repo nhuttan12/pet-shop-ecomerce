@@ -11,9 +11,10 @@ import { SavedImageDTO } from 'src/helper/dto/image/saved-image.dto';
 import { DrizzleAsyncProvider } from '../database/drizzle.provider';
 import { images } from 'src/db/schema';
 import { GetImageDTO } from 'src/helper/dto/image/get-image.dto';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { ErrorMessage } from 'src/helper/message/error-message';
 import { MessageLog } from 'src/helper/message/message-log';
+import { ImageStatus } from 'src/helper/enum/status/image-status.enum';
 
 @Injectable()
 export class ImageService {
@@ -30,6 +31,7 @@ export class ImageService {
       url: image.url,
       folder: image.folder,
       type: image.type,
+      status: ImageStatus.ACTIVE,
       created_at: new Date(),
       updated_at: new Date(),
     };
@@ -60,6 +62,7 @@ export class ImageService {
           url: img.url,
           folder: img.folder,
           type: img.type,
+          status: ImageStatus.ACTIVE,
           created_at: new Date(),
           updated_at: new Date(),
         };
@@ -95,7 +98,7 @@ export class ImageService {
       const [image]: Image[] = await this.db
         .select()
         .from(images)
-        .where(eq(images.id, id));
+        .where(and(eq(images.id, id), eq(images.status, ImageStatus.ACTIVE)));
 
       if (!image) {
         this.logger.verbose(`Image with ${id} not found`);
