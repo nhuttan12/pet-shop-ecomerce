@@ -37,8 +37,13 @@ const UserSettings = Loader(
   lazy(() => import('src/content/applications/Users/settings'))
 );
 
+//Hiep
 const ProductManagement = Loader(
   lazy(() => import('src/content/applications/ProductManagement'))
+);
+
+const CustomerManagement = Loader(
+  lazy(() => import('src/content/applications/CustomerManagement'))
 );
 
 
@@ -173,10 +178,18 @@ const routes: RouteObject[] = [
         ]
       },
 
+      
       {
             path: 'products',
             element: <ProductManagement />
+      },
+
+      {
+            path: 'customers',
+            element: <CustomerManagement />
       }
+
+
 
     ]
   },

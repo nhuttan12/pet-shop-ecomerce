@@ -256,6 +256,7 @@ function SidebarMenu() {
                 </Button>
               </ListItem>
 
+          
               <ListItem component="div">
                   <Button
                     disableRipple
@@ -265,6 +266,18 @@ function SidebarMenu() {
                     startIcon={<Inventory2TwoToneIcon />}
                 >
                     Product Management
+                  </Button>
+              </ListItem>
+
+              <ListItem component="div">
+                  <Button
+                    disableRipple
+                    component={RouterLink}
+                    onClick={closeSidebar}
+                    to="/management/customers"
+                    startIcon={<Inventory2TwoToneIcon />}
+                >
+                    Customer Management
                   </Button>
               </ListItem>
 
