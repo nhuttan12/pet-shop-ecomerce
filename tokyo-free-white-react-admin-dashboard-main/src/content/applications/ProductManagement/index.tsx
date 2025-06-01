@@ -15,11 +15,10 @@ import {
   Divider,
   Button
 } from '@mui/material';
-import { useEffect, useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent } from 'react';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import AddIcon from '@mui/icons-material/Add';
-import axios from 'axios';
 
 interface Product {
   id: string;
@@ -29,23 +28,55 @@ interface Product {
   stock: number;
 }
 
+const initialProducts: Product[] = [
+  {
+    id: '1',
+    name: 'iPhone 15 Pro Max',
+    category: 'Smartphones',
+    price: 1399,
+    stock: 25
+  },
+  {
+    id: '2',
+    name: 'MacBook Air M2',
+    category: 'Laptops',
+    price: 1199,
+    stock: 12
+  },
+  {
+    id: '3',
+    name: 'Samsung Galaxy S24',
+    category: 'Smartphones',
+    price: 999,
+    stock: 30
+  },
+  {
+    id: '4',
+    name: 'iPad Pro M2',
+    category: 'Tablets',
+    price: 1099,
+    stock: 18
+  },
+  {
+    id: '5',
+    name: 'Sony WH-1000XM5',
+    category: 'Headphones',
+    price: 399,
+    stock: 50
+  },
+  {
+    id: '6',
+    name: 'Apple Watch Ultra 2',
+    category: 'Wearables',
+    price: 799,
+    stock: 10
+  }
+];
+
 const ProductManagement = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(5);
-
-  const getProducts = async () => {
-    try {
-      const response = await axios.get<Product[]>('/api/products');
-      setProducts(response.data);
-    } catch (error) {
-      console.error('Error fetching products', error);
-    }
-  };
-
-  useEffect(() => {
-    getProducts();
-  }, []);
 
   const handlePageChange = (_event: unknown, newPage: number) => {
     setPage(newPage);
@@ -57,16 +88,11 @@ const ProductManagement = () => {
 
   const handleEdit = (productId: string) => {
     console.log('Edit', productId);
-    // Navigate to edit page or open dialog
   };
 
-  const handleDelete = async (productId: string) => {
-    try {
-      await axios.delete(`/api/products/${productId}`);
-      getProducts();
-    } catch (error) {
-      console.error('Error deleting product', error);
-    }
+  const handleDelete = (productId: string) => {
+    const updated = products.filter((p) => p.id !== productId);
+    setProducts(updated);
   };
 
   const paginatedProducts = products.slice(page * limit, page * limit + limit);
@@ -76,7 +102,16 @@ const ProductManagement = () => {
       <CardHeader
         title="Product Management"
         action={
-          <Button variant="contained" startIcon={<AddIcon />} size="small">
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            sx={{
+              background: '#6366f1',
+              '&:hover': {
+                background: '#4f46e5'
+              }
+            }}
+          >
             Add Product
           </Button>
         }
@@ -104,18 +139,12 @@ const ProductManagement = () => {
                 <TableCell align="right">{product.stock}</TableCell>
                 <TableCell align="right">
                   <Tooltip title="Edit" arrow>
-                    <IconButton
-                      color="primary"
-                      onClick={() => handleEdit(product.id)}
-                    >
+                    <IconButton color="primary" onClick={() => handleEdit(product.id)}>
                       <EditTwoToneIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Delete" arrow>
-                    <IconButton
-                      color="error"
-                      onClick={() => handleDelete(product.id)}
-                    >
+                    <IconButton color="error" onClick={() => handleDelete(product.id)}>
                       <DeleteTwoToneIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>

@@ -1,146 +1,184 @@
 import {
   Card,
   CardHeader,
+  Divider,
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
-  TableContainer,
-  TablePagination,
-  IconButton,
+  Checkbox,
   Typography,
-  Tooltip,
+  IconButton,
   Box,
-  Divider,
-  Button
+  Tooltip,
+  TablePagination,
+  Chip
 } from '@mui/material';
-import { useEffect, useState, ChangeEvent } from 'react';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import AddIcon from '@mui/icons-material/Add';
-import axios from 'axios';
+import { useState } from 'react';
+import { Button } from '@mui/material';
 
-interface User {
+
+interface Customer {
   id: string;
   name: string;
   email: string;
-  role: string;
-  status: string;
+  joined: string;
+  status: 'Active' | 'Inactive' | 'Banned';
 }
 
+const mockCustomers: Customer[] = [
+  {
+    id: 'CUS123456',
+    name: 'Alice Johnson',
+    email: 'alice@example.com',
+    joined: '2025-06-01',
+    status: 'Active'
+  },
+  {
+    id: 'CUS234567',
+    name: 'Bob Smith',
+    email: 'bob@example.com',
+    joined: '2025-05-28',
+    status: 'Inactive'
+  },
+  {
+    id: 'CUS345678',
+    name: 'Charlie Brown',
+    email: 'charlie@example.com',
+    joined: '2025-04-20',
+    status: 'Banned'
+  },
+  {
+    id: 'CUS456789',
+    name: 'Diana Ross',
+    email: 'diana@example.com',
+    joined: '2025-03-15',
+    status: 'Active'
+  },
+  {
+    id: 'CUS567890',
+    name: 'Eric Clapton',
+    email: 'eric@example.com',
+    joined: '2025-02-10',
+    status: 'Inactive'
+  }
+];
+
 const CustomerManagement = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(5);
 
-  const getUsers = async () => {
-    try {
-      const response = await axios.get<User[]>('/api/users');
-      setUsers(response.data);
-    } catch (error) {
-      console.error('Error fetching users', error);
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelected(event.target.checked ? mockCustomers.map((c) => c.id) : []);
+  };
+
+  const handleSelectOne = (id: string) => {
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Active':
+        return 'success';
+      case 'Inactive':
+        return 'warning';
+      case 'Banned':
+        return 'error';
+      default:
+        return 'default';
     }
   };
 
-  useEffect(() => {
-    getUsers();
-  }, []);
-
-  const handlePageChange = (_event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setLimit(parseInt(event.target.value));
-  };
-
-  const handleEdit = (userId: string) => {
-    console.log('Edit user', userId);
-    // Điều hướng đến trang chỉnh sửa hoặc mở dialog
-  };
-
-  const handleDelete = async (userId: string) => {
-    try {
-      await axios.delete(`/api/users/${userId}`);
-      getUsers();
-    } catch (error) {
-      console.error('Error deleting user', error);
-    }
-  };
-
-  const paginatedUsers = users.slice(page * limit, page * limit + limit);
+  const paginated = mockCustomers.slice(page * limit, page * limit + limit);
 
   return (
     <Card>
-      <CardHeader
-        title="User Management"
-        action={
-          <Button variant="contained" startIcon={<AddIcon />} size="small">
-            Add User
-          </Button>
+<CardHeader
+  title="Customer Management"
+  action={
+    <Button
+      variant="contained"
+      sx={{
+        background: '#6366f1',
+        '&:hover': {
+          background: '#4f46e5'
         }
-      />
-      <Divider />
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="right">Actions</TableCell>
+      }}
+    >
+      + Add User
+    </Button>
+  }
+/>      <Divider />
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell padding="checkbox">
+              <Checkbox
+                checked={selected.length === mockCustomers.length}
+                onChange={handleSelectAll}
+              />
+            </TableCell>
+            <TableCell>Customer</TableCell>
+            <TableCell>ID</TableCell>
+            <TableCell>Email</TableCell>
+            <TableCell>Joined</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell align="right">Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {paginated.map((customer) => (
+            <TableRow key={customer.id} hover>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  checked={selected.includes(customer.id)}
+                  onChange={() => handleSelectOne(customer.id)}
+                />
+              </TableCell>
+              <TableCell>
+                <Typography fontWeight="bold">{customer.name}</Typography>
+              </TableCell>
+              <TableCell>{customer.id}</TableCell>
+              <TableCell>{customer.email}</TableCell>
+              <TableCell>{customer.joined}</TableCell>
+              <TableCell>
+                <Chip
+                  label={customer.status}
+                  color={getStatusColor(customer.status)}
+                  size="small"
+                />
+              </TableCell>
+              <TableCell align="right">
+                <Tooltip title="Edit">
+                  <IconButton color="primary">
+                    <EditTwoToneIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete">
+                  <IconButton color="error">
+                    <DeleteTwoToneIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {paginatedUsers.map((user) => (
-              <TableRow hover key={user.id}>
-                <TableCell>
-                  <Typography fontWeight="bold">{user.name}</Typography>
-                </TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.role}</TableCell>
-                <TableCell>{user.status}</TableCell>
-                <TableCell align="right">
-                  <Tooltip title="Edit" arrow>
-                    <IconButton
-                      color="primary"
-                      onClick={() => handleEdit(user.id)}
-                    >
-                      <EditTwoToneIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete" arrow>
-                    <IconButton
-                      color="error"
-                      onClick={() => handleDelete(user.id)}
-                    >
-                      <DeleteTwoToneIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-            {paginatedUsers.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} align="center">
-                  No users found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          ))}
+        </TableBody>
+      </Table>
       <Box p={2}>
         <TablePagination
           component="div"
-          count={users.length}
+          count={mockCustomers.length}
           page={page}
           rowsPerPage={limit}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleLimitChange}
-          rowsPerPageOptions={[5, 10, 25]}
+          onPageChange={(_, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => setLimit(parseInt(e.target.value))}
+          rowsPerPageOptions={[5, 10]}
         />
       </Box>
     </Card>
@@ -148,5 +186,3 @@ const CustomerManagement = () => {
 };
 
 export default CustomerManagement;
-//export {};
-
