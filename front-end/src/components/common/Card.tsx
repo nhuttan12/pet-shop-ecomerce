@@ -1,26 +1,14 @@
-// import React from "react";
-//
-// type CardProps = {
-//     children: React.ReactNode;
-//     className?: string;
-// };
-//
-// const Card: React.FC<CardProps> = ({ children, className = "" }) => {
-//     return (
-//         <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
-//             {children}
-//         </div>
-//     );
-// };
-//
-// export default Card;
 import React from 'react';
+import { CiHeart } from "react-icons/ci";
 
 interface CardProps {
-    image: string;
-    title: string;
-    price: string;
+    id?: number;
+    image?: string;
+    title?: string;
+    price?: string;
     onAddToWishlist?: () => void;
+    isFavorite?: boolean;
+    onFavoriteToggle?: (id: number) => void;
     className?: string;
 }
 
@@ -43,7 +31,7 @@ const Card: React.FC<CardProps> = ({
                     onClick={onAddToWishlist}
                     className="absolute right-5 top-5 bg-[#f8f9fa] w-7 h-7 rounded-full flex items-center justify-center"
                 >
-                    <img src="/images/img_vector_15x17.svg" alt="Add to wishlist" className="w-[15px] h-[17px]" />
+                    <CiHeart className="w-[30px] h-[32px]" />
                 </button>
             </div>
         </div>

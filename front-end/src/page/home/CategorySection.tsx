@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { GrPrevious } from "react-icons/gr";
+import { GrNext, GrFormNextLink  } from "react-icons/gr";
 
 interface CategoryItem {
     id: string;
@@ -16,19 +18,21 @@ const CategorySection: React.FC<CategorySectionProps> = ({ categories }) => {
     return (
         <section className="py-12">
             <div className="container mx-auto px-4">
-                <h2 className="text-4xl font-semibold mb-8">Duyệt theo danh mục</h2>
-
                 <div className="flex justify-between items-center mb-6">
-                    <div className="flex-grow"></div>
-                    <div className="flex space-x-4">
-                        <button className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center">
-                            <img src="/images/img_vector_12x6.svg" alt="Previous" className="w-3 h-1.5 transform rotate-180" />
-                        </button>
-                        <button className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center">
-                            <img src="/images/img_vector_12x6.svg" alt="Next" className="w-3 h-1.5" />
-                        </button>
+                    <h2 className="text-4xl font-semibold mb-8">Duyệt theo danh mục</h2>
+                    <div className="flex justify-between items-center mb-6">
+                        <div className="flex-grow"></div>
+                        <div className="flex space-x-4">
+                            <button className="w-12 h-12 rounded-full flex items-center justify-center bg-gray hover:bg-gray-300">
+                                <GrPrevious className="w-7 h-7" />
+                            </button>
+                            <button className="w-12 h-12 rounded-full flex items-center justify-center bg-gray hover:bg-gray-300">
+                                <GrNext className="w-7 h-7" />
+                            </button>
+                        </div>
                     </div>
                 </div>
+                
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {categories.map((category) => (
@@ -47,7 +51,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({ categories }) => {
                                         <p className="text-gray-600">{category.productCount}</p>
                                     </div>
                                     <button className="w-6 h-6 flex items-center justify-center">
-                                        <img src="/images/img_icon_bg_24x24.svg" alt="View" className="w-6 h-6" />
+                                        <GrFormNextLink  className="w-6 h-6" />
                                     </button>
                                 </div>
                             </div>

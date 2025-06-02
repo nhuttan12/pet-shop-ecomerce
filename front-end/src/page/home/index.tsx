@@ -6,6 +6,19 @@ import CategorySection from './CategorySection';
 import PromoSection from './PromoSection';
 import BestsellersSection from './BestsellersSection';
 import PetTypeSection from './PetTypeSection';
+import banner from '../../assets/banner.jpg';
+import accessory from '../../assets/phukien.jpg';
+import food from '../../assets/thucan.jpg';
+import furniture from '../../assets/noithat.jpg';
+import bags from '../../assets/tui.jpg';
+import cat from '../../assets/cat.jpg';
+import hamster from '../../assets/hamster.jpg';
+import dog from '../../assets/dog.jpg';
+import vet from '../../assets/vet.jpg';
+import rabbit from '../../assets/rabbit.jpg';
+import turtle from '../../assets/turtle.jpg';
+
+
 
 const HomePage: React.FC = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -23,25 +36,25 @@ const HomePage: React.FC = () => {
         {
             id: 'accessories',
             name: 'Phụ kiện',
-            image: '/images/img_downloadjpg.png',
+            image: accessory,
             productCount: '84 sản phẩm'
         },
         {
             id: 'food',
             name: 'Thức ăn',
-            image: '/images/img_downloadjpg_216x306.png',
+            image: food,
             productCount: '64 sản phẩm'
         },
         {
             id: 'furniture',
             name: 'Nội thất',
-            image: '/images/img_downloadjpg_1.png',
+            image: furniture,
             productCount: '22 sản phẩm'
         },
         {
             id: 'bags',
             name: 'Túi',
-            image: '/images/img_downloadjpg_2.png',
+            image: bags,
             productCount: '22 sản phẩm'
         }
     ];
@@ -52,49 +65,49 @@ const HomePage: React.FC = () => {
             id: 'product1',
             name: 'Bát ăn cho mèo PetSafe',
             price: '49.000 vnđ',
-            image: '/images/img_imagesjpg.png'
+            image: food
         },
         {
             id: 'product2',
             name: 'Bát ăn cho chó Ferplast',
             price: '129.000 vnđ',
-            image: '/images/img_imagesjpg_1.png'
+            image: food
         },
         {
             id: 'product3',
             name: 'Dây dắt chó Hagen',
             price: '99.000 vnđ',
-            image: '/images/img_imagesjpg_2.png'
+            image: food
         },
         {
             id: 'product4',
             name: 'Thức ăn cho mèo cao cấp CATS LOVE',
             price: '249.000 VNĐ',
-            image: '/images/img_imagesjpg_305x290.png'
+            image: food
         },
         {
             id: 'product5',
             name: 'Bát ăn cho chó Omlet',
             price: '49.000 VNĐ',
-            image: '/images/img_imagesjpg_3.png'
+            image: food
         },
         {
             id: 'product6',
             name: 'Thức ăn cho chó hãng Omni',
             price: '169.000 VNĐ',
-            image: '/images/img_imagesjpg_4.png'
+            image: food
         },
         {
             id: 'product7',
             name: 'Giường cho chó Ferplast',
             price: '399.000 VNĐ',
-            image: '/images/img_downloadjpg_305x306.png'
+            image: food
         },
         {
             id: 'product8',
             name: 'Thức ăn cho chó hãng Jinx',
             price: '269.000 VNĐ',
-            image: '/images/img_imagesjpg_5.png'
+            image: food
         }
     ];
 
@@ -103,37 +116,37 @@ const HomePage: React.FC = () => {
         {
             id: 'cat',
             name: 'Mèo',
-            image: '/images/img_img_188x196.png',
+            image: cat,
             backgroundImage: '/images/img_vector_187x180.png'
         },
         {
             id: 'hamster',
             name: 'Hamster',
-            image: '/images/img_img_191x158.png',
+            image: hamster,
             backgroundImage: '/images/img_vector_1.svg'
         },
         {
             id: 'dog',
             name: 'Chó',
-            image: '/images/img_img_192x192.png',
+            image: dog,
             backgroundImage: '/images/img_vector_1.svg'
         },
         {
             id: 'parrot',
             name: 'Vẹt',
-            image: '/images/img_img_180x180.png',
+            image: vet,
             backgroundImage: '/images/img_vector_1.svg'
         },
         {
             id: 'rabbit',
             name: 'Thỏ',
-            image: '/images/img_img_205x205.png',
+            image: rabbit,
             backgroundImage: '/images/img_vector_1.svg'
         },
         {
             id: 'turtle',
             name: 'Rùa',
-            image: '/images/img_img_154x220.png',
+            image: turtle,
             backgroundImage: '/images/img_vector_1.svg'
         }
     ];
@@ -146,7 +159,11 @@ const HomePage: React.FC = () => {
                 <div className="bg-[#f8f9fa] relative overflow-hidden">
                     <div className="container mx-auto px-4 py-16 relative z-10">
                         <div className="flex flex-col md:flex-row">
-                            <div className="md:w-1/2">
+                            <div className="relative w-full h-[400px] md:h-[600px]">
+                                <img src={banner} alt="banner" className="absolute top-0 left-0 w-full h-full object-cover z-0"
+                                />
+                            </div>
+                            <div className="absolute top-1/2 left-15 transform -translate-y-1/2 w-full md:max-w-[600px] text-center md:text-left z-10">
                                 <span className="text-[#fd7e14] font-bold text-base uppercase">NLU Pet shop</span>
                                 <h1 className="text-5xl font-bold mt-2 mb-8">Cửa hàng thú cưng có mọi thứ bạn cần</h1>
                                 <button
@@ -156,15 +173,7 @@ const HomePage: React.FC = () => {
                                     Mua ngay
                                 </button>
                             </div>
-                            <div className="md:w-1/2 relative mt-8 md:mt-0">
-                                <img src="/images/img_shapespattern.svg" alt="Background Pattern" className="absolute right-0 top-0 z-0" />
-                                <img src="/images/img_shape.png" alt="Shape" className="absolute left-0 top-0 z-0" />
-                                <img src="/images/img_img_204x204.png" alt="Pet" className="absolute left-0 top-20 z-10" />
-                                <img src="/images/img_aiartabeautifulgoldenretrieversitsgracefullyonapristi9618340864dd49f29f2b7bf0731e16ba_1.png" alt="Golden Retriever" className="absolute right-0 top-0 z-20" />
-                                <img src="/images/img_1734976654ba38b9535c6459993d2f5f48ade644a_1.png" alt="Pet" className="absolute right-20 top-40 z-10" />
-                                <img src="/images/img_img.png" alt="Pet" className="absolute right-0 bottom-0 z-30" />
-                                <img src="/images/img_shape_69x183.png" alt="Shape" className="absolute left-40 bottom-0 z-0" />
-                            </div>
+
                         </div>
                     </div>
                 </div>
