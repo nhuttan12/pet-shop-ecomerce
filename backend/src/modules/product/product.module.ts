@@ -8,5 +8,6 @@ import { ImageModule } from '../image/image.module';
   imports: [UtilityModule, ImageModule],
   controllers: [ProductController],
   providers: [ProductService],
+  exports: [ProductService],
 })
 export class ProductModule {}

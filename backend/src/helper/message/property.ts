@@ -9,4 +9,6 @@ export const Property = {
   CATEGORY_NAME: 'danh mục',
   PRODUCT_THUMNAIL: 'hình ảnh đại diện của sản phẩm',
   PRODUCT: 'sản phẩm',
+  IMAGE: 'hình ảnh',
+  ORDER: 'đơn hàng',
 };

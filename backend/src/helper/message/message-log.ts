@@ -144,4 +144,6 @@ export const MessageLog = {
   CAN_NOT_DELETE: 'can not be delete',
   CAN_NOT_UPDATE: 'can not be update',
   PRODUCT: 'Product',
+  ORDER: 'Order',
+  NOT_FOUND: 'not found',
 } as const;

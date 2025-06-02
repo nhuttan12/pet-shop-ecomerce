@@ -20,7 +20,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Cart } from 'src/db/helper/schema-type';
+import { Cart, CartDetail } from 'src/db/helper/schema-type';
 import { HasRole } from 'src/helper/decorator/roles.decorator';
 import { CartCreateDTO } from 'src/helper/dto/cart/create-cart.dto';
 import { FindCartById } from 'src/helper/dto/cart/find-cart-by-id.dto';
@@ -33,6 +33,11 @@ import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/helper/guard/roles.guard';
 import { NotifyMessage } from 'src/helper/message/notify-message';
 import { CartService } from './cart.service';
+import { GetCartDetailByCartId } from 'src/helper/dto/cart-detail/get-cart-detail-by-cart-id';
+import { CartDetailResponse } from 'src/helper/dto/cart-detail/cart-detail-response.dto';
+import { RemoveCartDetailDTO } from 'src/helper/dto/cart-detail/remove-cart-detail.dto';
+import { GetUser } from 'src/helper/decorator/user.decorator';
+import { JwtPayload } from 'src/helper/interface/jwt-payload.interface';
 
 @ApiTags('Cart')
 @ApiBearerAuth('jwt')
@@ -49,8 +54,15 @@ export class CartController {
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: CartCreateDTO })
   @ApiOkResponse({ type: ApiResponse })
-  async addingnewCart(@Body() cart: CartCreateDTO): Promise<ApiResponse<Cart>> {
-    const newCart = await this.cartService.insertCart(cart);
+  async addingnewCart(
+    @Body() { productId, quantity }: CartCreateDTO,
+    @GetUser() user: JwtPayload,
+  ): Promise<ApiResponse<Cart>> {
+    const newCart = await this.cartService.addToCart(
+      user.sub,
+      productId,
+      quantity,
+    );
     this.logger.debug(`Cart: ${JSON.stringify(newCart)}`);
 
     return {
@@ -107,6 +119,42 @@ export class CartController {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.GET_CART_SUCCESSFUL,
       data: carts,
+    };
+  }
+
+  @Post('/cart-detail/get')
+  @HasRole(Role.USER)
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: GetCartDetailByCartId })
+  @ApiOkResponse({ type: ApiResponse<CartDetailResponse[]> })
+  async getCartDetailByCartId(
+    @Query() { id, limit, page }: GetCartDetailByCartId,
+  ): Promise<ApiResponse<CartDetailResponse[]>> {
+    const cartDetail = await this.cartService.getCartDetailByCartId(
+      id,
+      limit,
+      page,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_CART_DETAIL_SUCCESSFUL,
+      data: cartDetail,
+    };
+  }
+
+  @Delete('/cart-detail/remove/:id')
+  @HasRole(Role.USER)
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: RemoveCartDetailDTO })
+  @ApiOkResponse({ type: ApiResponse<CartDetail> })
+  async removeCartByCartId(
+    @Param() { cartId }: RemoveCartDetailDTO,
+  ): Promise<ApiResponse<CartDetail>> {
+    const cartDetail = await this.cartService.removeCartDetailById(cartId);
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.REMOVE_CART_DETAIL_SUCCESSFUL,
+      data: cartDetail,
     };
   }
 }

@@ -16,12 +16,14 @@ export const orders = mysqlTable('orders', {
   paymentMethod: mysqlEnum(
     'payment_method',
     Object.values(PaymentMethod) as [string, ...string[]],
-  ),
+  ).notNull(),
   shippingMethod: mysqlEnum(
     'shipping_method',
     Object.values(ShippingMethod) as [string, ...string[]],
-  ),
-  status: mysqlEnum(Object.values(OrderStatus) as [string, ...string[]]),
+  ).notNull(),
+  status: mysqlEnum(
+    Object.values(OrderStatus) as [string, ...string[]],
+  ).notNull(),
   ...timestamps,
 });
 

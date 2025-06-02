@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, like } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import {
   Brand,
@@ -236,7 +236,10 @@ export class ProductService {
       .select()
       .from(products)
       .where(
-        and(eq(products.name, name), eq(products.status, ProductStatus.ACTIVE)),
+        and(
+          like(products.name, `%${name}%`),
+          eq(products.status, ProductStatus.ACTIVE),
+        ),
       )
       .limit(limit)
       .offset(offset);

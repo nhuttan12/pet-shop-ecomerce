@@ -13,7 +13,7 @@ export const orderDetails = mysqlTable('order_details', {
     .references(() => products.id)
     .notNull(),
 
-  quantity: int(),
-  price: int(),
-  totalPrice: int('total_price'),
+  quantity: int().notNull(),
+  price: int().notNull(),
+  totalPrice: int('total_price').notNull(),
 });
