@@ -1,16 +1,15 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import InputField from '../../ui/InputField';
-import logo from "../../../assets/logo.png"
+import logo from "../../../assets/logo.png";
 import { HiOutlinePhone } from "react-icons/hi2";
 import { MdOutlineEmail } from "react-icons/md";
-import { CiLocationOn } from "react-icons/ci";
+import { CiLocationOn, CiHeart,CiShoppingCart } from "react-icons/ci";
+import { IoSearchCircle } from "react-icons/io5";
 
-interface HeaderProps {
-    onLoginClick?: () => void;
-}
 
-const Header: React.FC<HeaderProps> = ({ onLoginClick = () => {} }) => {
+const Header: React.FC = () => {
+    const navigate = useNavigate();
     return (
         <header className="bg-white">
             <div className="bg-[#f8f9fa] py-6">
@@ -61,31 +60,31 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick = () => {} }) => {
 
                 <div className="flex items-center space-x-4">
                     <button
-                        onClick={onLoginClick}
-                        className="border-2 border-black rounded px-4 py-2 text-lg"
+                        onClick={() => navigate("/login")}
+                        className="text-xl font-medium text-black hover:text-[#fd7e14] cursor-pointer"
                     >
                         Đăng nhập
                     </button>
 
-                    <div className="relative">
+                    <div className="relative ">
                         <InputField
                             placeholder="Tìm kiếm sản phẩm..."
-                            className="bg-[#f8f9fa] rounded-[20px] w-[280px]"
+                            className="bg-[#f8f9fa] rounded-[20px] w-[280px] h-18 pl-4 pr-2"
                         />
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                            <img src="/images/img_iconbg.svg" alt="Search" className="w-7 h-7 rounded-full" />
+                            <IoSearchCircle className="w-7 h-7 rounded-full" />
                         </div>
                     </div>
 
                     <div className="relative">
-                        <img src="/images/img_vector.svg" alt="Wishlist" className="w-5 h-5" />
-                        <div className="absolute -top-2 -right-2 bg-[#fd7e14] text-white text-[10px] w-3 h-3 rounded-full flex items-center justify-center">
+                        <CiHeart className="w-7 h-7" />
+                        <div className="absolute -top-2 -right-2 bg-[#fd7e14] text-white text-[10px] w-3 h-3 rounded-full flex items-center justify-center ">
                             0
                         </div>
                     </div>
 
                     <div className="relative ml-4">
-                        <img src="/images/img_vector_15x22.svg" alt="Cart" className="w-[15px] h-[22px]" />
+                        <CiShoppingCart className="w-7 h-7" />
                         <div className="absolute -top-2 -right-2 bg-[#fd7e14] text-white text-[10px] w-3 h-3 rounded-full flex items-center justify-center">
                             0
                         </div>
