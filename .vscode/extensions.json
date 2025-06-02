@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "infeng.vscode-react-typescript",
+        "dbaeumer.vscode-eslint",
+        "christian-kohler.path-intellisense",
+        "bradlc.vscode-tailwindcss"
+    ]
+}
