@@ -1,16 +1,22 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import configuration from './config/configuration';
-import { AppConfigModule } from './config/app-config.module';
-import { AuthModule } from './auth/auth.module';
-import { DatabaseModule } from './database/database.module';
-import { UsersModule } from './user/user.module';
-import { RoleModule } from './role/role.module';
-import { StatusModule } from './status/status.module';
-import { RolesGuard } from './helper/guard/roles.guard';
-import { ProductModule } from './product/product.module';
-import { APP_FILTER } from '@nestjs/core';
+import configuration from './modules/config/configuration';
+import { AppConfigModule } from './modules/config/app-config.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { DatabaseModule } from './modules/database/database.module';
+import { UsersModule } from './modules/user/user.module';
+import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { CatchEverythingFilter } from './helper/filter/exception.filter';
+import { ImageModule } from './modules/image/image.module';
+import { RoleModule } from './modules/role/role.module';
+import { ProductModule } from './modules/product/product.module';
+import { MailModule } from './modules/mail/mail.module';
+import { BrandModule } from './modules/brand/brand.module';
+import { CategoryController } from './modules/category/category.controller';
+import { CategoryModule } from './modules/category/category.module';
+import { CartModule } from './modules/cart/cart.module';
+import { CartDetailModule } from './modules/cart-detail/cart-detail.module';
+import { OrderModule } from './modules/order/order.module';
 
 @Module({
   imports: [
@@ -23,18 +29,35 @@ import { CatchEverythingFilter } from './helper/filter/exception.filter';
     DatabaseModule,
     UsersModule,
     RoleModule,
-    StatusModule,
     ProductModule,
+    ImageModule,
+    MailModule,
+    BrandModule,
+    CategoryModule,
+    CartModule,
+    CartDetailModule,
+    OrderModule,
   ],
   providers: [
     {
-      provide: 'APP_GUARD',
-      useClass: RolesGuard,
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+        enableDebugMessages: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
     },
     {
       provide: APP_FILTER,
       useClass: CatchEverythingFilter,
     },
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
   ],
+  controllers: [CategoryController],
 })
 export class AppModule {}

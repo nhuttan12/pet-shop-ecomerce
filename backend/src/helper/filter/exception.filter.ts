@@ -24,10 +24,13 @@ export class CatchEverythingFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message: string =
+    const responsePayload =
       exception instanceof HttpException
-        ? exception.message
-        : ErrorMessage.INTERNAL_SERVER_ERROR;
+        ? exception.getResponse()
+        : {
+            message: ErrorMessage.INTERNAL_SERVER_ERROR,
+            error: (exception as Error)?.message,
+          };
 
     const stack =
       exception instanceof HttpException
@@ -35,14 +38,16 @@ export class CatchEverythingFilter implements ExceptionFilter {
         : (exception as Error).stack;
 
     this.logger.error(
-      `[${request.method}] ${request.url} -> ${httpStatus}\nMessage: ${message}\nStack: ${stack}`,
+      `[${request.method}] ${request.url} -> ${httpStatus}\nMessage: ${JSON.stringify(responsePayload)}\nStack: ${stack}`,
     );
 
     const resposneBody = {
       statusCode: httpStatus,
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(request),
-      message: message,
+      ...(typeof responsePayload === 'object'
+        ? responsePayload
+        : { message: responsePayload }),
     };
 
     httpAdapter.reply(ctx.getResponse(), resposneBody, httpStatus);

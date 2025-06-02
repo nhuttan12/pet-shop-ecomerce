@@ -1,19 +1,41 @@
-import { int, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core';
-import { products } from './products.schema';
-import { status } from './status.schema';
-import { imageTypes } from './image-types.schema';
+import {
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  varchar,
+} from 'drizzle-orm/mysql-core';
+import { ImageType } from 'src/helper/enum/image-type.enum';
+import { timestamps } from '../helper/timestamp';
+import { productImages } from './product-images.schema';
+import { relations } from 'drizzle-orm';
+import { ImageStatus } from 'src/helper/enum/status/image-status.enum';
 
 export const images = mysqlTable('images', {
-  id: int().primaryKey().autoincrement().notNull(),
-  name: varchar('name', { length: 45 }).notNull(),
-  productId: int('product_id')
-    .references(() => products.id)
-    .notNull(),
-  url: text(),
-  statusId: int('status_id')
-    .references(() => status.id)
-    .notNull(),
-  imageType: int('image_type_id')
-    .references(() => imageTypes.id)
-    .notNull(),
+  id: int().primaryKey().notNull().autoincrement(),
+
+  /**
+   * Đường dẫn hình ảnh
+   */
+  url: text('url').notNull(),
+
+  /**
+   * Kiểu ảnh (ví dụ: 'thumbnail', 'banner', 'avatar'...), dùng enum `ImageType`.
+   */
+  type: mysqlEnum(
+    'type',
+    Object.values(ImageType) as [string, ...string[]],
+  ).notNull(),
+
+  /**
+   * Tên thư mục lưu trữ trong dịch vụ lưu trữ ảnh (ví dụ: 'home/tmdt-ck').
+   */
+  folder: varchar('folder', { length: 255 }),
+
+  status: mysqlEnum(Object.values(ImageStatus) as [string, ...string[]]),
+  ...timestamps,
 });
+
+export const imagesToProductImage = relations(images, ({ many }) => ({
+  productImages: many(productImages),
+}));
