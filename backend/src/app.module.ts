@@ -16,6 +16,11 @@ import { CategoryController } from './modules/category/category.controller';
 import { CategoryModule } from './modules/category/category.module';
 import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
+import { VoucherModule } from './modules/voucher/voucher.module';
+import { CommentModule } from './modules/comment/comment.module';
+import { PostModule } from './modules/post/post.module';
+import { ContactModule } from './modules/contact/contact.module';
+import { WishlistModule } from './modules/wishlist/wishlist.module';
 
 @Module({
   imports: [
@@ -35,6 +40,11 @@ import { OrderModule } from './modules/order/order.module';
     CategoryModule,
     CartModule,
     OrderModule,
+    VoucherModule,
+    CommentModule,
+    PostModule,
+    ContactModule,
+    WishlistModule,
   ],
   providers: [
     {
