@@ -1,5 +1,5 @@
 import React from 'react';
-import Card from '../../components/common/Cart';
+import Card from '../../components/common/Card';
 
 interface ProductItem {
     id: string;
