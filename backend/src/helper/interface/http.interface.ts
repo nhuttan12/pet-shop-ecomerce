@@ -1,6 +1,7 @@
 import { CloudinaryConfig } from './cloudinary.interface';
 import { NodeMailerConfig } from './nodemailer.interface';
 import { PayPalConfig } from './paypal.interface';
+import { StripeConfig } from './stripe.interface';
 
 /**
  * @description: configuration info of http config
@@ -18,4 +19,5 @@ export interface HttpConfig {
   cloudinary: CloudinaryConfig;
   mail: NodeMailerConfig;
   paypal: PayPalConfig;
+  stripe: StripeConfig;
 }

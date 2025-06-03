@@ -21,7 +21,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { PostModule } from './modules/post/post.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
-import { PaypalModule } from './paypal/paypal.module';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -29,6 +29,8 @@ import { PaypalModule } from './paypal/paypal.module';
       load: [configuration],
       isGlobal: true,
     }),
+    StripeModule.forRootAsync(),
+    // StripeModule,
     AuthModule,
     AppConfigModule,
     DatabaseModule,
@@ -46,7 +48,6 @@ import { PaypalModule } from './paypal/paypal.module';
     PostModule,
     ContactModule,
     WishlistModule,
-    PaypalModule,
   ],
   providers: [
     {

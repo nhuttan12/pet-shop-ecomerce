@@ -72,6 +72,18 @@ export const schema = Joi.object({
         'string.empty': MessageLog.ENVIRONMENT_EMPTY,
       }),
     }).required(),
+    stripe: Joi.object({
+      public_key: Joi.string().required().messages({
+        'string.base': MessageLog.PUBLIC_KEY_MUST_BE_STRING,
+        'any.required': MessageLog.PUBLIC_KEY_REQUIRED,
+        'string.empty': MessageLog.PUBLIC_KEY_EMPTY,
+      }),
+      secret_key: Joi.string().required().messages({
+        'string.base': MessageLog.SECRET_MUST_BE_STRING,
+        'any.required': MessageLog.SECRET_REQUIRED,
+        'string.empty': MessageLog.SECRET_EMPTY,
+      }),
+    }).required(),
   }).required(),
   db: Joi.object({
     mysql: Joi.object({

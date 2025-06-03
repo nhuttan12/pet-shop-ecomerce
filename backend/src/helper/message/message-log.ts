@@ -165,4 +165,11 @@ export const MessageLog = {
   CLIENT_ID_PAYPAL_NOT_FOUND: 'Client ID PayPal not found',
   SECRET_PAYPAL_NOT_FOUND: 'Secret PayPal not found',
   ENVIRONMENT_PAYPAL_NOT_FOUND: 'Environment PayPal not found',
+
+  /**
+   * @description: config for stripe
+   */
+  PUBLIC_KEY_MUST_BE_STRING: 'Public key must be a string',
+  PUBLIC_KEY_REQUIRED: 'Public key is required',
+  PUBLIC_KEY_EMPTY: 'Public key is empty',
 } as const;

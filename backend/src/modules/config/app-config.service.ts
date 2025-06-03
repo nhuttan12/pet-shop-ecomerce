@@ -13,6 +13,7 @@ import { CloudinaryConfig } from 'src/helper/interface/cloudinary.interface';
 import { NodeMailerConfig } from 'src/helper/interface/nodemailer.interface';
 import { DomainValidation } from 'src/helper/interface/domain.interface';
 import { PayPalConfig } from 'src/helper/interface/paypal.interface';
+import { StripeConfig } from 'src/helper/interface/stripe.interface';
 
 @Injectable()
 export class AppConfigService {
@@ -176,5 +177,9 @@ export class AppConfigService {
     }
 
     return environment;
+  }
+
+  get getStripeConfig(): StripeConfig {
+    return this.getHttpConfig.stripe;
   }
 }

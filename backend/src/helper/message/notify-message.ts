@@ -45,4 +45,11 @@ export const NotifyMessage = {
    * */
   CREATE_ORDER_PAYPAL_SUCCESSFUL: 'Tạo hoá đơn paypal thành công',
   CAPTURE_ORDER_PAYPAL_SUCCESSFUL: 'Thanh toán hoá đơn paypal tính công',
+
+  /**
+   * Order
+   */
+  GET_ORDER_SUCCESSFUL: 'Lấy ra thông tin đơn hàng tính công',
+  CANCEL_ORDER_SUCCESSFUL: 'Huy đơn hàng tính công',
+  CREATE_ORDER_SUCCESSFUL: 'Tạo đơn hàng tính công',
 };

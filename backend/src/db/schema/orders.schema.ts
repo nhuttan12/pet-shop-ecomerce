@@ -6,11 +6,15 @@ import { orderDetails } from './order-details.schema';
 import { PaymentMethod } from 'src/helper/enum/payment-method.enum';
 import { ShippingMethod } from 'src/helper/enum/shipping_method.enum';
 import { OrderStatus } from 'src/helper/enum/status/order-status.enum';
+import { carts } from './carts.schema';
 
 export const orders = mysqlTable('orders', {
   id: int().primaryKey().notNull().autoincrement(),
   userId: int('user_id')
     .references(() => users.id)
+    .notNull(),
+  cartId: int('cart_id')
+    .references(() => carts.id)
     .notNull(),
   totalPrice: int('total_price').notNull(),
   paymentMethod: mysqlEnum(
