@@ -39,4 +39,10 @@ export const NotifyMessage = {
   UPDATE_PRODUCT_SUCCESSFUL: 'Thay đổi thông tin sản phẩm tính công',
   DELETE_PRODUCT_SUCCESSFUL: 'Xoa sản phẩm tính công',
   CREATE_PRODUCT_SUCCESSFUL: 'Thêm sản phẩm tính công',
+
+  /**
+   * Order paypal
+   * */
+  CREATE_ORDER_PAYPAL_SUCCESSFUL: 'Tạo hoá đơn paypal thành công',
+  CAPTURE_ORDER_PAYPAL_SUCCESSFUL: 'Thanh toán hoá đơn paypal tính công',
 };

@@ -17,9 +17,7 @@ export class SearchService {
       .where(where)
       .limit(1)
       .execute();
-    this.logger.log(
-      `Found one item in table ${table} matching criteria: ${JSON.stringify(where)}`,
-    );
+    this.logger.log(`Found one item in table ${table}}`);
 
     if (!item) {
       throw new UnauthorizedException(errorMessage);

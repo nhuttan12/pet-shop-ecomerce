@@ -21,6 +21,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { PostModule } from './modules/post/post.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
+import { PaypalModule } from './paypal/paypal.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { WishlistModule } from './modules/wishlist/wishlist.module';
     PostModule,
     ContactModule,
     WishlistModule,
+    PaypalModule,
   ],
   providers: [
     {

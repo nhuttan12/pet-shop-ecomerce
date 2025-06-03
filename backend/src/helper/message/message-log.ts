@@ -146,4 +146,23 @@ export const MessageLog = {
   PRODUCT: 'Product',
   ORDER: 'Order',
   NOT_FOUND: 'not found',
+
+  /**
+   * @description: config for paypal
+   */
+  CLIENT_ID_MUST_BE_STRING: 'Client ID must be a string',
+  CLIENT_ID_REQUIRED: 'Client ID is required',
+  CLIENT_ID_EMPTY: 'Client ID is empty',
+
+  SECRET_MUST_BE_STRING: 'Secret must be a string',
+  SECRET_REQUIRED: 'Secret is required',
+  SECRET_EMPTY: 'Secret is empty',
+
+  ENVIRONMENT_MUST_BE_STRING: 'Environment must be a string',
+  ENVIRONMENT_REQUIRED: 'Environment is required',
+  ENVIRONMENT_EMPTY: 'Environment is empty',
+
+  CLIENT_ID_PAYPAL_NOT_FOUND: 'Client ID PayPal not found',
+  SECRET_PAYPAL_NOT_FOUND: 'Secret PayPal not found',
+  ENVIRONMENT_PAYPAL_NOT_FOUND: 'Environment PayPal not found',
 } as const;

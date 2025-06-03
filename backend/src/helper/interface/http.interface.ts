@@ -1,5 +1,6 @@
 import { CloudinaryConfig } from './cloudinary.interface';
 import { NodeMailerConfig } from './nodemailer.interface';
+import { PayPalConfig } from './paypal.interface';
 
 /**
  * @description: configuration info of http config
@@ -16,4 +17,5 @@ export interface HttpConfig {
   expireTime: number | string;
   cloudinary: CloudinaryConfig;
   mail: NodeMailerConfig;
+  paypal: PayPalConfig;
 }

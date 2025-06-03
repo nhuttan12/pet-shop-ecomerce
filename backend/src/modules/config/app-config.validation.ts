@@ -55,6 +55,23 @@ export const schema = Joi.object({
         'string.empty': MessageLog.EMAIL_EMPTY,
       }),
     }).required(),
+    paypal: Joi.object({
+      client_id: Joi.string().required().messages({
+        'string.base': MessageLog.CLIENT_ID_MUST_BE_STRING,
+        'any.required': MessageLog.CLIENT_ID_REQUIRED,
+        'string.empty': MessageLog.CLIENT_ID_EMPTY,
+      }),
+      secret: Joi.string().required().messages({
+        'string.base': MessageLog.SECRET_MUST_BE_STRING,
+        'any.required': MessageLog.SECRET_REQUIRED,
+        'string.empty': MessageLog.SECRET_EMPTY,
+      }),
+      environtment: Joi.string().required().messages({
+        'string.base': MessageLog.ENVIRONMENT_MUST_BE_STRING,
+        'any.required': MessageLog.ENVIRONMENT_REQUIRED,
+        'string.empty': MessageLog.ENVIRONMENT_EMPTY,
+      }),
+    }).required(),
   }).required(),
   db: Joi.object({
     mysql: Joi.object({
