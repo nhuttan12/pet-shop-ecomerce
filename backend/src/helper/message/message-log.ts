@@ -172,4 +172,9 @@ export const MessageLog = {
   PUBLIC_KEY_MUST_BE_STRING: 'Public key must be a string',
   PUBLIC_KEY_REQUIRED: 'Public key is required',
   PUBLIC_KEY_EMPTY: 'Public key is empty',
+
+  /**
+   * @description: voucher
+   */
+  VOUCHER_CANNOT_BE_DELETED: 'Voucher cannot be deleted',
 } as const;

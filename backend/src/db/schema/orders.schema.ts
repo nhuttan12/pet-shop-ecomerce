@@ -7,6 +7,7 @@ import { PaymentMethod } from 'src/helper/enum/payment-method.enum';
 import { ShippingMethod } from 'src/helper/enum/shipping_method.enum';
 import { OrderStatus } from 'src/helper/enum/status/order-status.enum';
 import { carts } from './carts.schema';
+import { vouchers } from './vouchers.schema';
 
 export const orders = mysqlTable('orders', {
   id: int().primaryKey().notNull().autoincrement(),
@@ -25,6 +26,9 @@ export const orders = mysqlTable('orders', {
     'shipping_method',
     Object.values(ShippingMethod) as [string, ...string[]],
   ).notNull(),
+  voucherId: int('voucher_id')
+    .references(() => vouchers.id)
+    .unique(),
   status: mysqlEnum(
     Object.values(OrderStatus) as [string, ...string[]],
   ).notNull(),

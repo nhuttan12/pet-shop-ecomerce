@@ -7,6 +7,7 @@ import { wishlists } from './wishlists.schema';
 import { UserStatus } from 'src/helper/enum/status/user-status.enum';
 import { vouchers } from './vouchers.schema';
 import { customerRating } from './customer-rating.schema';
+import { voucherMapping } from './voucher-mapping';
 
 export const users = mysqlTable('users', {
   id: int().notNull().primaryKey().autoincrement(),
@@ -35,4 +36,8 @@ export const usersToVouchers = relations(users, ({ many }) => ({
 
 export const usersToCustomerRating = relations(users, ({ many }) => ({
   customerRating: many(customerRating),
+}));
+
+export const usersToVoucherMapping = relations(users, ({ many }) => ({
+  voucherMapping: many(voucherMapping),
 }));

@@ -52,4 +52,12 @@ export const NotifyMessage = {
   GET_ORDER_SUCCESSFUL: 'Lấy ra thông tin đơn hàng tính công',
   CANCEL_ORDER_SUCCESSFUL: 'Huy đơn hàng tính công',
   CREATE_ORDER_SUCCESSFUL: 'Tạo đơn hàng tính công',
+
+  /**
+   * Voucher
+   */
+  GET_VOUCHER_SUCCESSFUL: 'Lấy ra thông tin voucher tính công',
+  CREATE_VOUCHER_SUCCESSFUL: 'Tạo voucher tiong cong',
+  UPDATE_VOUCHER_SUCCESSFUL: 'Cap nhat voucher tiong cong',
+  DELETE_VOUCHER_SUCCESSFUL: 'Xoa voucher tiong cong',
 };
