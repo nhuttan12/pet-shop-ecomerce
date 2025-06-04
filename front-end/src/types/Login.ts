@@ -1,19 +1,22 @@
 export interface LoginCredentials {
-    email: string;
+    username: string;
     password: string;
     rememberMe: boolean;
 }
 
 export interface LoginResponse {
-    success: boolean;
-    token?: string;
-    user?: {
-        id: string;
-        name: string;
-        email: string;
-    };
-    error?: string;
+  success: boolean;
+  token?: string;
+  user?: {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+    status: string;
+  };
+  error?: string;
 }
+
 
 export interface SocialLoginProvider {
     name: 'google' | 'apple';

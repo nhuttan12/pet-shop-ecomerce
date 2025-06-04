@@ -23,11 +23,11 @@ const InputField: React.FC<InputFieldProps> = ({
   name,
   className = "",
   error,
-  options = [],
+  // options = [],
 }) => {
   return (
     <div className={`flex flex-col gap-y-3 ${className}`}>
-      <label className="block text-sm font-medium text-black mb-1">
+      <label className="block text-lg font-medium text-black mb-1">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>

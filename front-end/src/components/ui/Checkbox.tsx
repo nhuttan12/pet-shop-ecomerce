@@ -26,13 +26,13 @@ const Checkbox: React.FC<CheckboxProps> = ({
                     id={name}
                     className="opacity-0 absolute h-9 w-9"
                 />
-                <div className="border border-black w-[9px] h-[9px] rounded-[2px] mr-1.5 flex flex-shrink-0 justify-center items-center">
+                <div className="border border-black w-[11px] h-[11px] rounded-[2px] mr-1.5 flex flex-shrink-0 justify-center items-center">
                     {checked && (
-                        <div className="bg-[#3a5b22] w-[5px] h-[5px] rounded-[1px]"></div>
+                        <div className="bg-[#3a5b22] w-[6px] h-[6px] rounded-[1px]"></div>
                     )}
                 </div>
             </div>
-            <label htmlFor={name} className="text-[9px] font-medium text-black cursor-pointer">
+            <label htmlFor={name} className="text-[14px] font-medium text-black cursor-pointer">
                 {label}
             </label>
         </div>

@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({
                     ← Back
                 </button>
             )}
-            {title && <h1 className="text-xl font-medium text-black">{title}</h1>}
+            {title && <h1 className="text-2xl font-medium text-black">{title}</h1>}
         </header>
     );
 };
