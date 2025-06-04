@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -170,7 +171,7 @@ export class ProductController {
   @ApiBody({ type: CreateProductRequest })
   @ApiOkResponse({ type: ApiResponse<Product> })
   async createProduct(
-    @Param()
+    @Body()
     {
       brandName,
       categoryName,

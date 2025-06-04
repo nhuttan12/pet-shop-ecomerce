@@ -27,6 +27,7 @@ export class VoucherService {
     private searchService: SearchService,
   ) {}
   async getAllVouchers(limit: number, offset: number): Promise<Voucher[]> {
+    offset = offset <= 0 ? 0 : offset - 1;
     return await this.searchService.findManyOrReturnEmptyArray(
       this.db,
       vouchers,
@@ -42,6 +43,7 @@ export class VoucherService {
     limit: number,
     offset: number,
   ): Promise<Voucher[]> {
+    offset = offset <= 0 ? 0 : offset - 1;
     const voucherList = await this.db
       .select()
       .from(vouchers)
@@ -68,6 +70,7 @@ export class VoucherService {
     limit: number,
     offset: number,
   ): Promise<Voucher[]> {
+    offset = offset <= 0 ? 0 : offset - 1;
     return await this.searchService.findManyOrReturnEmptyArray(
       this.db,
       vouchers,
@@ -91,7 +94,7 @@ export class VoucherService {
           voucherCode,
           status,
           discount,
-          expireAt,
+          expireAt: expireAt,
           created_at: new Date(),
           updated_at: new Date(),
         })

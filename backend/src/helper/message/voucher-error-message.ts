@@ -13,6 +13,8 @@ export const VoucherErrorMessage = {
   EXPIRE_AT_MUST_VALID: 'Thời gian kết thúc phải hợp lệ',
   EXPIRE_AT_SHOULD_NOT_BE_EMPTY:
     'Thời gian kết thúc không được phép được trống',
+  VOUCHER_ID_MUST_BE_POSITIVE_NUMBER: 'Mã hoá đơn số phải là số nguyên dương',
+  VOUCHER_ID_MUST_BE_INTEGER: 'Mã hoá đơn số phải là số nguyên',
 };
 
 export const VoucherMessageLog = {

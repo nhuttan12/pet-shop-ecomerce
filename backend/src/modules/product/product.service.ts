@@ -171,6 +171,7 @@ export class ProductService {
     limit: number,
     offset: number,
   ): Promise<GetAllProductResponseDto[]> {
+    offset = offset <= 0 ? 0 : offset - 1;
     const productList = await this.db
       .select()
       .from(products)
@@ -232,6 +233,7 @@ export class ProductService {
     limit: number,
     offset: number,
   ): Promise<GetAllProductResponseDto[]> {
+    offset = offset <= 0 ? 0 : offset - 1;
     const productList = await this.db
       .select()
       .from(products)

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Logger,
   Post,
@@ -48,6 +49,7 @@ export class VoucherController {
 
   @Get()
   @HasRole(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Lấy danh sách tất cả voucher (admin)' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -70,6 +72,8 @@ export class VoucherController {
   }
 
   @Get('/user')
+  @HasRole(Role.USER)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Lấy voucher theo user đang đăng nhập' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -95,6 +99,9 @@ export class VoucherController {
   }
 
   @Get('/search')
+  @HasRole(Role.ADMIN)
+  @HasRole(Role.USER)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Tìm kiếm voucher theo mã code' })
   @ApiQuery({ name: 'voucherCode', required: true, type: String })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -122,6 +129,8 @@ export class VoucherController {
   }
 
   @Post()
+  @HasRole(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Tạo mới voucher' })
   @ApiBody({ type: CreateVoucherRequestDto })
   @ApiSwaggerResponse({
@@ -149,6 +158,15 @@ export class VoucherController {
   }
 
   @Put('/:id')
+  @HasRole(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cập nhật voucher theo id' })
+  @ApiBody({ type: UpdateVoucherRequestDto })
+  @ApiSwaggerResponse({
+    status: HttpStatus.OK,
+    description: 'Voucher đã được cập nhật',
+    type: VoucherResponseDto,
+  })
   async updateVoucher(
     @Body()
     {
@@ -176,6 +194,15 @@ export class VoucherController {
   }
 
   @Delete('/:id')
+  @HasRole(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xoá voucher theo id' })
+  @ApiBody({ type: DeleteVoucherRequestDto })
+  @ApiSwaggerResponse({
+    status: HttpStatus.OK,
+    description: 'Voucher đã được xoá',
+    type: VoucherResponseDto,
+  })
   async deleteVoucher(
     @Body() { voucherId }: DeleteVoucherRequestDto,
   ): Promise<ApiResponse<Voucher>> {

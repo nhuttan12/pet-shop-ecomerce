@@ -45,6 +45,7 @@ export class OrderService {
     limit: number,
     offset: number,
   ): Promise<GetAllOrdersResponseDto[]> {
+    offset = offset <= 0 ? 0 : offset - 1;
     const orderList = await this.db
       .select()
       .from(orders)

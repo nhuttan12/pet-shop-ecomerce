@@ -22,6 +22,10 @@ import {
 } from '@nestjs/swagger';
 import { Cart, CartDetail } from 'src/db/helper/schema-type';
 import { HasRole } from 'src/helper/decorator/roles.decorator';
+import { GetUser } from 'src/helper/decorator/user.decorator';
+import { CartDetailResponse } from 'src/helper/dto/cart-detail/cart-detail-response.dto';
+import { GetCartDetailByCartId } from 'src/helper/dto/cart-detail/get-cart-detail-by-cart-id';
+import { RemoveCartDetailDTO } from 'src/helper/dto/cart-detail/remove-cart-detail.dto';
 import { CartCreateDTO } from 'src/helper/dto/cart/create-cart.dto';
 import { FindCartById } from 'src/helper/dto/cart/find-cart-by-id.dto';
 import { GetAllCartsDTO } from 'src/helper/dto/cart/get-all-cart.dto';
@@ -31,13 +35,10 @@ import { Role } from 'src/helper/enum/role.enum';
 import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
 import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/helper/guard/roles.guard';
-import { NotifyMessage } from 'src/helper/message/notify-message';
-import { CartService } from './cart.service';
-import { GetCartDetailByCartId } from 'src/helper/dto/cart-detail/get-cart-detail-by-cart-id';
-import { CartDetailResponse } from 'src/helper/dto/cart-detail/cart-detail-response.dto';
-import { RemoveCartDetailDTO } from 'src/helper/dto/cart-detail/remove-cart-detail.dto';
-import { GetUser } from 'src/helper/decorator/user.decorator';
 import { JwtPayload } from 'src/helper/interface/jwt-payload.interface';
+import { NotifyMessage } from 'src/helper/message/notify-message';
+import { main } from 'src/helper/services/seed';
+import { CartService } from './cart.service';
 
 @ApiTags('Cart')
 @ApiBearerAuth('jwt')
@@ -122,7 +123,7 @@ export class CartController {
     };
   }
 
-  @Post('/cart-detail/get')
+  @Get('/cart-detail/get')
   @HasRole(Role.USER)
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: GetCartDetailByCartId })
@@ -156,5 +157,10 @@ export class CartController {
       message: NotifyMessage.REMOVE_CART_DETAIL_SUCCESSFUL,
       data: cartDetail,
     };
+  }
+
+  @Post('/seed')
+  async seedData() {
+    await main();
   }
 }

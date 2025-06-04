@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -108,7 +109,7 @@ export class OrderController {
   @ApiOkResponse({ type: ApiResponse<Order> })
   async createOrder(
     @GetUser() userId: number,
-    @Param() { paymentMethod, shippingMethod }: CreateOrderRequestDto,
+    @Body() { paymentMethod, shippingMethod }: CreateOrderRequestDto,
   ): Promise<ApiResponse<Order>> {
     const order = await this.orderService.createOrder(
       userId,

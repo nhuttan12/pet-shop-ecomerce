@@ -1,6 +1,6 @@
 import { VoucherStatus } from 'src/helper/enum/status/vouchers-status.enum';
 
-export interface UpdateVoucherRequestDto {
+export class UpdateVoucherRequestDto {
   voucherId: number;
   voucherCode: string;
   status: VoucherStatus;

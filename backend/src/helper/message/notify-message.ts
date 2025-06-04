@@ -44,20 +44,20 @@ export const NotifyMessage = {
    * Order paypal
    * */
   CREATE_ORDER_PAYPAL_SUCCESSFUL: 'Tạo hoá đơn paypal thành công',
-  CAPTURE_ORDER_PAYPAL_SUCCESSFUL: 'Thanh toán hoá đơn paypal tính công',
+  CAPTURE_ORDER_PAYPAL_SUCCESSFUL: 'Thanh toán hoá đơn paypal thành công',
 
   /**
    * Order
    */
-  GET_ORDER_SUCCESSFUL: 'Lấy ra thông tin đơn hàng tính công',
-  CANCEL_ORDER_SUCCESSFUL: 'Huy đơn hàng tính công',
-  CREATE_ORDER_SUCCESSFUL: 'Tạo đơn hàng tính công',
+  GET_ORDER_SUCCESSFUL: 'Lấy ra thông tin đơn hàng thành công',
+  CANCEL_ORDER_SUCCESSFUL: 'Huy đơn hàng thành công',
+  CREATE_ORDER_SUCCESSFUL: 'Tạo đơn hàng thành công',
 
   /**
    * Voucher
    */
-  GET_VOUCHER_SUCCESSFUL: 'Lấy ra thông tin voucher tính công',
-  CREATE_VOUCHER_SUCCESSFUL: 'Tạo voucher tiong cong',
-  UPDATE_VOUCHER_SUCCESSFUL: 'Cap nhat voucher tiong cong',
-  DELETE_VOUCHER_SUCCESSFUL: 'Xoa voucher tiong cong',
+  GET_VOUCHER_SUCCESSFUL: 'Lấy ra thông tin voucher thành công',
+  CREATE_VOUCHER_SUCCESSFUL: 'Tạo voucher thành công',
+  UPDATE_VOUCHER_SUCCESSFUL: 'Cap nhat voucher thành công',
+  DELETE_VOUCHER_SUCCESSFUL: 'Xoa voucher thành công',
 };

@@ -1,4 +1,9 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { SQL } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 
@@ -11,19 +16,31 @@ export class SearchService {
     where: SQL<unknown> | ((aliases: any) => SQL<unknown>),
     errorMessage?: string,
   ): Promise<T> {
-    const [item] = await db
-      .select()
-      .from(table)
-      .where(where)
-      .limit(1)
-      .execute();
-    this.logger.log(`Found one item in table ${table}}`);
+    try {
+      const [item] = await db
+        .select()
+        .from(table)
+        .where(where)
+        .limit(1)
+        .execute();
+      this.logger.log(`Found one item in table ${table}}`);
 
-    if (!item) {
-      throw new UnauthorizedException(errorMessage);
+      if (!item) {
+        throw new UnauthorizedException(errorMessage);
+      }
+
+      return item;
+    } catch (error) {
+      this.logger.error(
+        `DB ERROR in findOneOrThrow: ${(error as Error)?.message || error}`,
+      );
+      if ((error as Error)?.stack) this.logger.error((error as Error).stack);
+      throw new InternalServerErrorException({
+        message: 'Có lỗi xảy ra, vui lòng thử lại sau',
+        error: (error as Error)?.message || (error as Error),
+      });
+      throw error;
     }
-
-    return item;
   }
 
   async findManyOrReturnEmptyArray<T, Schema extends Record<string, unknown>>(
@@ -34,21 +51,28 @@ export class SearchService {
     offset?: number,
     orderBy?: SQL<unknown>,
   ): Promise<T[]> {
-    const baseQuery = db.select().from(table);
+    try {
+      const baseQuery = db.select().from(table);
 
-    const whereQuery = where ? baseQuery.where(where) : baseQuery;
+      const whereQuery = where ? baseQuery.where(where) : baseQuery;
 
-    const limitQuery =
-      typeof limit === 'number' ? whereQuery.limit(limit) : whereQuery;
+      const limitQuery =
+        typeof limit === 'number' ? whereQuery.limit(limit) : whereQuery;
 
-    const offsetQuery =
-      typeof offset === 'number' ? limitQuery.offset(offset) : limitQuery;
+      const offsetQuery =
+        typeof offset === 'number' ? limitQuery.offset(offset) : limitQuery;
 
-    const orderByQuery =
-      typeof orderBy === 'string' ? offsetQuery.orderBy(orderBy) : offsetQuery;
+      const orderByQuery =
+        typeof orderBy === 'string'
+          ? offsetQuery.orderBy(orderBy)
+          : offsetQuery;
 
-    const items = await orderByQuery.execute();
+      const items = await orderByQuery.execute();
 
-    return items ?? [];
+      return items ?? [];
+    } catch (error) {
+      this.logger.error(`Error: ${error}`);
+      throw error;
+    }
   }
 }

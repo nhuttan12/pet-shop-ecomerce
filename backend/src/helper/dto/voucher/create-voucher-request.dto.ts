@@ -28,7 +28,7 @@ export class CreateVoucherRequestDto {
   @IsNotEmpty({
     message: VoucherErrorMessage.VOUCHER_DISCOUNT_MUST_NOT_BE_EMPTY,
   })
-  @Min(1, {
+  @Min(0, {
     message: VoucherErrorMessage.VOUCHER_DISCOUNT_MUST_BE_POSITIVE_NUMBER,
   })
   discount: number;
