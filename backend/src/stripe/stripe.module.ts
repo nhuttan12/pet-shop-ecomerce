@@ -1,8 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { StripeController } from './stripe.controller';
 import { StripeService } from './stripe.service';
-import { AppConfigService } from 'src/modules/config/app-config.service';
-import { AppConfigModule } from 'src/modules/config/app-config.module';
+import { AppConfigService } from 'src/modules/helper/config/app-config.service';
+import { AppConfigModule } from 'src/modules/helper/config/app-config.module';
 import { STRIPE_API_KEY } from 'src/helper/constants';
 
 @Module({})

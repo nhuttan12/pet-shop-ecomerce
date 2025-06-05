@@ -58,6 +58,18 @@ export const NotifyMessage = {
    */
   GET_VOUCHER_SUCCESSFUL: 'Lấy ra thông tin voucher thành công',
   CREATE_VOUCHER_SUCCESSFUL: 'Tạo voucher thành công',
-  UPDATE_VOUCHER_SUCCESSFUL: 'Cap nhat voucher thành công',
-  DELETE_VOUCHER_SUCCESSFUL: 'Xoa voucher thành công',
+  UPDATE_VOUCHER_SUCCESSFUL: 'Cập nhật thông tin voucher thành công',
+  DELETE_VOUCHER_SUCCESSFUL: 'Xoá voucher thành công',
+
+  /**
+   * Contact
+   */
+  CREATE_CONTACT_SUCCESSFUL: 'Tạo thống tin liên hệ thành công',
+  GET_ALL_CONTACT_SUCCESSFUL: 'Lấy ra toàn bộ thống tin liên hệ thành công',
+
+  /**
+   * Contact
+   */
+  CREATE_WISHLIST_SUCCESSFUL: 'Thêm sản phẩm vào mục yêu thích thành công',
+  REMOVE_WISHLIST_SUCCESSFUL: 'Xoá sản phẩm trong mục yêu thích thành công',
 };
