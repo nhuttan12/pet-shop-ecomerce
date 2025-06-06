@@ -19,8 +19,11 @@ import {
   UserLoginDTO,
   UserLoginResponseDTO,
 } from 'src/helper/dto/user/user-login.dto';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UserRegisterDTO, UserRegisterResponseDTO } from 'src/helper/dto/user/user-register.dto';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  UserRegisterDTO,
+  UserRegisterResponseDTO,
+} from 'src/helper/dto/user/user-register.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -38,6 +41,8 @@ export class AuthController {
    */
   @Post('v1/register')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Đăng ký tài khoản mới' })
+  @ApiBody({ type: UserRegisterDTO })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User registered successfully',
@@ -63,6 +68,7 @@ export class AuthController {
   @Post('v1/login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
+  @ApiOperation({ summary: 'Đăng nhập tài khoản' })
   @ApiBody({ type: UserLoginDTO })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -79,6 +85,8 @@ export class AuthController {
 
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Gửi email quên mật khẩu' })
+  @ApiBody({ type: UserForgotPasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Password reset email sent',
@@ -95,6 +103,8 @@ export class AuthController {
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Đặt lại mật khẩu sau khi nhận link qua email' })
+  @ApiBody({ type: UserResetPasswordDTO })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Password reset successfully',

@@ -22,6 +22,9 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { GetOrderDetailsByOrderIdResponseDto } from 'src/helper/dto/order/get-order-details-by-order-id-response.dto';
@@ -47,8 +50,23 @@ export class OrderController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: GetAllOrderRequestDto })
-  @ApiOkResponse({ type: ApiResponse<GetAllOrdersResponseDto[]> })
+  @ApiOperation({ summary: 'Lấy danh sách đơn hàng (của user đang đăng nhập)' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Số lượng đơn mỗi trang',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Trang số',
+  })
+  @ApiOkResponse({
+    type: ApiResponse<GetAllOrdersResponseDto[]>,
+    description: 'Danh sách đơn hàng trả về thành công',
+  })
   async getAllOrders(
     @Query() { limit, page }: GetAllOrderRequestDto,
     @GetUser() userId: number,
@@ -66,8 +84,12 @@ export class OrderController {
 
   @Get('/order-detail/:id')
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: GetOrderDetailsByOrderIdRequestDto })
-  @ApiOkResponse({ type: ApiResponse<GetOrderDetailsByOrderIdResponseDto[]> })
+  @ApiOperation({ summary: 'Lấy chi tiết đơn hàng theo orderId' })
+  @ApiParam({ name: 'id', type: Number, description: 'Order ID' })
+  @ApiOkResponse({
+    type: ApiResponse<GetOrderDetailsByOrderIdResponseDto[]>,
+    description: 'Chi tiết đơn hàng trả về thành công',
+  })
   async getOrderDetailByOrderId(
     @Param() { orderId }: GetOrderDetailsByOrderIdRequestDto,
     @GetUser() userId: number,
@@ -87,8 +109,13 @@ export class OrderController {
 
   @Put('/cancel/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Hủy đơn hàng' })
+  @ApiParam({ name: 'id', type: Number, description: 'Order ID' })
   @ApiBody({ type: CancelOrderRequestDto })
-  @ApiOkResponse({ type: ApiResponse<Order> })
+  @ApiOkResponse({
+    type: ApiResponse<Order>,
+    description: 'Hủy đơn hàng thành công',
+  })
   async cancelOrder(
     @Param() { orderId }: CancelOrderRequestDto,
     @GetUser() userId: number,
@@ -105,8 +132,12 @@ export class OrderController {
 
   @Post('/create-order')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Tạo đơn hàng mới' })
   @ApiBody({ type: CreateOrderRequestDto })
-  @ApiOkResponse({ type: ApiResponse<Order> })
+  @ApiOkResponse({
+    type: ApiResponse<Order>,
+    description: 'Tạo đơn hàng thành công',
+  })
   async createOrder(
     @GetUser() userId: number,
     @Body() { paymentMethod, shippingMethod }: CreateOrderRequestDto,

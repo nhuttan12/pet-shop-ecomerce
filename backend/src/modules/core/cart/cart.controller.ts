@@ -14,8 +14,8 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiQuery,
   ApiTags,
@@ -53,8 +53,23 @@ export class CartController {
   @Post('adding')
   @HasRole(Role.USER)
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: CartCreateDTO })
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOperation({ summary: 'Lấy tất cả giỏ hàng (phân trang)' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Trang số',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Số lượng mỗi trang',
+  })
+  @ApiOkResponse({
+    type: ApiResponse,
+    description: 'Lấy danh sách giỏ hàng thành công',
+  })
   async addingnewCart(
     @Body() { productId, quantity }: CartCreateDTO,
     @GetUser() user: JwtPayload,
@@ -76,9 +91,9 @@ export class CartController {
   @Get()
   @HasRole(Role.USER)
   @HttpCode(HttpStatus.OK)
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOperation({ summary: 'Lấy giỏ hàng theo ID' })
+  @ApiParam({ name: 'id', type: Number, description: 'Cart ID' })
+  @ApiOkResponse({ type: ApiResponse, description: 'Lấy giỏ hàng thành công' })
   async getAllCart(
     @Query() cart: GetAllCartsDTO,
   ): Promise<ApiResponse<Cart[]>> {
@@ -95,8 +110,9 @@ export class CartController {
   @Get('id/:id')
   @HasRole(Role.USER)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xóa giỏ hàng theo ID' })
   @ApiParam({ name: 'id', type: Number, description: 'Cart ID' })
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOkResponse({ type: ApiResponse, description: 'Xóa giỏ hàng thành công' })
   async getCartById(@Param() cart: FindCartById): Promise<ApiResponse<Cart>> {
     const carts = await this.cartService.getCartsById(cart.id);
     this.logger.debug(`Cart: ${JSON.stringify(carts)}`);
@@ -111,8 +127,9 @@ export class CartController {
   @Delete('cart/:id')
   @HasRole(Role.USER)
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: RemoveCartDTO })
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOperation({ summary: 'Xóa giỏ hàng theo ID' })
+  @ApiParam({ name: 'id', type: Number, description: 'Cart ID' })
+  @ApiOkResponse({ type: ApiResponse, description: 'Xóa giỏ hàng thành công' })
   async removeCart(@Param() cart: RemoveCartDTO): Promise<ApiResponse<Cart>> {
     const carts = await this.cartService.removeCart(cart);
 
@@ -126,8 +143,29 @@ export class CartController {
   @Get('/cart-detail/get')
   @HasRole(Role.USER)
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: GetCartDetailByCartId })
-  @ApiOkResponse({ type: ApiResponse<CartDetailResponse[]> })
+  @ApiOperation({ summary: 'Lấy chi tiết giỏ hàng (phân trang)' })
+  @ApiQuery({
+    name: 'id',
+    required: true,
+    type: Number,
+    description: 'Cart ID',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Số lượng mỗi trang',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Trang số',
+  })
+  @ApiOkResponse({
+    type: ApiResponse<CartDetailResponse[]>,
+    description: 'Lấy chi tiết giỏ hàng thành công',
+  })
   async getCartDetailByCartId(
     @Query() { id, limit, page }: GetCartDetailByCartId,
   ): Promise<ApiResponse<CartDetailResponse[]>> {
@@ -146,8 +184,12 @@ export class CartController {
   @Delete('/cart-detail/remove/:id')
   @HasRole(Role.USER)
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: RemoveCartDetailDTO })
-  @ApiOkResponse({ type: ApiResponse<CartDetail> })
+  @ApiOperation({ summary: 'Xóa chi tiết giỏ hàng theo ID' })
+  @ApiParam({ name: 'id', type: Number, description: 'CartDetail ID' })
+  @ApiOkResponse({
+    type: ApiResponse<CartDetail>,
+    description: 'Xóa chi tiết giỏ hàng thành công',
+  })
   async removeCartByCartId(
     @Param() { cartId }: RemoveCartDetailDTO,
   ): Promise<ApiResponse<CartDetail>> {

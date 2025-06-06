@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiQuery,
   ApiTags,
@@ -40,17 +41,20 @@ import { FindBrandById } from 'src/helper/dto/brand/find-brand-by-id.dto';
 @ApiBearerAuth('jwt')
 @UseGuards(JwtAuthGuard)
 @UseFilters(CatchEverythingFilter)
-@Controller('brand')
 export class BrandController {
-  private readonly logger = new Logger();
+  private readonly logger = new Logger(BrandController.name);
   constructor(private brandSerivce: BrandService) {}
 
   @Post('adding')
   @HasRole(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @UseGuards(RolesGuard)
+  @ApiOperation({ summary: 'Thêm mới thương hiệu (chỉ ADMIN)' })
   @ApiBody({ type: BrandCreateDTO })
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOkResponse({
+    type: ApiResponse,
+    description: 'Thêm thương hiệu thành công',
+  })
   async addingNewBrand(
     @Body() brand: BrandCreateDTO,
   ): Promise<ApiResponse<Brand>> {
@@ -68,10 +72,29 @@ export class BrandController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'offset', required: false, type: Number })
-  @ApiQuery({ name: 'sort', required: false, type: String })
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOperation({ summary: 'Lấy tất cả thương hiệu (phân trang, sắp xếp)' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Số lượng mỗi trang',
+  })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    type: Number,
+    description: 'Vị trí bắt đầu',
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    type: String,
+    description: 'Kiểu sắp xếp (tên cột)',
+  })
+  @ApiOkResponse({
+    type: ApiResponse,
+    description: 'Lấy danh sách thương hiệu thành công',
+  })
   async getAllBrand(
     @Query() brand: GetAllBrandsDTO,
   ): Promise<ApiResponse<Brand[]>> {
@@ -87,9 +110,12 @@ export class BrandController {
 
   @Get('id/:id')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOperation({ summary: 'Lấy thương hiệu theo ID' })
   @ApiParam({ name: 'id', type: Number, description: 'Brand ID' })
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOkResponse({
+    type: ApiResponse,
+    description: 'Lấy thương hiệu theo ID thành công',
+  })
   async getBrandById(
     @Param() brand: FindBrandById,
   ): Promise<ApiResponse<Brand>> {
@@ -105,9 +131,12 @@ export class BrandController {
 
   @Get('name/:name')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOperation({ summary: 'Tìm kiếm thương hiệu theo tên' })
   @ApiParam({ name: 'name', type: String, description: 'Brand Name' })
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOkResponse({
+    type: ApiResponse,
+    description: 'Tìm kiếm thương hiệu thành công',
+  })
   async findBrandByName(
     @Param() brand: FindBrandByName,
   ): Promise<ApiResponse<Brand[]>> {
@@ -125,8 +154,12 @@ export class BrandController {
   @HasRole(Role.ADMIN)
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cập nhật thương hiệu (chỉ ADMIN)' })
   @ApiBody({ type: BrandUpdateDTO })
-  @ApiOkResponse({ type: ApiResponse })
+  @ApiOkResponse({
+    type: ApiResponse,
+    description: 'Cập nhật thương hiệu thành công',
+  })
   async updateBrand(
     @Body() brand: BrandUpdateDTO,
   ): Promise<ApiResponse<Brand>> {

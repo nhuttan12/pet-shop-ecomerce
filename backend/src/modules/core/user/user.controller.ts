@@ -21,7 +21,14 @@ import { Role } from 'src/helper/enum/role.enum';
 import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
 import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RolesGuard } from 'src/helper/guard/roles.guard';
 import { GetAllUsersResponseDTO } from 'src/helper/dto/response/user/get-all-user-response.dto';
 import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
@@ -29,9 +36,9 @@ import { NotifyMessage } from 'src/helper/message/notify-message';
 import { GetAllUsersDto } from 'src/helper/dto/user/get-all-user.dto';
 
 @ApiTags('User')
-@Controller('v2/users')
+@Controller('user')
 export class UserController {
-  private readonly logger = new Logger();
+  private readonly logger = new Logger(UserController.name);
   constructor(private userService: UserService) {}
 
   @Get()
@@ -40,6 +47,25 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
+  @ApiOperation({
+    summary: 'Lấy danh sách tất cả user (phân trang, chỉ ADMIN)',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Trang số',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Số lượng mỗi trang',
+  })
+  @ApiOkResponse({
+    type: ApiResponse<GetAllUsersResponseDTO[]>,
+    description: 'Danh sách user trả về thành công',
+  })
   async getAllUsers(
     @Query() query: GetAllUsersDto,
   ): Promise<ApiResponse<GetAllUsersResponseDTO[]>> {
@@ -59,13 +85,18 @@ export class UserController {
     };
   }
 
-  @Get(':id')
+  @Get('id/:id')
   @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
+  @ApiOperation({ summary: 'Tìm user theo ID (chỉ ADMIN)' })
   @ApiParam({ name: 'id', type: Number, description: 'User id' })
+  @ApiOkResponse({
+    type: ApiResponse<User>,
+    description: 'User trả về thành công',
+  })
   async findUserById(
     @Param() findUser: FindUserById,
   ): Promise<ApiResponse<User>> {
@@ -80,12 +111,18 @@ export class UserController {
     };
   }
 
-  @Get(':name')
+  @Get('name/:name')
   @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
+  @ApiOperation({ summary: 'Tìm user theo tên (chỉ ADMIN)' })
+  @ApiParam({ name: 'name', type: String, description: 'Tên user' })
+  @ApiOkResponse({
+    type: ApiResponse<User[]>,
+    description: 'Danh sách user trả về thành công',
+  })
   async findUserByName(
     @Param() nameParam: FindUserByName,
   ): Promise<ApiResponse<User[]>> {
@@ -108,6 +145,24 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @UseFilters(CatchEverythingFilter)
+  @ApiOperation({ summary: 'Cập nhật thông tin user (chỉ ADMIN)' })
+  @ApiQuery({ name: 'id', type: Number, description: 'User id' })
+  @ApiQuery({
+    name: 'name',
+    type: String,
+    required: false,
+    description: 'Tên user',
+  })
+  @ApiQuery({
+    name: 'email',
+    type: String,
+    required: false,
+    description: 'Email user',
+  })
+  @ApiOkResponse({
+    type: ApiResponse<User>,
+    description: 'Cập nhật user thành công',
+  })
   async updateUser(
     @Query() userQuery: UserUpdateDTO,
   ): Promise<ApiResponse<User>> {

@@ -28,6 +28,9 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
@@ -37,17 +40,33 @@ import { HasRole } from 'src/helper/decorator/roles.decorator';
 import { Role } from 'src/helper/enum/role.enum';
 import { GetAllProductsRequest } from 'src/helper/dto/product/get-all-product-request.dto';
 
-@Controller('product')
 @ApiTags('Product')
+@Controller('product')
 @ApiBearerAuth('jwt')
 @UseFilters(CatchEverythingFilter)
 export class ProductController {
-  private readonly logger = new Logger();
+  private readonly logger = new Logger(ProductController.name);
   constructor(private productService: ProductService) {}
+
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: GetAllProductsRequest })
-  @ApiOkResponse({ type: ApiResponse<GetAllProductResponseDto[]> })
+  @ApiOperation({ summary: 'Lấy danh sách sản phẩm (phân trang)' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Số lượng mỗi trang',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Trang số',
+  })
+  @ApiOkResponse({
+    type: ApiResponse<GetAllProductResponseDto[]>,
+    description: 'Danh sách sản phẩm trả về thành công',
+  })
   async getAllProducts(
     @Query() { limit, page }: GetAllProductsRequest,
   ): Promise<ApiResponse<GetAllProductResponseDto[]>> {
@@ -63,10 +82,27 @@ export class ProductController {
 
   @Get('name/:name')
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: GetProductByNameRequest })
-  @ApiOkResponse({ type: ApiResponse<GetAllProductResponseDto[]> })
+  @ApiOperation({ summary: 'Tìm sản phẩm theo tên (phân trang)' })
+  @ApiParam({ name: 'name', type: String, description: 'Tên sản phẩm' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Số lượng mỗi trang',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Trang số',
+  })
+  @ApiOkResponse({
+    type: ApiResponse<GetAllProductResponseDto[]>,
+    description: 'Kết quả tìm kiếm sản phẩm',
+  })
   async findProductByName(
-    @Query() { limit, page, name }: GetProductByNameRequest,
+    @Param('name') name: string,
+    @Query() { limit, page }: GetProductByNameRequest,
   ): Promise<ApiResponse<GetAllProductResponseDto[]>> {
     const products = await this.productService.findProductByName(
       name,
@@ -84,8 +120,29 @@ export class ProductController {
 
   @Get('detail')
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ type: GetProductDetailRequestDto })
-  @ApiOkResponse({ type: ApiResponse<GetProductDetailResponseDto[]> })
+  @ApiOperation({ summary: 'Lấy chi tiết sản phẩm (phân trang)' })
+  @ApiQuery({
+    name: 'productId',
+    required: true,
+    type: Number,
+    description: 'ID sản phẩm',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Số lượng mỗi trang',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Trang số',
+  })
+  @ApiOkResponse({
+    type: ApiResponse<GetProductDetailResponseDto[]>,
+    description: 'Chi tiết sản phẩm trả về thành công',
+  })
   async getProductDetail(
     @Query() { productId, limit, page }: GetProductDetailRequestDto,
   ): Promise<ApiResponse<GetProductDetailResponseDto>> {
@@ -107,10 +164,14 @@ export class ProductController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cập nhật thông tin sản phẩm (chỉ ADMIN)' })
   @ApiBody({ type: UpdateProductInforRequestDTO })
-  @ApiOkResponse({ type: ApiResponse<Product> })
+  @ApiOkResponse({
+    type: ApiResponse<Product>,
+    description: 'Cập nhật sản phẩm thành công',
+  })
   async updateProductInfor(
-    @Param()
+    @Body()
     {
       id,
       name,
@@ -149,10 +210,14 @@ export class ProductController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xóa sản phẩm (chỉ ADMIN)' })
   @ApiBody({ type: DeleteProductByProductIdRequestDto })
-  @ApiOkResponse({ type: ApiResponse<Product> })
+  @ApiOkResponse({
+    type: ApiResponse<Product>,
+    description: 'Xóa sản phẩm thành công',
+  })
   async removeProductById(
-    @Param() { productId }: DeleteProductByProductIdRequestDto,
+    @Body() { productId }: DeleteProductByProductIdRequestDto,
   ): Promise<ApiResponse<Product>> {
     const product = await this.productService.removeProductById(productId);
     this.logger.debug(`Product: ${JSON.stringify(product)}`);
@@ -168,8 +233,12 @@ export class ProductController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Tạo mới sản phẩm (chỉ ADMIN)' })
   @ApiBody({ type: CreateProductRequest })
-  @ApiOkResponse({ type: ApiResponse<Product> })
+  @ApiOkResponse({
+    type: ApiResponse<Product>,
+    description: 'Tạo sản phẩm thành công',
+  })
   async createProduct(
     @Body()
     {

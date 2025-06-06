@@ -72,4 +72,12 @@ export const NotifyMessage = {
    */
   CREATE_WISHLIST_SUCCESSFUL: 'Thêm sản phẩm vào mục yêu thích thành công',
   REMOVE_WISHLIST_SUCCESSFUL: 'Xoá sản phẩm trong mục yêu thích thành công',
+
+  /**
+   * Post
+   */
+  GET_POST_SUCCESSFUL: 'Lấy ra toàn bộ bài viết',
+  CREATE_POST_SUCCESSFUL: 'Tạo bài viết thành công',
+  UPDATE_POST_SUCCESSFUL: 'Chỉnh sửa bài viết thành công',
+  DELETE_POST_SUCCESSFUL: 'Xoá bài viết thành công',
 };
