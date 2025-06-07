@@ -1,4 +1,11 @@
-import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { PostInsert, User } from 'src/db/helper/schema-type';
@@ -13,6 +20,8 @@ import {
 } from 'src/helper/message/post_message';
 import { SearchService } from 'src/modules/helper/services/search.service';
 import { DrizzleAsyncProvider } from './../../../helper/database/drizzle.provider';
+import { PostEditRequestStatus } from 'src/helper/enum/status/post-edit-request-status.enum';
+import { postEditRequests } from 'src/db/schema/post-edit-request.schema';
 
 @Injectable()
 export class PostService {
@@ -33,7 +42,7 @@ export class PostService {
       const condition =
         userId !== undefined
           ? and(eq(posts.status, PostStatus.ACTIVE), eq(posts.authorId, userId))
-          : eq(posts.status, PostStatus.ACTIVE);
+          : undefined;
 
       return this.searchService.findManyOrReturnEmptyArray(
         this.db,
@@ -64,11 +73,10 @@ export class PostService {
     }
   }
 
-  async createPost({
-    authorId,
-    content,
-    title,
-  }: CreatePostRequestDto): Promise<PostResponse> {
+  async createPost(
+    authorId: number,
+    { content, title }: CreatePostRequestDto,
+  ): Promise<PostResponse> {
     try {
       const user: User = await this.searchService.findOneOrThrow<User>(
         this.db,
@@ -135,9 +143,14 @@ export class PostService {
 
   async editPost(
     postId: number,
+    authorId: number,
     dto: EditPostRequestDto,
   ): Promise<PostResponse> {
-    await this.getPostById(postId);
+    const post: PostResponse = await this.getPostById(postId);
+    if (post.authorId !== authorId) {
+      this.logger.error(PostErrorMessage.POST_NOT_FOUND);
+      throw new ForbiddenException(PostErrorMessage.POST_NOT_FOUND);
+    }
 
     const updateData: Partial<PostInsert> = {
       ...dto,
@@ -159,5 +172,49 @@ export class PostService {
       eq(posts.id, postId),
       PostErrorMessage.POST_NOT_FOUND,
     );
+  }
+
+  async sendRequestChangingPost(
+    postId: number,
+    reason: string,
+    contentSuggested?: string,
+  ): Promise<void> {
+    try {
+      const post: PostResponse = await this.searchService.findOneOrThrow(
+        this.db,
+        posts,
+        eq(posts.id, postId),
+        PostErrorMessage.POST_NOT_FOUND,
+      );
+
+      const [result] = await this.db.transaction(async (tx) => {
+        return await tx
+          .insert(postEditRequests)
+          .values({
+            postId: post.id,
+            employeeId: post.authorId,
+            status: PostEditRequestStatus.PENDING,
+            reason: reason,
+            contentSuggested: contentSuggested ?? '',
+            created_at: new Date(),
+            updated_at: new Date(),
+          })
+          .$returningId();
+      });
+
+      if (!result) {
+        this.logger.error(PostErrorMessage.POST_NOT_FOUND);
+        throw new NotFoundException(PostErrorMessage.POST_NOT_FOUND);
+      }
+
+      return await this.searchService.findOneOrThrow(
+        this.db,
+        postEditRequests,
+        eq(postEditRequests.id, result.id),
+      );
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
   }
 }

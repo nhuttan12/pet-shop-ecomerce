@@ -37,6 +37,7 @@ import { RolesGuard } from 'src/helper/guard/roles.guard';
 import { HasRole } from 'src/helper/decorator/roles.decorator';
 import { Role } from 'src/helper/enum/role.enum';
 import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
+import { JwtPayload } from 'src/helper/interface/jwt-payload.interface';
 
 @Controller('orders')
 @ApiTags('Order')
@@ -69,9 +70,13 @@ export class OrderController {
   })
   async getAllOrders(
     @Query() { limit, page }: GetAllOrderRequestDto,
-    @GetUser() userId: number,
+    @GetUser() userId: JwtPayload,
   ): Promise<ApiResponse<GetAllOrdersResponseDto[]>> {
-    const orders = await this.orderService.getAllOrders(userId, limit, page);
+    const orders = await this.orderService.getAllOrders(
+      userId.sub,
+      limit,
+      page,
+    );
 
     this.logger.debug(`Orders: ${JSON.stringify(orders)}`);
 
@@ -92,11 +97,11 @@ export class OrderController {
   })
   async getOrderDetailByOrderId(
     @Param() { orderId }: GetOrderDetailsByOrderIdRequestDto,
-    @GetUser() userId: number,
+    @GetUser() userId: JwtPayload,
   ): Promise<ApiResponse<GetOrderDetailsByOrderIdResponseDto[]>> {
     const orderDetails = await this.orderService.getOrderDetailByOrderId(
       orderId,
-      userId,
+      userId.sub,
     );
     this.logger.debug(`Order detail: ${JSON.stringify(orderDetails)}`);
 
@@ -118,9 +123,9 @@ export class OrderController {
   })
   async cancelOrder(
     @Param() { orderId }: CancelOrderRequestDto,
-    @GetUser() userId: number,
+    @GetUser() userId: JwtPayload,
   ): Promise<ApiResponse<Order>> {
-    const order = await this.orderService.cancelOrder(orderId, userId);
+    const order = await this.orderService.cancelOrder(orderId, userId.sub);
     this.logger.debug(`Order detail: ${JSON.stringify(order)}`);
 
     return {
@@ -139,11 +144,11 @@ export class OrderController {
     description: 'Tạo đơn hàng thành công',
   })
   async createOrder(
-    @GetUser() userId: number,
+    @GetUser() userId: JwtPayload,
     @Body() { paymentMethod, shippingMethod }: CreateOrderRequestDto,
   ): Promise<ApiResponse<Order>> {
     const order = await this.orderService.createOrder(
-      userId,
+      userId.sub,
       paymentMethod,
       shippingMethod,
     );

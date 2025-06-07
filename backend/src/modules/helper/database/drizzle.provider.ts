@@ -28,7 +28,7 @@ export const drizzleProvider = [
         database: config.db.mysql.database,
       });
 
-      return drizzle({ client: poolConnection });
+      return drizzle({ client: poolConnection, logger: true });
     },
   },
 ];

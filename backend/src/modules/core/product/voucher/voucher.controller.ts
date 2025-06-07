@@ -37,6 +37,7 @@ import { RolesGuard } from 'src/helper/guard/roles.guard';
 import { NotifyMessage } from 'src/helper/message/notify-message';
 import { VoucherService } from './voucher.service';
 import { CreateVoucherRequestDto } from 'src/helper/dto/voucher/create-voucher-request.dto';
+import { JwtPayload } from 'src/helper/interface/jwt-payload.interface';
 
 @Controller('voucher')
 @ApiTags('Voucher')
@@ -83,11 +84,11 @@ export class VoucherController {
     type: [VoucherResponseDto],
   })
   async getAllVouchersByUserId(
-    @GetUser() userId: number,
+    @GetUser() userId: JwtPayload,
     @Query() { limit, page }: GetAllVouchersByUserIdRequestDto,
   ): Promise<ApiResponse<Voucher[]>> {
     const vouchers = await this.voucherService.getAllVouchersByUserId(
-      userId,
+      userId.sub,
       limit,
       page,
     );

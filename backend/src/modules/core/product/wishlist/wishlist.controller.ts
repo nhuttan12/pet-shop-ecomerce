@@ -28,6 +28,7 @@ import { HasRole } from 'src/helper/decorator/roles.decorator';
 import { Role } from 'src/helper/enum/role.enum';
 import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
 import { NotifyMessage } from 'src/helper/message/notify-message';
+import { JwtPayload } from 'src/helper/interface/jwt-payload.interface';
 
 @Controller('wishlist')
 @ApiTags('Wishlist')
@@ -54,11 +55,11 @@ export class WishlistController {
     description: 'Sản phẩm đã có trong wishlist',
   })
   async createWishlist(
-    @GetUser() userId: number,
+    @GetUser() userId: JwtPayload,
     @Body() { productId }: CreateWishlistDto,
   ): Promise<ApiResponse<WishlistResponseDto>> {
     const wishlists = await this.wishlistService.createWishList(
-      userId,
+      userId.sub,
       productId,
     );
     this.logger.debug(`Wishlist: ${JSON.stringify(wishlists)}`);
@@ -85,11 +86,11 @@ export class WishlistController {
   })
   async removeWishlist(
     @Body() { wishlistId }: RemoveWishlistDto,
-    @GetUser() userId: number,
+    @GetUser() userId: JwtPayload,
   ): Promise<ApiResponse<WishlistResponseDto>> {
     const wishtlist = await this.wishlistService.removeWishList(
       wishlistId,
-      userId,
+      userId.sub,
     );
     this.logger.debug(`Remove wishlist: ${JSON.stringify(wishtlist)}`);
 

@@ -17,3 +17,4 @@ export { comments } from './comments.schema';
 export { userDetails } from './user-details.schema';
 export { posts } from './posts.schema';
 export { customerRating } from './customer-rating.schema';
+export { postEditRequest } from './post-edit-request.schema';

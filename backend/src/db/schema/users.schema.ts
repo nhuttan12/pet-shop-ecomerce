@@ -8,6 +8,7 @@ import { UserStatus } from 'src/helper/enum/status/user-status.enum';
 import { vouchers } from './vouchers.schema';
 import { customerRating } from './customer-rating.schema';
 import { voucherMapping } from './voucher-mapping';
+import { postEditRequest } from './post-edit-request.schema';
 
 export const users = mysqlTable('users', {
   id: int().notNull().primaryKey().autoincrement(),
@@ -40,4 +41,8 @@ export const usersToCustomerRating = relations(users, ({ many }) => ({
 
 export const usersToVoucherMapping = relations(users, ({ many }) => ({
   voucherMapping: many(voucherMapping),
+}));
+
+export const postToEditPostRequest = relations(users, ({ many }) => ({
+  postEditRequest: many(postEditRequest),
 }));

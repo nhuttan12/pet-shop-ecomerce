@@ -80,4 +80,5 @@ export const NotifyMessage = {
   CREATE_POST_SUCCESSFUL: 'Tạo bài viết thành công',
   UPDATE_POST_SUCCESSFUL: 'Chỉnh sửa bài viết thành công',
   DELETE_POST_SUCCESSFUL: 'Xoá bài viết thành công',
+  REQUEST_CHANGE_POST_SUCCESSFUL: 'Gửi yêu cầu chỉnh sửa bài viết thành công',
 };

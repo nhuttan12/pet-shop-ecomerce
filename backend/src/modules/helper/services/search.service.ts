@@ -34,12 +34,15 @@ export class SearchService {
       this.logger.error(
         `DB ERROR in findOneOrThrow: ${(error as Error)?.message || error}`,
       );
-      if ((error as Error)?.stack) this.logger.error((error as Error).stack);
-      throw new InternalServerErrorException({
-        message: 'Có lỗi xảy ra, vui lòng thử lại sau',
-        error: (error as Error)?.message || (error as Error),
-      });
-      throw error;
+      if ((error as Error)?.stack) {
+        this.logger.error((error as Error).stack);
+        throw new InternalServerErrorException({
+          message: 'Có lỗi xảy ra, vui lòng thử lại sau',
+          error: (error as Error)?.message || (error as Error),
+        });
+      } else {
+        throw error;
+      }
     }
   }
 

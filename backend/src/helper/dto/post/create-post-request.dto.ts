@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { PostErrorMessage } from 'src/helper/message/post_message';
 
 export class CreatePostRequestDto {
@@ -13,8 +13,4 @@ export class CreatePostRequestDto {
   @IsString({ message: PostErrorMessage.CONTENT_TITLE_MUST_BE_A_STRING })
   @IsNotEmpty({ message: PostErrorMessage.CONTENT_TITLE_SHOULD_NOT_BE_EMPTY })
   content: string;
-
-  @ApiProperty({ example: 1, description: 'ID của tác giả' })
-  @IsInt({ message: PostErrorMessage.USER_ID_MUST_BE_INTEGER })
-  authorId: number;
 }
