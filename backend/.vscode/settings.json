@@ -7,6 +7,7 @@
   "javascript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.includePackageJsonAutoImports": "on",
   "typescript.preferences.autoImportFileExcludePatterns": [
-    "**/*.interface.ts"
+    "**/*.interface.ts",
+    "**/*.schema.ts"
   ]
 }

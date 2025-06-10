@@ -57,6 +57,9 @@
       ],
       "@interfaces": [
         "helper/interface"
+      ],
+      "@db-helper/*": [
+        "db/helper/*"
       ]
     }
   }

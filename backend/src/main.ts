@@ -12,6 +12,7 @@ import {
 } from '@nestjs/platform-express';
 import { CatchEverythingFilter } from '@filter/exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 
 async function bootstrap() {
   /**
@@ -27,6 +28,20 @@ async function bootstrap() {
       logger: new ConsoleLogger('App'),
     },
   );
+
+  /**
+   * @description Sets a global prefix for all API routes.
+   * This is useful for API versioning and maintaining a clean URL structure.
+   * For example, all endpoints will be prefixed with /api/v1.
+   */
+  app.setGlobalPrefix('api/v1');
+
+  /**
+   * @description Enables Helmet, a middleware that helps secure the app
+   * by setting various HTTP headers. It protects against common web vulnerabilities
+   * like cross-site scripting (XSS), clickjacking, and others.
+   */
+  app.use(helmet());
 
   /**
    * @description: config info for swagger
@@ -47,8 +62,8 @@ async function bootstrap() {
     .addTag('Tmdt-ck')
     .build();
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
 
   /**
    * @description: config for global filter exception
@@ -63,6 +78,21 @@ async function bootstrap() {
    */
   const configService: ConfigService = app.get(ConfigService);
   const port: number = configService.get<number>('http.port') || 3000;
+  const client_1_host: string =
+    configService.get<string>('domain.client_1.host') || 'http://localhost';
+  const client_1_port: number =
+    configService.get<number>('domain.client_1.port') || 3001;
+
+  /**
+   * @description Enables Cross-Origin Resource Sharing (CORS) to allow requests
+   * from the specified frontend client.
+   * `credentials: true` is required if the frontend sends cookies or uses HTTP authentication.
+   * Make sure the origin is correctly formatted as a full URL (e.g., http://localhost:4200).
+   */
+  app.enableCors({
+    origin: [`${client_1_host.trim()}:${client_1_port}`],
+    credentials: true,
+  });
 
   /**
    * @description: global pipe

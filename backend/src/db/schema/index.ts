@@ -19,3 +19,4 @@ export { posts } from './posts.schema';
 export { customerRating } from './customer-rating.schema';
 export { voucherMapping } from './voucher-mapping.schema';
 export { postEditRequests } from './post-edit-request.schema';
+export { postReports } from './post-report.schema';

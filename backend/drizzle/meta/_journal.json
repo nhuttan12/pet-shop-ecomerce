@@ -15,6 +15,20 @@
       "when": 1749267861416,
       "tag": "0001_empty_warpath",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1749541019212,
+      "tag": "0002_melted_thaddeus_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1749549057334,
+      "tag": "0003_complete_goliath",
+      "breakpoints": true
     }
   ]
 }

@@ -20,7 +20,14 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { brands, categories, categoriesMapping, images, productImages, products } from '@schema';
+import {
+  brands,
+  categories,
+  categoriesMapping,
+  images,
+  productImages,
+  products,
+} from '@schema';
 import { Brand, Category, Image, Product, ProductInsert } from '@schema-type';
 import { and, eq, inArray, like } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';

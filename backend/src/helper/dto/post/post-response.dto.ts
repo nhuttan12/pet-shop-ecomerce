@@ -4,6 +4,7 @@ export class PostResponse {
   content: string;
   authorId: number;
   status: string;
+  hasPendingEditRequest: boolean;
   created_at: Date;
   updated_at: Date;
 }

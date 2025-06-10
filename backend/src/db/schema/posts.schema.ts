@@ -1,3 +1,4 @@
+import { postReports } from './post-report.schema';
 import { PostStatus } from '@enum/status/posts-status.enum';
 import { timestamps } from 'db/helper/timestamp';
 import { postEditRequests } from 'db/schema/post-edit-request.schema';
@@ -30,4 +31,8 @@ export const posts = mysqlTable('posts', {
 
 export const postToEditPostRequests = relations(posts, ({ many }) => ({
   postEditRequest: many(postEditRequests),
+}));
+
+export const postToPostReports = relations(posts, ({ many }) => ({
+  postReports: many(postReports),
 }));

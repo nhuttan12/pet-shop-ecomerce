@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { images, roles, userDetails, users } from '@schema';
 import { User } from '@schema-type';
-import { and, asc, eq, SQL } from 'drizzle-orm';
+import { and, asc, eq, inArray, SQL } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 
 type UsersTable = typeof users;
@@ -228,10 +228,10 @@ export class UserService {
         .values({ id: userCreatedId.id, imageId: 1 });
     });
 
-    return this.findUserById(userCreatedId.id);
+    return this.getUserById(userCreatedId.id);
   }
 
-  async findUserById(id: number): Promise<User> {
+  async findUserById(id: number): Promise<User[]> {
     return await this.searchService.findOneOrThrow(
       this.db,
       users,
@@ -278,7 +278,7 @@ export class UserService {
           .where(eq(userDetails.id, userId));
       });
 
-      return this.findUserById(userId);
+      return this.getUserById(userId);
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;
@@ -296,12 +296,20 @@ export class UserService {
           .where(eq(users.id, id));
       });
 
-      return this.findUserById(id);
+      return this.getUserById(id);
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;
     } finally {
       this.logger.verbose(`User with ${id} updated`);
     }
+  }
+
+  async findUserByIds(ids: number[]): Promise<User[]> {
+    return await this.searchService.findManyOrReturnEmptyArray(
+      this.db,
+      users,
+      inArray(users.id, ids),
+    );
   }
 }

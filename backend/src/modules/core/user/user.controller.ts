@@ -98,7 +98,7 @@ export class UserController {
     @Param() findUser: FindUserById,
   ): Promise<ApiResponse<User>> {
     const id: number = findUser.id;
-    const user: User = await this.userService.findUserById(id);
+    const user: User = await this.userService.getUserById(id);
     this.logger.debug(`Get user list in controller ${JSON.stringify(user)}`);
 
     return {

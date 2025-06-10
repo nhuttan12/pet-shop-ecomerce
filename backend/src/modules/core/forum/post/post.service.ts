@@ -1,12 +1,16 @@
+import { UserService } from '@core-modules/user/user.service';
 import { CreatePostRequestDto } from '@dtos/post/create-post-request.dto';
 import { EditPostRequestDto } from '@dtos/post/edit-post-request.dto';
+import { PostReportResponseDto } from '@dtos/post/post-report-response.dto';
 import { PostResponse } from '@dtos/post/post-response.dto';
 import { PostEditRequestStatus } from '@enum/status/post-edit-request-status.enum';
 import { PostStatus } from '@enum/status/posts-status.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { SearchService } from '@helper-modules/services/search.service';
-import { PostErrorMessage, PostMessageLog } from '@message/post_message';
+import { NotifyMessage } from '@message/notify-message';
+import { PostErrorMessage, PostMessageLog } from '@message/post-message';
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Inject,
@@ -14,9 +18,9 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { postEditRequests, posts, users } from '@schema';
-import { PostInsert, User } from '@schema-type';
-import { and, eq } from 'drizzle-orm';
+import { postEditRequests, postReports, posts, users } from '@schema';
+import { Post, PostInsert, PostReport, User } from '@schema-type';
+import { and, eq, inArray } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 
 @Injectable()
@@ -25,6 +29,7 @@ export class PostService {
   constructor(
     @Inject(DrizzleAsyncProvider) private db: MySql2Database<any>,
     private searchService: SearchService,
+    private userService: UserService,
   ) {}
 
   async getAllPosts(
@@ -154,6 +159,16 @@ export class PostService {
     };
 
     const result = await this.db.transaction(async (tx) => {
+      const post: Post = await this.searchService.findOneOrThrow(
+        this.db,
+        posts,
+        eq(posts.id, postId),
+      );
+
+      if (post.hasPendingEditRequest) {
+        updateData.hasPendingEditRequest = false;
+      }
+
       return await tx.update(posts).set(updateData).where(eq(posts.id, postId));
     });
 
@@ -183,8 +198,13 @@ export class PostService {
         PostErrorMessage.POST_NOT_FOUND,
       );
 
-      const [result] = await this.db.transaction(async (tx) => {
-        return await tx
+      const result = await this.db.transaction(async (tx) => {
+        const update = await tx
+          .update(posts)
+          .set({ hasPendingEditRequest: true })
+          .where(eq(posts.id, post.id));
+
+        const postEditRequest = await tx
           .insert(postEditRequests)
           .values({
             postId: post.id,
@@ -196,6 +216,8 @@ export class PostService {
             updated_at: new Date(),
           })
           .$returningId();
+
+        return { update, postEditRequest };
       });
 
       if (!result) {
@@ -206,11 +228,118 @@ export class PostService {
       return await this.searchService.findOneOrThrow(
         this.db,
         postEditRequests,
-        eq(postEditRequests.id, result.id),
+        eq(postEditRequests.id, result.postEditRequest[0].id),
       );
     } catch (error) {
       this.logger.error(error);
       throw error;
     }
+  }
+
+  async reportPost(
+    postId: number,
+    description: string,
+    userId: number,
+  ): Promise<string> {
+    const post: PostResponse = await this.getPostById(postId);
+
+    const user: User = await this.userService.getUserById(userId);
+
+    const [existingReport] =
+      await this.searchService.findManyOrReturnEmptyArray(
+        this.db,
+        postReports,
+        and(eq(postReports.postId, post.id), eq(postReports.userId, userId)),
+      );
+
+    if (existingReport) {
+      this.logger.log(PostMessageLog.USER_ALREADY_REPORTED_POST);
+      throw new BadRequestException(PostErrorMessage.POST_ALREADY_REPORTED);
+    }
+
+    const result = await this.db.transaction(async (tx) => {
+      return await tx.insert(postReports).values({
+        postId: post.id,
+        userId: user.id,
+        description,
+        createdAt: new Date(),
+      });
+    });
+
+    if (!result) {
+      this.logger.error(PostMessageLog.POST_NOT_FOUND);
+      throw new NotFoundException(PostErrorMessage.POST_NOT_FOUND);
+    }
+
+    return NotifyMessage.POST_REPORT_SUCCESSFUL;
+  }
+
+  async getAllPostsReported(
+    limit: number,
+    offset: number,
+    userId?: number,
+  ): Promise<PostReportResponseDto[]> {
+    offset = offset <= 0 ? 0 : offset - 1;
+
+    const condition =
+      userId !== undefined ? eq(postReports.userId, userId) : undefined;
+
+    const postReportList: PostReport[] =
+      await this.searchService.findManyOrReturnEmptyArray(
+        this.db,
+        postReports,
+        condition,
+        limit,
+        offset,
+      );
+
+    const postIdList = postReportList.map(
+      (postReport: PostReport) => postReport.postId,
+    );
+
+    const postList: PostResponse[] =
+      await this.searchService.findManyOrReturnEmptyArray(
+        this.db,
+        posts,
+        inArray(posts.id, postIdList),
+      );
+
+    const userIdList = postList.map((post: Post) => post.authorId);
+
+    const userList: User[] = await this.userService.findUserByIds(userIdList);
+    this.logger.debug(`User list: ${JSON.stringify(userList)}`);
+
+    const result: PostReportResponseDto[] = postReportList.map(
+      (postReport: PostReport) => {
+        const post: PostResponse | undefined = postList.find(
+          (p: PostResponse) => p.id === postReport.postId,
+        );
+
+        if (!post) {
+          this.logger.error(PostErrorMessage.POST_NOT_FOUND);
+          throw new NotFoundException(PostErrorMessage.POST_NOT_FOUND);
+        }
+
+        const user: User | undefined = userList.find(
+          (u: User) => u.id === post?.authorId,
+        );
+
+        if (!user) {
+          this.logger.error(PostErrorMessage.USER_NOT_FOUND);
+          throw new NotFoundException(PostErrorMessage.USER_NOT_FOUND);
+        }
+
+        return {
+          id: postReport.id,
+          postTitle: post.title,
+          userName: user.username,
+          status: postReport.status,
+          description: postReport.description,
+          createdAt: postReport.createdAt,
+        };
+      },
+    );
+
+    return result;
   }
 }

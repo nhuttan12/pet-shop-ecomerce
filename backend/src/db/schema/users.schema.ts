@@ -1,3 +1,4 @@
+import { postReports } from './post-report.schema';
 import { int, mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { timestamps } from '../helper/timestamp';
 import { relations } from 'drizzle-orm';
@@ -45,6 +46,10 @@ export const usersToVoucherMapping = relations(users, ({ many }) => ({
   voucherMapping: many(voucherMapping),
 }));
 
-export const postToEditPostRequest = relations(users, ({ many }) => ({
+export const usersToEditPostRequest = relations(users, ({ many }) => ({
   postEditRequest: many(postEditRequests),
+}));
+
+export const usersToPostReports = relations(users, ({ many }) => ({
+  postReports: many(postReports),
 }));

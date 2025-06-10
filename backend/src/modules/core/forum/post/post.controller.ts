@@ -38,6 +38,9 @@ import { JwtPayload } from '@interfaces';
 import { NotifyMessage } from '@message/notify-message';
 import { PostService } from '@core-modules/forum/post/post.service';
 import { SendRequestChangingPostDto } from '@dtos/request-edit-post/send-request-edit.post.dto';
+import { ReportPostDto } from '@dtos/post/report-post-request.dto';
+import { PostReportResponseDto } from '@dtos/post/post-report-response.dto';
+import { GetAllPostReportsRequestDto } from '@dtos/post/get-all-post-report-request.dto';
 
 @Controller('post')
 @ApiTags('Post')
@@ -172,9 +175,9 @@ export class PostController {
     };
   }
 
-  @Post('request-edit/:postId')
+  @Post('request-edit')
+  @HasRole(Role.ADMIN)
   @ApiOperation({ summary: 'Gửi yêu cầu chỉnh sửa bài viết' })
-  @ApiParam({ name: 'postId', type: Number, description: 'ID của bài viết' })
   @ApiBody({
     description: 'Thông tin lý do và nội dung chỉnh sửa gợi ý',
     type: SendRequestChangingPostDto,
@@ -191,11 +194,9 @@ export class PostController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Lỗi hệ thống khi gửi yêu cầu',
   })
-  async sendRequestChangingPost({
-    postId,
-    reason,
-    contentSuggested,
-  }: SendRequestChangingPostDto): Promise<ApiResponse<void>> {
+  async sendRequestChangingPost(
+    @Body() { postId, reason, contentSuggested }: SendRequestChangingPostDto,
+  ): Promise<ApiResponse<void>> {
     await this.postService.sendRequestChangingPost(
       postId,
       reason,
@@ -203,8 +204,117 @@ export class PostController {
     );
 
     return {
-      message: NotifyMessage.REQUEST_CHANGE_POST_SUCCESSFUL,
       statusCode: HttpStatus.OK,
+      message: NotifyMessage.REQUEST_CHANGE_POST_SUCCESSFUL,
+    };
+  }
+
+  @Post('report')
+  @ApiOperation({
+    summary: 'Report a post',
+    description:
+      'Report a specific post by its ID with a description of the issue.',
+  })
+  @ApiBody({ type: ReportPostDto })
+  @SwaggerApiResponse({
+    status: 200,
+    description: 'Report submitted successfully',
+    schema: {
+      example: {
+        statusCode: 200,
+        message: 'Report submitted successfully',
+      },
+    },
+  })
+  @SwaggerApiResponse({ status: 404, description: 'Post not found' })
+  @SwaggerApiResponse({
+    status: 400,
+    description: 'You have already reported this post',
+  })
+  async postReport(
+    @GetUser() user: JwtPayload,
+    @Body() { postId, description }: ReportPostDto,
+  ): Promise<ApiResponse<string>> {
+    const reportPost = await this.postService.reportPost(
+      postId,
+      description,
+      user.sub,
+    );
+    this.logger.debug(`Report Post: ${reportPost}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: reportPost,
+    };
+  }
+
+  @Get('post-report')
+  @ApiOperation({
+    summary: 'Lấy danh sách các báo cáo bài viết',
+    description:
+      'API này trả về danh sách các báo cáo bài viết với phân trang, chỉ dành cho người dùng đã xác thực.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Số trang của danh sách báo cáo bài viết',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Số lượng báo cáo bài viết tối đa trên mỗi trang',
+    type: Number,
+    example: 10,
+  })
+  @SwaggerApiResponse({
+    status: HttpStatus.OK,
+    description: 'Lấy danh sách báo cáo bài viết thành công',
+    type: PostReportResponseDto,
+    isArray: true,
+    schema: {
+      example: {
+        statusCode: 200,
+        message: NotifyMessage.GET_POST_REPORT_SUCCESSFUL,
+        data: [
+          {
+            id: 1,
+            postTitle: 'Bài viết mẫu',
+            userName: 'user123',
+            status: 'PENDING',
+            description: 'Phát hiện nội dung không phù hợp',
+            createdAt: '2025-06-10T09:57:00.000Z',
+          },
+        ],
+      },
+    },
+  })
+  @SwaggerApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Không có quyền truy cập (JWT không hợp lệ hoặc thiếu)',
+  })
+  @SwaggerApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description:
+      'Không tìm thấy bài viết hoặc người dùng liên quan đến báo cáo',
+  })
+  @SwaggerApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Có lỗi xảy ra trên máy chủ',
+  })
+  async getAllPostsReported(
+    @Query() { limit, page }: GetAllPostReportsRequestDto,
+    @GetUser() user: JwtPayload,
+  ): Promise<ApiResponse<PostReportResponseDto[]>> {
+    const postReports: PostReportResponseDto[] =
+      await this.postService.getAllPostsReported(limit, page, user.sub);
+    this.logger.debug(`Post Reports: ${JSON.stringify(postReports)}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_POST_REPORT_SUCCESSFUL,
+      data: postReports,
     };
   }
 }

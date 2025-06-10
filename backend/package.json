@@ -38,6 +38,7 @@
     "class-validator": "0.14.1",
     "cloudinary": "2.6.0",
     "drizzle-orm": "0.41.0",
+    "helmet": "8.1.0",
     "joi": "17.13.3",
     "js-yaml": "4.1.0",
     "mysql2": "3.14.0",
