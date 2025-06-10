@@ -1,3 +1,20 @@
+import { VoucherService } from '@core-modules/product/voucher/voucher.service';
+import { HasRole } from '@decorator/roles.decorator';
+import { GetUser } from '@decorator/user.decorator';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { CreateVoucherRequestDto } from '@dtos/voucher/create-voucher-request.dto';
+import { DeleteVoucherRequestDto } from '@dtos/voucher/delete-voucher-request.dto';
+import { FindVoucherByCodeRequestDto } from '@dtos/voucher/find-voucher-by-name-request.dto';
+import { GetAllVouchersByUserIdRequestDto } from '@dtos/voucher/get-all-voucher-by-user-id-request.dto';
+import { GetAllVoucherRequestDto } from '@dtos/voucher/get-all-voucher-request.dto';
+import { UpdateVoucherRequestDto } from '@dtos/voucher/update-voucher-request.dto';
+import { VoucherResponseDto } from '@dtos/voucher/voucher-response.dto';
+import { Role } from '@enum/role.enum';
+import { CatchEverythingFilter } from '@filter/exception.filter';
+import { JwtAuthGuard } from '@guard/jwt-auth.guard';
+import { RolesGuard } from '@guard/roles.guard';
+import { JwtPayload } from '@interfaces';
+import { NotifyMessage } from '@message/notify-message';
 import {
   Body,
   Controller,
@@ -20,24 +37,7 @@ import {
   ApiResponse as ApiSwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Voucher } from 'src/db/helper/schema-type';
-import { HasRole } from 'src/helper/decorator/roles.decorator';
-import { GetUser } from 'src/helper/decorator/user.decorator';
-import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
-import { DeleteVoucherRequestDto } from 'src/helper/dto/voucher/delete-voucher-request.dto';
-import { FindVoucherByCodeRequestDto } from 'src/helper/dto/voucher/find-voucher-by-name-request.dto';
-import { GetAllVouchersByUserIdRequestDto } from 'src/helper/dto/voucher/get-all-voucher-by-user-id-request.dto';
-import { GetAllVoucherRequestDto } from 'src/helper/dto/voucher/get-all-voucher-request.dto';
-import { UpdateVoucherRequestDto } from 'src/helper/dto/voucher/update-voucher-request.dto';
-import { VoucherResponseDto } from 'src/helper/dto/voucher/voucher-response.dto';
-import { Role } from 'src/helper/enum/role.enum';
-import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
-import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
-import { RolesGuard } from 'src/helper/guard/roles.guard';
-import { NotifyMessage } from 'src/helper/message/notify-message';
-import { VoucherService } from './voucher.service';
-import { CreateVoucherRequestDto } from 'src/helper/dto/voucher/create-voucher-request.dto';
-import { JwtPayload } from 'src/helper/interface/jwt-payload.interface';
+import { Voucher } from '@schema-type';
 
 @Controller('voucher')
 @ApiTags('Voucher')

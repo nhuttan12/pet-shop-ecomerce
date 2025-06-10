@@ -10,13 +10,54 @@
     "target": "ES2020",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "baseUrl": "./src",
+    "paths": {
+      "@schema": [
+        "db/schema"
+      ],
+      "@schema-type": [
+        "db/helper/schema-type.ts"
+      ],
+      "@dtos/*": [
+        "helper/dto/*"
+      ],
+      "@enum/*": [
+        "helper/enum/*"
+      ],
+      "@guard/*": [
+        "helper/guard/*"
+      ],
+      "@filter/*": [
+        "helper/filter/*"
+      ],
+      "@message/*": [
+        "helper/message/*"
+      ],
+      "@decorator/*": [
+        "helper/decorator/*"
+      ],
+      "@validator": [
+        "helper/class-validator-contraint"
+      ],
+      "@core-modules/*": [
+        "modules/core/*"
+      ],
+      "@helper-modules/*": [
+        "modules/helper/*"
+      ],
+      "@constants": [
+        "helper/constants"
+      ],
+      "@interfaces": [
+        "helper/interface"
+      ]
+    }
   }
 }

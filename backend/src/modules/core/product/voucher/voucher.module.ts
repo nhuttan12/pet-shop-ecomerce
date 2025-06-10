@@ -1,7 +1,7 @@
+import { VoucherController } from '@core-modules/product/voucher/voucher.controller';
+import { VoucherService } from '@core-modules/product/voucher/voucher.service';
+import { UtilityModule } from '@helper-modules/services/utility.module';
 import { Module } from '@nestjs/common';
-import { VoucherController } from './voucher.controller';
-import { VoucherService } from './voucher.service';
-import { UtilityModule } from 'src/modules/helper/services/utility.module';
 
 @Module({
   imports: [UtilityModule],

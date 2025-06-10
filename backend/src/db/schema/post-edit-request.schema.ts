@@ -5,10 +5,9 @@ import {
   text,
   timestamp,
 } from 'drizzle-orm/mysql-core';
-import { PostEditRequestStatus } from 'src/helper/enum/status/post-edit-request-status.enum';
+import { PostEditRequestStatus } from '@enum/status/post-edit-request-status.enum';
 import { timestamps } from '../helper/timestamp';
-import { posts } from './posts.schema';
-import { users } from './users.schema';
+import { users, posts } from '@schema';
 
 export const postEditRequests = mysqlTable('post_edit_request', {
   id: int('id').notNull().primaryKey().autoincrement(),
@@ -20,9 +19,11 @@ export const postEditRequests = mysqlTable('post_edit_request', {
     .references(() => users.id),
   status: mysqlEnum(
     Object.values(PostEditRequestStatus) as [string, ...string[]],
-  ),
+  )
+    .default(PostEditRequestStatus.PENDING)
+    .notNull(),
   contentSuggested: text('content_suggested'),
   reason: text('reason').notNull(),
   ...timestamps,
-  resolvedAt: timestamp('resolved_at').defaultNow().notNull(),
+  resolvedAt: timestamp('resolved_at'),
 });

@@ -1,15 +1,16 @@
+import { PostStatus } from '@enum/status/posts-status.enum';
+import { timestamps } from 'db/helper/timestamp';
+import { postEditRequests } from 'db/schema/post-edit-request.schema';
+import { users } from 'db/schema/users.schema';
+import { relations } from 'drizzle-orm';
 import {
+  boolean,
   int,
   mysqlEnum,
   mysqlTable,
   text,
   varchar,
 } from 'drizzle-orm/mysql-core';
-import { users } from './users.schema';
-import { PostStatus } from 'src/helper/enum/status/posts-status.enum';
-import { timestamps } from '../helper/timestamp';
-import { postEditRequest } from './post-edit-request.schema';
-import { relations } from 'drizzle-orm';
 
 export const posts = mysqlTable('posts', {
   id: int().primaryKey().notNull().autoincrement(),
@@ -21,9 +22,12 @@ export const posts = mysqlTable('posts', {
   status: mysqlEnum(
     Object.values(PostStatus) as [string, ...string[]],
   ).notNull(),
+  hasPendingEditRequest: boolean('has_pending_edit_request')
+    .default(false)
+    .notNull(),
   ...timestamps,
 });
 
-export const postToEditPostRequest = relations(posts, ({ many }) => ({
-  postEditRequest: many(postEditRequest),
+export const postToEditPostRequests = relations(posts, ({ many }) => ({
+  postEditRequest: many(postEditRequests),
 }));

@@ -1,3 +1,18 @@
+import { CreateProductRequest } from '@dtos/product/create-product-request.dto';
+import { GetAllProductResponseDto } from '@dtos/product/get-all-product-response.dto';
+import { GetProductDetailResponseDto } from '@dtos/product/get-product-detail-response.dto';
+import { UpdateProductInforRequestDTO } from '@dtos/product/update-product-infor-request.dto';
+import { ImageType } from '@enum/image-type.enum';
+import { BrandStatus } from '@enum/status/brand-status.enum';
+import { CategoryStatus } from '@enum/status/categories-status.enum';
+import { ImageStatus } from '@enum/status/image-status.enum';
+import { ProductStatus } from '@enum/status/product-status.enum';
+import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
+import { ImageService } from '@helper-modules/image/image.service';
+import { SearchService } from '@helper-modules/services/search.service';
+import { ErrorMessage } from '@message/error-message';
+import { MessageLog } from '@message/message-log';
+import { Property } from '@message/property';
 import {
   BadRequestException,
   Inject,
@@ -5,38 +20,10 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { brands, categories, categoriesMapping, images, productImages, products } from '@schema';
+import { Brand, Category, Image, Product, ProductInsert } from '@schema-type';
 import { and, eq, inArray, like } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import {
-  Brand,
-  Category,
-  Image,
-  Product,
-  ProductInsert,
-} from 'src/db/helper/schema-type';
-import {
-  brands,
-  categories,
-  categoriesMapping,
-  images,
-  productImages,
-  products,
-} from 'src/db/schema';
-import { CreateProductRequest } from 'src/helper/dto/product/create-product-request.dto';
-import { GetAllProductResponseDto } from 'src/helper/dto/product/get-all-product-response.dto';
-import { GetProductDetailResponseDto } from 'src/helper/dto/product/get-product-detail-response.dto';
-import { ImageType } from 'src/helper/enum/image-type.enum';
-import { BrandStatus } from 'src/helper/enum/status/brand-status.enum';
-import { CategoryStatus } from 'src/helper/enum/status/categories-status.enum';
-import { ImageStatus } from 'src/helper/enum/status/image-status.enum';
-import { ProductStatus } from 'src/helper/enum/status/product-status.enum';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { MessageLog } from 'src/helper/message/message-log';
-import { Property } from 'src/helper/message/property';
-import { SearchService } from 'src/modules/helper/services/search.service';
-import { DrizzleAsyncProvider } from 'src/modules/helper/database/drizzle.provider';
-import { ImageService } from 'src/modules/helper/image/image.service';
-import { UpdateProductInforRequestDTO } from 'src/helper/dto/product/update-product-infor-request.dto';
 
 @Injectable()
 export class ProductService {

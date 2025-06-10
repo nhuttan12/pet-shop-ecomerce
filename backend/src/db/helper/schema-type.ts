@@ -1,4 +1,4 @@
-import * as schema from '../schema';
+import * as schema from '@schema';
 
 /**
  * @description: type for schema to return when create function

@@ -1,8 +1,8 @@
 import { int, mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { timestamps } from '../helper/timestamp';
 import { relations } from 'drizzle-orm';
-import { products } from './products.schema';
-import { BrandStatus } from 'src/helper/enum/status/brand-status.enum';
+import { BrandStatus } from '@enum/status/brand-status.enum';
+import { products } from '@schema';
 
 export const brands = mysqlTable('brands', {
   id: int().primaryKey().notNull().autoincrement(),

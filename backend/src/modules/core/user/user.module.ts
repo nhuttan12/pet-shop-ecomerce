@@ -1,9 +1,9 @@
+import { RoleModule } from '@core-modules/role/role.module';
+import { UserController } from '@core-modules/user/user.controller';
+import { UserService } from '@core-modules/user/user.service';
+import { ImageModule } from '@helper-modules/image/image.module';
+import { UtilityModule } from '@helper-modules/services/utility.module';
 import { Module } from '@nestjs/common';
-import { UserController } from './user.controller';
-import { UserService } from './user.service';
-import { RoleModule } from '../role/role.module';
-import { UtilityModule } from 'src/modules/helper/services/utility.module';
-import { ImageModule } from 'src/modules/helper/image/image.module';
 
 @Module({
   imports: [ImageModule, RoleModule, UtilityModule],

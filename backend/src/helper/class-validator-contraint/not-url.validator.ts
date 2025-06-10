@@ -1,9 +1,9 @@
+import { ErrorMessage } from '@message/error-message';
 import {
   ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { ErrorMessage } from '../message/error-message';
 
 @ValidatorConstraint({ name: 'notUrl', async: false })
 export class NotUrlValidator implements ValidatorConstraintInterface {

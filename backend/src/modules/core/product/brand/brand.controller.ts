@@ -1,3 +1,16 @@
+import { BrandService } from '@core-modules/product/brand/brand.service';
+import { HasRole } from '@decorator/roles.decorator';
+import { BrandCreateDTO } from '@dtos/brand/create-brand.dto';
+import { FindBrandById } from '@dtos/brand/find-brand-by-id.dto';
+import { FindBrandByName } from '@dtos/brand/find-brand-by-name.dto';
+import { GetAllBrandsDTO } from '@dtos/brand/get-all-brand.dto';
+import { BrandUpdateDTO } from '@dtos/brand/update-brand.dto';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { Role } from '@enum/role.enum';
+import { CatchEverythingFilter } from '@filter/exception.filter';
+import { JwtAuthGuard } from '@guard/jwt-auth.guard';
+import { RolesGuard } from '@guard/roles.guard';
+import { NotifyMessage } from '@message/notify-message';
 import {
   Body,
   Controller,
@@ -21,20 +34,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Brand } from 'src/db/helper/schema-type';
-import { HasRole } from 'src/helper/decorator/roles.decorator';
-import { BrandCreateDTO } from 'src/helper/dto/brand/create-brand.dto';
-import { FindBrandByName } from 'src/helper/dto/brand/find-brand-by-name.dto';
-import { GetAllBrandsDTO } from 'src/helper/dto/brand/get-all-brand.dto';
-import { BrandUpdateDTO } from 'src/helper/dto/brand/update-brand.dto';
-import { Role } from 'src/helper/enum/role.enum';
-import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
-import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
-import { RolesGuard } from 'src/helper/guard/roles.guard';
-import { BrandService } from './brand.service';
-import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
-import { NotifyMessage } from 'src/helper/message/notify-message';
-import { FindBrandById } from 'src/helper/dto/brand/find-brand-by-id.dto';
+import { Brand } from '@schema-type';
 
 @ApiTags('Brand')
 @Controller('brand')

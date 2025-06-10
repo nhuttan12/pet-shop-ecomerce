@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { WishlistController } from './wishlist.controller';
+import { WishlistController } from '@core-modules/product/wishlist/wishlist.controller';
+import { UtilityModule } from '@helper-modules/services/utility.module';
 import { WishlistService } from './wishlist.service';
-import { UtilityModule } from 'src/modules/helper/services/utility.module';
 
 @Module({
   imports: [UtilityModule],

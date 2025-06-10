@@ -6,16 +6,18 @@ import {
   text,
   varchar,
 } from 'drizzle-orm/mysql-core';
-import { ProductStatus } from 'src/helper/enum/status/product-status.enum';
+import { ProductStatus } from '@enum/status/product-status.enum';
 import { timestamps } from '../helper/timestamp';
-import { brands } from './brands.schema';
-import { cartDetails } from './cart-details.schema';
-import { categoriesMapping } from './categories-mapping.schema';
-import { customerRating } from './customer-rating.schema';
-import { orderDetails } from './order-details.schema';
-import { productImages } from './product-images.schema';
-import { vouchers } from './vouchers.schema';
-import { wishlists } from './wishlists.schema';
+import {
+  wishlists,
+  vouchers,
+  productImages,
+  orderDetails,
+  customerRating,
+  categoriesMapping,
+  cartDetails,
+  brands,
+} from '@schema';
 
 export const products = mysqlTable('products', {
   id: int().primaryKey().notNull().autoincrement(),

@@ -1,8 +1,7 @@
 import { int, mysqlEnum, mysqlTable } from 'drizzle-orm/mysql-core';
-import { products } from './products.schema';
-import { users } from './users.schema';
+import { users, products } from '@schema';
 import { timestamps } from '../helper/timestamp';
-import { WishlistStatus } from 'src/helper/enum/status/wishlist-status.enum';
+import { WishlistStatus } from '@enum/status/wishlist-status.enum';
 
 export const wishlists = mysqlTable('wishlists', {
   id: int().notNull().primaryKey().autoincrement(),

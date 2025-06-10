@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 import { drizzle } from 'drizzle-orm/mysql2';
-import { images, roles } from '../../../db/schema';
+import { images, roles } from '@schema';
 
 export async function main() {
   // Tạo kết nối đến DB

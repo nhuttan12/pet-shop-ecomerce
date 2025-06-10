@@ -1,11 +1,11 @@
+import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
+import { SearchService } from '@helper-modules/services/search.service';
+import { ErrorMessage } from '@message/error-message';
 import { Inject, Injectable } from '@nestjs/common';
+import { roles } from '@schema';
+import { Role } from '@schema-type';
 import { eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { Role } from 'src/db/helper/schema-type';
-import { roles } from 'src/db/schema';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { SearchService } from 'src/modules/helper/services/search.service';
-import { DrizzleAsyncProvider } from 'src/modules/helper/database/drizzle.provider';
 
 @Injectable()
 export class RoleService {

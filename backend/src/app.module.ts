@@ -1,26 +1,26 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import configuration from './modules/helper/config/configuration';
-import { AppConfigModule } from './modules/helper/config/app-config.module';
-import { DatabaseModule } from './modules/helper/database/database.module';
+import configuration from '@helper-modules/config/configuration';
+import { AppConfigModule } from '@helper-modules/config/app-config.module';
+import { DatabaseModule } from '@helper-modules/database/database.module';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
-import { CatchEverythingFilter } from './helper/filter/exception.filter';
-import { ImageModule } from './modules/helper/image/image.module';
+import { CatchEverythingFilter } from '@filter/exception.filter';
+import { ImageModule } from '@helper-modules/image/image.module';
 import { StripeModule } from './stripe/stripe.module';
-import { AuthModule } from './modules/core/auth/auth.module';
-import { UsersModule } from './modules/core/user/user.module';
-import { RoleModule } from './modules/core/role/role.module';
-import { ProductModule } from './modules/core/product/product/product.module';
-import { MailModule } from './modules/helper/mail/mail.module';
-import { BrandModule } from './modules/core/product/brand/brand.module';
-import { CategoryModule } from './modules/core/product/category/category.module';
-import { CartModule } from './modules/core/cart/cart.module';
-import { OrderModule } from './modules/core/order/order.module';
-import { VoucherModule } from './modules/core/product/voucher/voucher.module';
-import { CommentModule } from './modules/core/forum/comment/comment.module';
-import { PostModule } from './modules/core/forum/post/post.module';
-import { ContactModule } from './modules/core/forum/contact/contact.module';
-import { WishlistModule } from './modules/core/product/wishlist/wishlist.module';
+import { AuthModule } from '@core-modules/auth/auth.module';
+import { UsersModule } from '@core-modules/user/user.module';
+import { RoleModule } from '@core-modules/role/role.module';
+import { ProductModule } from '@core-modules/product/product/product.module';
+import { MailModule } from '@helper-modules/mail/mail.module';
+import { BrandModule } from '@core-modules/product/brand/brand.module';
+import { CategoryModule } from '@core-modules/product/category/category.module';
+import { CartModule } from '@core-modules/cart/cart.module';
+import { OrderModule } from '@core-modules/order/order.module';
+import { VoucherModule } from '@core-modules/product/voucher/voucher.module';
+import { CommentModule } from '@core-modules/forum/comment/comment.module';
+import { PostModule } from '@core-modules/forum/post/post.module';
+import { ContactModule } from '@core-modules/forum/contact/contact.module';
+import { WishlistModule } from '@core-modules/product/wishlist/wishlist.module';
 
 @Module({
   imports: [

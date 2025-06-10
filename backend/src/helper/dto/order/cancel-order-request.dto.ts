@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, Min } from 'class-validator';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { Property } from 'src/helper/message/property';
+import { ErrorMessage } from '@message/error-message';
+import { Property } from '@message/property';
 
 export class CancelOrderRequestDto {
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })

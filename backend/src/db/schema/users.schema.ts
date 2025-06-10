@@ -1,14 +1,16 @@
 import { int, mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { timestamps } from '../helper/timestamp';
-import { roles } from './roles.schema';
 import { relations } from 'drizzle-orm';
-import { carts } from './carts.schema';
-import { wishlists } from './wishlists.schema';
-import { UserStatus } from 'src/helper/enum/status/user-status.enum';
-import { vouchers } from './vouchers.schema';
-import { customerRating } from './customer-rating.schema';
-import { voucherMapping } from './voucher-mapping';
-import { postEditRequest } from './post-edit-request.schema';
+import {
+  carts,
+  roles,
+  wishlists,
+  vouchers,
+  customerRating,
+  voucherMapping,
+  postEditRequests,
+} from '@schema';
+import { UserStatus } from '@enum/status/user-status.enum';
 
 export const users = mysqlTable('users', {
   id: int().notNull().primaryKey().autoincrement(),
@@ -44,5 +46,5 @@ export const usersToVoucherMapping = relations(users, ({ many }) => ({
 }));
 
 export const postToEditPostRequest = relations(users, ({ many }) => ({
-  postEditRequest: many(postEditRequest),
+  postEditRequest: many(postEditRequests),
 }));

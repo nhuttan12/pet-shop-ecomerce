@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsNotEmpty, Min } from 'class-validator';
-import { CartDetailStatus } from 'src/helper/enum/status/cart-detail-status.enum';
-import { ErrorMessage } from 'src/helper/message/error-message';
+import { CartDetailStatus } from '@enum/status/cart-detail-status.enum';
+import { ErrorMessage } from '@message/error-message';
 
 export class CreateCartDetailDto {
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })

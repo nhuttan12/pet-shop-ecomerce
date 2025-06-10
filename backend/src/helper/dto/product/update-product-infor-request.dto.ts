@@ -1,10 +1,19 @@
+import { SavedImageDTO } from '@dtos/image/saved-image.dto';
+import { ProductStatus } from '@enum/status/product-status.enum';
+import { ErrorMessage } from '@message/error-message';
+import { Property } from '@message/property';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
-import { ProductStatus } from 'src/helper/enum/status/product-status.enum';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { Property } from 'src/helper/message/property';
-import { SavedImageDTO } from '../image/saved-image.dto';
+import {
+  IsArray,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 
 export class UpdateProductInforRequestDTO {
   @Type(() => Number)

@@ -1,10 +1,10 @@
 import { readFileSync } from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
-import { schema } from './app-config.validation';
 import { NotAcceptableException } from '@nestjs/common';
 import appRootPath from 'app-root-path';
-import { ValidationType } from 'src/helper/interface/config-type.interface';
+import { ValidationType } from '@interfaces';
+import { schema } from '@helper-modules/config/app-config.validation';
 
 /**
  * @description: loading info from yaml file function and return the value after reading the file,
@@ -30,7 +30,7 @@ export default (): ValidationType => {
   const value = validateObject.value as ValidationType;
 
   if (error) {
-    console.log(error.message);
+    console.log((error as Error).message);
     throw new NotAcceptableException();
   }
 

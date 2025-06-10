@@ -5,9 +5,8 @@ import {
   NotContains,
   Validate,
 } from 'class-validator';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { IsPasswordMatch } from '../../class-validator-contraint/password-match.validator';
-import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
+import { ErrorMessage } from '@message/error-message';
+import { IsPasswordMatch, NotUrlValidator } from '@validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserRegisterDTO {

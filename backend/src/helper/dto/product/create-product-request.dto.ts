@@ -6,10 +6,10 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { SavedImageDTO } from '../image/saved-image.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { ErrorMessage } from 'src/helper/message/error-message';
 import { Type } from 'class-transformer';
+import { ErrorMessage } from '@message/error-message';
+import { SavedImageDTO } from '@dtos/image/saved-image.dto';
 
 export class CreateProductRequest {
   @IsString({ message: ErrorMessage.NAME_MUST_BE_STRING })

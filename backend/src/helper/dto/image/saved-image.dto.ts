@@ -1,7 +1,7 @@
 import { IsEnum, IsOptional, IsString, Validate } from 'class-validator';
-import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { ImageType } from '../../enum/image-type.enum';
+import { NotUrlValidator } from '@validator';
+import { ErrorMessage } from '@message/error-message';
+import { ImageType } from '@enum/image-type.enum';
 
 export class SavedImageDTO {
   @IsString({ message: ErrorMessage.URL_MUST_BE_A_STRING })

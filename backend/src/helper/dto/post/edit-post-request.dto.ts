@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
-import { PostErrorMessage } from 'src/helper/message/post_message';
+import { PostErrorMessage } from '@message/post_message';
 
 export class EditPostRequestDto {
   @IsOptional()

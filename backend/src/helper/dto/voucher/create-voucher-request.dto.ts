@@ -7,8 +7,8 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { VoucherStatus } from 'src/helper/enum/status/vouchers-status.enum';
-import { VoucherErrorMessage } from 'src/helper/message/voucher-error-message';
+import { VoucherStatus } from '@enum/status/vouchers-status.enum';
+import { VoucherErrorMessage } from '@message/voucher-error-message';
 
 export class CreateVoucherRequestDto {
   @ApiProperty()

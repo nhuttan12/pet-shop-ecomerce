@@ -1,7 +1,7 @@
+import { PostController } from '@core-modules/forum/post/post.controller';
+import { PostService } from '@core-modules/forum/post/post.service';
+import { UtilityModule } from '@helper-modules/services/utility.module';
 import { Module } from '@nestjs/common';
-import { PostController } from './post.controller';
-import { PostService } from './post.service';
-import { UtilityModule } from 'src/modules/helper/services/utility.module';
 
 @Module({
   imports: [UtilityModule],

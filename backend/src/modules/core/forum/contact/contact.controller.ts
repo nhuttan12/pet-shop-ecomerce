@@ -14,14 +14,14 @@ import {
   ApiTags,
   ApiResponse as ApiSwaggerResponse,
 } from '@nestjs/swagger';
-import { Contact } from 'src/db/helper/schema-type';
-import { CreateContactRequestDto } from 'src/helper/dto/contact/create-contact-request.dto';
-import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
-import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
-import { NotifyMessage } from 'src/helper/message/notify-message';
-import { ContactService } from './contact.service';
-import { ContactResponseDto } from 'src/helper/dto/contact/contact-response.dto';
-import { GetAllContactInfoRequestDto } from 'src/helper/dto/contact/get-all-contact-info-request.dto';
+import { Contact } from '@schema-type';
+import { CreateContactRequestDto } from '@dtos/contact/create-contact-request.dto';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { CatchEverythingFilter } from '@filter/exception.filter';
+import { NotifyMessage } from '@message/notify-message';
+import { ContactResponseDto } from '@dtos/contact/contact-response.dto';
+import { GetAllContactInfoRequestDto } from '@dtos/contact/get-all-contact-info-request.dto';
+import { ContactService } from '@core-modules/forum/contact/contact.service';
 
 @Controller('contact')
 @ApiTags('Contact')

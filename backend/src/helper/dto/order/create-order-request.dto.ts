@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty } from 'class-validator';
-import { PaymentMethod } from 'src/helper/enum/payment-method.enum';
-import { ShippingMethod } from 'src/helper/enum/shipping_method.enum';
-import { OrderErrorMessage } from 'src/helper/message/order-error-message';
+import { PaymentMethod } from '@enum/payment-method.enum';
+import { ShippingMethod } from '@enum/shipping_method.enum';
+import { OrderErrorMessage } from '@message/order-error-message';
 
 export class CreateOrderRequestDto {
   @ApiProperty()

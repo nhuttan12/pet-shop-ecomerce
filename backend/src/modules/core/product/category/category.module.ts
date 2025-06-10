@@ -1,8 +1,8 @@
+import { CategoryController } from '@core-modules/product/category/category.controller';
+import { CategoryService } from '@core-modules/product/category/category.service';
+import { ImageModule } from '@helper-modules/image/image.module';
+import { UtilityModule } from '@helper-modules/services/utility.module';
 import { Module } from '@nestjs/common';
-import { CategoryService } from './category.service';
-import { CategoryController } from './category.controller';
-import { UtilityModule } from 'src/modules/helper/services/utility.module';
-import { ImageModule } from 'src/modules/helper/image/image.module';
 
 @Module({
   imports: [ImageModule, UtilityModule],

@@ -1,6 +1,6 @@
+import { RoleService } from '@core-modules/role/role.service';
+import { UtilityModule } from '@helper-modules/services/utility.module';
 import { Module } from '@nestjs/common';
-import { RoleService } from './role.service';
-import { UtilityModule } from 'src/modules/helper/services/utility.module';
 
 @Module({
   imports: [UtilityModule],

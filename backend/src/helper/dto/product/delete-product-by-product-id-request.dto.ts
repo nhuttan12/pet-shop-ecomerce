@@ -1,8 +1,8 @@
+import { ErrorMessage } from '@message/error-message';
+import { Property } from '@message/property';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Min } from 'class-validator';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { Property } from 'src/helper/message/property';
 
 export class DeleteProductByProductIdRequestDto {
   @ApiProperty()

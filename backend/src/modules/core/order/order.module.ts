@@ -1,7 +1,7 @@
+import { OrderController } from '@core-modules/order/order.controller';
+import { OrderService } from '@core-modules/order/order.service';
+import { UtilityModule } from '@helper-modules/services/utility.module';
 import { Module } from '@nestjs/common';
-import { OrderController } from './order.controller';
-import { OrderService } from './order.service';
-import { UtilityModule } from 'src/modules/helper/services/utility.module';
 
 @Module({
   imports: [UtilityModule],

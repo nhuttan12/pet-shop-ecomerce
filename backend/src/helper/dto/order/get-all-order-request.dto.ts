@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Min } from 'class-validator';
-import { ErrorMessage } from 'src/helper/message/error-message';
+import { ErrorMessage } from '@message/error-message';
 
 export class GetAllOrderRequestDto {
   @ApiPropertyOptional({ default: 1 })

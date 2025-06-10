@@ -6,28 +6,22 @@ import {
 } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { Cart, CartDetail, CartInsert } from 'src/db/helper/schema-type';
-import {
-  cartDetails,
-  carts,
-  images,
-  productImages,
-  products,
-} from 'src/db/schema';
-import { CartDetailResponse } from 'src/helper/dto/cart-detail/cart-detail-response.dto';
-import { CreateCartDetailDto } from 'src/helper/dto/cart-detail/create-cart-detail.dto';
-import { GetAllCartsDTO } from 'src/helper/dto/cart/get-all-cart.dto';
-import { RemoveCartDTO } from 'src/helper/dto/cart/remove-cart.dto';
-import { CartDetailStatus } from 'src/helper/enum/status/cart-detail-status.enum';
-import { CartStatus } from 'src/helper/enum/status/cart-status.enum';
-import { ProductStatus } from 'src/helper/enum/status/product-status.enum';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { MessageLog } from 'src/helper/message/message-log';
-import { DrizzleAsyncProvider } from 'src/modules/helper/database/drizzle.provider';
-import { ConvertToEnum } from 'src/modules/helper/services/convert-to-enum.service';
-import { SearchService } from 'src/modules/helper/services/search.service';
-import { UpdateService } from 'src/modules/helper/services/update.service';
-import { ProductService } from '../product/product/product.service';
+import { Cart, CartDetail, CartInsert } from '@schema-type';
+import { cartDetails, carts, images, productImages, products } from '@schema';
+import { CartDetailResponse } from '@dtos/cart-detail/cart-detail-response.dto';
+import { CreateCartDetailDto } from '@dtos/cart-detail/create-cart-detail.dto';
+import { GetAllCartsDTO } from '@dtos/cart/get-all-cart.dto';
+import { RemoveCartDTO } from '@dtos/cart/remove-cart.dto';
+import { CartDetailStatus } from '@enum/status/cart-detail-status.enum';
+import { CartStatus } from '@enum/status/cart-status.enum';
+import { ProductStatus } from '@enum/status/product-status.enum';
+import { ErrorMessage } from '@message/error-message';
+import { MessageLog } from '@message/message-log';
+import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
+import { ConvertToEnum } from '@helper-modules/services/convert-to-enum.service';
+import { SearchService } from '@helper-modules/services/search.service';
+import { UpdateService } from '@helper-modules/services/update.service';
+import { ProductService } from '@core-modules/product/product/product.service';
 
 @Injectable()
 export class CartService {

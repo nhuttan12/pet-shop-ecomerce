@@ -1,8 +1,8 @@
+import { CartController } from '@core-modules/cart/cart.controller';
+import { CartService } from '@core-modules/cart/cart.service';
+import { ProductModule } from '@core-modules/product/product/product.module';
+import { UtilityModule } from '@helper-modules/services/utility.module';
 import { Module } from '@nestjs/common';
-import { CartController } from './cart.controller';
-import { CartService } from './cart.service';
-import { UtilityModule } from 'src/modules/helper/services/utility.module';
-import { ProductModule } from '../product/product/product.module';
 
 @Module({
   imports: [UtilityModule, ProductModule],

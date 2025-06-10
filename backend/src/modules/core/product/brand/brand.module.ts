@@ -1,7 +1,7 @@
+import { BrandController } from '@core-modules/product/brand/brand.controller';
+import { BrandService } from '@core-modules/product/brand/brand.service';
+import { UtilityModule } from '@helper-modules/services/utility.module';
 import { Module } from '@nestjs/common';
-import { BrandController } from './brand.controller';
-import { BrandService } from './brand.service';
-import { UtilityModule } from 'src/modules/helper/services/utility.module';
 
 @Module({
   controllers: [BrandController],

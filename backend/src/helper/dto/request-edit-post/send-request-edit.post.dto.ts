@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { SendRequestErrorMessage } from 'src/helper/message/send-request-message';
+import { SendRequestErrorMessage } from '@message/send-request-message';
 
 export class SendRequestChangingPostDto {
   @ApiProperty({ description: 'ID bài viết cần gửi request', example: 123 })

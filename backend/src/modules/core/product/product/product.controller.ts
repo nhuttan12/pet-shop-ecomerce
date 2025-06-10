@@ -1,3 +1,19 @@
+import { ProductService } from '@core-modules/product/product/product.service';
+import { HasRole } from '@decorator/roles.decorator';
+import { CreateProductRequest } from '@dtos/product/create-product-request.dto';
+import { DeleteProductByProductIdRequestDto } from '@dtos/product/delete-product-by-product-id-request.dto';
+import { GetAllProductsRequest } from '@dtos/product/get-all-product-request.dto';
+import { GetAllProductResponseDto } from '@dtos/product/get-all-product-response.dto';
+import { GetProductByNameRequest } from '@dtos/product/get-product-by-name-request.dto';
+import { GetProductDetailRequestDto } from '@dtos/product/get-product-detail-request.dto';
+import { GetProductDetailResponseDto } from '@dtos/product/get-product-detail-response.dto';
+import { UpdateProductInforRequestDTO } from '@dtos/product/update-product-infor-request.dto';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { Role } from '@enum/role.enum';
+import { CatchEverythingFilter } from '@filter/exception.filter';
+import { JwtAuthGuard } from '@guard/jwt-auth.guard';
+import { RolesGuard } from '@guard/roles.guard';
+import { NotifyMessage } from '@message/notify-message';
 import {
   Body,
   Controller,
@@ -13,17 +29,6 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import { GetAllProductResponseDto } from 'src/helper/dto/product/get-all-product-response.dto';
-import { GetProductByNameRequest } from 'src/helper/dto/product/get-product-by-name-request.dto';
-import { GetProductDetailResponseDto } from 'src/helper/dto/product/get-product-detail-response.dto';
-import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
-import { NotifyMessage } from 'src/helper/message/notify-message';
-import { ProductService } from './product.service';
-import { GetProductDetailRequestDto } from 'src/helper/dto/product/get-product-detail-request.dto';
-import { Product } from 'src/db/helper/schema-type';
-import { UpdateProductInforRequestDTO } from 'src/helper/dto/product/update-product-infor-request.dto';
-import { CreateProductRequest } from 'src/helper/dto/product/create-product-request.dto';
-import { DeleteProductByProductIdRequestDto } from 'src/helper/dto/product/delete-product-by-product-id-request.dto';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -33,12 +38,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
-import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
-import { RolesGuard } from 'src/helper/guard/roles.guard';
-import { HasRole } from 'src/helper/decorator/roles.decorator';
-import { Role } from 'src/helper/enum/role.enum';
-import { GetAllProductsRequest } from 'src/helper/dto/product/get-all-product-request.dto';
+import { Product } from '@schema-type';
 
 @ApiTags('Product')
 @Controller('product')

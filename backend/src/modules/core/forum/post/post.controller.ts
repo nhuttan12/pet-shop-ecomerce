@@ -22,22 +22,22 @@ import {
   ApiTags,
   ApiResponse as SwaggerApiResponse,
 } from '@nestjs/swagger';
-import { HasRole } from 'src/helper/decorator/roles.decorator';
-import { GetUser } from 'src/helper/decorator/user.decorator';
-import { CreatePostRequestDto } from 'src/helper/dto/post/create-post-request.dto';
-import { DeletePostRequestDto } from 'src/helper/dto/post/delete-post-request.dto';
-import { EditPostRequestDto } from 'src/helper/dto/post/edit-post-request.dto';
-import { GetAllPostsRequestDto } from 'src/helper/dto/post/get-all-posts-request.dto';
-import { PostResponse } from 'src/helper/dto/post/post-response.dto';
-import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
-import { Role } from 'src/helper/enum/role.enum';
-import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
-import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
-import { RolesGuard } from 'src/helper/guard/roles.guard';
-import { JwtPayload } from 'src/helper/interface/jwt-payload.interface';
-import { NotifyMessage } from 'src/helper/message/notify-message';
-import { PostService } from './post.service';
-import { SendRequestChangingPostDto } from 'src/helper/dto/request-edit-post/send-request-edit.post.dto';
+import { HasRole } from '@decorator/roles.decorator';
+import { GetUser } from '@decorator/user.decorator';
+import { CreatePostRequestDto } from '@dtos/post/create-post-request.dto';
+import { DeletePostRequestDto } from '@dtos/post/delete-post-request.dto';
+import { EditPostRequestDto } from '@dtos/post/edit-post-request.dto';
+import { GetAllPostsRequestDto } from '@dtos/post/get-all-posts-request.dto';
+import { PostResponse } from '@dtos/post/post-response.dto';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { Role } from '@enum/role.enum';
+import { CatchEverythingFilter } from '@filter/exception.filter';
+import { JwtAuthGuard } from '@guard/jwt-auth.guard';
+import { RolesGuard } from '@guard/roles.guard';
+import { JwtPayload } from '@interfaces';
+import { NotifyMessage } from '@message/notify-message';
+import { PostService } from '@core-modules/forum/post/post.service';
+import { SendRequestChangingPostDto } from '@dtos/request-edit-post/send-request-edit.post.dto';
 
 @Controller('post')
 @ApiTags('Post')
@@ -173,6 +173,24 @@ export class PostController {
   }
 
   @Post('request-edit/:postId')
+  @ApiOperation({ summary: 'Gửi yêu cầu chỉnh sửa bài viết' })
+  @ApiParam({ name: 'postId', type: Number, description: 'ID của bài viết' })
+  @ApiBody({
+    description: 'Thông tin lý do và nội dung chỉnh sửa gợi ý',
+    type: SendRequestChangingPostDto,
+  })
+  @SwaggerApiResponse({
+    status: HttpStatus.OK,
+    description: 'Gửi yêu cầu chỉnh sửa bài viết thành công',
+  })
+  @SwaggerApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Không tìm thấy bài viết',
+  })
+  @SwaggerApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Lỗi hệ thống khi gửi yêu cầu',
+  })
   async sendRequestChangingPost({
     postId,
     reason,

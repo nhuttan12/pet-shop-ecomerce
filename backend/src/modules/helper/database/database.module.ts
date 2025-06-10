@@ -1,5 +1,8 @@
+import {
+  DrizzleAsyncProvider,
+  drizzleProvider,
+} from '@helper-modules/database/drizzle.provider';
 import { Global, Module } from '@nestjs/common';
-import { DrizzleAsyncProvider, drizzleProvider } from './drizzle.provider';
 
 @Global()
 @Module({

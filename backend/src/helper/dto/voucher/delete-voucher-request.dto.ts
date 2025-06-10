@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, Min } from 'class-validator';
-import { VoucherErrorMessage } from 'src/helper/message/voucher-error-message';
+import { VoucherErrorMessage } from '@message/voucher-error-message';
 
 export class DeleteVoucherRequestDto {
   @ApiProperty()

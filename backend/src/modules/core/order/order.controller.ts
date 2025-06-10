@@ -12,12 +12,12 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import { GetAllOrdersResponseDto } from 'src/helper/dto/order/get-all-order-response.dto';
-import { OrderService } from './order.service';
-import { GetUser } from 'src/helper/decorator/user.decorator';
-import { GetAllOrderRequestDto } from 'src/helper/dto/order/get-all-order-request.dto';
-import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
-import { NotifyMessage } from 'src/helper/message/notify-message';
+import { GetAllOrdersResponseDto } from '@dtos/order/get-all-order-response.dto';
+import { OrderService } from '@core-modules/order/order.service';
+import { GetUser } from '@decorator/user.decorator';
+import { GetAllOrderRequestDto } from '@dtos/order/get-all-order-request.dto';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { NotifyMessage } from '@message/notify-message';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -27,17 +27,17 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { GetOrderDetailsByOrderIdResponseDto } from 'src/helper/dto/order/get-order-details-by-order-id-response.dto';
-import { GetOrderDetailsByOrderIdRequestDto } from 'src/helper/dto/order/get-order-details-by-order-id-request.dto';
-import { CancelOrderRequestDto } from 'src/helper/dto/order/cancel-order-request.dto';
-import { Order } from 'src/db/helper/schema-type';
-import { CreateOrderRequestDto } from 'src/helper/dto/order/create-order-request.dto';
-import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
-import { RolesGuard } from 'src/helper/guard/roles.guard';
-import { HasRole } from 'src/helper/decorator/roles.decorator';
-import { Role } from 'src/helper/enum/role.enum';
-import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
-import { JwtPayload } from 'src/helper/interface/jwt-payload.interface';
+import { JwtAuthGuard } from '@guard/jwt-auth.guard';
+import { RolesGuard } from '@guard/roles.guard';
+import { HasRole } from '@decorator/roles.decorator';
+import { Role } from '@enum/role.enum';
+import { CatchEverythingFilter } from '@filter/exception.filter';
+import { JwtPayload } from '@interfaces';
+import { GetOrderDetailsByOrderIdResponseDto } from '@dtos/order/get-order-details-by-order-id-response.dto';
+import { GetOrderDetailsByOrderIdRequestDto } from '@dtos/order/get-order-details-by-order-id-request.dto';
+import { CancelOrderRequestDto } from '@dtos/order/cancel-order-request.dto';
+import { Order } from '@schema-type';
+import { CreateOrderRequestDto } from '@dtos/order/create-order-request.dto';
 
 @Controller('orders')
 @ApiTags('Order')

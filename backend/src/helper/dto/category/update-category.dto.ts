@@ -8,10 +8,10 @@ import {
   MinLength,
   Validate,
 } from 'class-validator';
-import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
-import { CategoryStatus } from 'src/helper/enum/status/categories-status.enum';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { SavedImageDTO } from '../image/saved-image.dto';
+import { NotUrlValidator } from '@validator';
+import { CategoryStatus } from '@enum/status/categories-status.enum';
+import { ErrorMessage } from '@message/error-message';
+import { SavedImageDTO } from '@dtos/image/saved-image.dto';
 
 export class CategoryUpdateDTO {
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })

@@ -1,5 +1,5 @@
-import { Role, User } from 'src/db/helper/schema-type';
-import { ErrorMessage } from 'src/helper/message/error-message';
+import { Role, User } from '@schema-type';
+import { ErrorMessage } from '@message/error-message';
 
 import {
   BadRequestException,
@@ -9,22 +9,22 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
-import { UserForgotPasswordDTO } from 'src/helper/dto/user/user-forgot-password.dto';
-import { UserLoginResponseDTO } from 'src/helper/dto/user/user-login.dto';
-import { UserResetPasswordDTO } from 'src/helper/dto/user/user-reset-password.dto';
-import { Role as RoleName } from 'src/helper/enum/role.enum';
-import { UserStatus } from 'src/helper/enum/status/user-status.enum';
-import { MessageLog } from 'src/helper/message/message-log';
-import { NotifyMessage } from 'src/helper/message/notify-message';
-import { RoleService } from '../role/role.service';
-import { UserService } from '../user/user.service';
-import { MailService } from 'src/modules/helper/mail/mail.service';
-import { AppConfigService } from 'src/modules/helper/config/app-config.service';
-import { JwtPayload } from 'src/helper/interface/jwt-payload.interface';
+import { UserForgotPasswordDTO } from '@dtos/user/user-forgot-password.dto';
+import { UserLoginResponseDTO } from '@dtos/user/user-login.dto';
+import { UserResetPasswordDTO } from '@dtos/user/user-reset-password.dto';
+import { Role as RoleName } from '@enum/role.enum';
+import { UserStatus } from '@enum/status/user-status.enum';
+import { MessageLog } from '@message/message-log';
+import { NotifyMessage } from '@message/notify-message';
+import { RoleService } from '@core-modules/role/role.service';
+import { UserService } from '@core-modules/user/user.service';
+import { MailService } from '@helper-modules//mail/mail.service';
+import { AppConfigService } from '@helper-modules/config/app-config.service';
+import { JwtPayload } from '@interfaces';
 import {
   UserRegisterDTO,
   UserRegisterResponseDTO,
-} from 'src/helper/dto/user/user-register.dto';
+} from '@dtos/user/user-register.dto';
 
 @Injectable()
 export class AuthService {

@@ -6,13 +6,13 @@ import {
 } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { Contact } from 'src/db/helper/schema-type';
-import { contacts } from 'src/db/schema';
-import { ContactStatus } from 'src/helper/enum/status/contact-status.enum copy';
-import { ContactMessageLog } from 'src/helper/message/contact-message';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { DrizzleAsyncProvider } from 'src/modules/helper/database/drizzle.provider';
-import { SearchService } from 'src/modules/helper/services/search.service';
+import { Contact } from '@schema-type';
+import { contacts } from '@schema';
+import { ContactStatus } from '@enum/status/contact-status.enum copy';
+import { ContactMessageLog } from '@message/contact-message';
+import { ErrorMessage } from '@message/error-message';
+import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
+import { SearchService } from '@helper-modules/services/search.service';
 
 @Injectable()
 export class ContactService {

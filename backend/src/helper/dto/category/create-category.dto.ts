@@ -1,7 +1,7 @@
-import { SavedImageDTO } from 'src/helper/dto/image/saved-image.dto';
+import { SavedImageDTO } from '@dtos/image/saved-image.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { ErrorMessage } from 'src/helper/message/error-message';
+import { ErrorMessage } from '@message/error-message';
 import { Type } from 'class-transformer';
 
 export class CategoryCreateDTO {

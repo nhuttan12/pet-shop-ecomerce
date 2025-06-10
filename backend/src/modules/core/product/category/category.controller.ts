@@ -1,3 +1,16 @@
+import { CategoryService } from '@core-modules/product/category/category.service';
+import { HasRole } from '@decorator/roles.decorator';
+import { CategoryCreateDTO } from '@dtos/category/create-category.dto';
+import { FindCategoryById } from '@dtos/category/find-category-by-id.dto';
+import { FindCategoryByName } from '@dtos/category/find-category-by-name.dto';
+import { GetAllCategoryDTO } from '@dtos/category/get-all-category.dto';
+import { CategoryUpdateDTO } from '@dtos/category/update-category.dto';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { Role } from '@enum/role.enum';
+import { CatchEverythingFilter } from '@filter/exception.filter';
+import { JwtAuthGuard } from '@guard/jwt-auth.guard';
+import { RolesGuard } from '@guard/roles.guard';
+import { NotifyMessage } from '@message/notify-message';
 import {
   Body,
   Controller,
@@ -21,20 +34,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Category } from 'src/db/helper/schema-type';
-import { HasRole } from 'src/helper/decorator/roles.decorator';
-import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
-import { Role } from 'src/helper/enum/role.enum';
-import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
-import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
-import { RolesGuard } from 'src/helper/guard/roles.guard';
-import { CategoryService } from './category.service';
-import { CategoryCreateDTO } from 'src/helper/dto/category/create-category.dto';
-import { NotifyMessage } from 'src/helper/message/notify-message';
-import { GetAllCategoryDTO } from 'src/helper/dto/category/get-all-category.dto';
-import { FindCategoryById } from 'src/helper/dto/category/find-category-by-id.dto';
-import { FindCategoryByName } from 'src/helper/dto/category/find-category-by-name.dto';
-import { CategoryUpdateDTO } from 'src/helper/dto/category/update-category.dto';
+import { Category } from '@schema-type';
 
 @ApiTags('Category')
 @Controller('category')

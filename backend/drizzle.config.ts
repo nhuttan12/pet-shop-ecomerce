@@ -1,5 +1,5 @@
 import { defineConfig } from 'drizzle-kit';
-import configuration from 'src/modules/helper/config/configuration';
+import configuration from '@helper-modules/config/configuration';
 
 const config = configuration();
 

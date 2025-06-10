@@ -1,3 +1,6 @@
+import { CloudinaryConfig, DatabaseConfig, DomainValidation, NodeMailerConfig, PayPalConfig, StripeConfig } from '@interfaces';
+import { ErrorMessage } from '@message/error-message';
+import { MessageLog } from '@message/message-log';
 import {
   Injectable,
   InternalServerErrorException,
@@ -5,15 +8,7 @@ import {
   NotAcceptableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MessageLog } from 'src/helper/message/message-log';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { HttpConfig } from 'src/helper/interface/http.interface';
-import { DatabaseConfig } from 'src/helper/interface/database.interface';
-import { CloudinaryConfig } from 'src/helper/interface/cloudinary.interface';
-import { NodeMailerConfig } from 'src/helper/interface/nodemailer.interface';
-import { DomainValidation } from 'src/helper/interface/domain.interface';
-import { PayPalConfig } from 'src/helper/interface/paypal.interface';
-import { StripeConfig } from 'src/helper/interface/stripe.interface';
+import { HttpConfig } from 'helper/interface/http.interface';
 
 @Injectable()
 export class AppConfigService {

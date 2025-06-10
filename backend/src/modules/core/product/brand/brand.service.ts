@@ -1,23 +1,23 @@
+import { BrandCreateDTO } from '@dtos/brand/create-brand.dto';
+import { FindBrandById } from '@dtos/brand/find-brand-by-id.dto';
+import { FindBrandByName } from '@dtos/brand/find-brand-by-name.dto';
+import { GetAllBrandsDTO } from '@dtos/brand/get-all-brand.dto';
+import { BrandUpdateDTO } from '@dtos/brand/update-brand.dto';
+import { BrandStatus } from '@enum/status/brand-status.enum';
+import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
+import { SearchService } from '@helper-modules/services/search.service';
+import { ErrorMessage } from '@message/error-message';
+import { MessageLog } from '@message/message-log';
 import {
   Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { brands } from '@schema';
+import { Brand, BrandInsert } from '@schema-type';
 import { eq, like } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { Brand, BrandInsert } from 'src/db/helper/schema-type';
-import { brands } from 'src/db/schema';
-import { BrandCreateDTO } from 'src/helper/dto/brand/create-brand.dto';
-import { FindBrandById } from 'src/helper/dto/brand/find-brand-by-id.dto';
-import { FindBrandByName } from 'src/helper/dto/brand/find-brand-by-name.dto';
-import { GetAllBrandsDTO } from 'src/helper/dto/brand/get-all-brand.dto';
-import { BrandUpdateDTO } from 'src/helper/dto/brand/update-brand.dto';
-import { BrandStatus } from 'src/helper/enum/status/brand-status.enum';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { MessageLog } from 'src/helper/message/message-log';
-import { DrizzleAsyncProvider } from 'src/modules/helper/database/drizzle.provider';
-import { SearchService } from 'src/modules/helper/services/search.service';
 
 @Injectable()
 export class BrandService {

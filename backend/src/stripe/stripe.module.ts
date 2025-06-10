@@ -1,9 +1,9 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { StripeController } from './stripe.controller';
 import { StripeService } from './stripe.service';
-import { AppConfigService } from 'src/modules/helper/config/app-config.service';
-import { AppConfigModule } from 'src/modules/helper/config/app-config.module';
-import { STRIPE_API_KEY } from 'src/helper/constants';
+import { STRIPE_API_KEY } from '@constants';
+import { AppConfigModule } from '@helper-modules/config/app-config.module';
+import { AppConfigService } from '@helper-modules/config/app-config.service';
 
 @Module({})
 export class StripeModule {
@@ -16,6 +16,7 @@ export class StripeModule {
         StripeService,
         {
           provide: STRIPE_API_KEY,
+
           useFactory: (appConfigService: AppConfigService) =>
             appConfigService.getStripeConfig.public_key,
           inject: [AppConfigService],

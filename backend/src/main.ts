@@ -10,7 +10,7 @@ import {
   ExpressAdapter,
   NestExpressApplication,
 } from '@nestjs/platform-express';
-import { CatchEverythingFilter } from './helper/filter/exception.filter';
+import { CatchEverythingFilter } from '@filter/exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {

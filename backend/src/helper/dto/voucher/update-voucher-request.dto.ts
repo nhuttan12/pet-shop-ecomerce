@@ -1,4 +1,4 @@
-import { VoucherStatus } from 'src/helper/enum/status/vouchers-status.enum';
+import { VoucherStatus } from '@enum/status/vouchers-status.enum';
 
 export class UpdateVoucherRequestDto {
   voucherId: number;

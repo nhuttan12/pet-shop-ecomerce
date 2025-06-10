@@ -1,3 +1,4 @@
+import { MessageLog } from '@message/message-log';
 import {
   Injectable,
   InternalServerErrorException,
@@ -5,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { SQL } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { MessageLog } from '../../../helper/message/message-log';
 
 @Injectable()
 export class UpdateService {

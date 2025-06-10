@@ -1,6 +1,5 @@
 import { int, mysqlTable } from 'drizzle-orm/mysql-core';
-import { categories } from './categories.schema';
-import { products } from './products.schema';
+import { categories, products } from '@schema';
 import { timestamps } from '../helper/timestamp';
 
 export const categoriesMapping = mysqlTable('categories_mapping', {

@@ -6,15 +6,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { Image, ImageInsert } from 'src/db/helper/schema-type';
-import { SavedImageDTO } from 'src/helper/dto/image/saved-image.dto';
-import { DrizzleAsyncProvider } from '../database/drizzle.provider';
-import { images } from 'src/db/schema';
-import { GetImageDTO } from 'src/helper/dto/image/get-image.dto';
 import { and, eq, inArray } from 'drizzle-orm';
-import { ErrorMessage } from 'src/helper/message/error-message';
-import { MessageLog } from 'src/helper/message/message-log';
-import { ImageStatus } from 'src/helper/enum/status/image-status.enum';
+import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
+import { SavedImageDTO } from '@dtos/image/saved-image.dto';
+import { ImageStatus } from '@enum/status/image-status.enum';
+import { images } from '@schema';
+import { MessageLog } from '@message/message-log';
+import { ErrorMessage } from '@message/error-message';
+import { GetImageDTO } from '@dtos/image/get-image.dto';
+import { Image, ImageInsert } from '@schema-type';
 
 @Injectable()
 export class ImageService {

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ContactStatus } from 'src/helper/enum/status/contact-status.enum copy';
+import { ContactStatus } from '@enum/status/contact-status.enum copy';
 
 export class ContactResponseDto {
   @ApiProperty({ example: 1 })

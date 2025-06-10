@@ -1,6 +1,5 @@
 import { int, mysqlTable } from 'drizzle-orm/mysql-core';
-import { users } from './users.schema';
-import { vouchers } from './vouchers.schema';
+import { users, vouchers } from '@schema';
 import { timestamps } from '../helper/timestamp';
 
 export const voucherMapping = mysqlTable('voucher_mapping', {

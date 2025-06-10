@@ -5,7 +5,7 @@ import {
   text,
   varchar,
 } from 'drizzle-orm/mysql-core';
-import { ContactStatus } from 'src/helper/enum/status/contact-status.enum copy';
+import { ContactStatus } from '@enum/status/contact-status.enum copy';
 import { timestamps } from '../helper/timestamp';
 
 export const contacts = mysqlTable('contacts', {

@@ -6,9 +6,9 @@ import {
   text,
   timestamp,
 } from 'drizzle-orm/mysql-core';
-import { VoucherStatus } from 'src/helper/enum/status/vouchers-status.enum';
+import { VoucherStatus } from '@enum/status/vouchers-status.enum';
 import { timestamps } from '../helper/timestamp';
-import { voucherMapping } from './voucher-mapping';
+import { voucherMapping } from '@schema';
 
 export const vouchers = mysqlTable('vouchers', {
   id: int().primaryKey().notNull().autoincrement(),

@@ -1,7 +1,7 @@
+import { ContactController } from '@core-modules/forum/contact/contact.controller';
+import { ContactService } from '@core-modules/forum/contact/contact.service';
+import { UtilityModule } from '@helper-modules/services/utility.module';
 import { Module } from '@nestjs/common';
-import { ContactController } from './contact.controller';
-import { ContactService } from './contact.service';
-import { UtilityModule } from 'src/modules/helper/services/utility.module';
 
 @Module({
   imports: [UtilityModule],

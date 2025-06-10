@@ -1,3 +1,15 @@
+import { UserService } from '@core-modules/user/user.service';
+import { HasRole } from '@decorator/roles.decorator';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { GetAllUsersResponseDTO } from '@dtos/response/user/get-all-user-response.dto';
+import { FindUserById, FindUserByName } from '@dtos/user/find-user.dto';
+import { GetAllUsersDto } from '@dtos/user/get-all-user.dto';
+import { UserUpdateDTO } from '@dtos/user/update-user.dto';
+import { Role } from '@enum/role.enum';
+import { CatchEverythingFilter } from '@filter/exception.filter';
+import { JwtAuthGuard } from '@guard/jwt-auth.guard';
+import { RolesGuard } from '@guard/roles.guard';
+import { NotifyMessage } from '@message/notify-message';
 import {
   Controller,
   Get,
@@ -10,17 +22,6 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import { User } from 'src/db/helper/schema-type';
-import { HasRole } from 'src/helper/decorator/roles.decorator';
-import {
-  FindUserById,
-  FindUserByName,
-} from 'src/helper/dto/user/find-user.dto';
-import { UserUpdateDTO } from 'src/helper/dto/user/update-user.dto';
-import { Role } from 'src/helper/enum/role.enum';
-import { CatchEverythingFilter } from 'src/helper/filter/exception.filter';
-import { JwtAuthGuard } from 'src/helper/guard/jwt-auth.guard';
-import { UserService } from './user.service';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -29,11 +30,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { RolesGuard } from 'src/helper/guard/roles.guard';
-import { GetAllUsersResponseDTO } from 'src/helper/dto/response/user/get-all-user-response.dto';
-import { ApiResponse } from 'src/helper/dto/response/ApiResponse/ApiResponse';
-import { NotifyMessage } from 'src/helper/message/notify-message';
-import { GetAllUsersDto } from 'src/helper/dto/user/get-all-user.dto';
+import { User } from '@schema-type';
 
 @ApiTags('User')
 @Controller('user')

@@ -1,6 +1,5 @@
 import { int, mysqlTable } from 'drizzle-orm/mysql-core';
-import { users } from './users.schema';
-import { products } from './products.schema';
+import { products, users } from '@schema';
 
 export const customerRating = mysqlTable('customer-rating', {
   id: int().primaryKey().notNull().autoincrement(),
