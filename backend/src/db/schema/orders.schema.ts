@@ -1,5 +1,5 @@
 import { int, mysqlEnum, mysqlTable } from 'drizzle-orm/mysql-core';
-import { timestamps } from '../helper/timestamp';
+import { timestamps } from '@db-helper/timestamp';
 import { relations } from 'drizzle-orm';
 import { PaymentMethod } from '@enum/payment-method.enum';
 import { ShippingMethod } from '@enum/shipping_method.enum';

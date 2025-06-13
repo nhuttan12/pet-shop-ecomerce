@@ -7,7 +7,7 @@ import {
   varchar,
 } from 'drizzle-orm/mysql-core';
 import { ProductStatus } from '@enum/status/product-status.enum';
-import { timestamps } from '../helper/timestamp';
+import { timestamps } from '@db-helper/timestamp';
 import {
   wishlists,
   vouchers,

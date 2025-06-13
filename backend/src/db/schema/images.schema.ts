@@ -6,7 +6,7 @@ import {
   varchar,
 } from 'drizzle-orm/mysql-core';
 import { ImageType } from '@enum/image-type.enum';
-import { timestamps } from '../helper/timestamp';
+import { timestamps } from '@db-helper/timestamp';
 import { productImages } from '@schema';
 import { relations } from 'drizzle-orm';
 import { ImageStatus } from '@enum/status/image-status.enum';

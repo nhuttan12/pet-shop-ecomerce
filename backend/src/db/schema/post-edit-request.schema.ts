@@ -6,7 +6,7 @@ import {
   timestamp,
 } from 'drizzle-orm/mysql-core';
 import { PostEditRequestStatus } from '@enum/status/post-edit-request-status.enum';
-import { timestamps } from '../helper/timestamp';
+import { timestamps } from '@db-helper/timestamp';
 import { users, posts } from '@schema';
 
 export const postEditRequests = mysqlTable('post_edit_request', {

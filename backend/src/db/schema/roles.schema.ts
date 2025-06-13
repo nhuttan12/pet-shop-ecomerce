@@ -1,5 +1,5 @@
 import { int, mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
-import { timestamps } from '../helper/timestamp';
+import { timestamps } from '@db-helper/timestamp';
 import { users } from '@schema';
 import { relations } from 'drizzle-orm';
 import { RoleStatus } from '@enum/status/role-status.enum';

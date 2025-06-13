@@ -1,5 +1,5 @@
 import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
-import { timestamps } from '../helper/timestamp';
+import { timestamps } from '@db-helper/timestamp';
 import { products, images } from '@schema';
 
 /**

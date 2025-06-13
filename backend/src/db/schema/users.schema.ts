@@ -1,6 +1,6 @@
 import { postReports } from './post-report.schema';
 import { int, mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
-import { timestamps } from '../helper/timestamp';
+import { timestamps } from '@db-helper/timestamp';
 import { relations } from 'drizzle-orm';
 import {
   carts,

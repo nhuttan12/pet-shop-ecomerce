@@ -7,7 +7,7 @@ import {
   timestamp,
 } from 'drizzle-orm/mysql-core';
 import { VoucherStatus } from '@enum/status/vouchers-status.enum';
-import { timestamps } from '../helper/timestamp';
+import { timestamps } from '@db-helper/timestamp';
 import { voucherMapping } from '@schema';
 
 export const vouchers = mysqlTable('vouchers', {
