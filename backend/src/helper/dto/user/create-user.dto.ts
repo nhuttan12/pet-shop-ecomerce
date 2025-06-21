@@ -19,6 +19,6 @@ export class CreateUserDto {
   @IsInt({ message: ErrorMessage.PARAM_NOT_VALID })
   roleId: number;
 
-  @IsEnum({ message: ErrorMessage.PARAM_NOT_VALID })
+  @IsEnum(UserStatus, { message: ErrorMessage.PARAM_NOT_VALID })
   status: UserStatus;
 }

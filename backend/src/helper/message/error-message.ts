@@ -94,6 +94,8 @@ export const ErrorMessage = {
   PRICE_MUST_BE_INTEGER: 'Giá tiền phải là số nguyên',
   QUANTITY_MUST_BE_INTEGER: 'Số lượng tiền phải là số nguyên',
   PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER: 'Giá trị không được phép là số âm',
+  PRODUCT_NOT_FOUND: 'Không tìm thấy sản phẩm',
+  SUB_IMAGES_MUST_BE_ARRAY: 'Hình ảnh phụ sản phẩm không được để trống',
 
   /**
    * Property check

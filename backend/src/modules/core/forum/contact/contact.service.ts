@@ -13,6 +13,7 @@ import { ContactMessageLog } from '@message/contact-message';
 import { ErrorMessage } from '@message/error-message';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { SearchService } from '@helper-modules/services/search.service';
+import { UtilityService } from '@helper-modules/services/utility.service';
 
 @Injectable()
 export class ContactService {
@@ -20,6 +21,7 @@ export class ContactService {
   constructor(
     @Inject(DrizzleAsyncProvider) private db: MySql2Database<any>,
     private searchService: SearchService,
+    private utilityService: UtilityService,
   ) {}
   async createContactInfo(
     name: string,
@@ -56,13 +58,13 @@ export class ContactService {
   }
 
   async getALlContact(limit: number, offset: number): Promise<Contact[]> {
-    offset = offset <= 0 ? 0 : offset - 1;
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
     return await this.searchService.findManyOrReturnEmptyArray(
       this.db,
       contacts,
       undefined,
-      limit,
-      offset,
+      take,
+      skip,
     );
   }
 }

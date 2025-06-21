@@ -9,6 +9,7 @@ import { ImageStatus } from '@enum/status/image-status.enum';
 import { OrderStatus } from '@enum/status/order-status.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { SearchService } from '@helper-modules/services/search.service';
+import { UtilityService } from '@helper-modules/services/utility.service';
 import { ErrorMessage } from '@message/error-message';
 import { MessageLog } from '@message/message-log';
 import { Property } from '@message/property';
@@ -39,19 +40,21 @@ export class OrderService {
     @Inject(DrizzleAsyncProvider)
     private db: MySql2Database<any>,
     private searchService: SearchService,
+    private utilityService: UtilityService,
   ) {}
   async getAllOrders(
     userId: number,
     limit: number,
     offset: number,
   ): Promise<GetAllOrdersResponseDto[]> {
-    offset = offset <= 0 ? 0 : offset - 1;
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
+
     const orderList = await this.db
       .select()
       .from(orders)
       .where(eq(orders.userId, userId))
-      .limit(limit)
-      .offset(offset);
+      .limit(take)
+      .offset(skip);
     this.logger.debug(`Order list ${JSON.stringify(orderList)}`);
 
     const result: GetAllOrdersResponseDto[] = orderList.map((o) => ({

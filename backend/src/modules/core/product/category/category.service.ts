@@ -7,6 +7,7 @@ import { CategoryStatus } from '@enum/status/categories-status.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { ImageService } from '@helper-modules/image/image.service';
 import { SearchService } from '@helper-modules/services/search.service';
+import { UtilityService } from '@helper-modules/services/utility.service';
 import { ErrorMessage } from '@message/error-message';
 import { MessageLog } from '@message/message-log';
 import {
@@ -28,21 +29,23 @@ export class CategoryService {
     private db: MySql2Database<any>,
     private imageService: ImageService,
     private searchService: SearchService,
+    private utilityService: UtilityService,
   ) {}
 
   async getAllCategories({
     limit,
     page,
   }: GetAllCategoryDTO): Promise<Category[]> {
-    const offset = Math.max(0, page - 1);
-    this.logger.debug(`Pagination - limit: ${limit}, offset: ${offset}`);
+    const { skip, take } = this.utilityService.getPagination(page, limit);
+
+    this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
 
     return await this.searchService.findManyOrReturnEmptyArray<Category, any>(
       this.db,
       categories,
       undefined,
-      limit,
-      offset,
+      take,
+      skip,
     );
   }
 
@@ -59,14 +62,15 @@ export class CategoryService {
     page,
     limit,
   }: FindCategoryByName): Promise<Category[]> {
-    const offset = Math.max(0, page - 1);
-    this.logger.debug(`Pagination - limit: ${limit}, offset: ${offset}`);
+    const { skip, take } = this.utilityService.getPagination(page, limit);
+
+    this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
     return await this.searchService.findManyOrReturnEmptyArray<Category, any>(
       this.db,
       categories,
       like(categories.name, `%${name}%`),
-      limit,
-      offset,
+      take,
+      skip,
     );
   }
 

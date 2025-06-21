@@ -4,6 +4,7 @@ import { UserUpdateDTO } from '@dtos/user/update-user.dto';
 import { UserStatus } from '@enum/status/user-status.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { SearchService } from '@helper-modules/services/search.service';
+import { UtilityService } from '@helper-modules/services/utility.service';
 import { ErrorMessage } from '@message/error-message';
 import { MessageLog } from '@message/message-log';
 import {
@@ -26,6 +27,7 @@ export class UserService {
     @Inject(DrizzleAsyncProvider)
     private db: MySql2Database<any>,
     private searchService: SearchService,
+    private utilityService: UtilityService,
   ) {}
 
   /**
@@ -145,8 +147,8 @@ export class UserService {
     limit: number,
     offset: number,
   ): Promise<GetAllUsersResponseDTO[]> {
-    this.logger.debug(`Limit and offset for pagination ${limit}, ${offset}`);
-    offset = offset < 0 ? (offset = 0) : offset - 1;
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
+    this.logger.debug(`Limit and offset for pagination ${skip}, ${take}`);
 
     const user = await this.db
       .select()
@@ -155,8 +157,8 @@ export class UserService {
       .innerJoin(roles, eq(users.roleId, roles.id))
       .innerJoin(images, eq(userDetails.imageId, images.id))
       .orderBy(asc(users.id))
-      .limit(limit)
-      .offset(offset);
+      .limit(take)
+      .offset(skip);
 
     this.logger.debug(`User get from db ${JSON.stringify(user)}`);
 

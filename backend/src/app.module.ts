@@ -21,6 +21,7 @@ import { CommentModule } from '@core-modules/forum/comment/comment.module';
 import { PostModule } from '@core-modules/forum/post/post.module';
 import { ContactModule } from '@core-modules/forum/contact/contact.module';
 import { WishlistModule } from '@core-modules/product/wishlist/wishlist.module';
+import { ProductRatingModule } from '@core-modules/product/product-rating/product-rating.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { WishlistModule } from '@core-modules/product/wishlist/wishlist.module';
     PostModule,
     ContactModule,
     WishlistModule,
+    ProductRatingModule,
   ],
   providers: [
     {

@@ -13,10 +13,10 @@ import {
   vouchers,
   productImages,
   orderDetails,
-  customerRating,
   categoriesMapping,
   cartDetails,
   brands,
+  customerRatings,
 } from '@schema';
 
 export const products = mysqlTable('products', {
@@ -56,7 +56,7 @@ export const productToVouchers = relations(products, ({ many }) => ({
 }));
 
 export const productToCustomerRating = relations(products, ({ many }) => ({
-  customerRating: many(customerRating),
+  customerRating: many(customerRatings),
 }));
 
 export const productToProductImage = relations(products, ({ many }) => ({

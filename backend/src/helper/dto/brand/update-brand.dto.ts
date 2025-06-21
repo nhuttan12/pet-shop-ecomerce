@@ -25,7 +25,7 @@ export class BrandUpdateDTO {
   @ApiProperty()
   name: string;
 
-  @IsEnum({}, { message: ErrorMessage.STATUS_MUST_BE_ENUM })
+  @IsEnum(BrandStatus, { message: ErrorMessage.STATUS_MUST_BE_ENUM })
   @IsNotEmpty()
   @Validate(NotUrlValidator)
   @MinLength(1)

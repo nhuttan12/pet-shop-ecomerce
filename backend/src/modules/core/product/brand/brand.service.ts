@@ -6,6 +6,7 @@ import { BrandUpdateDTO } from '@dtos/brand/update-brand.dto';
 import { BrandStatus } from '@enum/status/brand-status.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { SearchService } from '@helper-modules/services/search.service';
+import { UtilityService } from '@helper-modules/services/utility.service';
 import { ErrorMessage } from '@message/error-message';
 import { MessageLog } from '@message/message-log';
 import {
@@ -26,6 +27,7 @@ export class BrandService {
     @Inject(DrizzleAsyncProvider)
     private db: MySql2Database<any>,
     private searchService: SearchService,
+    private utilityService: UtilityService,
   ) {}
 
   private async findBrandByIdInternal(id: number): Promise<Brand | null> {
@@ -38,15 +40,16 @@ export class BrandService {
   }
 
   async getAllBrands({ page, limit }: GetAllBrandsDTO): Promise<Brand[]> {
-    const offset = Math.max(0, page - 1);
-    this.logger.debug(`Pagination - limit: ${limit}, offset: ${offset}`);
+    const { skip, take } = this.utilityService.getPagination(page, limit);
+
+    this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
 
     return await this.searchService.findManyOrReturnEmptyArray<Brand, any>(
       this.db,
       brands,
       undefined,
-      limit,
-      offset,
+      take,
+      skip,
     );
   }
 
@@ -64,14 +67,15 @@ export class BrandService {
     page,
     limit,
   }: FindBrandByName): Promise<Brand[]> {
-    const offset = Math.max(0, page - 1);
-    this.logger.debug(`Pagination - limit: ${limit}, offset: ${offset}`);
+    const { skip, take } = this.utilityService.getPagination(page, limit);
+
+    this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
     return await this.searchService.findManyOrReturnEmptyArray(
       this.db,
       brands,
       like(brands.name, `%${name}%`),
-      limit,
-      offset,
+      take,
+      skip,
     );
   }
 

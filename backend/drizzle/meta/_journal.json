@@ -29,6 +29,13 @@
       "when": 1749549057334,
       "tag": "0003_complete_goliath",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1750520850324,
+      "tag": "0004_large_lester",
+      "breakpoints": true
     }
   ]
 }

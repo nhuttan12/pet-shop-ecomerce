@@ -28,7 +28,7 @@ export class CreateCartDetailDto {
   @ApiProperty()
   price: number;
 
-  @IsEnum({ message: ErrorMessage.ID_MUST_BE_INTEGER })
+  @IsEnum(CartDetailStatus, { message: ErrorMessage.ID_MUST_BE_INTEGER })
   @IsNotEmpty()
   @ApiProperty()
   status: CartDetailStatus = CartDetailStatus.ACTIVE;

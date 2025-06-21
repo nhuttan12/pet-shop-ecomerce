@@ -26,7 +26,7 @@ export class CategoryUpdateDTO {
   @ApiProperty()
   name: string;
 
-  @IsEnum({}, { message: ErrorMessage.STATUS_MUST_BE_ENUM })
+  @IsEnum(CategoryStatus, { message: ErrorMessage.STATUS_MUST_BE_ENUM })
   @IsNotEmpty()
   @Validate(NotUrlValidator)
   @MinLength(1)

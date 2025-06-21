@@ -10,6 +10,7 @@ import { ProductStatus } from '@enum/status/product-status.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { ImageService } from '@helper-modules/image/image.service';
 import { SearchService } from '@helper-modules/services/search.service';
+import { UtilityService } from '@helper-modules/services/utility.service';
 import { ErrorMessage } from '@message/error-message';
 import { MessageLog } from '@message/message-log';
 import { Property } from '@message/property';
@@ -24,6 +25,7 @@ import {
   brands,
   categories,
   categoriesMapping,
+  customerRatings,
   images,
   productImages,
   products,
@@ -40,6 +42,7 @@ export class ProductService {
     private db: MySql2Database<any>,
     private searchService: SearchService,
     private imageService: ImageService,
+    private utilityService: UtilityService,
   ) {}
 
   async createProduct({
@@ -165,13 +168,14 @@ export class ProductService {
     limit: number,
     offset: number,
   ): Promise<GetAllProductResponseDto[]> {
-    offset = offset <= 0 ? 0 : offset - 1;
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
+
     const productList = await this.db
       .select()
       .from(products)
       .innerJoin(brands, eq(brands.id, products.brandId))
-      .limit(limit)
-      .offset(offset);
+      .limit(take)
+      .offset(skip);
 
     const productIds = productList.map((p) => p.products.id);
 
@@ -222,12 +226,22 @@ export class ProductService {
     return productMap;
   }
 
+  async findProductById(id: number): Promise<Product> {
+    return await this.searchService.findOneOrThrow(
+      this.db,
+      products,
+      eq(products.id, id),
+      ErrorMessage.PRODUCT_NOT_FOUND,
+    );
+  }
+
   async findProductByName(
     name: string,
     limit: number,
     offset: number,
   ): Promise<GetAllProductResponseDto[]> {
-    offset = offset <= 0 ? 0 : offset - 1;
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
+
     const productList = await this.db
       .select()
       .from(products)
@@ -237,8 +251,8 @@ export class ProductService {
           eq(products.status, ProductStatus.ACTIVE),
         ),
       )
-      .limit(limit)
-      .offset(offset);
+      .limit(take)
+      .offset(skip);
 
     const productIds = productList.map((p) => p.id);
     const brandIds = productList.map((p) => p.brandId);
@@ -489,27 +503,41 @@ export class ProductService {
 
     return product;
   }
+
   async getProductDetail(
     productId: number,
     page: number,
     limit: number,
   ): Promise<GetProductDetailResponseDto> {
     try {
-      const offset = Math.max(0, page - 1);
-      this.logger.debug(`Pagination - limit: ${limit}, offset: ${offset}`);
+      const { skip, take } = this.utilityService.getPagination(page, limit);
+      this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
 
       const [product]: Product[] = await this.db
         .select()
         .from(products)
         .where(eq(products.id, productId))
-        .limit(limit)
-        .offset(offset);
+        .limit(take)
+        .offset(skip);
 
       const imageList = await this.db
         .select()
         .from(productImages)
         .innerJoin(images, eq(productImages.imageId, images.id))
         .where(eq(productImages.productId, productId));
+
+      const productRatingList: { starRated: number }[] = await this.db
+        .select({ starRated: customerRatings.starRated })
+        .from(customerRatings)
+        .where(eq(customerRatings.productId, productId));
+
+      const avgRating =
+        productRatingList.length > 0
+          ? productRatingList.reduce(
+              (sum, rating) => sum + rating.starRated,
+              0,
+            ) / productRatingList.length
+          : 0;
 
       const categoryList = await this.db
         .select()
@@ -531,6 +559,7 @@ export class ProductService {
         categoryName: '',
         thumbnailUrl: '',
         imagesUrl: [],
+        starRated: avgRating,
         status: product.status,
         stock: product.stocking,
       };

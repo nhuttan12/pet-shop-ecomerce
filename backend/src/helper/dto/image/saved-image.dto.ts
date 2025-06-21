@@ -5,7 +5,6 @@ import { ImageType } from '@enum/image-type.enum';
 
 export class SavedImageDTO {
   @IsString({ message: ErrorMessage.URL_MUST_BE_A_STRING })
-  @Validate(NotUrlValidator)
   url: string;
 
   @IsString({ message: ErrorMessage.FOLDER_NAME_MUST_BE_STRING })
@@ -13,7 +12,7 @@ export class SavedImageDTO {
   @IsOptional()
   folder: string;
 
-  @IsEnum({ message: ErrorMessage.IMAGE_TYPE_IS_UNVALID })
+  @IsEnum(ImageType, { message: ErrorMessage.IMAGE_TYPE_IS_UNVALID })
   @Validate(NotUrlValidator)
   type: ImageType;
 }

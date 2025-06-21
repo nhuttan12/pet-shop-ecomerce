@@ -70,7 +70,7 @@ export class UpdateProductInforRequestDTO {
   categoryName: string;
 
   @Type(() => Enumerator)
-  @IsEnum({
+  @IsEnum(ProductStatus, {
     message: `${Property.STATUS} ${ErrorMessage.MUST_BE_STRING}`,
   })
   @IsNotEmpty({ message: `${Property.STATUS} ${ErrorMessage.IS_NOT_EMPTY}` })

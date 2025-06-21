@@ -22,6 +22,7 @@ import { ConvertToEnum } from '@helper-modules/services/convert-to-enum.service'
 import { SearchService } from '@helper-modules/services/search.service';
 import { UpdateService } from '@helper-modules/services/update.service';
 import { ProductService } from '@core-modules/product/product/product.service';
+import { UtilityService } from '@helper-modules/services/utility.service';
 
 @Injectable()
 export class CartService {
@@ -33,18 +34,19 @@ export class CartService {
     private convertToEnum: ConvertToEnum,
     private updateService: UpdateService,
     private productService: ProductService,
+    private utilityService: UtilityService,
   ) {}
 
   async getAllCarts({ limit, page }: GetAllCartsDTO): Promise<Cart[]> {
-    const offset = Math.max(0, page - 1);
-    this.logger.debug(`Pagination - limit: ${limit}, offset: ${offset}`);
+    const { skip, take } = this.utilityService.getPagination(page, limit);
+    this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
 
     return await this.searchService.findManyOrReturnEmptyArray<Cart, any>(
       this.db,
       carts,
       eq(carts.status, CartStatus.ACTIVE),
-      limit,
-      offset,
+      take,
+      skip,
     );
   }
 
@@ -166,7 +168,7 @@ export class CartService {
     limit: number = 10,
     offset: number = 0,
   ): Promise<CartDetailResponse[]> {
-    offset = offset < 0 ? (offset = 0) : offset - 1;
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
     try {
       const details = await this.db
         .select({
@@ -191,8 +193,8 @@ export class CartService {
             eq(cartDetails.status, CartDetailStatus.ACTIVE),
           ),
         )
-        .limit(limit)
-        .offset(offset)
+        .limit(take)
+        .offset(skip)
         .groupBy(cartDetails.id);
 
       const result: CartDetailResponse[] = details.map((item) => ({

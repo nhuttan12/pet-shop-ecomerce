@@ -65,7 +65,7 @@ export class BrandController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      message: NotifyMessage.BRAND_INSERT_SUCCESSFUL,
       data: newBrand,
     };
   }

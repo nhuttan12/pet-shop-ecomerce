@@ -7,6 +7,7 @@ import { PostEditRequestStatus } from '@enum/status/post-edit-request-status.enu
 import { PostStatus } from '@enum/status/posts-status.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { SearchService } from '@helper-modules/services/search.service';
+import { UtilityService } from '@helper-modules/services/utility.service';
 import { NotifyMessage } from '@message/notify-message';
 import { PostErrorMessage, PostMessageLog } from '@message/post-message';
 import {
@@ -30,6 +31,7 @@ export class PostService {
     @Inject(DrizzleAsyncProvider) private db: MySql2Database<any>,
     private searchService: SearchService,
     private userService: UserService,
+    private utilityService: UtilityService,
   ) {}
 
   async getAllPosts(
@@ -38,7 +40,7 @@ export class PostService {
     userId?: number,
   ): Promise<PostResponse[]> {
     try {
-      offset = offset <= 0 ? 0 : offset - 1;
+      const { skip, take } = this.utilityService.getPagination(offset, limit);
 
       const condition =
         userId !== undefined
@@ -49,8 +51,8 @@ export class PostService {
         this.db,
         posts,
         condition,
-        limit,
-        offset,
+        take,
+        skip,
       );
     } catch (error) {
       this.logger.error(error);
@@ -279,7 +281,7 @@ export class PostService {
     offset: number,
     userId?: number,
   ): Promise<PostReportResponseDto[]> {
-    offset = offset <= 0 ? 0 : offset - 1;
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
 
     const condition =
       userId !== undefined ? eq(postReports.userId, userId) : undefined;
@@ -289,8 +291,8 @@ export class PostService {
         this.db,
         postReports,
         condition,
-        limit,
-        offset,
+        take,
+        skip,
       );
 
     const postIdList = postReportList.map(

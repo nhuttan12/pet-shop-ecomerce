@@ -1,9 +1,13 @@
 import { VoucherStatus } from '@enum/status/vouchers-status.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { SearchService } from '@helper-modules/services/search.service';
+import { UtilityService } from '@helper-modules/services/utility.service';
 import { ErrorMessage } from '@message/error-message';
 import { MessageLog } from '@message/message-log';
-import { VoucherErrorMessage, VoucherMessageLog } from '@message/voucher-error-message';
+import {
+  VoucherErrorMessage,
+  VoucherMessageLog,
+} from '@message/voucher-error-message';
 import {
   Inject,
   Injectable,
@@ -22,15 +26,17 @@ export class VoucherService {
   constructor(
     @Inject(DrizzleAsyncProvider) private db: MySql2Database<any>,
     private searchService: SearchService,
+    private utilityService: UtilityService,
   ) {}
   async getAllVouchers(limit: number, offset: number): Promise<Voucher[]> {
-    offset = offset <= 0 ? 0 : offset - 1;
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
+
     return await this.searchService.findManyOrReturnEmptyArray(
       this.db,
       vouchers,
       undefined,
-      limit,
-      offset,
+      take,
+      skip,
       asc(vouchers.id),
     );
   }
@@ -40,14 +46,15 @@ export class VoucherService {
     limit: number,
     offset: number,
   ): Promise<Voucher[]> {
-    offset = offset <= 0 ? 0 : offset - 1;
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
+
     const voucherList = await this.db
       .select()
       .from(vouchers)
       .innerJoin(voucherMapping, eq(vouchers.id, voucherMapping.voucherId))
       .where(eq(voucherMapping.userId, userId))
-      .limit(limit)
-      .offset(offset);
+      .limit(take)
+      .offset(skip);
 
     const result: Voucher[] = voucherList.map((v) => ({
       id: v.vouchers.id,
@@ -67,13 +74,14 @@ export class VoucherService {
     limit: number,
     offset: number,
   ): Promise<Voucher[]> {
-    offset = offset <= 0 ? 0 : offset - 1;
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
+
     return await this.searchService.findManyOrReturnEmptyArray(
       this.db,
       vouchers,
       like(vouchers.voucherCode, `%${voucherCode}%`),
-      limit,
-      offset,
+      take,
+      skip,
       asc(vouchers.id),
     );
   }

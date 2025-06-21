@@ -120,7 +120,7 @@ export class ProductController {
 
   @Get('detail')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Lấy chi tiết sản phẩm (phân trang)' })
+  @ApiOperation({ summary: 'Lấy chi tiết sản phẩm' })
   @ApiQuery({
     name: 'productId',
     required: true,

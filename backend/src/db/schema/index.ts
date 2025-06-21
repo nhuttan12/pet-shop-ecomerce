@@ -16,7 +16,7 @@ export { vouchers } from './vouchers.schema';
 export { comments } from './comments.schema';
 export { userDetails } from './user-details.schema';
 export { posts } from './posts.schema';
-export { customerRating } from './customer-rating.schema';
+export { customerRatings } from './customer-rating.schema';
 export { voucherMapping } from './voucher-mapping.schema';
 export { postEditRequests } from './post-edit-request.schema';
 export { postReports } from './post-report.schema';

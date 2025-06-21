@@ -98,7 +98,7 @@ export class CategoryController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      message: NotifyMessage.GET_CATEGORY_SUCCESSFUL,
       data: categories,
     };
   }

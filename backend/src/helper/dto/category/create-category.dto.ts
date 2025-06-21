@@ -10,6 +10,7 @@ export class CategoryCreateDTO {
   @ApiProperty()
   name: string;
 
+  @ApiProperty()
   @ValidateNested()
   @Type(() => SavedImageDTO)
   savedImageDTO: SavedImageDTO;

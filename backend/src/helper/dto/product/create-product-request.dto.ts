@@ -24,7 +24,7 @@ export class CreateProductRequest {
 
   @IsInt({ message: ErrorMessage.PRICE_MUST_BE_INTEGER })
   @IsNotEmpty()
-  @Min(1, { message: ErrorMessage.PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER })
+  @Min(0, { message: ErrorMessage.PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER })
   @ApiProperty()
   price: number;
 
@@ -41,7 +41,7 @@ export class CreateProductRequest {
 
   @IsInt({ message: ErrorMessage.PRICE_MUST_BE_INTEGER })
   @IsNotEmpty()
-  @Min(1, { message: ErrorMessage.PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER })
+  @Min(0, { message: ErrorMessage.PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER })
   @ApiProperty()
   discount: number = 0;
 
@@ -54,7 +54,7 @@ export class CreateProductRequest {
   @Type(() => SavedImageDTO)
   mainImage: SavedImageDTO;
 
-  @IsArray()
+  @IsArray({ message: ErrorMessage.SUB_IMAGES_MUST_BE_ARRAY })
   @ValidateNested({ each: true })
   @Type(() => SavedImageDTO)
   subImages: SavedImageDTO[];
