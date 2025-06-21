@@ -8,8 +8,8 @@ import {
   Min,
   Validate,
 } from 'class-validator';
-import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
-import { ErrorMessage } from 'src/helper/message/error-message';
+import { NotUrlValidator } from '@validator';
+import { ErrorMessage } from '@message/error-message';
 
 export class FindCartByName {
   @IsString({ message: ErrorMessage.NAME_MUST_BE_STRING })

@@ -1,3 +1,4 @@
+import { ErrorMessage } from '@message/error-message';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -8,8 +9,7 @@ import {
   Min,
   Validate,
 } from 'class-validator';
-import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
-import { ErrorMessage } from 'src/helper/message/error-message';
+import { NotUrlValidator } from 'helper/class-validator-contraint/not-url.validator';
 
 export class GetProductByNameRequest {
   @ApiPropertyOptional({ default: 1 })

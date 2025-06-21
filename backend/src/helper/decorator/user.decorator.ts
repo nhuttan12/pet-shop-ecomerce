@@ -1,5 +1,5 @@
+import { AuthenticatedRequest } from '@interfaces';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { AuthenticatedRequest } from '../interface/authenticated.interface';
 
 /**
  * @description: create param decorator to get user

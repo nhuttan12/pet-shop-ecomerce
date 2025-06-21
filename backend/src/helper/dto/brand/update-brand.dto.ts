@@ -8,9 +8,9 @@ import {
   MinLength,
   Validate,
 } from 'class-validator';
-import { NotUrlValidator } from 'src/helper/class-validator-contraint/not-url.validator';
-import { BrandStatus } from 'src/helper/enum/status/brand-status.enum';
-import { ErrorMessage } from 'src/helper/message/error-message';
+import { NotUrlValidator } from '@validator';
+import { BrandStatus } from '@enum/status/brand-status.enum';
+import { ErrorMessage } from '@message/error-message';
 
 export class BrandUpdateDTO {
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })
@@ -25,7 +25,7 @@ export class BrandUpdateDTO {
   @ApiProperty()
   name: string;
 
-  @IsEnum({}, { message: ErrorMessage.STATUS_MUST_BE_ENUM })
+  @IsEnum(BrandStatus, { message: ErrorMessage.STATUS_MUST_BE_ENUM })
   @IsNotEmpty()
   @Validate(NotUrlValidator)
   @MinLength(1)

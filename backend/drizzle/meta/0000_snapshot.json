@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "9d24293e-a183-437b-ab6c-ebae458184e1",
+  "id": "f0769908-d6c5-42f7-a410-fd95960d0d82",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "brands": {
@@ -100,7 +100,7 @@
           "name": "status",
           "type": "enum('active','removed')",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         }
       },
@@ -163,9 +163,9 @@
         },
         "status": {
           "name": "status",
-          "type": "enum('active','removed')",
+          "type": "enum('active','removed','orderd','canceled','delivered')",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "created_at": {
@@ -235,6 +235,22 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
         }
       },
       "indexes": {},
@@ -291,14 +307,14 @@
           "name": "name",
           "type": "varchar(45)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "status": {
           "name": "status",
           "type": "enum('active','inactive','removed')",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "image_id": {
@@ -578,12 +594,19 @@
           "name": "type",
           "type": "enum('product','thumbnail','banner','avatar','store_logo','review','category','promotion','blog','slider')",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "folder": {
           "name": "folder",
           "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('active','inactive','removed')",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -646,21 +669,21 @@
           "name": "quantity",
           "type": "int",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "price": {
           "name": "price",
           "type": "int",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "total_price": {
           "name": "total_price",
           "type": "int",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         }
       },
@@ -721,6 +744,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "cart_id": {
+          "name": "cart_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "total_price": {
           "name": "total_price",
           "type": "int",
@@ -732,12 +762,19 @@
           "name": "payment_method",
           "type": "enum('cod','transfer','e-wallet')",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "shipping_method": {
           "name": "shipping_method",
           "type": "enum('fast ship','economy delivery','pick up at store')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "voucher_id": {
+          "name": "voucher_id",
+          "type": "int",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -746,7 +783,7 @@
           "name": "status",
           "type": "enum('pending','confirmed','processing','shipping','delivered','canceled','returned','failed')",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "created_at": {
@@ -780,6 +817,32 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "orders_cart_id_carts_id_fk": {
+          "name": "orders_cart_id_carts_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "carts",
+          "columnsFrom": [
+            "cart_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "orders_voucher_id_vouchers_id_fk": {
+          "name": "orders_voucher_id_vouchers_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "vouchers",
+          "columnsFrom": [
+            "voucher_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -790,7 +853,14 @@
           ]
         }
       },
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "orders_voucher_id_unique": {
+          "name": "orders_voucher_id_unique",
+          "columns": [
+            "voucher_id"
+          ]
+        }
+      },
       "checkConstraint": {}
     },
     "posts": {
@@ -859,8 +929,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "product-images": {
-      "name": "product-images",
+    "product_images": {
+      "name": "product_images",
       "columns": {
         "id": {
           "name": "id",
@@ -879,13 +949,6 @@
         "image_id": {
           "name": "image_id",
           "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "url": {
-          "name": "url",
-          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -916,9 +979,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "product-images_product_id_products_id_fk": {
-          "name": "product-images_product_id_products_id_fk",
-          "tableFrom": "product-images",
+        "product_images_product_id_products_id_fk": {
+          "name": "product_images_product_id_products_id_fk",
+          "tableFrom": "product_images",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
@@ -929,9 +992,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "product-images_image_id_images_id_fk": {
-          "name": "product-images_image_id_images_id_fk",
-          "tableFrom": "product-images",
+        "product_images_image_id_images_id_fk": {
+          "name": "product_images_image_id_images_id_fk",
+          "tableFrom": "product_images",
           "tableTo": "images",
           "columnsFrom": [
             "image_id"
@@ -944,8 +1007,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "product-images_id": {
-          "name": "product-images_id",
+        "product_images_id": {
+          "name": "product_images_id",
           "columns": [
             "id"
           ]
@@ -968,21 +1031,21 @@
           "name": "name",
           "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "description": {
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "price": {
           "name": "price",
           "type": "int",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "brand_id": {
@@ -992,39 +1055,25 @@
           "notNull": true,
           "autoincrement": false
         },
-        "feature": {
-          "name": "feature",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "status": {
           "name": "status",
           "type": "enum('active','inactive','removed')",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "stocking": {
           "name": "stocking",
           "type": "int",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
-        "dícount": {
-          "name": "dícount",
+        "discount": {
+          "name": "discount",
           "type": "int",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "total_price": {
-          "name": "total_price",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "created_at": {
@@ -1323,20 +1372,6 @@
           "notNull": true,
           "autoincrement": true
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "product_id": {
-          "name": "product_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "voucher_code": {
           "name": "voucher_code",
           "type": "text",
@@ -1346,7 +1381,7 @@
         },
         "status": {
           "name": "status",
-          "type": "enum('not use','used')",
+          "type": "enum('active','inactive','remove')",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1357,37 +1392,34 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "expire_at": {
+          "name": "expire_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "vouchers_user_id_users_id_fk": {
-          "name": "vouchers_user_id_users_id_fk",
-          "tableFrom": "vouchers",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "vouchers_product_id_products_id_fk": {
-          "name": "vouchers_product_id_products_id_fk",
-          "tableFrom": "vouchers",
-          "tableTo": "products",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {
         "vouchers_id": {
           "name": "vouchers_id",
@@ -1456,6 +1488,87 @@
       "compositePrimaryKeys": {
         "wishlists_id": {
           "name": "wishlists_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "voucher_mapping": {
+      "name": "voucher_mapping",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "voucher_id": {
+          "name": "voucher_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "voucher_mapping_user_id_users_id_fk": {
+          "name": "voucher_mapping_user_id_users_id_fk",
+          "tableFrom": "voucher_mapping",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "voucher_mapping_voucher_id_vouchers_id_fk": {
+          "name": "voucher_mapping_voucher_id_vouchers_id_fk",
+          "tableFrom": "voucher_mapping",
+          "tableTo": "vouchers",
+          "columnsFrom": [
+            "voucher_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "voucher_mapping_id": {
+          "name": "voucher_mapping_id",
           "columns": [
             "id"
           ]

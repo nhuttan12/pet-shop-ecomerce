@@ -1,4 +1,4 @@
-import * as schema from '../schema';
+import * as schema from '@schema';
 
 /**
  * @description: type for schema to return when create function
@@ -30,3 +30,21 @@ export type ProductImage = typeof schema.productImages.$inferSelect;
 export type ProductImageInsert = typeof schema.productImages.$inferInsert;
 export type CartDetail = typeof schema.cartDetails.$inferSelect;
 export type CartDetailInsert = typeof schema.cartDetails.$inferInsert;
+export type Voucher = typeof schema.vouchers.$inferSelect;
+export type VoucherInsert = typeof schema.vouchers.$inferInsert;
+export type Wishlist = typeof schema.wishlists.$inferSelect;
+export type WishlistInsert = typeof schema.wishlists.$inferInsert;
+export type Comment = typeof schema.comments.$inferSelect;
+export type CommentInsert = typeof schema.comments.$inferInsert;
+export type Contact = typeof schema.contacts.$inferSelect;
+export type ContactInsert = typeof schema.contacts.$inferInsert;
+export type Post = typeof schema.posts.$inferSelect;
+export type PostInsert = typeof schema.posts.$inferInsert;
+export type CustomerRating = typeof schema.customerRatings.$inferSelect;
+export type CustomerRatingInsert = typeof schema.customerRatings.$inferInsert;
+export type VoucherMapping = typeof schema.voucherMapping.$inferSelect;
+export type VoucherMappingInsert = typeof schema.voucherMapping.$inferInsert;
+export type PostEditRequest = typeof schema.postEditRequests.$inferSelect;
+export type PostEditRequestInsert = typeof schema.postEditRequests.$inferInsert;
+export type PostReport = typeof schema.postReports.$inferSelect;
+export type PostReportInsert = typeof schema.postReports.$inferInsert;

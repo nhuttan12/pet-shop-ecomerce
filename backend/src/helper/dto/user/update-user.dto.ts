@@ -1,6 +1,6 @@
 import { IsInt, IsNotEmpty, IsString, Min, Validate } from 'class-validator';
-import { NotUrlValidator } from '../../class-validator-contraint/not-url.validator';
-import { ErrorMessage } from '../../message/error-message';
+import { NotUrlValidator } from '@validator';
+import { ErrorMessage } from '@message/error-message';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserUpdateDTO {

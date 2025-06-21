@@ -8,5 +8,6 @@ export class GetProductDetailResponseDto {
   status: string;
   thumbnailUrl: string;
   imagesUrl: string[];
+  starRated: number;
   stock: number;
 }
