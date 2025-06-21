@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsOptional, Min } from 'class-validator';
-import { ErrorMessage } from 'src/helper/message/error-message';
+import { ErrorMessage } from '@message/error-message';
 
 export class GetCartDetailByCartId {
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })

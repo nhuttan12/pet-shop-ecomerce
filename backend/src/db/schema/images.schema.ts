@@ -5,11 +5,11 @@ import {
   text,
   varchar,
 } from 'drizzle-orm/mysql-core';
-import { ImageType } from 'src/helper/enum/image-type.enum';
-import { timestamps } from '../helper/timestamp';
-import { productImages } from './product-images.schema';
+import { ImageType } from '@enum/image-type.enum';
+import { timestamps } from '@db-helper/timestamp';
+import { productImages } from '@schema';
 import { relations } from 'drizzle-orm';
-import { ImageStatus } from 'src/helper/enum/status/image-status.enum';
+import { ImageStatus } from '@enum/status/image-status.enum';
 
 export const images = mysqlTable('images', {
   id: int().primaryKey().notNull().autoincrement(),

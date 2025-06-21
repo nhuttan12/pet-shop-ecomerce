@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import { ErrorMessage } from '../message/error-message';
+import { ErrorMessage } from '@message/error-message';
 
 @Catch()
 export class CatchEverythingFilter implements ExceptionFilter {

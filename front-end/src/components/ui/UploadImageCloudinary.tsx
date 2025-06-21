@@ -1,16 +1,6 @@
-import { useState , ChangeEvent } from 'react';
-import axios, { type AxiosResponse } from 'axios';
-
-interface CloudinaryUploadResponse {
-  secure_url: string;
-  public_id: string;
-  format: string;
-  width: number;
-  height: number;
-  bytes: number;
-  folder?: string;
-}
-
+import { useState, ChangeEvent } from 'react';
+import axios from 'axios';
+import { uploadImageToCloudinary } from '../../utils/cloudinary-service';
 
 const UploadImageCloudinary: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -18,9 +8,6 @@ const UploadImageCloudinary: React.FC = () => {
   const [uploading, setUploading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [log, setLog] = useState<string[]>([]);
-
-  // const CLOUDINARY_URL: string =
-  //   'cloudinary://178161493966793:VfqWtBGWC21t9ND0isu-fp1JIoE@dt3yrf9sx';
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     setError('');
@@ -32,7 +19,7 @@ const UploadImageCloudinary: React.FC = () => {
   };
 
   const logMessage = (msg: string) => {
-    setLog(prev => [...prev, msg]);
+    setLog((prev) => [...prev, msg]);
   };
 
   const handleUpload = async () => {
@@ -46,19 +33,14 @@ const UploadImageCloudinary: React.FC = () => {
     setUrl('');
     setLog([]);
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'tmdt-ck');
-    formData.append('folder', 'tmldt-ck');
-
     try {
       logMessage('⏫ Đang upload ảnh lên Cloudinary...');
-      const res: AxiosResponse<CloudinaryUploadResponse> = await axios.post(
-        'https://api.cloudinary.com/v1_1/dt3yrf9sx/image/upload',
-        formData
-      );
+      const imageData = await uploadImageToCloudinary({
+        file,
+        uploadPreset: 'tmdt-ck',
+        folder: 'tmldt-ck',
+      });
 
-      const imageData = res.data;
       setUrl(imageData.secure_url);
       logMessage('✅ Upload Cloudinary thành công');
       logMessage(`🖼 URL: ${imageData.secure_url}`);
@@ -98,7 +80,9 @@ const UploadImageCloudinary: React.FC = () => {
         backgroundColor: '#fafafa',
       }}
     >
-      <h2 style={{ textAlign: 'center', color: '#333' }}>Upload ảnh lên Cloudinary</h2>
+      <h2 style={{ textAlign: 'center', color: '#333' }}>
+        Upload ảnh lên Cloudinary
+      </h2>
 
       <input
         type='file'

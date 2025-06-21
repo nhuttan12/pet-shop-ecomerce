@@ -1,7 +1,6 @@
 import { int, mysqlEnum, mysqlTable } from 'drizzle-orm/mysql-core';
-import { CartDetailStatus } from 'src/helper/enum/status/cart-detail-status.enum';
-import { carts } from './carts.schema';
-import { products } from './products.schema';
+import { CartDetailStatus } from '@enum/status/cart-detail-status.enum';
+import { carts, products } from '@schema';
 
 export const cartDetails = mysqlTable('cart_details', {
   id: int().primaryKey().notNull().autoincrement(),

@@ -1,6 +1,5 @@
 import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
-import { users } from './users.schema';
-import { images } from './images.schema';
+import { users, images } from '@schema';
 import { relations } from 'drizzle-orm';
 
 export const userDetails = mysqlTable('user_details', {
