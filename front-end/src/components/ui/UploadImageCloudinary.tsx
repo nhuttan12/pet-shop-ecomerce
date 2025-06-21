@@ -1,16 +1,6 @@
 import { useState, ChangeEvent } from 'react';
-import axios, { type AxiosResponse } from 'axios';
+import axios from 'axios';
 import { uploadImageToCloudinary } from '../../utils/cloudinary-service';
-
-interface CloudinaryUploadResponse {
-  secure_url: string;
-  public_id: string;
-  format: string;
-  width: number;
-  height: number;
-  bytes: number;
-  folder?: string;
-}
 
 const UploadImageCloudinary: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
