@@ -132,7 +132,7 @@ const ProductManagement = () => {
   return (
     <Card>
       <CardHeader
-        title="Product Management"
+        title="Quản lý sản phẩm"
         action={
           <Button
             variant="contained"
@@ -145,7 +145,7 @@ const ProductManagement = () => {
             }}
             onClick={handleOpenDialog}
           >
-            Add Product
+            Thêm sản phẩm mới
           </Button>
         }
       />
@@ -161,11 +161,11 @@ const ProductManagement = () => {
                   onChange={handleSelectAll}
                 />
               </TableCell>
-              <TableCell>Product Name</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell align="right">Price</TableCell>
-              <TableCell align="right">Stock</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>Tên sản phẩm</TableCell>
+              <TableCell>Phân loại</TableCell>
+              <TableCell align="right">Giá</TableCell>
+              <TableCell align="right">Tồn kho</TableCell>
+              <TableCell align="right">Tuỳ chỉnh</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
