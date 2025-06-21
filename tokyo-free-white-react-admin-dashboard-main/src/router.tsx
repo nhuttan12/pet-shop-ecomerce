@@ -91,13 +91,17 @@ const routes: RouteObject[] = [
     path: '',
     element: <BaseLayout />,
     children: [
-      {
+      /* {
         path: '/',
         element: <Overview />
       },
       {
         path: 'overview',
         element: <Navigate to="/" replace />
+      }, */
+      {
+        path: '/',
+        element: <Navigate to="/dashboards/crypto" replace />
       },
       {
         path: 'status',
