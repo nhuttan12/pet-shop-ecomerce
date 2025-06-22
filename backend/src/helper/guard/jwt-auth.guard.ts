@@ -1,6 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ErrorMessage } from '../message/error-message';
+import { ErrorMessage } from '@message/error-message';
 
 /**
  * @description: create shorter version to call jwt auth guard instead of call AuthGuard('jwt')

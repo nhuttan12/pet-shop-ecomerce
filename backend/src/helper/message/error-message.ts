@@ -33,7 +33,7 @@ export const ErrorMessage = {
   USER_ID_MUST_BE_INTEGER: 'Mã người dùng phải là số nguyên',
   ID_MUST_BE_INTEGER: 'Mã số phải là là số nguyên',
   USER_FULL_NAME_MUST_BE_STRING: 'Tên người dùng phải là một chuỗi',
-  PARAM_MUST_NOT_BE_A_LINK: 'Đữ liệu đầu vào không phải là 1 đường dẫn',
+  PARAM_MUST_NOT_BE_A_LINK: 'Trường này không được chứa đường dẫn hoặc link',
 
   PUBLIC_ID_MUST_BE_A_STRING: 'publicId phải là một chuỗi.',
   FOLDER_NAME_MUST_BE_STRING: 'Tên thư mục (folder) phải là một chuỗi.',
@@ -94,6 +94,8 @@ export const ErrorMessage = {
   PRICE_MUST_BE_INTEGER: 'Giá tiền phải là số nguyên',
   QUANTITY_MUST_BE_INTEGER: 'Số lượng tiền phải là số nguyên',
   PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER: 'Giá trị không được phép là số âm',
+  PRODUCT_NOT_FOUND: 'Không tìm thấy sản phẩm',
+  SUB_IMAGES_MUST_BE_ARRAY: 'Hình ảnh phụ sản phẩm không được để trống',
 
   /**
    * Property check

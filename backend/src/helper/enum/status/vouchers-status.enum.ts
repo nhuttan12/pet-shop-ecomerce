@@ -1,4 +1,5 @@
 export enum VoucherStatus {
-  NOT_USE = 'not use',
-  USED = 'used',
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  REMOVE = 'remove',
 }

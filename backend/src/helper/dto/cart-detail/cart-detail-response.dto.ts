@@ -1,5 +1,5 @@
-import { CartDetailStatus } from 'src/helper/enum/status/cart-detail-status.enum';
-import { ProductStatus } from 'src/helper/enum/status/product-status.enum';
+import { CartDetailStatus } from '@enum/status/cart-detail-status.enum';
+import { ProductStatus } from '@enum/status/product-status.enum';
 
 export interface CartDetailResponse {
   cartDetailId: number;

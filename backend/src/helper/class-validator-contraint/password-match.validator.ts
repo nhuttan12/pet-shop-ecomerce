@@ -1,9 +1,9 @@
+import { ErrorMessage } from '@message/error-message';
 import {
   ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { ErrorMessage } from 'src/helper/message/error-message';
 
 @ValidatorConstraint({ async: true })
 export class IsPasswordMatch implements ValidatorConstraintInterface {

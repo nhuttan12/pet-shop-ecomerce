@@ -1,7 +1,6 @@
 import { int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
-import { timestamps } from '../helper/timestamp';
-import { images } from './images.schema';
-import { products } from './products.schema';
+import { timestamps } from '@db-helper/timestamp';
+import { products, images } from '@schema';
 
 /**
  * Bảng `product-images` lưu thông tin các hình ảnh liên kết với sản phẩm.

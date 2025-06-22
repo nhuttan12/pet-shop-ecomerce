@@ -1,5 +1,9 @@
-import { CloudinaryConfig } from './cloudinary.interface';
-import { NodeMailerConfig } from './nodemailer.interface';
+import {
+  CloudinaryConfig,
+  NodeMailerConfig,
+  PayPalConfig,
+  StripeConfig,
+} from '@interfaces';
 
 /**
  * @description: configuration info of http config
@@ -16,4 +20,6 @@ export interface HttpConfig {
   expireTime: number | string;
   cloudinary: CloudinaryConfig;
   mail: NodeMailerConfig;
+  paypal: PayPalConfig;
+  stripe: StripeConfig;
 }

@@ -1,8 +1,8 @@
 import { int, mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
-import { timestamps } from '../helper/timestamp';
-import { users } from './users.schema';
+import { timestamps } from '@db-helper/timestamp';
+import { users } from '@schema';
 import { relations } from 'drizzle-orm';
-import { RoleStatus } from 'src/helper/enum/status/role-status.enum';
+import { RoleStatus } from '@enum/status/role-status.enum';
 
 export const roles = mysqlTable('roles', {
   id: int().primaryKey().notNull().autoincrement(),
