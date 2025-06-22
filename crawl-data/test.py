@@ -1,0 +1,1 @@
+print("Fieldnames CSV:", reader.fieldnames)
