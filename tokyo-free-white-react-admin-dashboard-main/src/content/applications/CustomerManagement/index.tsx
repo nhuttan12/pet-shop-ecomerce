@@ -100,7 +100,7 @@ const CustomerManagement = () => {
   return (
     <Card>
 <CardHeader
-  title="Customer Management"
+  title="Quản lý khách hàng"
   action={
     <Button
       variant="contained"
@@ -111,7 +111,7 @@ const CustomerManagement = () => {
         }
       }}
     >
-      + Add User
+      + Thêm khách hàng
     </Button>
   }
 />      <Divider />
@@ -124,12 +124,12 @@ const CustomerManagement = () => {
                 onChange={handleSelectAll}
               />
             </TableCell>
-            <TableCell>Customer</TableCell>
+            <TableCell>Tên</TableCell>
             <TableCell>ID</TableCell>
             <TableCell>Email</TableCell>
-            <TableCell>Joined</TableCell>
+            <TableCell>Ngày đăng ký</TableCell>
             <TableCell>Status</TableCell>
-            <TableCell align="right">Actions</TableCell>
+            <TableCell align="right">Tuỳ chỉnh</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

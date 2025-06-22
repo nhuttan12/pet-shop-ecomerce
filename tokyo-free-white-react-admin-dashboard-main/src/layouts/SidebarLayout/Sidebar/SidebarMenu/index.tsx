@@ -182,7 +182,7 @@ function SidebarMenu() {
   return (
     <>
       <MenuWrapper>
-        <List component="div">
+        {/* <List component="div">
           <SubMenuWrapper>
             <List component="div">
               <ListItem component="div">
@@ -198,12 +198,12 @@ function SidebarMenu() {
               </ListItem>
             </List>
           </SubMenuWrapper>
-        </List>
+        </List> */}
         <List
           component="div"
           subheader={
             <ListSubheader component="div" disableSticky>
-              Dashboards
+              Bảng điều khiển
             </ListSubheader>
           }
         >
@@ -238,7 +238,7 @@ function SidebarMenu() {
           component="div"
           subheader={
             <ListSubheader component="div" disableSticky>
-              Management
+              Quản lý
             </ListSubheader>
           }
         >
@@ -252,7 +252,7 @@ function SidebarMenu() {
                   to="/management/transactions"
                   startIcon={<TableChartTwoToneIcon />}
                 >
-                  Transactions List
+                  Quản lý giao dịch
                 </Button>
               </ListItem>
 
@@ -265,7 +265,7 @@ function SidebarMenu() {
                     to="/management/products"
                     startIcon={<Inventory2TwoToneIcon />}
                 >
-                    Product Management
+                    Quản lý sản phẩm
                   </Button>
               </ListItem>
 
@@ -277,7 +277,7 @@ function SidebarMenu() {
                     to="/management/customers"
                     startIcon={<Inventory2TwoToneIcon />}
                 >
-                    Customer Management
+                    Quản lý khách hàng
                   </Button>
               </ListItem>
 
@@ -288,7 +288,7 @@ function SidebarMenu() {
           component="div"
           subheader={
             <ListSubheader component="div" disableSticky>
-              Accounts
+              tài khoản
             </ListSubheader>
           }
         >
@@ -302,7 +302,7 @@ function SidebarMenu() {
                   to="/management/profile/details"
                   startIcon={<AccountCircleTwoToneIcon />}
                 >
-                  User Profile
+                  Hồ sơ người dùng
                 </Button>
               </ListItem>
               <ListItem component="div">

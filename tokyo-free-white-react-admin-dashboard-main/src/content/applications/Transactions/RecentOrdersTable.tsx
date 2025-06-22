@@ -43,15 +43,15 @@ interface Filters {
 const getStatusLabel = (cryptoOrderStatus: CryptoOrderStatus): JSX.Element => {
   const map = {
     failed: {
-      text: 'Failed',
+      text: 'Thất bại',
       color: 'error'
     },
     completed: {
-      text: 'Completed',
+      text: 'Hoàn thành',
       color: 'success'
     },
     pending: {
-      text: 'Pending',
+      text: 'Chờ xử lý',
       color: 'warning'
     }
   };
@@ -98,19 +98,19 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
   const statusOptions = [
     {
       id: 'all',
-      name: 'All'
+      name: 'Tất cả'
     },
     {
       id: 'completed',
-      name: 'Completed'
+      name: 'Hoàn thành'
     },
     {
       id: 'pending',
-      name: 'Pending'
+      name: 'Chờ xử lý'
     },
     {
       id: 'failed',
-      name: 'Failed'
+      name: 'Thất bại'
     }
   ];
 
@@ -202,7 +202,7 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
               </FormControl>
             </Box>
           }
-          title="Recent Orders"
+          title="Giao dịch gần đây"
         />
       )}
       <Divider />
@@ -218,12 +218,12 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
                   onChange={handleSelectAllCryptoOrders}
                 />
               </TableCell>
-              <TableCell>Order Details</TableCell>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Source</TableCell>
-              <TableCell align="right">Amount</TableCell>
-              <TableCell align="right">Status</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>Chi tiết đơn hàng</TableCell>
+              <TableCell>Mã đơn hàng</TableCell>
+              <TableCell>Nguồn</TableCell>
+              <TableCell align="right">Số tiền</TableCell>
+              <TableCell align="right">Trạng thái</TableCell>
+              <TableCell align="right">Tuỳ chỉnh</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
