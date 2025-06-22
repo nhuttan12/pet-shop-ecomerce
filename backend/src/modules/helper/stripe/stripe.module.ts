@@ -1,5 +1,4 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { StripeController } from './stripe.controller';
 import { StripeService } from './stripe.service';
 import { STRIPE_API_KEY } from '@constants';
 import { AppConfigModule } from '@helper-modules/config/app-config.module';
@@ -11,7 +10,6 @@ export class StripeModule {
     return {
       module: StripeModule,
       imports: [AppConfigModule],
-      controllers: [StripeController],
       providers: [
         StripeService,
         {

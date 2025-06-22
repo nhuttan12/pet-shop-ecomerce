@@ -21,6 +21,7 @@ import {
   UserRegisterDTO,
   UserRegisterResponseDTO,
 } from '@dtos/user/user-register.dto';
+import { main } from '@helper-modules/services/seed';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -115,5 +116,10 @@ export class AuthController {
       `User reset password ${JSON.stringify(userResetPasswordDTO)}`,
     );
     return this.authService.resetPassword(userResetPasswordDTO);
+  }
+
+  @Post('/seed')
+  async seedData() {
+    await main();
   }
 }
