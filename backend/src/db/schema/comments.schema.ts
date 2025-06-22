@@ -14,7 +14,9 @@ export const comments = mysqlTable('comments', {
     .references(() => posts.id),
   commentId: int('comment_id'),
   content: text(),
-  status: mysqlEnum(Object.values(CommentStatus) as [string, ...string[]]),
+  status: mysqlEnum(
+    Object.values(CommentStatus) as [string, ...string[]],
+  ).default(CommentStatus.ACTIVE),
   ...timestamps,
 });
 

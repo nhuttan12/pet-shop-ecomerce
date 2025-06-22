@@ -12,8 +12,8 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { customerRatings } from '@schema';
-import { CustomerRating, Product } from '@schema-type';
+import { productRatings } from '@schema';
+import { ProductRating, Product } from '@schema-type';
 import { and, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 
@@ -27,21 +27,21 @@ export class ProductRatingService {
     @Inject(DrizzleAsyncProvider) private readonly db: MySql2Database<any>,
   ) {}
 
-  private async getRatingById(id: number): Promise<CustomerRating> {
+  private async getRatingById(id: number): Promise<ProductRating> {
     return await this.searchService.findOneOrThrow(
       this.db,
-      customerRatings,
-      eq(customerRatings.id, id),
+      productRatings,
+      eq(productRatings.id, id),
     );
   }
 
-  private async getRatingByProductId(id: number): Promise<CustomerRating[]> {
+  private async getRatingByProductId(id: number): Promise<ProductRating[]> {
     const product: Product = await this.productService.findProductById(id);
 
     return await this.searchService.findManyOrReturnEmptyArray(
       this.db,
-      customerRatings,
-      eq(customerRatings.productId, product.id),
+      productRatings,
+      eq(productRatings.productId, product.id),
     );
   }
 
@@ -102,14 +102,14 @@ export class ProductRatingService {
   private async findExistingRating(
     userId: number,
     productId: number,
-  ): Promise<CustomerRating | undefined> {
+  ): Promise<ProductRating | undefined> {
     const [rating] = await this.db
       .select()
-      .from(customerRatings)
+      .from(productRatings)
       .where(
         and(
-          eq(customerRatings.productId, productId),
-          eq(customerRatings.userId, userId),
+          eq(productRatings.productId, productId),
+          eq(productRatings.userId, userId),
         ),
       );
     return rating;
@@ -122,7 +122,7 @@ export class ProductRatingService {
   ): Promise<number> {
     const [inserted] = await this.db.transaction(async (tx) => {
       return await tx
-        .insert(customerRatings)
+        .insert(productRatings)
         .values({
           userId,
           productId,
@@ -142,25 +142,25 @@ export class ProductRatingService {
   ): Promise<void> {
     await this.db.transaction(async (tx) => {
       await tx
-        .update(customerRatings)
+        .update(productRatings)
         .set({
           starRated,
           updated_at: new Date(),
           status: RatingStatus.ACTIVE,
         })
-        .where(eq(customerRatings.id, ratingId));
+        .where(eq(productRatings.id, ratingId));
     });
   }
 
   private async deactivateRating(ratingId: number): Promise<void> {
     await this.db.transaction(async (tx) => {
       await tx
-        .update(customerRatings)
+        .update(productRatings)
         .set({
           updated_at: new Date(),
           status: RatingStatus.REMOVED,
         })
-        .where(eq(customerRatings.id, ratingId));
+        .where(eq(productRatings.id, ratingId));
     });
   }
 }

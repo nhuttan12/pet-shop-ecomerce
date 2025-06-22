@@ -25,7 +25,7 @@ import {
   brands,
   categories,
   categoriesMapping,
-  customerRatings,
+  productRatings,
   images,
   productImages,
   products,
@@ -527,9 +527,9 @@ export class ProductService {
         .where(eq(productImages.productId, productId));
 
       const productRatingList: { starRated: number }[] = await this.db
-        .select({ starRated: customerRatings.starRated })
-        .from(customerRatings)
-        .where(eq(customerRatings.productId, productId));
+        .select({ starRated: productRatings.starRated })
+        .from(productRatings)
+        .where(eq(productRatings.productId, productId));
 
       const avgRating =
         productRatingList.length > 0
