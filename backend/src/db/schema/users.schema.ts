@@ -7,7 +7,7 @@ import {
   roles,
   wishlists,
   vouchers,
-  customerRatings,
+  productRatings,
   voucherMapping,
   postEditRequests,
 } from '@schema';
@@ -39,7 +39,7 @@ export const usersToVouchers = relations(users, ({ many }) => ({
 }));
 
 export const usersToCustomerRating = relations(users, ({ many }) => ({
-  customerRating: many(customerRatings),
+  customerRating: many(productRatings),
 }));
 
 export const usersToVoucherMapping = relations(users, ({ many }) => ({
