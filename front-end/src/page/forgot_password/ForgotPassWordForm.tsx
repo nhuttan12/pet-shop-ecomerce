@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; 
 import InputField from "../../components/ui/InputField";
 import Button from "../../components/ui/Button";
 import Checkbox from "../../components/ui/Checkbox";
 import { useLogin } from "../../hooks/auth/useLogin";
 
-const LoginForm: React.FC = () => {
+const ForgotPassWordForm: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-
+  
   const { loginUser, loading, error } = useLogin();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +20,7 @@ const LoginForm: React.FC = () => {
 
     if (result.success) {
       console.log("Đăng nhập thành công:", result.user);
-      navigate("/");
+      navigate("/"); 
     } else {
       console.error("Đăng nhập thất bại:", result.error);
     }
@@ -58,12 +58,13 @@ const LoginForm: React.FC = () => {
           name="rememberMe"
         />
 
-        <Link
-          to="/forgot-password"
-          className="text-[14px] font-medium text-[#0c2991] hover:underline"
+        <Button
+          type="button"
+          className="text-[10px] font-medium text-[#0c2991] hover:underline"
+          onClick={() => console.log("Forgot password clicked")}
         >
           Quên mật khẩu
-        </Link>
+        </Button>
       </div>
 
       {error && <p className="mb-3 text-red-600 text-sm">{error}</p>}
@@ -80,4 +81,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm;
+export default ForgotPassWordForm;
