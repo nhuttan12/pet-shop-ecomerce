@@ -220,7 +220,7 @@ function SidebarMenu() {
                   Cryptocurrency
                 </Button>
               </ListItem>
-              <ListItem component="div">
+              {/* <ListItem component="div">
                 <Button
                   disableRipple
                   component={RouterLink}
@@ -230,7 +230,7 @@ function SidebarMenu() {
                 >
                   Messenger
                 </Button>
-              </ListItem>
+              </ListItem> */}
             </List>
           </SubMenuWrapper>
         </List>
@@ -319,7 +319,7 @@ function SidebarMenu() {
             </List>
           </SubMenuWrapper>
         </List>
-        <List
+        {/* <List
           component="div"
           subheader={
             <ListSubheader component="div" disableSticky>
@@ -428,9 +428,9 @@ function SidebarMenu() {
                   Forms
                 </Button>
               </ListItem>
-            </List>
-          </SubMenuWrapper>
-        </List>
+            </List> */}
+          {/* </SubMenuWrapper>
+        </List> */}
         <List
           component="div"
           subheader={

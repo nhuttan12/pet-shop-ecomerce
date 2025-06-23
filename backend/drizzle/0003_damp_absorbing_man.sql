@@ -1,2 +1,0 @@
-ALTER TABLE `stripe_payment_intents` MODIFY COLUMN `order_id` int NOT NULL;--> statement-breakpoint
-ALTER TABLE `stripe_payment_intents` ADD CONSTRAINT `stripe_payment_intents_order_id_orders_id_fk` FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE no action ON UPDATE no action;

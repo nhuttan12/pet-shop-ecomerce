@@ -25,6 +25,7 @@ export class CommentService {
     private searchService: SearchService,
     private utilityService: UtilityService,
   ) {}
+
   async createComment(
     postId: number,
     userId: number,

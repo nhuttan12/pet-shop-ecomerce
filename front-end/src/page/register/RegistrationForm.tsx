@@ -1,182 +1,188 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import InputField from "../../components/ui/InputField";
 import Button from "../../components/ui/Button";
 import Checkbox from "../../components/ui/Checkbox";
 import SocialLogin from "./SocialLogin.tsx";
 import { RegisterFormData, RegisterFormErrors } from "../../types/Register";
+import { useRegister } from "../../hooks/auth/useRegister";
 
 const RegistrationForm: React.FC = () => {
-    const [formData, setFormData] = useState<RegisterFormData>({
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword: "",
-        termsAccepted: false,
-    });
+  const navigate = useNavigate();
 
-    const [errors, setErrors] = useState<RegisterFormErrors>({});
+  const [formData, setFormData] = useState<RegisterFormData>({
+    username: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+    termsAccepted: false,
+  });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === "checkbox" ? checked : value,
-        });
+  const [errors, setErrors] = useState<RegisterFormErrors>({});
 
-        // Clear error when user starts typing
-        if (errors[name as keyof RegisterFormErrors]) {
-            setErrors({
-                ...errors,
-                [name]: undefined,
-            });
-        }
-    };
+  const { register, loading, error } = useRegister();
 
-    const validateForm = (): boolean => {
-        const newErrors: RegisterFormErrors = {};
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
 
-        if (!formData.name.trim()) {
-            newErrors.name = "Tên không được để trống";
-        }
+    // Clear error when user starts typing
+    if (errors[name as keyof RegisterFormErrors]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
+  };
 
-        if (!formData.email.trim()) {
-            newErrors.email = "Email không được để trống";
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = "Email không hợp lệ";
-        }
+  const validateForm = (): boolean => {
+    const newErrors: RegisterFormErrors = {};
 
-        if (!formData.phone.trim()) {
-            newErrors.phone = "Số điện thoại không được để trống";
-        } else if (!/^\d{10,11}$/.test(formData.phone.replace(/\D/g, ''))) {
-            newErrors.phone = "Số điện thoại không hợp lệ";
-        }
+    if (!formData.username.trim()) {
+      newErrors.username = "Tên đăng nhập không được để trống";
+    }
 
-        if (!formData.password) {
-            newErrors.password = "Mật khẩu không được để trống";
-        } else if (formData.password.length < 6) {
-            newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-        }
+    if (!formData.email.trim()) {
+      newErrors.email = "Email không được để trống";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
 
-        if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = "Mật khẩu không khớp";
-        }
+    // if (!formData.phone.trim()) {
+    //   newErrors.phone = "Số điện thoại không được để trống";
+    // } else if (!/^\d{10,11}$/.test(formData.phone.replace(/\D/g, ""))) {
+    //   newErrors.phone = "Số điện thoại không hợp lệ";
+    // }
 
-        if (!formData.termsAccepted) {
-            newErrors.termsAccepted = "Bạn phải đồng ý với điều khoản sử dụng";
-        }
+    if (!formData.password) {
+      newErrors.password = "Mật khẩu không được để trống";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Mật khẩu không khớp";
+    }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    if (!formData.termsAccepted) {
+      newErrors.termsAccepted = "Bạn phải đồng ý với điều khoản sử dụng";
+    }
 
-        if (validateForm()) {
-            console.log("Form submitted:", formData);
-            // Implement registration logic here
-            alert("Đăng ký thành công!");
-        }
-    };
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-    return (
-        <div className="w-full max-w-[600px] ml-auto">
-            <h1 className="text-3xl mb-6">Đăng ký</h1>
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (validateForm()) {
+    console.log("Form valid, calling register...");
+    try {
+      await register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        retypePassword: formData.confirmPassword,
+      });
+      alert("Đăng ký thành công!");
+      navigate("/login");
+    } catch (err) {
+      alert(error || "Có lỗi xảy ra khi đăng ký");
+    }
+  } else {
+    console.log("Form không hợp lệ:", errors);
+  }
+};
 
-            <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-y-3 p-3">
-                    <InputField
-                        label="Tên"
-                        placeholder="Điền tên của bạn vào đây"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        error={errors.name}
-                        required
-                    />
 
-                    <InputField
-                        label="Địa chỉ Email"
-                        placeholder="Điền địa chỉ email vào đây"
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        error={errors.email}
-                        required
-                    />
+  return (
+    <div className="w-full max-w-[600px] ml-auto">
+      <h1 className="text-3xl mb-6">Đăng ký</h1>
 
-                    <InputField
-                        label="Điện thoại"
-                        placeholder="Điền số điện thoại vào đây"
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        error={errors.phone}
-                        required
-                    />
+      <form onSubmit={handleSubmit}>
+        <div className="flex flex-col gap-y-3 p-3">
+          <InputField
+            label="Tên đăng nhập"
+            placeholder="Điền tên đăng nhập của bạn vào đây"
+            name="username"   
+            value={formData.username}
+            onChange={handleChange}
+            error={errors.username}
+            required
+          />
 
-                    <InputField
-                        label="Mật khẩu"
-                        placeholder="Điền mật khẩu vào đây"
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        error={errors.password}
-                        required
-                    />
+          <InputField
+            label="Địa chỉ Email"
+            placeholder="Điền địa chỉ email vào đây"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            error={errors.email}
+            required
+          />
 
-                    <InputField
-                        label="Nhập lại mật khẩu"
-                        placeholder="Nhập lại mật khẩu"
-                        type="password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        error={errors.confirmPassword}
-                        required
-                    />
+          <InputField
+            label="Mật khẩu"
+            placeholder="Điền mật khẩu vào đây"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            error={errors.password}
+            required
+          />
 
-                    <div className="mt-4 mb-6">
-                        <Checkbox
-                            label="Tôi đã đồng ý với thoả thuận và điều khoản người dùng"
-                            checked={formData.termsAccepted}
-                            onChange={handleChange}
-                            name="termsAccepted"
-                            // required
-                        />
-                        {errors.termsAccepted && (
-                            <p className="mt-1 text-xs text-red-500">{errors.termsAccepted}</p>
-                        )}
-                    </div>
+          <InputField
+            label="Nhập lại mật khẩu"
+            placeholder="Nhập lại mật khẩu"
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            error={errors.confirmPassword}
+            required
+          />
 
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        fullWidth
-                        className="h-8 font-bold text-sm mt-2"
-                    >
-                        Đăng ký
-                    </Button>
-                </div>
-            </form>
+          <div className="mt-4 mb-6">
+            <Checkbox
+              label="Tôi đã đồng ý với thoả thuận và điều khoản người dùng"
+              checked={formData.termsAccepted}
+              onChange={handleChange}
+              name="termsAccepted"
+            />
+            {errors.termsAccepted && (
+              <p className="mt-1 text-xs text-red-500">{errors.termsAccepted}</p>
+            )}
+          </div>
 
-            <SocialLogin className="mt-1" />
-
-            <div className="mt-6 text-center">
-                <p className="text-sm text-black">
-                    Nếu bạn đã có tài khoản?{" "}
-                    <Link to="/login" className="text-[#3a5b22] hover:underline">
-                        Chuyển tới trang đăng nhập
-                    </Link>
-                </p>
-            </div>
+          <Button
+            type="submit"
+            variant="primary"
+            fullWidth
+            className="h-8 font-bold text-sm mt-2"
+            disabled={loading}
+          >
+            {loading ? "Đang đăng ký..." : "Đăng ký"}
+          </Button>
         </div>
-    );
+      </form>
+
+      <SocialLogin className="mt-1" />
+
+      <div className="mt-6 text-center">
+        <p className="text-sm text-black">
+          Nếu bạn đã có tài khoản?{" "}
+          <Link to="/login" className="text-[#3a5b22] hover:underline">
+            Chuyển tới trang đăng nhập
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
 };
 
 export default RegistrationForm;

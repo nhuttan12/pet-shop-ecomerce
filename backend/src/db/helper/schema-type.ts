@@ -48,22 +48,3 @@ export type PostEditRequest = typeof schema.postEditRequests.$inferSelect;
 export type PostEditRequestInsert = typeof schema.postEditRequests.$inferInsert;
 export type PostReport = typeof schema.postReports.$inferSelect;
 export type PostReportInsert = typeof schema.postReports.$inferInsert;
-export type StripeCustomer = typeof schema.stripeCustomers.$inferSelect;
-export type StripeCustomerInsert = typeof schema.stripeCustomers.$inferInsert;
-export type StripePaymentIntent =
-  typeof schema.stripePaymentIntents.$inferSelect;
-export type StripePaymentIntentInsert =
-  typeof schema.stripePaymentIntents.$inferInsert;
-export type StripePaymentMethod =
-  typeof schema.stripePaymentMethods.$inferSelect;
-export type StripePaymentMethodInsert =
-  typeof schema.stripePaymentMethods.$inferInsert;
-export type StripePrice = typeof schema.stripePrices.$inferSelect;
-export type StripePriceInsert = typeof schema.stripePrices.$inferInsert;
-export type StripeProduct = typeof schema.stripeProducts.$inferSelect;
-export type StripeProductInsert = typeof schema.stripeProducts.$inferInsert;
-export type StripeRefund = typeof schema.stripeRefunds.$inferSelect;
-export type StripeRefundInsert = typeof schema.stripeRefunds.$inferInsert;
-export type StripeSubscription = typeof schema.stripeSubscriptions.$inferSelect;
-export type StripeSubscriptionInsert =
-  typeof schema.stripeSubscriptions.$inferInsert;

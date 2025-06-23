@@ -15,16 +15,3 @@ const Illustration: React.FC = () => {
 };
 
 export default Illustration;
-
- // <div className="hidden lg:block relative w-full h-full">
-        //     <img
-        //         src="/images/logologin.png"
-        //         alt="Pet illustration"
-        //         className="absolute inset-0 w-full h-full object-cover rounded-tl-[45px] rounded-br-[45px]"
-        //     />
-        //     <img
-        //         src="/images/logologin.png"
-        //         alt="Pet overlay"
-        //         className="absolute inset-0 w-full h-full object-cover rounded-tl-[45px] rounded-br-[45px]"
-        //     />
-        // </div>

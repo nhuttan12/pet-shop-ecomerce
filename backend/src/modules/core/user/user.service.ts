@@ -28,7 +28,7 @@ export class UserService {
     private db: MySql2Database<any>,
     private searchService: SearchService,
     private utilityService: UtilityService,
-  ) {}
+  ) { }
 
   /**
    * @description: get user information with given
