@@ -1,25 +1,32 @@
 import csv
 
-input_file = 'cleaned.csv'
-output_file = 'output.csv'
+INPUT_FILE = 'products.csv'
+OUTPUT_FILE = 'output_cleaned.csv'
 
-with open(input_file, mode='r', encoding='utf-8-sig') as infile:
-    reader = csv.DictReader(infile)
-    rows = list(reader)
+def clean_main_image_url(row):
+    main_img = row['main_image_url'].strip()
+    if not main_img:
+        all_imgs = row['all_images'].split(';')
+        if all_imgs:
+            first_valid_img = all_imgs[0].strip()
+            if first_valid_img:
+                row['main_image_url'] = first_valid_img
+    return row
 
-# Cập nhật main_image_url nếu cần
-for row in rows:
-    main_image = row.get('main_image_url', '').strip()
-    all_images = row.get('all_images', '').strip()
+def process_csv(input_path, output_path):
+    with open(input_path, 'r', encoding='utf-8-sig') as infile, \
+         open(output_path, 'w', encoding='utf-8-sig', newline='') as outfile:
 
-    if not main_image and all_images:
-        first_image = all_images.split(';')[0].strip()
-        row['main_image_url'] = first_image
+        reader = csv.DictReader(infile)
+        fieldnames = reader.fieldnames
+        writer = csv.DictWriter(outfile, fieldnames=fieldnames)
+        writer.writeheader()
 
-# Ghi ra file mới
-with open(output_file, mode='w', newline='', encoding='utf-8-sig') as outfile:
-    writer = csv.DictWriter(outfile, fieldnames=rows[0].keys())
-    writer.writeheader()
-    writer.writerows(rows)
+        for row in reader:
+            cleaned = clean_main_image_url(row)
+            writer.writerow(cleaned)
 
-print("✅ Đã xử lý xong. Kết quả lưu tại:", output_file)
+    print(f"[✅] Done. Cleaned data saved to {output_path}")
+
+if __name__ == "__main__":
+    process_csv(INPUT_FILE, OUTPUT_FILE)

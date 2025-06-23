@@ -21,13 +21,14 @@ import {
   UserRegisterDTO,
   UserRegisterResponseDTO,
 } from '@dtos/user/user-register.dto';
+import { main } from '@helper-modules/services/seed';
 
 @ApiTags('Auth')
 @Controller('auth')
 @UseFilters(CatchEverythingFilter)
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   /**
    * Register a new user account.
@@ -115,5 +116,10 @@ export class AuthController {
       `User reset password ${JSON.stringify(userResetPasswordDTO)}`,
     );
     return this.authService.resetPassword(userResetPasswordDTO);
+  }
+
+  @Post('/seed')
+  async seedData() {
+    await main();
   }
 }
