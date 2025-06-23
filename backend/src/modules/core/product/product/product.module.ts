@@ -6,7 +6,7 @@ import { StripeModule } from '@helper-modules/stripe/stripe.module';
 import { Module } from '@nestjs/common';
 
 @Module({
-  imports: [UtilityModule, ImageModule, StripeModule],
+  imports: [UtilityModule, ImageModule, StripeModule.forRootAsync()],
   controllers: [ProductController],
   providers: [ProductService],
   exports: [ProductService],
