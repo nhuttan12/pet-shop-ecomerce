@@ -2,6 +2,7 @@ import { ProductService } from '@core-modules/product/product/product.service';
 import { HasRole } from '@decorator/roles.decorator';
 import { CreateProductRequest } from '@dtos/product/create-product-request.dto';
 import { DeleteProductByProductIdRequestDto } from '@dtos/product/delete-product-by-product-id-request.dto';
+import { ProductFilterParams } from '@dtos/product/filter-product-request.dto';
 import { GetAllProductsRequest } from '@dtos/product/get-all-product-request.dto';
 import { GetAllProductResponseDto } from '@dtos/product/get-all-product-response.dto';
 import { GetProductByNameRequest } from '@dtos/product/get-product-by-name-request.dto';
@@ -270,6 +271,27 @@ export class ProductController {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.CREATE_PRODUCT_SUCCESSFUL,
       data: product,
+    };
+  }
+
+  @Get('filter')
+  @ApiOperation({ summary: 'Lọc danh sách sản phẩm' })
+  @ApiOkResponse({
+    status: 200,
+    description: 'Lấy danh sách sản phẩm thành công',
+    type: GetAllProductResponseDto,
+    isArray: true,
+  })
+  async getFilteredProducts(
+    @Query() query: ProductFilterParams,
+  ): Promise<ApiResponse<GetAllProductResponseDto[]>> {
+    const products = await this.productService.filterProducts(query);
+    this.logger.debug(`Product: ${JSON.stringify(products)}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_PRODUCT_SUCCESSFUL,
+      data: products,
     };
   }
 }

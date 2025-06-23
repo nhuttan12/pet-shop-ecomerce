@@ -80,27 +80,6 @@ export class PostController {
     };
   }
 
-  // @Get('list/:postId')
-  // @ApiOperation({ summary: 'Lấy bài viết theo postId và userId' })
-  // @ApiParam({ name: 'postId', type: Number, description: 'ID bài viết' })
-  // @SwaggerApiResponse({
-  //   status: 200,
-  //   description: NotifyMessage.GET_POST_SUCCESSFUL,
-  // })
-  // async getPostForUsers(
-  //   @Param() { postId }: GetPostById,
-  //   @GetUser() userId: JwtPayload,
-  // ): Promise<ApiResponse<PostResponse[]>> {
-  //   const posts = await this.postService.getAllPosts(postId, userId.sub);
-  //   this.logger.debug(`Post: ${JSON.stringify(posts)}`);
-
-  //   return {
-  //     statusCode: HttpStatus.OK,
-  //     message: NotifyMessage.GET_POST_SUCCESSFUL,
-  //     data: posts,
-  //   };
-  // }
-
   @Post('/create')
   @ApiOperation({ summary: 'Tạo bài viết mới' })
   @ApiBody({ type: CreatePostRequestDto })
