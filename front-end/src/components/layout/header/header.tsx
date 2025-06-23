@@ -8,16 +8,17 @@ import { CiLocationOn, CiHeart, CiShoppingCart } from "react-icons/ci";
 import { FaUserCircle } from "react-icons/fa";
 import { IoSearchCircle } from "react-icons/io5";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useCartContext } from "../../../contexts/CartContext";
 
 const Header: React.FC = () => {
   const navLinks = [
     { to: "/", label: "Trang chủ" },
     { to: "/products", label: "Sản phẩm" },
     { to: "/forum", label: "Diễn đàn" },
-    { to: "/posts", label: "Bài đăng" },
     { to: "/about", label: "Giới thiệu" },
     { to: "/contact", label: "Liên hệ" },
   ];
+  const { cartCount } = useCartContext();
 
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
@@ -65,7 +66,7 @@ const Header: React.FC = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`text-xl font-medium ${
+                className={`text-2xl font-medium ${
                   isActive(link.to)
                     ? "text-[#fd7e14] border-b border-[#fd7e14] pb-1 font-semibold"
                     : "text-black hover:text-[#fd7e14]"
@@ -112,17 +113,21 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative cursor-pointer"
+          onClick={() => navigate("/favorites")}>
             <CiHeart className="w-7 h-7" />
             <div className="absolute -top-2 -right-2 bg-[#fd7e14] text-white text-[10px] w-3 h-3 rounded-full flex items-center justify-center ">
               0
             </div>
           </div>
 
-          <div className="relative ml-4">
+          <div
+            className="relative ml-4 cursor-pointer"
+            onClick={() => navigate("/cart")}
+          >
             <CiShoppingCart className="w-7 h-7" />
             <div className="absolute -top-2 -right-2 bg-[#fd7e14] text-white text-[10px] w-3 h-3 rounded-full flex items-center justify-center">
-              0
+              {cartCount}
             </div>
           </div>
         </div>

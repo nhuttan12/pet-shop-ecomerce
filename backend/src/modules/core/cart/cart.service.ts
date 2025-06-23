@@ -181,6 +181,7 @@ export class CartService {
           productPrice: products.price,
           productStocking: products.stocking,
           productStatus: products.status,
+          // imageUrl: this.db.raw('MAX(images.url)'),
           imageUrl: images.url,
         })
         .from(cartDetails)

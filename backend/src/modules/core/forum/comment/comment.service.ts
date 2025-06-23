@@ -238,7 +238,8 @@ export class CommentService {
         parentId: comments.commentId,
       })
       .from(comments)
-      .fullJoin(users, eq(users.id, comments.userId))
+      // đây 
+      .leftJoin(users, eq(users.id, comments.userId))
       .where(
         and(
           eq(comments.postId, postId),

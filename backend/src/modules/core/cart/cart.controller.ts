@@ -147,7 +147,7 @@ export class CartController {
   @ApiQuery({
     name: 'page',
     required: false,
-    type: Number,
+    type: Number, 
     description: 'Trang số',
   })
   @ApiOkResponse({

@@ -1,4 +1,10 @@
-import axios from 'axios';
+import {
+  getProducts,
+  createProduct,
+  deleteProduct
+} from '../../../api/productApi';
+import { Product } from '../../../models/Product';
+
 import {
   Card,
   CardHeader,
@@ -15,57 +21,49 @@ import {
   Box,
   Divider,
   Button,
-  Checkbox,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField
+  Checkbox
 } from '@mui/material';
 import { useState, ChangeEvent, useEffect } from 'react';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import AddIcon from '@mui/icons-material/Add';
-
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-}
+import AddProductDialog from './AddProductDialog';
+import { uploadImageToCloudinary } from '../../../api/cloudinary-service';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(5);
-  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(
+    new Set()
+  );
 
   const [openDialog, setOpenDialog] = useState(false);
-  const [newProduct, setNewProduct] = useState<Product>({
-    id: '',
+  const initialNewProduct: Omit<Product, 'id'> = {
     name: '',
-    category: '',
+    brandName: '',
+    categoryName: '',
+    description: '',
+    discount: 0,
     price: 0,
-    stock: 0
-  });
+    quantity: 0,
+    mainImage: '',
+    subImages: []
+  };
 
-  // ✅ GỌI API lấy danh sách sản phẩm
+  const [newProduct, setNewProduct] =
+    useState<Omit<Product, 'id'>>(initialNewProduct);
+
+  // Lấy danh sách sản phẩm
   useEffect(() => {
-    const url = `${process.env.REACT_APP_API_URL}/product`;
-    console.log('📦 Gọi API:', url, { page: page + 1, limit }); // ✅ Dòng thêm vào
-
-    axios
-      .get(`${process.env.REACT_APP_API_URL}/product`, {
-        params: { page: page + 1, limit }
-      })
+    getProducts(page + 1, limit)
       .then((res) => {
         if (res.data?.data) {
           setProducts(res.data.data);
         }
       })
       .catch((err) => {
-        console.error('Lỗi khi lấy danh sách sản phẩm:', err);
+        console.error('Không lấy được sản phẩm:', err);
       });
   }, [page, limit]);
 
@@ -78,18 +76,19 @@ const ProductManagement = () => {
     setPage(0);
   };
 
-  const handleEdit = (productId: string) => {
-    console.log('Edit', productId);
-  };
-
   const handleDelete = (productId: string) => {
-    const updated = products.filter((p) => p.id !== productId);
-    setProducts(updated);
-    setSelectedProducts((prev) => {
-      const copy = new Set(prev);
-      copy.delete(productId);
-      return copy;
-    });
+    deleteProduct(productId)
+      .then(() => {
+        setProducts((prev) => prev.filter((p) => p.id !== productId));
+        setSelectedProducts((prev) => {
+          const copy = new Set(prev);
+          copy.delete(productId);
+          return copy;
+        });
+      })
+      .catch((err) => {
+        console.error('Xoá sản phẩm thất bại:', err);
+      });
   };
 
   const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +113,7 @@ const ProductManagement = () => {
   };
 
   const handleOpenDialog = () => {
-    setNewProduct({ id: '', name: '', category: '', price: 0, stock: 0 });
+    setNewProduct(initialNewProduct); // Reset form
     setOpenDialog(true);
   };
 
@@ -126,20 +125,51 @@ const ProductManagement = () => {
     const { name, value } = e.target;
     setNewProduct((prev) => ({
       ...prev,
-      [name]: name === 'price' || name === 'stock' ? Number(value) : value
+      [name]: name === 'price' || name === 'quantity' || name === 'discount' ? Number(value) : value
     }));
   };
 
+  // Upload ảnh chính lên Cloudinary, cập nhật URL vào newProduct.mainImage
+  const handleUploadMainImage = async (file: File) => {
+    const uploadPreset = 'your_upload_preset'; // Thay bằng preset của bạn
+    const folder = 'your_folder_name'; // Thay bằng folder bạn muốn lưu
+
+    try {
+      const res = await uploadImageToCloudinary({ file, uploadPreset, folder });
+      setNewProduct((prev) => ({
+        ...prev,
+        mainImage: res.secure_url
+      }));
+    } catch (error) {
+      console.error('Upload ảnh chính thất bại:', error);
+    }
+  };
+
   const handleAddProduct = () => {
-    const id = (Math.random() * 1000000).toFixed(0);
-    const productToAdd = { ...newProduct, id };
-    setProducts((prev) => [...prev, productToAdd]);
-    handleCloseDialog();
+    // Dùng đúng giá trị đang có
+    const payload = {
+      ...newProduct,
+      brandName: newProduct.brandName || 'Generic Brand',
+      discount: newProduct.discount || 0
+    };
+
+    createProduct(payload)
+      .then((res) => {
+        setProducts((prev) => [...prev, res.data.data]);
+        handleCloseDialog();
+      })
+      .catch((err) => {
+        console.error('Thêm sản phẩm thất bại:', err);
+      });
   };
 
   const paginatedProducts = products.slice(page * limit, page * limit + limit);
-  const isAllSelected = paginatedProducts.every((p) => selectedProducts.has(p.id));
-  const isSomeSelected = paginatedProducts.some((p) => selectedProducts.has(p.id));
+  const isAllSelected = paginatedProducts.every((p) =>
+    selectedProducts.has(p.id)
+  );
+  const isSomeSelected = paginatedProducts.some((p) =>
+    selectedProducts.has(p.id)
+  );
 
   return (
     <Card>
@@ -149,12 +179,7 @@ const ProductManagement = () => {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            sx={{
-              background: '#6366f1',
-              '&:hover': {
-                background: '#4f46e5'
-              }
-            }}
+            sx={{ background: '#6366f1', '&:hover': { background: '#4f46e5' } }}
             onClick={handleOpenDialog}
           >
             Thêm sản phẩm mới
@@ -192,17 +217,23 @@ const ProductManagement = () => {
                 <TableCell>
                   <Typography fontWeight="bold">{product.name}</Typography>
                 </TableCell>
-                <TableCell>{product.category}</TableCell>
+                <TableCell>{product.categoryName}</TableCell>
                 <TableCell align="right">${product.price.toFixed(2)}</TableCell>
-                <TableCell align="right">{product.stock}</TableCell>
+                <TableCell align="right">{product.quantity}</TableCell>
                 <TableCell align="right">
                   <Tooltip title="Edit" arrow>
-                    <IconButton color="primary" onClick={() => handleEdit(product.id)}>
+                    <IconButton
+                      color="primary"
+                      onClick={() => console.log('Edit', product.id)}
+                    >
                       <EditTwoToneIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Delete" arrow>
-                    <IconButton color="error" onClick={() => handleDelete(product.id)}>
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDelete(product.id)}
+                    >
                       <DeleteTwoToneIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
@@ -231,21 +262,27 @@ const ProductManagement = () => {
         />
       </Box>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
-        <DialogTitle>Add New Product</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-          <TextField label="Product Name" name="name" value={newProduct.name} onChange={handleInputChange} required />
-          <TextField label="Category" name="category" value={newProduct.category} onChange={handleInputChange} required />
-          <TextField label="Price" name="price" type="number" value={newProduct.price} onChange={handleInputChange} required />
-          <TextField label="Stock" name="stock" type="number" value={newProduct.stock} onChange={handleInputChange} required />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button variant="contained" onClick={handleAddProduct}>
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AddProductDialog
+        open={openDialog}
+        newProduct={newProduct}
+        onClose={handleCloseDialog}
+        onChange={handleInputChange}
+        onAdd={handleAddProduct}
+        onSubImagesChange={(val) => {
+          try {
+            const parsed = JSON.parse(val);
+            if (Array.isArray(parsed)) {
+              setNewProduct((prev) => ({
+                ...prev,
+                subImages: parsed
+              }));
+            }
+          } catch (err) {
+            console.error('Lỗi định dạng subImages:', err);
+          }
+        }}
+        onUploadMainImage={handleUploadMainImage}
+      />
     </Card>
   );
 };
