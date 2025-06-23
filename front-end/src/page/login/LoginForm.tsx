@@ -4,6 +4,7 @@ import InputField from "../../components/ui/InputField";
 import Button from "../../components/ui/Button";
 import Checkbox from "../../components/ui/Checkbox";
 import { useLogin } from "../../hooks/auth/useLogin";
+import { useAuth } from "../../contexts/AuthContext";
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -11,6 +12,7 @@ const LoginForm: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
 
   const { loginUser, loading, error } = useLogin();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,8 +20,8 @@ const LoginForm: React.FC = () => {
 
     const result = await loginUser({ username, password, rememberMe });
 
-    if (result.success) {
-      console.log("Đăng nhập thành công:", result.user);
+    if (result.success && result.token && result.user) {
+      login(result.user.id, result.user.username, result.token, result.user.role); // cập nhật context
       navigate("/");
     } else {
       console.error("Đăng nhập thất bại:", result.error);

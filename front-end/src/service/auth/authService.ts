@@ -10,7 +10,7 @@ export interface RegisterDTO {
 
 
 export const register = async (data: RegisterDTO) => {
-  const response = await api.post('/v1/register', data);
+  const response = await api.post('auth/v1/register', data);
   return response.data;
 };
 
@@ -20,7 +20,7 @@ export interface LoginDTO {
 }
 
 export const login = async (data: LoginDTO) => {
-  const response = await api.post('/v1/login', data);
+  const response = await api.post('auth/v1/login', data);
   return response.data;
 };
 
@@ -29,7 +29,7 @@ export interface ForgotPasswordDTO {
 }
 
 export const forgotPassword = async (data: ForgotPasswordDTO) => {
-  const response = await api.post('/forgot-password', data);
+  const response = await api.post('auth/forgot-password', data);
   return response.data;
 };
 
@@ -39,6 +39,6 @@ export interface ResetPasswordDTO {
 }
 
 export const resetPassword = async (data: ResetPasswordDTO) => {
-  const response = await api.post('/reset-password', data);
+  const response = await api.post('auth/reset-password', data);
   return response.data;
 };
