@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   Card,
   CardHeader,
@@ -21,7 +22,7 @@ import {
   DialogActions,
   TextField
 } from '@mui/material';
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useEffect } from 'react';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import AddIcon from '@mui/icons-material/Add';
@@ -34,17 +35,8 @@ interface Product {
   stock: number;
 }
 
-const initialProducts: Product[] = [
-  { id: '1', name: 'iPhone 15 Pro Max', category: 'Smartphones', price: 1399, stock: 25 },
-  { id: '2', name: 'MacBook Air M2', category: 'Laptops', price: 1199, stock: 12 },
-  { id: '3', name: 'Samsung Galaxy S24', category: 'Smartphones', price: 999, stock: 30 },
-  { id: '4', name: 'iPad Pro M2', category: 'Tablets', price: 1099, stock: 18 },
-  { id: '5', name: 'Sony WH-1000XM5', category: 'Headphones', price: 399, stock: 50 },
-  { id: '6', name: 'Apple Watch Ultra 2', category: 'Wearables', price: 799, stock: 10 }
-];
-
 const ProductManagement = () => {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(5);
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
@@ -58,12 +50,32 @@ const ProductManagement = () => {
     stock: 0
   });
 
+  // ✅ GỌI API lấy danh sách sản phẩm
+  useEffect(() => {
+    const url = `${process.env.REACT_APP_API_URL}/product`;
+    console.log('📦 Gọi API:', url, { page: page + 1, limit }); // ✅ Dòng thêm vào
+
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/product`, {
+        params: { page: page + 1, limit }
+      })
+      .then((res) => {
+        if (res.data?.data) {
+          setProducts(res.data.data);
+        }
+      })
+      .catch((err) => {
+        console.error('Lỗi khi lấy danh sách sản phẩm:', err);
+      });
+  }, [page, limit]);
+
   const handlePageChange = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
     setLimit(parseInt(event.target.value));
+    setPage(0);
   };
 
   const handleEdit = (productId: string) => {
@@ -119,7 +131,7 @@ const ProductManagement = () => {
   };
 
   const handleAddProduct = () => {
-    const id = (Math.random() * 1000000).toFixed(0); // generate random id
+    const id = (Math.random() * 1000000).toFixed(0);
     const productToAdd = { ...newProduct, id };
     setProducts((prev) => [...prev, productToAdd]);
     handleCloseDialog();
@@ -200,7 +212,7 @@ const ProductManagement = () => {
             {paginatedProducts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center">
-                  No products found.
+                  Không có sản phẩm nào.
                 </TableCell>
               </TableRow>
             )}
@@ -219,40 +231,13 @@ const ProductManagement = () => {
         />
       </Box>
 
-      {/* Dialog thêm sản phẩm */}
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
         <DialogTitle>Add New Product</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-          <TextField
-            label="Product Name"
-            name="name"
-            value={newProduct.name}
-            onChange={handleInputChange}
-            required
-          />
-          <TextField
-            label="Category"
-            name="category"
-            value={newProduct.category}
-            onChange={handleInputChange}
-            required
-          />
-          <TextField
-            label="Price"
-            name="price"
-            type="number"
-            value={newProduct.price}
-            onChange={handleInputChange}
-            required
-          />
-          <TextField
-            label="Stock"
-            name="stock"
-            type="number"
-            value={newProduct.stock}
-            onChange={handleInputChange}
-            required
-          />
+          <TextField label="Product Name" name="name" value={newProduct.name} onChange={handleInputChange} required />
+          <TextField label="Category" name="category" value={newProduct.category} onChange={handleInputChange} required />
+          <TextField label="Price" name="price" type="number" value={newProduct.price} onChange={handleInputChange} required />
+          <TextField label="Stock" name="stock" type="number" value={newProduct.stock} onChange={handleInputChange} required />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
