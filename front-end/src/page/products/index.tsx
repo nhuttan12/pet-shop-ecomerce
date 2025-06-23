@@ -5,6 +5,8 @@ import HeroSection from '../../components/common/HeroSection';
 import CategorySection from './CategorySection';
 import FilterSection from './FilterSection';
 import ProductGrid from './ProductGrid';
+import { useProducts } from '../../hooks/product/useProducts';
+
 import { PetCategory, FilterCategory, Brand, PetTag, Product, PriceRange } from '../../types/Product';
 
 import cat from '../../assets/cat.jpg';
@@ -13,13 +15,12 @@ import dog from '../../assets/dog.jpg';
 import vet from '../../assets/vet.jpg';
 import rabbit from '../../assets/rabbit.jpg';
 import turtle from '../../assets/turtle.jpg';
-import food from '../../assets/thucan.jpg';
 
 const Products: React.FC = () => {
-  // Pet categories
+  // Pet categories (giữ lại data tĩnh nếu muốn)
   const [categories] = useState<PetCategory[]>([
     { id: 1, name: 'Mèo', image: cat, vectorImage: cat },
-    { id: 2, name: 'Chuột', image:hamster , vectorImage: hamster },
+    { id: 2, name: 'Chuột', image: hamster , vectorImage: hamster },
     { id: 3, name: 'Chó', image: dog, vectorImage: dog },
     { id: 4, name: 'Vẹt', image: vet, vectorImage: vet },
     { id: 5, name: 'Thỏ', image: rabbit, vectorImage: rabbit },
@@ -62,100 +63,19 @@ const Products: React.FC = () => {
     max: 10000000
   });
 
-  // Products
-  const [products, setProducts] = useState<Product[]>([
-    { 
-      id: 1, 
-      name: 'Giỏ đựng thú cưng Petmate', 
-      price: '349.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 2, 
-      name: 'Bát ăn cho mèo PetSafe', 
-      price: '49.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 3, 
-      name: 'Giường cho mèo Catit', 
-      price: '429.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 4, 
-      name: 'Thức ăn cho mèo cao cấp CATS LOVE', 
-      price: '249.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 5, 
-      name: 'Bát ăn cho chó Omlet', 
-      price: '49.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 6, 
-      name: 'Máy rửa chân cho chó', 
-      price: '429.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 7, 
-      name: 'Dây dắt chó Hagen', 
-      price: '99.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 8, 
-      name: 'Giường cho chó Ferplast', 
-      price: '399.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 9, 
-      name: 'Máy xấy khô lông thú cưng', 
-      price: '199.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 10, 
-      name: 'Thức ăn cho chó hãng Jinx', 
-      price: '269.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 11, 
-      name: 'Bát ăn cho chó Ferplast', 
-      price: '129.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-    { 
-      id: 12, 
-      name: 'Thức ăn cho chó hãng Omni', 
-      price: '169.000 VNĐ', 
-      image: food, 
-      isFavorite: false 
-    },
-  ]);
-
   // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 2;
-  const totalResults = 14;
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const limit = 12; // items per page
 
-  // Handle category filter change
+  // Lấy products từ hook, truyền currentPage và limit
+  const { products, loading, error } = useProducts(currentPage, limit);
+
+  // Bạn có thể lấy totalPages và totalResults từ API trả về nếu có, hoặc tạm giả định
+  const totalResults = products.length; // tạm thời là số lượng hiện tại
+  const totalPages = Math.ceil(totalResults / limit) || 1;
+
+  // Các hàm xử lý filter, sort, page change (giữ nguyên hoặc tùy chỉnh theo API)
+
   const handleCategoryChange = (id: number) => {
     setFilterCategories(
       filterCategories.map(category => 
@@ -166,7 +86,6 @@ const Products: React.FC = () => {
     );
   };
 
-  // Handle brand filter change
   const handleBrandChange = (id: number) => {
     setBrands(
       brands.map(brand => 
@@ -177,7 +96,6 @@ const Products: React.FC = () => {
     );
   };
 
-  // Handle tag selection
   const handleTagSelect = (id: number) => {
     setTags(
       tags.map(tag => 
@@ -188,49 +106,36 @@ const Products: React.FC = () => {
     );
   };
 
-  // Handle price range change
   const handlePriceRangeChange = (range: PriceRange) => {
     setPriceRange(range);
   };
 
-  // Handle apply filters
   const handleApplyFilters = () => {
     console.log('Applying filters...');
-    // In a real app, this would filter the products based on selected filters
+    // TODO: Gọi API filter nếu có
   };
 
-  // Handle sort change
   const handleSortChange = (value: string) => {
     console.log('Sort changed to:', value);
-    // In a real app, this would sort the products
+    // TODO: Xử lý sort khi gọi API
   };
 
-  // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Handle favorite toggle
   const handleFavoriteToggle = (id: number) => {
-    setProducts(
-      products.map(product => 
-        product.id === id 
-          ? { ...product, isFavorite: !product.isFavorite } 
-          : product
-      )
-    );
+    // Nếu muốn xử lý yêu thích, bạn có thể gọi API hoặc update state local tạm thời
+    console.log('Toggle favorite for product id:', id);
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
       <main className="flex-grow">
         <HeroSection />
-        
         <CategorySection categories={categories} />
-        
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-1">
@@ -246,22 +151,24 @@ const Products: React.FC = () => {
                 onApplyFilters={handleApplyFilters}
               />
             </div>
-            
             <div className="lg:col-span-3">
-              <ProductGrid 
-                products={products}
-                totalResults={totalResults}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-                onSortChange={handleSortChange}
-                onFavoriteToggle={handleFavoriteToggle}
-              />
+              {loading && <p>Đang tải sản phẩm...</p>}
+              {error && <p className="text-red-500">{error}</p>}
+              {!loading && !error && (
+                <ProductGrid 
+                  products={products}
+                  totalResults={totalResults}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  onSortChange={handleSortChange}
+                  onFavoriteToggle={handleFavoriteToggle}
+                />
+              )}
             </div>
           </div>
         </div>
       </main>
-      
       <Footer />
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import InputField from "../../components/ui/InputField";
 import Button from "../../components/ui/Button";
 import Checkbox from "../../components/ui/Checkbox";
@@ -8,6 +8,8 @@ import { RegisterFormData, RegisterFormErrors } from "../../types/Register";
 import { useRegister } from "../../hooks/auth/useRegister";
 
 const RegistrationForm: React.FC = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState<RegisterFormData>({
     username: "",
     email: "",
@@ -86,6 +88,7 @@ const RegistrationForm: React.FC = () => {
         retypePassword: formData.confirmPassword,
       });
       alert("Đăng ký thành công!");
+      navigate("/login");
     } catch (err) {
       alert(error || "Có lỗi xảy ra khi đăng ký");
     }
@@ -121,17 +124,6 @@ const RegistrationForm: React.FC = () => {
             error={errors.email}
             required
           />
-
-          {/* <InputField
-            label="Điện thoại"
-            placeholder="Điền số điện thoại vào đây"
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            error={errors.phone}
-            required
-          /> */}
 
           <InputField
             label="Mật khẩu"
