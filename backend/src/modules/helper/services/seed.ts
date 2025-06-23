@@ -43,6 +43,33 @@ export async function main() {
 
   // insert data from csv to db
   await db.transaction(async (tx) => {
+    // Chèn dữ liệu mẫu
+    await tx.insert(roles).values([
+      { id: 1, name: Role.ADMIN, status: RoleStatus.ACTIVE },
+      { id: 2, name: Role.USER, status: RoleStatus.ACTIVE },
+      { id: 3, name: Role.CUSTOMER, status: RoleStatus.ACTIVE },
+      { id: 4, name: Role.MANAGER, status: RoleStatus.ACTIVE },
+      { id: 5, name: Role.MARKETING_EMPLOYEE, status: RoleStatus.ACTIVE },
+      { id: 6, name: Role.SALE_EMPLOYEE, status: RoleStatus.ACTIVE },
+    ]);
+
+    await tx.insert(images).values({
+      id: 1,
+      url: 'https://res.cloudinary.com/dt3yrf9sx/image/upload/v1747916657/pngegg_1_elsdfw.png',
+      type: ImageType.AVATAR,
+      folder: 'tmdt-ck',
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+
+    await tx.insert(users).values({
+      email: 'admin@gmail.com',
+      username: 'admin',
+      password: await bcrypt.hash('123123', saltOrRounds),
+      status: UserStatus.ACTIVE,
+      roleId: 1,
+    });
+
     for (const row of records) {
       const brandName = row['brand']?.trim();
 
@@ -137,33 +164,6 @@ export async function main() {
 
       console.log(`✔ Seeded product: ${row['variant_title']}`);
     }
-
-    // Chèn dữ liệu mẫu
-    await tx.insert(roles).values([
-      { id: 1, name: Role.ADMIN, status: RoleStatus.ACTIVE },
-      { id: 2, name: Role.USER, status: RoleStatus.ACTIVE },
-      { id: 3, name: Role.CUSTOMER, status: RoleStatus.ACTIVE },
-      { id: 4, name: Role.MANAGER, status: RoleStatus.ACTIVE },
-      { id: 5, name: Role.MARKETING_EMPLOYEE, status: RoleStatus.ACTIVE },
-      { id: 6, name: Role.SALE_EMPLOYEE, status: RoleStatus.ACTIVE },
-    ]);
-
-    await tx.insert(images).values({
-      id: 1,
-      url: 'https://res.cloudinary.com/dt3yrf9sx/image/upload/v1747916657/pngegg_1_elsdfw.png',
-      type: 'avatar',
-      folder: 'tmdt-ck',
-      created_at: new Date(),
-      updated_at: new Date(),
-    });
-
-    await tx.insert(users).values({
-      email: 'admin@gmail.com',
-      username: 'admin',
-      password: await bcrypt.hash('123123', saltOrRounds),
-      status: UserStatus.ACTIVE,
-      roleId: 1,
-    });
   });
 
   await connection.end();
