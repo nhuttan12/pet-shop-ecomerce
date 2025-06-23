@@ -15,7 +15,7 @@ import {
 
 export const posts = mysqlTable('posts', {
   id: int().primaryKey().notNull().autoincrement(),
-  title: varchar('title', { length: 255 }),
+  title: varchar('title', { length: 255 }).notNull(),
   content: text('content').notNull(),
   authorId: int('author_id')
     .notNull()
