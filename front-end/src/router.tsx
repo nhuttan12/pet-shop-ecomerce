@@ -11,7 +11,7 @@ import LoginPage from "./page/login";
 import RegisterPage from "./page/register";
 import HomePage from "./page/home";
 import Products from "./page/products";
-import Forum from "./page/forum";
+import Forum from "./page/forum/post";
 import Checkout from "./page/checkout";
 import CartPage from "./page/cart";
 import ProductDetailPage from "./page/productDetail";
