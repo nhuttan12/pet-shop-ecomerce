@@ -1,27 +1,25 @@
 import csv
 
-def clean_multiline(text):
-    if text:
-        return ' '.join(text.replace('\n', ' ').replace('\r', ' ').split())
-    return ''
+input_file = 'cleaned.csv'
+output_file = 'output.csv'
 
-input_file = 'products_paddy_full_details.csv'
-output_file = 'cleaned.csv'
+with open(input_file, mode='r', encoding='utf-8-sig') as infile:
+    reader = csv.DictReader(infile)
+    rows = list(reader)
 
-with open(input_file, 'r', encoding='utf-8-sig') as f_in, open(output_file, 'w', encoding='utf-8-sig', newline='') as f_out:
-    reader = csv.DictReader(f_in)
-    writer = csv.DictWriter(f_out, fieldnames=reader.fieldnames)
+# Cập nhật main_image_url nếu cần
+for row in rows:
+    main_image = row.get('main_image_url', '').strip()
+    all_images = row.get('all_images', '').strip()
+
+    if not main_image and all_images:
+        first_image = all_images.split(';')[0].strip()
+        row['main_image_url'] = first_image
+
+# Ghi ra file mới
+with open(output_file, mode='w', newline='', encoding='utf-8-sig') as outfile:
+    writer = csv.DictWriter(outfile, fieldnames=rows[0].keys())
     writer.writeheader()
-    print("Fieldnames CSV:", reader.fieldnames)
+    writer.writerows(rows)
 
-    for row in reader:
-        # Xử lý description: loại bỏ \n, \r, và khoảng trắng dư
-        row['description'] = clean_multiline(row['description'])
-
-        # Bạn có thể làm sạch các trường khác nếu muốn:
-        row['product_name'] = clean_multiline(row['product_name'])
-        row['variant_title'] = clean_multiline(row['variant_title'])
-
-        writer.writerow(row)
-
-print(f"✅ File đã được xử lý và lưu vào '{output_file}'")
+print("✅ Đã xử lý xong. Kết quả lưu tại:", output_file)
