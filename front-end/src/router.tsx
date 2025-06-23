@@ -40,7 +40,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/forum" element={<Forum />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/cartpage" element={<CartPage />} />
-        <Route path="/productdetail" element={<ProductDetailPage />} />
+        {/* <Route path="/productdetail" element={<ProductDetailPage />} /> */}
+        <Route path="/productdetail/:id" element={<ProductDetailPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/profile" element={<ProfilePage />} />
@@ -54,32 +55,4 @@ const AppRoutes: React.FC = () => {
 };
 
 export default AppRoutes;
-// import { Routes, Route } from "react-router-dom";
-// import { ROUTERS } from "./utils/router";
-// import LoginForm from "./page/login/LoginForm.tsx";
-// import MasterLayout from "./layout/MasterLayout"; // Đảm bảo import MasterLayout
-//
-// const renderUserRouter = () => {
-//     const userRouters = [
-//         {
-//             path: ROUTERS.USER.LOGIN,
-//             component: <LoginForm />,
-//         },
-//     ];
-//
-//     return (
-//         <MasterLayout>
-//             <Routes>
-//                 {userRouters.map((item, key) => (
-//                     <Route key={key} path={item.path} element={item.component} />
-//                 ))}
-//             </Routes>
-//         </MasterLayout>
-//     );
-// };
-//
-// const RouterCustom: React.FC = () => {
-//     return renderUserRouter();
-// };
-//
-// export default RouterCustom;
+

@@ -31,6 +31,7 @@ export interface Product {
   price: string;
   image: string;
   isFavorite: boolean;
+  wishlistId?: string;
 }
 
 export interface PriceRange {

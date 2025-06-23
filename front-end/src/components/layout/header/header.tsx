@@ -14,7 +14,6 @@ const Header: React.FC = () => {
     { to: "/", label: "Trang chủ" },
     { to: "/products", label: "Sản phẩm" },
     { to: "/forum", label: "Diễn đàn" },
-    { to: "/posts", label: "Bài đăng" },
     { to: "/about", label: "Giới thiệu" },
     { to: "/contact", label: "Liên hệ" },
   ];
@@ -65,7 +64,7 @@ const Header: React.FC = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`text-xl font-medium ${
+                className={`text-2xl font-medium ${
                   isActive(link.to)
                     ? "text-[#fd7e14] border-b border-[#fd7e14] pb-1 font-semibold"
                     : "text-black hover:text-[#fd7e14]"
