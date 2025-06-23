@@ -14,6 +14,7 @@ import { CsvProduct } from './../../../helper/interface/csvProduct.interface';
 import { RoleStatus } from '@enum/status/role-status.enum';
 import { Role } from '@enum/role.enum';
 import { BrandStatus } from '@enum/status/brand-status.enum';
+import { UserStatus } from '@enum/status/user-status.enum';
 
 const parsePrice = (price: string): number =>
   parseInt(price.replace(/[^\d]/g, ''));
@@ -160,6 +161,7 @@ export async function main() {
       email: 'admin@gmail.com',
       username: 'admin',
       password: await bcrypt.hash('123123', saltOrRounds),
+      status: UserStatus.ACTIVE,
       roleId: 1,
     });
   });
