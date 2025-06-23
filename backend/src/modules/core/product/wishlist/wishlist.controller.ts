@@ -2,12 +2,10 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
   HttpCode,
   HttpStatus,
   Logger,
   Post,
-  Query,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
@@ -17,7 +15,6 @@ import {
   ApiTags,
   ApiResponse as ApiSwaggerResponse,
   ApiBearerAuth,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { WishlistService } from '@core-modules/product/wishlist/wishlist.service';
 import { JwtAuthGuard } from '@guard/jwt-auth.guard';
@@ -32,9 +29,6 @@ import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
 import { NotifyMessage } from '@message/notify-message';
 import { RemoveWishlistDto } from '@dtos/wishlist/remove-wishlist.dto';
 import { GetUser } from '@decorator/user.decorator';
-import { GetAllProductResponseDto } from '@dtos/product/get-all-product-response.dto';
-import { WishlistNotifyMessage } from '@message/wishlist-message';
-import { GetAllWishListProductsRequest } from '@dtos/wishlist/get-all-wishlist-product-request.dto';
 
 @Controller('wishlist')
 @ApiTags('Wishlist')
@@ -104,34 +98,6 @@ export class WishlistController {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.REMOVE_WISHLIST_SUCCESSFUL,
       data: wishtlist,
-    };
-  }
-
-  @Get('products')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Lấy danh sách sản phẩm yêu thích' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiSwaggerResponse({
-    status: HttpStatus.OK,
-    description: 'Lấy danh sách sản phẩm yêu thích thành công',
-    type: GetAllProductResponseDto,
-    isArray: true,
-  })
-  async getWishlistProducts(
-    @GetUser() user: JwtPayload,
-    @Query() { limit, page }: GetAllWishListProductsRequest,
-  ): Promise<ApiResponse<GetAllProductResponseDto[]>> {
-    const data = await this.wishlistService.getWishlistProducts(
-      user.sub,
-      limit,
-      page,
-    );
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: WishlistNotifyMessage.GET_WISHLIST_PRODUCTS_SUCCESSFUL,
-      data,
     };
   }
 }

@@ -7,16 +7,13 @@ import { BrandStatus } from '@enum/status/brand-status.enum';
 import { CategoryStatus } from '@enum/status/categories-status.enum';
 import { ImageStatus } from '@enum/status/image-status.enum';
 import { ProductStatus } from '@enum/status/product-status.enum';
-import { StripeInterval } from '@enum/stripe-interval.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { ImageService } from '@helper-modules/image/image.service';
 import { SearchService } from '@helper-modules/services/search.service';
 import { UtilityService } from '@helper-modules/services/utility.service';
-import { StripeService } from '@helper-modules/stripe/stripe.service';
 import { ErrorMessage } from '@message/error-message';
 import { MessageLog } from '@message/message-log';
 import { Property } from '@message/property';
-import { StripeErrorMessage } from '@message/srtipe-message';
 import {
   BadRequestException,
   Inject,
@@ -32,22 +29,10 @@ import {
   images,
   productImages,
   products,
-  stripeProducts,
-  stripePrices,
 } from '@schema';
-import {
-  Brand,
-  Category,
-  Image,
-  Product,
-  ProductInsert,
-  StripePrice,
-  StripePriceInsert,
-  StripeProduct,
-} from '@schema-type';
+import { Brand, Category, Image, Product, ProductInsert } from '@schema-type';
 import { and, eq, inArray, like } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import Stripe from 'stripe';
 
 @Injectable()
 export class ProductService {
@@ -58,7 +43,6 @@ export class ProductService {
     private searchService: SearchService,
     private imageService: ImageService,
     private utilityService: UtilityService,
-    private stripeService: StripeService,
   ) {}
 
   async createProduct({
@@ -77,31 +61,23 @@ export class ProductService {
       brands,
       eq(brands.name, brandName),
     );
-    this.logger.debug(`Brand: ${JSON.stringify(brand)}`);
 
     const category: Category = await this.searchService.findOneOrThrow(
       this.db,
       categories,
       eq(categories.name, categoryName),
     );
-    this.logger.debug(`Category: ${JSON.stringify(category)}`);
 
-    // set main image type to thumbnail
     mainImage.type = ImageType.THUMBNAIL;
 
-    // save the thumbnail image to db
     const thumbnail: Image = await this.imageService.saveImage(mainImage);
-    this.logger.debug(`Thumbnail: ${JSON.stringify(thumbnail)}`);
 
-    // set sub image type to product
     subImages.forEach((image) => {
       image.type = ImageType.PRODUCT;
     });
 
-    // save the sub images to db
     const imageList: Image[] = await this.imageService.saveImages(subImages);
 
-    // create product with deffault field
     const product: ProductInsert = {
       brandId: brand.id,
       description,
@@ -118,7 +94,6 @@ export class ProductService {
       return tx.insert(products).values(product).$returningId();
     });
 
-    // checking product after insert
     const productResult: Product = await this.searchService.findOneOrThrow(
       this.db,
       products,
@@ -126,7 +101,6 @@ export class ProductService {
     );
 
     const result = await this.db.transaction(async (tx) => {
-      // create thumbnail image reference to product in db
       const [productImageThumbnailInserted] = await tx
         .insert(productImages)
         .values({
@@ -137,7 +111,6 @@ export class ProductService {
         })
         .$returningId();
 
-      // create category reference to product in db
       const [categoryMappingInserted] = await tx
         .insert(categoriesMapping)
         .values({
@@ -148,7 +121,6 @@ export class ProductService {
         })
         .$returningId();
 
-      // create sub image reference to product in db
       const productImagesInsert = await tx
         .insert(productImages)
         .values(
@@ -161,7 +133,6 @@ export class ProductService {
         )
         .$returningId();
 
-      // return the result for checking
       return {
         productImageThumbnailInserted,
         categoryMappingInserted,
@@ -169,21 +140,18 @@ export class ProductService {
       };
     });
 
-    //checking thumbnail after insert
     await this.searchService.findOneOrThrow(
       this.db,
       productImages,
       eq(productImages.id, result.productImageThumbnailInserted.id),
     );
 
-    //checking category after insert
     await this.searchService.findOneOrThrow(
       this.db,
       categoriesMapping,
       eq(categoriesMapping.id, result.categoryMappingInserted.id),
     );
 
-    //checking product sub image after insert
     await this.searchService.findOneOrThrow(
       this.db,
       productImages,
@@ -192,49 +160,6 @@ export class ProductService {
         result.productImagesInsert.map((img) => img.id),
       ),
     );
-
-    // call service to create product in stripe cloud
-    const stripeProduct = await this.stripeService.createProduct(
-      name,
-      description,
-    );
-
-    // call service to create product in stripe cloud
-    const stripePrice = await this.stripeService.createPrice(
-      stripeProduct.id,
-      price,
-    );
-
-    await this.db.transaction(async (tx) => {
-      // create product stripe in db
-      const createProductStripe = await tx.insert(stripeProducts).values({
-        productId: productResult.id,
-        stripeProductId: stripeProduct.id,
-        name: stripeProduct.name,
-        description: stripeProduct.description,
-        createdAt: new Date(),
-      });
-
-      const stripeInsert: StripePriceInsert = {
-        productId: productResult.id,
-        stripeProductId: stripeProduct.id,
-        stripePriceId: stripePrice.id,
-        amount: stripePrice.unit_amount,
-        currency: stripePrice.currency,
-        interval: stripePrice.recurring?.interval,
-        createdAt: new Date(),
-      };
-
-      // create price stripe in db
-      const createPriceStripe = await tx
-        .insert(stripePrices)
-        .values(stripeInsert);
-
-      return {
-        createProductStripe,
-        createPriceStripe,
-      };
-    });
 
     return productResult;
   }
@@ -485,57 +410,6 @@ export class ProductService {
           updated_at: new Date(),
         })
         .where(eq(products.id, id));
-
-      // search and check stripe product is exist
-      const stripeProduct: StripeProduct =
-        await this.searchService.findOneOrThrow(
-          this.db,
-          stripeProducts,
-          eq(stripeProducts.productId, id),
-        );
-
-      // update product in stripe cloud
-      await this.stripeService.updateProduct(
-        stripeProduct.stripeProductId,
-        name,
-        description,
-      );
-
-      if (price) {
-        // getting price stripe in db and checking exist
-        const oldPriceStripe: StripePrice =
-          await this.searchService.findOneOrThrow(
-            this.db,
-            stripePrices,
-            eq(stripePrices.productId, id),
-            StripeErrorMessage.STRIPE_PRICE_NOT_FOUND,
-          );
-
-        // update price in stripe service
-        const newPriceStripe: Stripe.Price =
-          await this.stripeService.updatePrice({
-            newAmount: price,
-            oldPriceId: oldPriceStripe.stripePriceId,
-            stripeProductId: stripeProduct.stripeProductId,
-            currency: oldPriceStripe.currency,
-            interval: oldPriceStripe.interval as StripeInterval,
-          });
-
-        // insert new stripe in db
-        await this.db.transaction(async (tx) => {
-          const newPriceStripeInsert: StripePriceInsert = {
-            stripeProductId: stripeProduct.stripeProductId,
-            stripePriceId: newPriceStripe.id,
-            productId: id,
-            amount: newPriceStripe.unit_amount,
-            currency: newPriceStripe.currency,
-            interval: newPriceStripe.recurring?.interval,
-            createdAt: new Date(),
-          };
-
-          return await tx.insert(stripePrices).values(newPriceStripeInsert);
-        });
-      }
 
       //update category mapping
       await tx

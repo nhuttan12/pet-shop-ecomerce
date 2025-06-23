@@ -42,15 +42,14 @@ import { ReportPostDto } from '@dtos/post/report-post-request.dto';
 import { PostReportResponseDto } from '@dtos/post/post-report-response.dto';
 import { GetAllPostReportsRequestDto } from '@dtos/post/get-all-post-report-request.dto';
 
-@Controller('post')
+@Controller('/post')
 @ApiTags('Post')
 @ApiBearerAuth('jwt')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @HasRole(Role.USER, Role.ADMIN)
 @UseFilters(CatchEverythingFilter)
 export class PostController {
   private readonly logger = new Logger(PostController.name);
-  constructor(private readonly postService: PostService) {}
+  constructor(private readonly postService: PostService) { }
 
   @Get()
   @ApiOperation({ summary: 'Lấy danh sách bài viết (phân trang)' })
@@ -72,16 +71,8 @@ export class PostController {
   })
   async getAllPosts(
     @Query() { limit, page }: GetAllPostsRequestDto,
-    @GetUser() user: JwtPayload,
   ): Promise<ApiResponse<PostResponse[]>> {
-    let posts: PostResponse[] = [];
-    if (user.role === (Role.ADMIN as string)) {
-      posts = await this.postService.getAllPosts(limit, page);
-    } else {
-      posts = await this.postService.getAllPosts(limit, page, user.sub);
-    }
-    this.logger.debug(`Posts: ${JSON.stringify(posts)}`);
-
+    const posts = await this.postService.getAllPosts(limit, page);
     return {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.GET_POST_SUCCESSFUL,
@@ -113,6 +104,7 @@ export class PostController {
   @Post('/create')
   @ApiOperation({ summary: 'Tạo bài viết mới' })
   @ApiBody({ type: CreatePostRequestDto })
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @SwaggerApiResponse({
     status: 201,
     description: NotifyMessage.CREATE_POST_SUCCESSFUL,
