@@ -1,6 +1,8 @@
+import { GetCommentResponseDto } from '@dtos/comment/get-all-comment-response.dto';
 import { CommentStatus } from '@enum/status/comment-status.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { SearchService } from '@helper-modules/services/search.service';
+import { UtilityService } from '@helper-modules/services/utility.service';
 import {
   CommentErrorMessage,
   CommentMessageLog,
@@ -11,8 +13,8 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { comments } from '@schema';
-import { and, eq } from 'drizzle-orm';
+import { comments, users } from '@schema';
+import { and, asc, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 
 @Injectable()
@@ -21,6 +23,7 @@ export class CommentService {
   constructor(
     @Inject(DrizzleAsyncProvider) private db: MySql2Database<any>,
     private searchService: SearchService,
+    private utilityService: UtilityService,
   ) {}
   async createComment(
     postId: number,
@@ -178,5 +181,74 @@ export class CommentService {
       this.logger.error(e);
       throw e;
     }
+  }
+
+  async getCommentsByPost(
+    postId: number,
+    limit: number,
+    offset: number,
+  ): Promise<GetCommentResponseDto[]> {
+    // 1. Get flat comment by post id
+    const flatComments: GetCommentResponseDto[] = await this.getCommentByPostId(
+      postId,
+      limit,
+      offset,
+    );
+
+    // 2. Create map of comment
+    const map = new Map<number, GetCommentResponseDto>();
+    const roots: GetCommentResponseDto[] = [];
+
+    // 3. Set the root comment for post
+    for (const comment of flatComments) {
+      map.set(comment.id, { ...comment, replies: [] });
+    }
+
+    // 4. Set the child comment in post
+    for (const comment of flatComments) {
+      const current = map.get(comment.id)!;
+      if (comment.parentId === null) {
+        roots.push(current);
+      } else {
+        const parent = map.get(comment.parentId);
+        if (parent) parent.replies.push(current);
+      }
+    }
+
+    return roots;
+  }
+
+  private async getCommentByPostId(
+    postId: number,
+    limit: number,
+    offset: number,
+  ): Promise<GetCommentResponseDto[]> {
+    // 1. Get pagination
+    const { skip, take } = this.utilityService.getPagination(offset, limit);
+
+    // 2. Get all comment
+    const rows = await this.db
+      .select({
+        id: comments.id,
+        content: comments.content,
+        authorId: comments.userId,
+        authorName: users.username,
+        createdAt: comments.created_at,
+        parentId: comments.commentId,
+      })
+      .from(comments)
+      .fullJoin(users, eq(users.id, comments.userId))
+      .where(
+        and(
+          eq(comments.postId, postId),
+          eq(comments.status, CommentStatus.ACTIVE),
+        ),
+      )
+      .limit(take)
+      .offset(skip)
+      .orderBy(asc(comments.created_at));
+
+    // cast and return
+    return rows as GetCommentResponseDto[];
   }
 }

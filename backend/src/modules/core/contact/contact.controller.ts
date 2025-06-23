@@ -21,7 +21,7 @@ import { CatchEverythingFilter } from '@filter/exception.filter';
 import { NotifyMessage } from '@message/notify-message';
 import { ContactResponseDto } from '@dtos/contact/contact-response.dto';
 import { GetAllContactInfoRequestDto } from '@dtos/contact/get-all-contact-info-request.dto';
-import { ContactService } from '@core-modules/forum/contact/contact.service';
+import { ContactService } from '@core-modules/contact/contact.service';
 
 @Controller('contact')
 @ApiTags('Contact')

@@ -19,9 +19,11 @@ import { OrderModule } from '@core-modules/order/order.module';
 import { VoucherModule } from '@core-modules/product/voucher/voucher.module';
 import { CommentModule } from '@core-modules/forum/comment/comment.module';
 import { PostModule } from '@core-modules/forum/post/post.module';
-import { ContactModule } from '@core-modules/forum/contact/contact.module';
 import { WishlistModule } from '@core-modules/product/wishlist/wishlist.module';
 import { ProductRatingModule } from '@core-modules/product/product-rating/product-rating.module';
+import { ContactModule } from '@core-modules/contact/contact.module';
+import { PaypalController } from './modules/helper/paypal/paypal.controller';
+import { PaypalModule } from './modules/helper/paypal/paypal.module';
 
 @Module({
   imports: [
@@ -49,6 +51,7 @@ import { ProductRatingModule } from '@core-modules/product/product-rating/produc
     ContactModule,
     WishlistModule,
     ProductRatingModule,
+    PaypalModule,
   ],
   providers: [
     {
@@ -70,5 +73,6 @@ import { ProductRatingModule } from '@core-modules/product/product-rating/produc
       useClass: ValidationPipe,
     },
   ],
+  controllers: [PaypalController],
 })
 export class AppModule {}

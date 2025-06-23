@@ -7,6 +7,7 @@ export const StripeErrorMessage = {
     'interval phải là một trong các giá trị: day, week, month, year',
   PRODUCT_NOT_FOUND: 'Không tìm thấy sản phẩm',
   STRIPE_PRICE_NOT_FOUND: 'Không tìm thấy giá trị trong stripe',
+  PAYMENT_PROCESS_ERROR: 'Đang có lỗi trong thanh toán, vui lòng thử lại sau',
 };
 export const StripeMessageLog = {
   FAILED_TO_ATTACH_PAYMENT_METHOD: 'Failed to attach payment method',
@@ -16,4 +17,6 @@ export const StripeMessageLog = {
   CUSTOMER_IN_STRIPE_CREATE_SUCCESSFULLY_WITH_EMAIL:
     'Customer created successfully with email',
   PRODUCT_UPDATE_SUCCESSFULLY: 'Product updated successfully',
+  STRIPE_PAYMENT_INTENT_ID_IS_NULL_FOR_ORDER_ID:
+    'stripePaymentIntentId is null for orderId',
 };

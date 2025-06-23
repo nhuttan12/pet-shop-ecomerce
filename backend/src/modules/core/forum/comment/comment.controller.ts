@@ -2,23 +2,29 @@ import { CommentService } from '@core-modules/forum/comment/comment.service';
 import { HasRole } from '@decorator/roles.decorator';
 import { GetUser } from '@decorator/user.decorator';
 import { CreateCommentRequestDto } from '@dtos/comment/create-comment-request.dto';
+import { GetAllCommentRequest } from '@dtos/comment/get-all-comment-request.dto';
 import { RemoveCommentRequestDto } from '@dtos/comment/remove-comment-request.dto';
 import { ReplyCommentRequestDto } from '@dtos/comment/reply-comment-request.dto';
 import { UpdateCommentRequestDto } from '@dtos/comment/update-comment-request.dto';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { GetCommentResponseDto } from '@dtos/comment/get-all-comment-response.dto';
 import { Role } from '@enum/role.enum';
 import { CatchEverythingFilter } from '@filter/exception.filter';
 import { JwtAuthGuard } from '@guard/jwt-auth.guard';
 import { RolesGuard } from '@guard/roles.guard';
 import { JwtPayload } from '@interfaces';
+import { CommentNotifyMessage } from '@message/comment-message';
 import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Logger,
   Patch,
   Post,
+  Query,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
@@ -151,5 +157,23 @@ export class CommentController {
     @GetUser() user: JwtPayload,
   ) {
     return this.commentService.removeComment(commentId, postId, user.sub);
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Lấy tất cả bình luận của bài viết (bao gồm replies)',
+  })
+  async getComments(
+    @Query() { limit, page, postId }: GetAllCommentRequest,
+  ): Promise<ApiResponse<GetCommentResponseDto[]>> {
+    const comment: GetCommentResponseDto[] =
+      await this.commentService.getCommentsByPost(postId, limit, page);
+    this.logger.debug(`Comment: ${JSON.stringify(comment)}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: CommentNotifyMessage.GET_COMMENT_SUCCESSFUL,
+      data: comment,
+    };
   }
 }

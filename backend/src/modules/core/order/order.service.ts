@@ -1,5 +1,6 @@
 import { GetAllOrdersResponseDto } from '@dtos/order/get-all-order-response.dto';
 import { GetOrderDetailsByOrderIdResponseDto } from '@dtos/order/get-order-details-by-order-id-response.dto';
+import { CreateOrderResponseDto } from '@dtos/response/order/create-order-response.dto';
 import { ImageType } from '@enum/image-type.enum';
 import { PaymentMethod } from '@enum/payment-method.enum';
 import { ShippingMethod } from '@enum/shipping_method.enum';
@@ -10,9 +11,11 @@ import { OrderStatus } from '@enum/status/order-status.enum';
 import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
 import { SearchService } from '@helper-modules/services/search.service';
 import { UtilityService } from '@helper-modules/services/utility.service';
+import { StripeService } from '@helper-modules/stripe/stripe.service';
 import { ErrorMessage } from '@message/error-message';
 import { MessageLog } from '@message/message-log';
 import { Property } from '@message/property';
+import { StripeErrorMessage, StripeMessageLog } from '@message/srtipe-message';
 import {
   Inject,
   Injectable,
@@ -28,10 +31,12 @@ import {
   orders,
   productImages,
   products,
+  stripePaymentIntents,
 } from '@schema';
-import { Order, OrderInsert } from '@schema-type';
+import { Order, OrderInsert, StripePaymentIntent } from '@schema-type';
 import { and, eq, inArray } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
+import Stripe from 'stripe';
 
 @Injectable()
 export class OrderService {
@@ -41,6 +46,7 @@ export class OrderService {
     private db: MySql2Database<any>,
     private searchService: SearchService,
     private utilityService: UtilityService,
+    private stripeService: StripeService,
   ) {}
   async getAllOrders(
     userId: number,
@@ -143,12 +149,37 @@ export class OrderService {
   }
 
   async cancelOrder(orderId: number, userId: number): Promise<Order> {
+    // 1. Finding order
     const order: Order = await this.searchService.findOneOrThrow(
       this.db,
       orders,
       eq(orders.id, orderId),
     );
 
+    // 2. Get stripe payment intent in backedn
+    const stripeRecord: StripePaymentIntent =
+      await this.searchService.findOneOrThrow(
+        this.db,
+        stripePaymentIntents,
+        eq(stripePaymentIntents.orderId, orderId),
+      );
+
+    // 3. Check stripe payment intent id of stripe payment intent record
+    if (stripeRecord.stripePaymentIntentId === null) {
+      this.logger.warn(
+        `${StripeMessageLog.STRIPE_PAYMENT_INTENT_ID_IS_NULL_FOR_ORDER_ID} ${orderId}`,
+      );
+      throw new InternalServerErrorException(
+        StripeErrorMessage.PAYMENT_PROCESS_ERROR,
+      );
+    }
+
+    // 4. Call stripe service to change payment intent status to cancel
+    await this.stripeService.cancelPaymentIntent(
+      stripeRecord.stripePaymentIntentId,
+    );
+
+    // %. Update order status to cancel
     const result = await this.db.transaction(async (tx) => {
       return await tx
         .update(orders)
@@ -165,11 +196,12 @@ export class OrderService {
 
     return order;
   }
+
   async createOrder(
     userId: number,
     paymentMethod: PaymentMethod,
     shippingMethod: ShippingMethod,
-  ): Promise<Order> {
+  ): Promise<CreateOrderResponseDto> {
     // get user active cart
     const [cart] = await this.db
       .select()
@@ -234,11 +266,44 @@ export class OrderService {
       .set({ status: CartStatus.ORDERED, updated_at: new Date() })
       .where(eq(carts.id, cart.id));
 
+    // call stripe service to create payment intent
+    const paymentIntent: Stripe.PaymentIntent =
+      await this.stripeService.createPaymentIntent(totalPrice * 100, 'vnd', {
+        orderId: orderCreatedId.id.toString(),
+      });
+
+    // save payment intent to db
+    await this.savePaymentIntentToDb(userId, orderCreatedId.id, paymentIntent);
+
     // return order created
-    return this.searchService.findOneOrThrow(
+    await this.searchService.findOneOrThrow(
       this.db,
       orders,
       eq(orders.id, orderCreatedId.id),
     );
+
+    return {
+      orderId: orderCreatedId.id,
+      clientSecret: paymentIntent.client_secret!,
+    };
+  }
+
+  private async savePaymentIntentToDb(
+    userId: number,
+    orderId: number,
+    paymentIntent: Stripe.PaymentIntent,
+  ) {
+    await this.db.transaction(async (tx) => {
+      return await tx.insert(stripePaymentIntents).values({
+        userId,
+        orderId,
+        stripePaymentIntentId: paymentIntent.id,
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency,
+        status: paymentIntent.status,
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+    });
   }
 }

@@ -18,3 +18,7 @@ export const CommentErrorMessage = {
   COMMENT_ID_MUST_BE_INTEGER: 'ID bình luận phải là số nguyên',
   COMMENT_ID_MUST_BE_POSITIVE: 'ID bình luận phải lớn hơn 0',
 };
+
+export const CommentNotifyMessage = {
+  GET_COMMENT_SUCCESSFUL: 'Lấy danh sách comment thành công',
+};

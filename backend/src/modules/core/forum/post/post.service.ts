@@ -40,20 +40,54 @@ export class PostService {
     userId?: number,
   ): Promise<PostResponse[]> {
     try {
+      // 1. Get pagination
       const { skip, take } = this.utilityService.getPagination(offset, limit);
 
+      // 2. Check condition to get post each user or all user
       const condition =
         userId !== undefined
           ? and(eq(posts.status, PostStatus.ACTIVE), eq(posts.authorId, userId))
           : undefined;
 
-      return this.searchService.findManyOrReturnEmptyArray(
-        this.db,
-        posts,
-        condition,
-        take,
-        skip,
-      );
+      // 3. Get post
+      const postList: Post[] =
+        await this.searchService.findManyOrReturnEmptyArray(
+          this.db,
+          posts,
+          condition,
+          userId !== undefined ? take : undefined,
+          userId !== undefined ? skip : undefined,
+        );
+
+      // 4. Get author id of each post
+      const postAuthorIdList: number[] = postList.map((p) => p.authorId);
+
+      // 5. Get author from author id list
+      const userList: User[] = await this.db
+        .select()
+        .from(users)
+        .where(inArray(users.id, postAuthorIdList));
+
+      // 6. Map post and author
+      const result: PostResponse[] = postList.map((p) => {
+        const author: User | undefined = userList.find(
+          (u) => u.id === p.authorId,
+        );
+
+        return {
+          id: p.id,
+          title: p.title,
+          authorId: p.authorId,
+          authorName: author?.name ?? '',
+          content: p.content,
+          status: p.status,
+          hasPendingEditRequest: p.hasPendingEditRequest,
+          created_at: p.created_at,
+          updated_at: p.updated_at,
+        };
+      });
+
+      return result;
     } catch (error) {
       this.logger.error(error);
       throw error;
