@@ -25,9 +25,9 @@ import {
   brands,
   categories,
   categoriesMapping,
-  productRatings,
   images,
   productImages,
+  productRatings,
   products,
 } from '@schema';
 import { Brand, Category, Image, Product, ProductInsert } from '@schema-type';
@@ -333,33 +333,38 @@ export class ProductService {
     mainImage,
     subImages,
   }: UpdateProductInforRequestDTO): Promise<Product> {
-    //Check product exist
+    // 1. Check product exist
     await this.searchService.findOneOrThrow(
       this.db,
       products,
       eq(products.id, id),
     );
 
-    //save image to db
+    // 2. Save image to db
     let thumbnail: Image;
 
+    // 3. Change image type to thumnnail
     if (mainImage) {
       mainImage.type = ImageType.THUMBNAIL;
 
+      // 3.1. Save image to db
       thumbnail = await this.imageService.saveImage(mainImage);
     }
 
+    // 4. Declare image list
     let imageList: Image[];
 
+    // 5. Change image type to product
     if (subImages) {
       subImages.forEach((image) => {
         image.type = ImageType.PRODUCT;
       });
 
+      // 5.1. Save sub image to db
       imageList = await this.imageService.saveImages(subImages);
     }
 
-    //get image list id
+    // 6. Get image list id
     const imageListIds = await this.db
       .select()
       .from(productImages)
@@ -371,18 +376,19 @@ export class ProductService {
         ),
       );
 
-    //get thumbnail image
+    // 7. Get thumbnail image
     const productThumbnail = imageListIds.find(
       (img) => (img.images.type as ImageType) === ImageType.THUMBNAIL,
     );
 
+    // 8. Check thumbnail image of product is exist
     if (!productThumbnail) {
       throw new BadRequestException(
         `${Property.PRODUCT_THUMNAIL} ${ErrorMessage.NOT_EXIST}`,
       );
     }
 
-    //get brand and category from name
+    // 9. Get brand and category from name
     const brand: Brand = await this.searchService.findOneOrThrow(
       this.db,
       brands,
@@ -395,9 +401,9 @@ export class ProductService {
       eq(categories.name, categoryName),
     );
 
-    //update product
+    // 10. Update product
     const updateResult = await this.db.transaction(async (tx) => {
-      //update product with new product info
+      // 10.1. Update product with new product info
       const updatedProduct = await tx
         .update(products)
         .set({
@@ -411,13 +417,13 @@ export class ProductService {
         })
         .where(eq(products.id, id));
 
-      //update category mapping
+      // 10.5. Update category mapping
       await tx
         .update(categoriesMapping)
         .set({ categoryId: category.id, updated_at: new Date() })
         .where(eq(categoriesMapping.productId, id));
 
-      //update thumnail image
+      // 10.6. Update thumnail image
       await tx
         .update(productImages)
         .set({
@@ -427,7 +433,7 @@ export class ProductService {
         })
         .where(eq(productImages.imageId, productThumbnail.images.id));
 
-      //sub image list use for soft delete
+      // 10.7. Get sub image list use for soft delete
       const subImageIds = await tx
         .select({ imageId: productImages.imageId })
         .from(productImages)
@@ -439,6 +445,7 @@ export class ProductService {
           ),
         );
 
+      // 10.8. Soft delete sub image
       await tx
         .update(images)
         .set({ status: ImageStatus.REMOVED, updated_at: new Date() })
@@ -449,7 +456,7 @@ export class ProductService {
           ),
         );
 
-      //inser new sub image
+      // 10.9 Insert new sub image
       if (imageList && imageList.length > 0) {
         await tx
           .insert(productImages)
@@ -464,12 +471,13 @@ export class ProductService {
           )
           .$returningId();
       }
-
+      // 10.10. Return updated product
       return {
         updatedProduct,
       };
     });
 
+    // 11. Check if updating product is success
     if (!updateResult) {
       this.logger.error(`${MessageLog.PRODUCT} ${MessageLog.CAN_NOT_UPDATE}`);
       throw new InternalServerErrorException(
@@ -481,12 +489,14 @@ export class ProductService {
   }
 
   async removeProductById(productId: number): Promise<Product> {
+    // 1. Get product infor
     const product: Product = await this.searchService.findOneOrThrow(
       this.db,
       products,
       eq(products.id, productId),
     );
 
+    // 2. Soft delete product
     const updateResult = await this.db.transaction((tx) =>
       tx
         .update(products)
@@ -494,6 +504,7 @@ export class ProductService {
         .where(eq(products.id, productId)),
     );
 
+    // 3. Check if updati@ng product status is success
     if (!updateResult) {
       this.logger.error(`${MessageLog.PRODUCT} ${MessageLog.CAN_NOT_DELETE}`);
       throw new InternalServerErrorException(

@@ -38,6 +38,7 @@ import { GetOrderDetailsByOrderIdRequestDto } from '@dtos/order/get-order-detail
 import { CancelOrderRequestDto } from '@dtos/order/cancel-order-request.dto';
 import { Order } from '@schema-type';
 import { CreateOrderRequestDto } from '@dtos/order/create-order-request.dto';
+import { CreateOrderResponseDto } from '@dtos/response/order/create-order-response.dto';
 
 @Controller('orders')
 @ApiTags('Order')
@@ -146,7 +147,7 @@ export class OrderController {
   async createOrder(
     @GetUser() userId: JwtPayload,
     @Body() { paymentMethod, shippingMethod }: CreateOrderRequestDto,
-  ): Promise<ApiResponse<Order>> {
+  ): Promise<ApiResponse<CreateOrderResponseDto>> {
     const order = await this.orderService.createOrder(
       userId.sub,
       paymentMethod,

@@ -2,23 +2,29 @@ import { CommentService } from '@core-modules/forum/comment/comment.service';
 import { HasRole } from '@decorator/roles.decorator';
 import { GetUser } from '@decorator/user.decorator';
 import { CreateCommentRequestDto } from '@dtos/comment/create-comment-request.dto';
+import { GetAllCommentRequest } from '@dtos/comment/get-all-comment-request.dto';
 import { RemoveCommentRequestDto } from '@dtos/comment/remove-comment-request.dto';
 import { ReplyCommentRequestDto } from '@dtos/comment/reply-comment-request.dto';
 import { UpdateCommentRequestDto } from '@dtos/comment/update-comment-request.dto';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { GetCommentResponseDto } from '@dtos/comment/get-all-comment-response.dto';
 import { Role } from '@enum/role.enum';
 import { CatchEverythingFilter } from '@filter/exception.filter';
 import { JwtAuthGuard } from '@guard/jwt-auth.guard';
 import { RolesGuard } from '@guard/roles.guard';
 import { JwtPayload } from '@interfaces';
+import { CommentNotifyMessage } from '@message/comment-message';
 import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Logger,
   Patch,
   Post,
+  Query,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
@@ -38,7 +44,7 @@ import {
 export class CommentController {
   private readonly logger = new Logger(CommentController.name);
 
-  constructor(private commentService: CommentService) { }
+  constructor(private commentService: CommentService) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Tạo bình luận cho bài viết' })
@@ -64,7 +70,9 @@ export class CommentController {
     @Body() { content, postId }: CreateCommentRequestDto,
     @GetUser() user: JwtPayload,
   ) {
-    this.logger.debug(`Creating comment for post ${postId} by user ${user.sub}`);
+    this.logger.debug(
+      `Creating comment for post ${postId} by user ${user.sub}`,
+    );
     return this.commentService.createComment(postId, user.sub, content);
   }
 
@@ -93,7 +101,9 @@ export class CommentController {
     { content, parentCommentId, postId }: ReplyCommentRequestDto,
     @GetUser() user: JwtPayload,
   ) {
-    this.logger.debug(`Replying to comment ${parentCommentId} for post ${postId} by user ${user.sub}`);
+    this.logger.debug(
+      `Replying to comment ${parentCommentId} for post ${postId} by user ${user.sub}`,
+    );
     return this.commentService.replyComment(
       postId,
       user.sub,
@@ -129,7 +139,6 @@ export class CommentController {
     return this.commentService.updateComment(commentId, content, user.sub);
   }
 
-
   @Delete('remove')
   @HasRole(Role.ADMIN) // Restrict to ADMIN only for deleting comments
   @ApiOperation({ summary: 'Xoá (ẩn) bình luận' })
@@ -155,7 +164,27 @@ export class CommentController {
     @Body() { commentId, postId }: RemoveCommentRequestDto,
     @GetUser() user: JwtPayload,
   ) {
-    this.logger.debug(`Removing comment ${commentId} for post ${postId} by user ${user.sub}`);
+    this.logger.debug(
+      `Removing comment ${commentId} for post ${postId} by user ${user.sub}`,
+    );
     return this.commentService.removeComment(commentId, postId, user.sub);
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Lấy tất cả bình luận của bài viết (bao gồm replies)',
+  })
+  async getComments(
+    @Query() { limit, page, postId }: GetAllCommentRequest,
+  ): Promise<ApiResponse<GetCommentResponseDto[]>> {
+    const comment: GetCommentResponseDto[] =
+      await this.commentService.getCommentsByPost(postId, limit, page);
+    this.logger.debug(`Comment: ${JSON.stringify(comment)}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: CommentNotifyMessage.GET_COMMENT_SUCCESSFUL,
+      data: comment,
+    };
   }
 }
