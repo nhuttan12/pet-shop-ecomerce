@@ -1,5 +1,5 @@
 import { AuthenticatedRequest } from '@interfaces';
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext, Logger } from '@nestjs/common';
 
 /**
  * @description: create param decorator to get user
@@ -9,6 +9,7 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 export const GetUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
+    console.log(JSON.stringify(request.user));
     return request.user;
   },
 );

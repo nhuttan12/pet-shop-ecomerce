@@ -27,8 +27,12 @@ export const removeComment = async (payload: RemoveCommentPayload) => {
   return response.data;
 };
 
-// export const getComments = (postId: number, page: number, limit: number) => {
-//   return api.get(`/comment`, {
-//     params: { postId, page, limit }
-//   });
-// };
+export const getComments = async (postId: number, page: number, limit: number) => {
+  const response = await api.get(`/comment`, {
+    params: { postId, page, limit }
+  });
+  console.log("Raw API response:", response);
+  return response.data.data;  // Trả về mảng comment nằm trong response.data.data
+};
+
+

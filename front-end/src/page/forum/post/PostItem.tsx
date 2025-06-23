@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { MdRemoveRedEye } from "react-icons/md";
 import { BsChatRight } from "react-icons/bs";
 import { Post } from "../../../types/Forum";
+import CommentForm from "../comment/CommentForm";
+import CommentList from "../comment/CommentList";
 
 interface PostItemProps {
   post: Post;
@@ -25,18 +27,24 @@ const PostItem: React.FC<PostItemProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(post.title);
   const [editContent, setEditContent] = useState(post.content);
+  const [showCommentBox, setShowCommentBox] = useState(false);
+  const [reloadComments, setReloadComments] = useState(false); // để trigger reload
 
   const handleSave = () => {
     if (!editTitle.trim() || !editContent.trim()) {
-      alert('Vui lòng nhập tiêu đề và nội dung.');
+      alert("Vui lòng nhập tiêu đề và nội dung.");
       return;
     }
     onEdit(post.id, editTitle, editContent);
     setIsEditing(false);
   };
 
+  const handleCommentSuccess = () => {
+    setReloadComments((prev) => !prev); // thay đổi để kích hoạt re-fetch
+  };
+
   return (
-    <div className="w-full h-[90px] bg-white shadow-[0px_4px_4px_#00000040] relative p-4 mb-3 rounded">
+    <div className="w-full bg-white shadow-[0px_4px_4px_#00000040] relative p-4 mb-3 rounded">
       {isEditing ? (
         <>
           <input
@@ -58,7 +66,7 @@ const PostItem: React.FC<PostItemProps> = ({
               disabled={editing}
               className="bg-green-600 text-white px-3 py-1 rounded disabled:opacity-50"
             >
-              {editing ? 'Đang lưu...' : 'Lưu'}
+              {editing ? "Đang lưu..." : "Lưu"}
             </button>
             <button
               onClick={() => setIsEditing(false)}
@@ -71,9 +79,14 @@ const PostItem: React.FC<PostItemProps> = ({
         </>
       ) : (
         <>
+          <p className="text-sm font-semibold text-black leading-5">
+            {post.title}
+          </p>
           <p className="text-base text-black mb-1">{post.content}</p>
           <p className="text-xs text-black mb-2">
-            Được đăng bởi <span className="font-bold">{post.author || post.authorId}</span> {post.timeAgo}
+            Được đăng bởi{" "}
+            <span className="font-bold">{post.author || post.authorId}</span>{" "}
+            {post.timeAgo}
           </p>
 
           <div className="absolute top-4 right-4 flex gap-3">
@@ -82,7 +95,10 @@ const PostItem: React.FC<PostItemProps> = ({
               <span className="text-xs">{post.views}</span>
             </div>
 
-            <div className="flex flex-col items-center gap-1 w-[46px] h-[45px] bg-white">
+            <div
+              className="flex flex-col items-center gap-1 w-[46px] h-[45px] bg-white cursor-pointer"
+              onClick={() => setShowCommentBox(!showCommentBox)}
+            >
               <BsChatRight size={24} />
               <span className="text-xs">{post.replies}</span>
             </div>
@@ -99,7 +115,7 @@ const PostItem: React.FC<PostItemProps> = ({
               className="bg-red-600 px-2 rounded text-xs text-white"
               disabled={editing || deleting || reporting}
             >
-              {deleting ? 'Đang xoá...' : 'Xoá'}
+              {deleting ? "Đang xoá..." : "Xoá"}
             </button>
             <button
               onClick={() => onReport(post.id)}
@@ -109,6 +125,14 @@ const PostItem: React.FC<PostItemProps> = ({
               Báo cáo
             </button>
           </div>
+
+          {/* Hiển thị CommentForm + CommentList */}
+          {showCommentBox && (
+            <div className="mt-4">
+              <CommentForm postId={post.id} onSuccess={handleCommentSuccess} />
+              <CommentList postId={post.id} reloadTrigger={reloadComments} />
+            </div>
+          )}
         </>
       )}
     </div>

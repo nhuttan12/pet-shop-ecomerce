@@ -125,6 +125,7 @@ export class PostController {
   }
 
   @Patch('edit/:postId')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Chỉnh sửa bài viết' })
   @ApiParam({ name: 'postId', type: Number, description: 'ID bài viết' })
   @ApiBody({ type: EditPostRequestDto })
@@ -202,6 +203,7 @@ export class PostController {
   }
 
   @Post('report')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Report a post',
     description:

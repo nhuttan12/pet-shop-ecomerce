@@ -7,6 +7,7 @@ export interface Post {
   timeAgo: string;
   views: number;
   replies: number;
+  status?: 'active' | 'removed' | 'draft';
 }
 export interface Comment {
   id: number;
