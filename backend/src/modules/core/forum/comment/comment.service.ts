@@ -21,7 +21,7 @@ export class CommentService {
   constructor(
     @Inject(DrizzleAsyncProvider) private db: MySql2Database<any>,
     private searchService: SearchService,
-  ) {}
+  ) { }
   async createComment(
     postId: number,
     userId: number,
@@ -179,4 +179,5 @@ export class CommentService {
       throw e;
     }
   }
+
 }

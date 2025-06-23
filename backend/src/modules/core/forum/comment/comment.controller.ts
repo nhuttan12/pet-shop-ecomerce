@@ -33,16 +33,16 @@ import {
 @Controller('comment')
 @ApiBearerAuth('jwt')
 @ApiTags('Comment')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@HasRole(Role.ADMIN, Role.ADMIN)
+@HasRole(Role.USER, Role.ADMIN) // Allow USER and ADMIN roles for all endpoints
 @UseFilters(CatchEverythingFilter)
 export class CommentController {
   private readonly logger = new Logger(CommentController.name);
 
-  constructor(private commentService: CommentService) {}
+  constructor(private commentService: CommentService) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Tạo bình luận cho bài viết' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @SwaggerApiResponse({
     status: 201,
     description: 'Bình luận được tạo thành công',
@@ -64,6 +64,7 @@ export class CommentController {
     @Body() { content, postId }: CreateCommentRequestDto,
     @GetUser() user: JwtPayload,
   ) {
+    this.logger.debug(`Creating comment for post ${postId} by user ${user.sub}`);
     return this.commentService.createComment(postId, user.sub, content);
   }
 
@@ -92,6 +93,7 @@ export class CommentController {
     { content, parentCommentId, postId }: ReplyCommentRequestDto,
     @GetUser() user: JwtPayload,
   ) {
+    this.logger.debug(`Replying to comment ${parentCommentId} for post ${postId} by user ${user.sub}`);
     return this.commentService.replyComment(
       postId,
       user.sub,
@@ -123,10 +125,13 @@ export class CommentController {
     @Body() { content, commentId }: UpdateCommentRequestDto,
     @GetUser() user: JwtPayload,
   ) {
+    this.logger.debug(`Updating comment ${commentId} by user ${user.sub}`);
     return this.commentService.updateComment(commentId, content, user.sub);
   }
 
+
   @Delete('remove')
+  @HasRole(Role.ADMIN) // Restrict to ADMIN only for deleting comments
   @ApiOperation({ summary: 'Xoá (ẩn) bình luận' })
   @SwaggerApiResponse({
     status: 200,
@@ -150,6 +155,7 @@ export class CommentController {
     @Body() { commentId, postId }: RemoveCommentRequestDto,
     @GetUser() user: JwtPayload,
   ) {
+    this.logger.debug(`Removing comment ${commentId} for post ${postId} by user ${user.sub}`);
     return this.commentService.removeComment(commentId, postId, user.sub);
   }
 }

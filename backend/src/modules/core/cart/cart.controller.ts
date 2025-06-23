@@ -1,20 +1,3 @@
-import { CartService } from '@core-modules/cart/cart.service';
-import { HasRole } from '@decorator/roles.decorator';
-import { GetUser } from '@decorator/user.decorator';
-import { CartDetailResponse } from '@dtos/cart-detail/cart-detail-response.dto';
-import { GetCartDetailByCartId } from '@dtos/cart-detail/get-cart-detail-by-cart-id';
-import { RemoveCartDetailDTO } from '@dtos/cart-detail/remove-cart-detail.dto';
-import { CartCreateDTO } from '@dtos/cart/create-cart.dto';
-import { FindCartById } from '@dtos/cart/find-cart-by-id.dto';
-import { GetAllCartsDTO } from '@dtos/cart/get-all-cart.dto';
-import { RemoveCartDTO } from '@dtos/cart/remove-cart.dto';
-import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
-import { Role } from '@enum/role.enum';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { JwtAuthGuard } from '@guard/jwt-auth.guard';
-import { RolesGuard } from '@guard/roles.guard';
-import { JwtPayload } from '@interfaces';
-import { NotifyMessage } from '@message/notify-message';
 import {
   Body,
   Controller,
@@ -38,6 +21,24 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Cart, CartDetail } from '@schema-type';
+import { HasRole } from '@decorator/roles.decorator';
+import { GetUser } from '@decorator/user.decorator';
+import { CartDetailResponse } from '@dtos/cart-detail/cart-detail-response.dto';
+import { GetCartDetailByCartId } from '@dtos/cart-detail/get-cart-detail-by-cart-id';
+import { RemoveCartDetailDTO } from '@dtos/cart-detail/remove-cart-detail.dto';
+import { CartCreateDTO } from '@dtos/cart/create-cart.dto';
+import { FindCartById } from '@dtos/cart/find-cart-by-id.dto';
+import { GetAllCartsDTO } from '@dtos/cart/get-all-cart.dto';
+import { RemoveCartDTO } from '@dtos/cart/remove-cart.dto';
+import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
+import { Role } from '@enum/role.enum';
+import { CatchEverythingFilter } from '@filter/exception.filter';
+import { JwtAuthGuard } from '@guard/jwt-auth.guard';
+import { RolesGuard } from '@guard/roles.guard';
+import { JwtPayload } from '@interfaces';
+import { NotifyMessage } from '@message/notify-message';
+import { main } from '@helper-modules/services/seed';
+import { CartService } from '@core-modules/cart/cart.service';
 
 @ApiTags('Cart')
 @ApiBearerAuth('jwt')
@@ -198,5 +199,10 @@ export class CartController {
       message: NotifyMessage.REMOVE_CART_DETAIL_SUCCESSFUL,
       data: cartDetail,
     };
+  }
+
+  @Post('/seed')
+  async seedData() {
+    await main();
   }
 }

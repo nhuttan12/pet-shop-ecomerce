@@ -7,8 +7,3 @@ export const WishlistErrorMessage = {
     'Mã số yêu thích phải là số nguyên dương',
   WISHLIST_ID_MUST_BE_INTEGER: 'Mã số yêu thích phải là số nguyên',
 };
-
-export const WishlistNotifyMessage = {
-  GET_WISHLIST_PRODUCTS_SUCCESSFUL:
-    'Lấy danh sách sản phẩm yêu thích thành công',
-};

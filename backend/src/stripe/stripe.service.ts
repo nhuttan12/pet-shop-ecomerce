@@ -1,8 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { STRIPE_API_KEY } from '@constants';
 import Stripe from 'stripe';
-import { StripeMessageLog } from '@message/srtipe-message';
-import { UpdateStripePriceDto } from '@dtos/stripe/update-price-stripe-request.dto';
 
 @Injectable()
 export class StripeService {
@@ -86,7 +84,7 @@ export class StripeService {
       return subscription;
     } catch (error) {
       this.logger.error(
-        StripeMessageLog.FAILED_TO_ATTACH_PAYMENT_METHOD,
+        'Failed to attach payment method',
         (error as Error)?.stack,
       );
       throw error;
@@ -97,9 +95,7 @@ export class StripeService {
   async createCustomer(email: string, name: string): Promise<Stripe.Customer> {
     try {
       const customer = await this.stripe.customers.create({ email, name });
-      this.logger.log(
-        `${StripeMessageLog.CUSTOMER_IN_STRIPE_CREATE_SUCCESSFULLY_WITH_EMAIL}: ${email}`,
-      );
+      this.logger.log(`Customer created successfully with email: ${email}`);
       return customer;
     } catch (error) {
       this.logger.error(
@@ -114,39 +110,20 @@ export class StripeService {
   async createProduct(
     name: string,
     description: string,
+    price: number,
   ): Promise<Stripe.Product> {
     try {
       const product = await this.stripe.products.create({ name, description });
-      this.logger.log(
-        `${StripeMessageLog.PRODUCT_CREATE_SUCCESSFULLY}: ${name}`,
-      );
+      await this.stripe.prices.create({
+        product: product.id,
+        unit_amount: price * 100, // amount in cents
+        currency: 'usd',
+      });
+      this.logger.log(`Product created successfully: ${name}`);
       return product;
     } catch (error) {
       this.logger.error(
-        StripeMessageLog.FAILED_TO_ATTACH_PAYMENT_METHOD,
-        (error as Error)?.stack,
-      );
-      throw error;
-    }
-  }
-
-  async createPrice(
-    stripeProductId: string,
-    price: number,
-    currency: string = 'vnd',
-  ): Promise<Stripe.Price> {
-    try {
-      const stripePrice = await this.stripe.prices.create({
-        product: stripeProductId,
-        unit_amount: price * 100, // cents
-        currency,
-      });
-      this.logger.log(`Created Stripe price: ${stripePrice.id}`);
-
-      return stripePrice;
-    } catch (error) {
-      this.logger.error(
-        StripeMessageLog.FAILED_TO_ATTACH_PAYMENT_METHOD,
+        'Failed to attach payment method',
         (error as Error)?.stack,
       );
       throw error;
@@ -159,17 +136,13 @@ export class StripeService {
       const refund = await this.stripe.refunds.create({
         payment_intent: paymentIntentId,
       });
-
       this.logger.log(
-        StripeMessageLog.REFUND_PROCESS_SUCCESSFULLY_FOR_PAYMENT_INTENT +
-          ' ' +
-          paymentIntentId,
+        `Refund processed successfully for PaymentIntent: ${paymentIntentId}`,
       );
-
       return refund;
     } catch (error) {
       this.logger.error(
-        StripeMessageLog.FAILED_TO_ATTACH_PAYMENT_METHOD,
+        'Failed to attach payment method',
         (error as Error)?.stack,
       );
       throw error;
@@ -190,58 +163,11 @@ export class StripeService {
       );
     } catch (error) {
       this.logger.error(
-        StripeMessageLog.FAILED_TO_ATTACH_PAYMENT_METHOD,
+        'Failed to attach payment method',
         (error as Error)?.stack,
       );
       throw error;
     }
-  }
-
-  // Update product in stripe service
-  async updateProduct(
-    stripeProductId: string,
-    name?: string,
-    description?: string,
-  ): Promise<Stripe.Product> {
-    try {
-      const product = await this.stripe.products.update(stripeProductId, {
-        name: name,
-        description: description,
-      });
-
-      this.logger.log(StripeMessageLog.PRODUCT_UPDATE_SUCCESSFULLY);
-      return product;
-    } catch (error) {
-      this.logger.error(
-        StripeMessageLog.FAILED_TO_ATTACH_PAYMENT_METHOD,
-        (error as Error)?.stack,
-      );
-
-      throw error;
-    }
-  }
-
-  async updatePrice({
-    newAmount,
-    oldPriceId,
-    stripeProductId,
-    currency,
-    interval,
-  }: UpdateStripePriceDto): Promise<Stripe.Price> {
-    // 1. Deactivate old price (không thể xóa, chỉ vô hiệu hóa)
-    await this.stripe.prices.update(oldPriceId, { active: false });
-
-    // 2. Tạo price mới
-    const newPrice = await this.stripe.prices.create({
-      unit_amount: newAmount,
-      currency,
-      product: stripeProductId,
-      recurring: {
-        interval,
-      },
-    });
-
-    return newPrice;
   }
 
   // Reports and Analytics (Retrieve Balance)
@@ -252,7 +178,7 @@ export class StripeService {
       return balance;
     } catch (error) {
       this.logger.error(
-        StripeMessageLog.FAILED_TO_ATTACH_PAYMENT_METHOD,
+        'Failed to attach payment method',
         (error as Error)?.stack,
       );
       throw error;
@@ -269,7 +195,7 @@ export class StripeService {
       return paymentLink;
     } catch (error) {
       this.logger.error(
-        StripeMessageLog.FAILED_TO_ATTACH_PAYMENT_METHOD,
+        'Failed to attach payment method',
         (error as Error)?.stack,
       );
       throw error;
