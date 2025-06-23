@@ -46,8 +46,9 @@ export class UpdateProductInforRequestDTO {
   @Min(1, {
     message: `${Property.PRICE} ${ErrorMessage.SHOULD_NOT_BE_A_NEGATIVE_NUMBER}`,
   })
+  @IsOptional()
   @ApiProperty()
-  price: number;
+  price?: number;
 
   @Type(() => String)
   @IsString({

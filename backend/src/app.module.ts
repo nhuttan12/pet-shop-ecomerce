@@ -6,7 +6,7 @@ import { DatabaseModule } from '@helper-modules/database/database.module';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { CatchEverythingFilter } from '@filter/exception.filter';
 import { ImageModule } from '@helper-modules/image/image.module';
-import { StripeModule } from './stripe/stripe.module';
+import { StripeModule } from './modules/helper/stripe/stripe.module';
 import { AuthModule } from '@core-modules/auth/auth.module';
 import { UsersModule } from '@core-modules/user/user.module';
 import { RoleModule } from '@core-modules/role/role.module';

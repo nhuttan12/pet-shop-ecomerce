@@ -1,8 +1,11 @@
-import mysql from 'mysql2/promise';
+import { images, roles, users } from '@schema';
 import { drizzle } from 'drizzle-orm/mysql2';
-import { images, roles } from '@schema';
+import mysql from 'mysql2/promise';
+import bcrypt from 'bcrypt';
 
 export async function main() {
+  const saltOrRounds = 10;
+
   // Tạo kết nối đến DB
   const connection = await mysql.createConnection({
     host: 'localhost',
@@ -25,6 +28,13 @@ export async function main() {
     folder: 'tmdt-ck',
     created_at: new Date(),
     updated_at: new Date(),
+  });
+
+  await db.insert(users).values({
+    email: 'admin@gmail.com',
+    username: 'admin',
+    password: await bcrypt.hash('123123', saltOrRounds),
+    roleId: 1,
   });
 
   await connection.end();
