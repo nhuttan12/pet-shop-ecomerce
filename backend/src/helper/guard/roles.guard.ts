@@ -36,6 +36,14 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
+    // Thêm check user tồn tại
+    if (!user) {
+      this.logger.error('User is undefined in RolesGuard');
+      throw new ForbiddenException(
+        'Bạn chưa đăng nhập hoặc token không hợp lệ',
+      );
+    }
+
     const hasRole: boolean = requiredRoles.some((roleName) =>
       user.role?.includes(roleName.toString()),
     );

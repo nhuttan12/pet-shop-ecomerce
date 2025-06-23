@@ -10,9 +10,7 @@ export const categories = mysqlTable('categories', {
   status: mysqlEnum(
     Object.values(CategoryStatus) as [string, ...string[]],
   ).notNull(),
-  imageId: int('image_id')
-    .notNull()
-    .references(() => images.id),
+  imageId: int('image_id').references(() => images.id),
   ...timestamps,
 });
 

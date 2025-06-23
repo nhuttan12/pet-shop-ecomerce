@@ -1,4 +1,5 @@
 import { CreateProductRequest } from '@dtos/product/create-product-request.dto';
+import { ProductFilterParams } from '@dtos/product/filter-product-request.dto';
 import { GetAllProductResponseDto } from '@dtos/product/get-all-product-response.dto';
 import { GetProductDetailResponseDto } from '@dtos/product/get-product-detail-response.dto';
 import { UpdateProductInforRequestDTO } from '@dtos/product/update-product-infor-request.dto';
@@ -31,7 +32,7 @@ import {
   products,
 } from '@schema';
 import { Brand, Category, Image, Product, ProductInsert } from '@schema-type';
-import { and, eq, inArray, like } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, like, lte, SQL } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 
 @Injectable()
@@ -622,5 +623,95 @@ export class ProductService {
     } finally {
       this.logger.log(`Get info with product id ${productId}`);
     }
+  }
+
+  async filterProducts({
+    limit,
+    page,
+    brandName,
+    discount,
+    maxPrice,
+    minPrice,
+    name,
+    sortOrder,
+    stocking,
+    status,
+    category,
+  }: ProductFilterParams): Promise<GetAllProductResponseDto[]> {
+    const { skip, take } = this.utilityService.getPagination(page, limit);
+
+    const cleanName = name?.trim().toLowerCase();
+
+    const conditions: SQL[] = [];
+
+    const query = this.db
+      .select()
+      .from(products)
+      .innerJoin(brands, eq(brands.id, products.brandId));
+
+    if (conditions.length > 0) {
+      query.where(and(...conditions));
+    }
+
+    const productList = await this.db
+      .select()
+      .from(products)
+      .innerJoin(brands, eq(brands.id, products.brandId))
+      .innerJoin(
+        categoriesMapping,
+        eq(categoriesMapping.productId, products.id),
+      )
+      .innerJoin(categories, eq(categoriesMapping.categoryId, categories.id))
+      .where(
+        and(
+          minPrice ? gte(products.price, minPrice) : undefined,
+          maxPrice ? lte(products.price, maxPrice) : undefined,
+          status ? eq(products.status, status) : undefined,
+          name ? like(products.name, `%${cleanName}%`) : undefined,
+          brandName ? like(brands.name, `%${brandName}%`) : undefined,
+          stocking ? eq(products.stocking, stocking) : undefined,
+          discount ? eq(products.discount, discount) : undefined,
+          category ? eq(categories.name, category) : undefined,
+        ),
+      )
+      .orderBy(sortOrder === 'asc' ? asc(products.price) : desc(products.price))
+      .limit(take)
+      .offset(skip);
+
+    this.logger.log(JSON.stringify(productList));
+
+    const productIds = productList.map((p) => p.products.id);
+
+    const imageList = await this.db
+      .select()
+      .from(productImages)
+      .innerJoin(images, eq(productImages.imageId, images.id))
+      .where(inArray(productImages.productId, productIds));
+
+    const productMap: GetAllProductResponseDto[] = productList.map((prod) => ({
+      id: prod.products.id,
+      name: prod.products.name,
+      description: prod.products.description,
+      price: prod.products.price,
+      brandName: prod.brands.name,
+      categoryName: prod.categories.name,
+      thumbnailUrl: '',
+      status: prod.products.status,
+      stock: prod.products.stocking,
+    }));
+
+    for (const prod of productMap) {
+      const img = imageList.find(
+        (img) =>
+          img.product_images.productId === prod.id &&
+          (img.images.type as ImageType) === ImageType.THUMBNAIL,
+      );
+
+      if (img) {
+        prod.thumbnailUrl = img.images.url;
+      }
+    }
+
+    return productMap;
   }
 }
