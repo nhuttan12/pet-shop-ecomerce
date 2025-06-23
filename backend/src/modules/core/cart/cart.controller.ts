@@ -42,8 +42,8 @@ import { Cart, CartDetail } from '@schema-type';
 @ApiTags('Cart')
 @ApiBearerAuth('jwt')
 @UseFilters(CatchEverythingFilter)
-@UseGuards(JwtAuthGuard)
-@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard,RolesGuard)
+// @UseGuards(RolesGuard)
 @Controller('carts')
 export class CartController {
   private readonly logger = new Logger();
@@ -158,7 +158,7 @@ export class CartController {
   @ApiQuery({
     name: 'page',
     required: false,
-    type: Number,
+    type: Number, 
     description: 'Trang số',
   })
   @ApiOkResponse({

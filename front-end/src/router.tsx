@@ -19,6 +19,7 @@ import ContactPage from "./page/contact";
 import AboutUs from "./page/about";
 import ProfilePage from "./page/profile";
 import Order from "./page/order";
+import FavoriteProductsPage  from "./page/wishlists/wishlist";
 import CartCheckOut from "./page/cart";
 import ForgotPasswordStepperForm from "./page/forgot_password";
 const AppRoutes: React.FC = () => {
@@ -39,7 +40,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/products" element={<Products />} />
         <Route path="/forum" element={<Forum />} />
         <Route path="/checkout" element={<Checkout />} />
-        <Route path="/cartpage" element={<CartPage />} />
+        <Route path="/cart" element={<CartPage />} />
+         <Route path="/wishlist" element={<FavoriteProductsPage />} />
         {/* <Route path="/productdetail" element={<ProductDetailPage />} /> */}
         <Route path="/productdetail/:id" element={<ProductDetailPage />} />
         <Route path="/contact" element={<ContactPage />} />

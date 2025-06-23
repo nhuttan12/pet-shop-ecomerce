@@ -52,7 +52,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           <Card
             key={product.id}
             id={product.id}
-            image={product.image}
+            image={product.thumbnailUrl}
             title={product.name}
             price={product.price}
             isFavorite={product.isFavorite}

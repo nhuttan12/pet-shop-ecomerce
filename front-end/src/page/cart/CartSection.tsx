@@ -1,10 +1,10 @@
 import React from 'react';
 import ProductItem from './ProductItem';
 import Button from '../../components/ui/Button';
-import { CartItem } from '../../types/Cart';
+import { CartDetailResponse } from '../../types/Cart';
 
 interface CartSectionProps {
-  cartItems: CartItem[];
+  cartItems: CartDetailResponse[];
   onRemoveItem: (id: number) => void;
   onQuantityChange: (id: number, quantity: number) => void;
   onUpdateCart: () => void;
@@ -42,7 +42,7 @@ const CartSection: React.FC<CartSectionProps> = ({
         <tbody>
           {cartItems.map(item => (
             <ProductItem
-              key={item.id}
+              key={item.cartDetailId}
               item={item}
               onRemove={onRemoveItem}
               onQuantityChange={onQuantityChange}

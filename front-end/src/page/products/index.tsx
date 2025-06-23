@@ -31,11 +31,13 @@ const Products: React.FC = () => {
 
   // Lấy token đúng cách (context, redux, localStorage ...)
   const {
-    add,
-    remove,
-    loading: wishlistLoading,
-    error: wishlistError,
-  } = useWishlist(token);
+  wishlistItems,
+  add,
+  remove,
+  fetch: fetchWishlist,
+  loading: wishlistLoading,
+  error: wishlistError,
+} = useWishlist(token);
  
   // Filter categories
   const [filterCategories, setFilterCategories] = useState<FilterCategory[]>([
@@ -88,9 +90,19 @@ const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
 
   // Đồng bộ products từ hook về state local
-  React.useEffect(() => {
-    setProducts(productsFromHook);
-  }, [productsFromHook]);
+// Đồng bộ products với wishlistItems khi productsFromHook hoặc wishlistItems thay đổi
+React.useEffect(() => {
+  const updatedProducts = productsFromHook.map(product => {
+    const wishItem = wishlistItems.find(w => w.productId === product.id);
+    return {
+      ...product,
+      isFavorite: !!wishItem,
+      wishlistId: wishItem ? wishItem.id : undefined,
+    };
+  });
+  setProducts(updatedProducts);
+}, [productsFromHook, wishlistItems]);
+
 
   // Bạn có thể lấy totalPages và totalResults từ API trả về nếu có, hoặc tạm giả định
   const totalResults = products.length; // tạm thời là số lượng hiện tại
@@ -144,39 +156,26 @@ const Products: React.FC = () => {
   };
 
   const handleFavoriteToggle = async (id: number) => {
-    try {
-      const product = products.find((p) => p.id === id);
-      if (!product) return;
+  try {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
 
-      if (product.isFavorite) {
-        if (!product.wishlistId) {
-          console.error(
-            "wishlistId không tồn tại, không thể xóa khỏi wishlist"
-          );
-          return;
-        }
-        await remove(product.wishlistId);
-        setProducts(
-          products.map((p) =>
-            p.id === id ? { ...p, isFavorite: false, wishlistId: undefined } : p
-          )
-        );
-      } else {
-        const res = await add(id.toString());
-        // Giả sử API trả về wishlistId trong res.wishlistId
-        setProducts(
-          products.map((p) =>
-            p.id === id
-              ? { ...p, isFavorite: true, wishlistId: res.wishlistId }
-              : p
-          )
-        );
+    if (product.isFavorite) {
+      if (!product.wishlistId) {
+        console.error("wishlistId không tồn tại, không thể xóa khỏi wishlist");
+        return;
       }
-    } catch (e) {
-      console.error("Failed to toggle favorite:", e);
+      await remove(product.wishlistId);
+    } else {
+      await add(id);
     }
-  };
 
+    // Sau khi thay đổi favorite, fetch lại wishlist để cập nhật state
+    await fetchWishlist();
+  } catch (e) {
+    console.error("Failed to toggle favorite:", e);
+  }
+};
   return (
     <div className="min-h-screen flex flex-col">
       <Header />

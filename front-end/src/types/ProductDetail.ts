@@ -39,6 +39,9 @@ export interface ProductDetailResponse {
 }
 
 
+
+
+
 // export interface Product {
 //   id: string;
 //   name: string;

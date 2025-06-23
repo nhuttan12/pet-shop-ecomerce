@@ -26,7 +26,7 @@ export async function main() {
   const connection = await mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '123456',
+    password: 'thuc2003',
     database: 'tmdt-ck',
   });
   const db = drizzle(connection);
