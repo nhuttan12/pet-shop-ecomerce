@@ -196,14 +196,16 @@ export class OrderService {
       throw new InternalServerErrorException('Giỏ hàng rỗng.');
     }
 
+    const totalPrice = cartDetailsList.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+
     // create new order
     const orderValue: OrderInsert = {
       userId: userId,
       cartId: cart.id,
-      totalPrice: cartDetailsList.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      ),
+      totalPrice,
       paymentMethod,
       shippingMethod,
       status: OrderStatus.Pending,
