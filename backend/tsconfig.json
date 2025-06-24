@@ -19,48 +19,31 @@
     "noFallthroughCasesInSwitch": false,
     "baseUrl": "./src",
     "paths": {
-      "@schema": [
-        "db/schema"
-      ],
-      "@schema-type": [
-        "db/helper/schema-type.ts"
-      ],
-      "@dtos/*": [
-        "helper/dto/*"
-      ],
-      "@enum/*": [
-        "helper/enum/*"
-      ],
-      "@guard/*": [
-        "helper/guard/*"
-      ],
-      "@filter/*": [
-        "helper/filter/*"
-      ],
-      "@message/*": [
-        "helper/message/*"
-      ],
-      "@decorator/*": [
-        "helper/decorator/*"
-      ],
-      "@validator": [
-        "helper/class-validator-contraint"
-      ],
-      "@core-modules/*": [
-        "modules/core/*"
-      ],
-      "@helper-modules/*": [
-        "modules/helper/*"
-      ],
-      "@constants": [
-        "helper/constants"
-      ],
-      "@interfaces": [
-        "helper/interface"
-      ],
-      "@db-helper/*": [
-        "db/helper/*"
-      ]
+      "@auth/*": ["auth/*"],
+      "@cart/*": ["cart/*"],
+      "@contact/*": ["contact/*"],
+      "@order/*": ["order/*"],
+      "@product/*": ["product/*"],
+      "@user/*": ["user/*"],
+      "@role/*": ["role/*"],
+      "@category/*": ["category/*"],
+      "@brand/*": ["brand/*"],
+      "@wishlist/*": ["wishlist/*"],
+      "@voucher/*": ["voucher/*"],
+      "@comment/*": ["comment/*"],
+      "@post/*": ["post/*"],
+      "@image/*": ["common/image/*"],
+      "@config/*": ["common/config/*"],
+      "@db-helper": ["common/db-helper"],
+      "@mail/*": ["common/mail/*"],
+      "@paypal/*": ["common/paypal/*"],
+      "@services/*": ["common/services/*"],
+      "@database/*": ["common/database/*"],
+      "@messages/*": ["common/messages/*"],
+      "@decorator/*": ["common/decorator/*"],
+      "@api-response/*": ["common/api-response/*"],
+      "@filter/*": ["common/filter/*"],
+      "@guard/*": ["common/guard"],
     }
   }
 }
