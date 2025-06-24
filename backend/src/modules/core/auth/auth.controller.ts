@@ -118,6 +118,26 @@ export class AuthController {
     return this.authService.resetPassword(userResetPasswordDTO);
   }
 
+  @Post('v1/login')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard)
+  @ApiOperation({ summary: 'Đăng nhập tài khoản' })
+  @ApiBody({ type: UserLoginDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User logged in successfully',
+    type: UserLoginResponseDTO,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid credentials',
+  })
+  async loginAdmin(
+    @Request() req: RequestWithUser,
+  ): Promise<UserLoginResponseDTO> {
+    return this.authService.loginWithUser(req.user);
+  }
+
   @Post('/seed')
   async seedData() {
     await main();

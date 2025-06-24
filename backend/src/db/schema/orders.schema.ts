@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable } from 'drizzle-orm/mysql-core';
+import { int, mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { timestamps } from '@db-helper/timestamp';
 import { relations } from 'drizzle-orm';
 import { PaymentMethod } from '@enum/payment-method.enum';
@@ -26,6 +26,9 @@ export const orders = mysqlTable('orders', {
   voucherId: int('voucher_id')
     .references(() => vouchers.id)
     .unique(),
+  address: varchar('address', { length: 255 }).notNull(),
+  city: varchar('city', { length: 45 }).notNull(),
+  country: varchar('country', { length: 45 }).notNull(),
   status: mysqlEnum(
     Object.values(OrderStatus) as [string, ...string[]],
   ).notNull(),

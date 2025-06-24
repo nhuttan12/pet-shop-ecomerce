@@ -53,7 +53,7 @@ async function bootstrap() {
 
   // Enable CORS for the frontend origin (http://localhost:5173)
   app.enableCors({
-    origin: ['http://localhost:5173'], // Allow requests from Vite frontend
+    origin: ['http://localhost:5173', 'http://localhost:3000'], // Allow requests from Vite frontend
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // Include OPTIONS for preflight requests
     allowedHeaders: 'Content-Type, Authorization', // Allow JWT token and content type
     credentials: true, // Allow cookies or credentials if needed

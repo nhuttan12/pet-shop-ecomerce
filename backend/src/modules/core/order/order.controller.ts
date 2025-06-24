@@ -145,12 +145,22 @@ export class OrderController {
   })
   async createOrder(
     @GetUser() userId: JwtPayload,
-    @Body() { paymentMethod, shippingMethod }: CreateOrderRequestDto,
+    @Body()
+    {
+      paymentMethod,
+      shippingMethod,
+      city,
+      country,
+      address,
+    }: CreateOrderRequestDto,
   ): Promise<ApiResponse<Order>> {
     const order = await this.orderService.createOrder(
       userId.sub,
       paymentMethod,
       shippingMethod,
+      city,
+      country,
+      address,
     );
     this.logger.debug(`Order detail: ${JSON.stringify(order)}`);
 

@@ -172,6 +172,9 @@ export class OrderService {
     userId: number,
     paymentMethod: PaymentMethod,
     shippingMethod: ShippingMethod,
+    address: string,
+    city: string,
+    country: string,
   ): Promise<Order> {
     // get user active cart
     const [cart] = await this.db
@@ -209,6 +212,9 @@ export class OrderService {
       ),
       paymentMethod,
       shippingMethod,
+      address,
+      city,
+      country,
       status: OrderStatus.Pending,
       created_at: new Date(),
       updated_at: new Date(),

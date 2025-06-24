@@ -17,66 +17,38 @@ import {
 } from '@mui/material';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@mui/material';
-
-
-interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  joined: string;
-  status: 'Active' | 'Inactive' | 'Banned';
-}
-
-const mockCustomers: Customer[] = [
-  {
-    id: 'CUS123456',
-    name: 'Alice Johnson',
-    email: 'alice@example.com',
-    joined: '2025-06-01',
-    status: 'Active'
-  },
-  {
-    id: 'CUS234567',
-    name: 'Bob Smith',
-    email: 'bob@example.com',
-    joined: '2025-05-28',
-    status: 'Inactive'
-  },
-  {
-    id: 'CUS345678',
-    name: 'Charlie Brown',
-    email: 'charlie@example.com',
-    joined: '2025-04-20',
-    status: 'Banned'
-  },
-  {
-    id: 'CUS456789',
-    name: 'Diana Ross',
-    email: 'diana@example.com',
-    joined: '2025-03-15',
-    status: 'Active'
-  },
-  {
-    id: 'CUS567890',
-    name: 'Eric Clapton',
-    email: 'eric@example.com',
-    joined: '2025-02-10',
-    status: 'Inactive'
-  }
-];
+import { getAllUsers } from 'src/api/user';
+import { Customer } from 'src/models/Customer.interface';
 
 const CustomerManagement = () => {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(5);
 
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    const fetchUsers = async () => {
+      try {
+        const data = await getAllUsers();
+        setCustomers(data);
+      } catch (err) {
+        console.error('Failed to fetch users', err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelected(event.target.checked ? mockCustomers.map((c) => c.id) : []);
+    setSelected(event.target.checked ? customers.map((c) => c.id) : []);
   };
 
-  const handleSelectOne = (id: string) => {
+  const handleSelectOne = (id: number) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
@@ -95,41 +67,43 @@ const CustomerManagement = () => {
     }
   };
 
-  const paginated = mockCustomers.slice(page * limit, page * limit + limit);
+  const paginated = customers.slice(page * limit, page * limit + limit);
 
   return (
     <Card>
-<CardHeader
-  title="Quản lý khách hàng"
-  action={
-    <Button
-      variant="contained"
-      sx={{
-        background: '#6366f1',
-        '&:hover': {
-          background: '#4f46e5'
+      <CardHeader
+        title="Quản lý khách hàng"
+        action={
+          <Button
+            variant="contained"
+            sx={{
+              background: '#6366f1',
+              '&:hover': {
+                background: '#4f46e5'
+              }
+            }}
+          >
+            + Thêm khách hàng
+          </Button>
         }
-      }}
-    >
-      + Thêm khách hàng
-    </Button>
-  }
-/>      <Divider />
+      />{' '}
+      <Divider />
       <Table>
         <TableHead>
           <TableRow>
             <TableCell padding="checkbox">
               <Checkbox
-                checked={selected.length === mockCustomers.length}
+                checked={selected.length === customers.length}
                 onChange={handleSelectAll}
               />
             </TableCell>
             <TableCell>Tên</TableCell>
             <TableCell>ID</TableCell>
             <TableCell>Email</TableCell>
-            <TableCell>Ngày đăng ký</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell align="right">Tuỳ chỉnh</TableCell>
+            <TableCell>Vai trò</TableCell>
+            <TableCell>Ngày tạo</TableCell>
+            <TableCell>Trạng thái</TableCell>
+            <TableCell align="right">Thao tác</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -146,7 +120,7 @@ const CustomerManagement = () => {
               </TableCell>
               <TableCell>{customer.id}</TableCell>
               <TableCell>{customer.email}</TableCell>
-              <TableCell>{customer.joined}</TableCell>
+              <TableCell>{customer.created_at}</TableCell>
               <TableCell>
                 <Chip
                   label={customer.status}
@@ -173,7 +147,7 @@ const CustomerManagement = () => {
       <Box p={2}>
         <TablePagination
           component="div"
-          count={mockCustomers.length}
+          count={customers.length}
           page={page}
           rowsPerPage={limit}
           onPageChange={(_, newPage) => setPage(newPage)}
