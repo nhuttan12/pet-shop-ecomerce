@@ -2,12 +2,13 @@ import {
   CloudinaryConfig,
   DatabaseConfig,
   DomainValidation,
+  ErrorMessage,
+  HttpConfig,
+  MessageLog,
   NodeMailerConfig,
   PayPalConfig,
   StripeConfig,
-} from '@interfaces';
-import { ErrorMessage } from '@message/error-message';
-import { MessageLog } from '@message/message-log';
+} from '@common';
 import {
   Injectable,
   InternalServerErrorException,
@@ -15,7 +16,6 @@ import {
   NotAcceptableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { HttpConfig } from '@config/interfaces/http.interface';
 
 @Injectable()
 export class AppConfigService {
@@ -32,7 +32,7 @@ export class AppConfigService {
     return config;
   }
 
-  private get getDatabaseConfig(): DatabaseConfig {
+  get getDatabaseConfig(): DatabaseConfig {
     const config = this.configService.get<DatabaseConfig>('db');
     if (!config) {
       this.logger.error(MessageLog.DB_CONFIG_NOT_FOUND);

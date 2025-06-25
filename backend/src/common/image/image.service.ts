@@ -1,116 +1,127 @@
+import { Image, SavedImageDTO } from '@common';
 import {
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
 } from '@nestjs/common';
-import { MySql2Database } from 'drizzle-orm/mysql2';
-import { and, eq, inArray } from 'drizzle-orm';
-import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
-import { SavedImageDTO } from '@dtos/image/saved-image.dto';
-import { ImageStatus } from '@enum/status/image-status.enum';
-import { images } from '@schema';
-import { MessageLog } from '@message/message-log';
-import { ErrorMessage } from '@message/error-message';
-import { GetImageDTO } from '@dtos/image/get-image.dto';
-import { Image, ImageInsert } from '@schema-type';
+import { ImageStatus } from 'common/image/enums';
+import { ImageMessageLog } from 'common/image/messages/image.error-messages';
+import { ImageRepository } from 'common/image/repositories/image.repository';
+import { ErrorMessage, MessageLog } from 'common/messages';
+import { DataSource, InsertResult } from 'typeorm';
 
 @Injectable()
 export class ImageService {
   private readonly logger = new Logger(ImageService.name);
   constructor(
-    @Inject(DrizzleAsyncProvider)
-    private db: MySql2Database<any>,
+    private readonly dataSource: DataSource,
+    private imageRepo: ImageRepository,
   ) {}
 
   async saveImage(image: SavedImageDTO): Promise<Image> {
     this.logger.verbose('Save image');
 
-    const value: ImageInsert = {
+    const value: Partial<Image> = {
       url: image.url,
       folder: image.folder,
       type: image.type,
       status: ImageStatus.ACTIVE,
-      created_at: new Date(),
-      updated_at: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     this.logger.debug(`Image value: ${JSON.stringify(value)}`);
 
-    const [imageInsertedId]: { id: number }[] = await this.db.transaction(
-      async (tx) => {
-        return await tx.insert(images).values(value).$returningId();
-      },
-    );
+    const queryRunner = this.dataSource.createQueryRunner();
 
-    const newImage: Image = await this.getImageById(imageInsertedId);
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (!newImage) {
-      this.logger.debug(MessageLog.IMAGE_CANNOT_BE_FOUND);
-      throw new InternalServerErrorException(
-        ErrorMessage.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    return newImage;
-  }
-
-  async saveImages(imageList: SavedImageDTO[]): Promise<Image[]> {
     try {
-      const imagesMappedList: ImageInsert[] = imageList.map((img) => {
-        return {
-          url: img.url,
-          folder: img.folder,
-          type: img.type,
-          status: ImageStatus.ACTIVE,
-          created_at: new Date(),
-          updated_at: new Date(),
-        };
-      });
+      // Insert ảnh mới
+      const insertResult: InsertResult = await queryRunner.manager
+        .createQueryBuilder()
+        .insert()
+        .into(Image)
+        .values(value)
+        .execute();
 
-      const imageInserted = await this.db.transaction((tx) => {
-        return tx.insert(images).values(imagesMappedList).$returningId();
-      });
+      const insertImagedId: number = insertResult.identifiers[0].id as number;
 
-      if (!imageInserted) {
-        this.logger.error(MessageLog.IMAGE_CANNOT_BE_FOUND);
+      const newImage: Image | null =
+        await this.imageRepo.getById(insertImagedId);
+
+      if (!newImage || newImage === null) {
+        this.logger.debug(MessageLog.IMAGE_CANNOT_BE_FOUND);
         throw new InternalServerErrorException(
           ErrorMessage.INTERNAL_SERVER_ERROR,
         );
       }
 
-      const imageIds: number[] = imageInserted.map((img) => img.id);
+      await queryRunner.commitTransaction();
 
-      const result: Image[] = await this.db
-        .select()
-        .from(images)
-        .where(inArray(images.id, imageIds));
-
-      return result;
+      return newImage;
     } catch (error) {
-      this.logger.error(error);
-      throw error;
+      await queryRunner.rollbackTransaction();
+      this.logger.error('Failed to save image', (error as Error).stack);
+      throw new InternalServerErrorException('Internal server error');
+    } finally {
+      await queryRunner.release();
     }
   }
 
-  async getImageById({ id }: GetImageDTO): Promise<Image> {
-    try {
-      const [image]: Image[] = await this.db
-        .select()
-        .from(images)
-        .where(and(eq(images.id, id), eq(images.status, ImageStatus.ACTIVE)));
+  async saveImages(imageList: SavedImageDTO[]): Promise<Image[]> {
+    const imagesToInsert = imageList.map((img) => {
+      return {
+        url: img.url,
+        folder: img.folder,
+        type: img.type,
+        status: ImageStatus.ACTIVE,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Partial<Image>;
+    });
 
-      if (!image) {
-        this.logger.verbose(`Image with ${id} not found`);
-        throw new NotFoundException(ErrorMessage.IMAGE_NOT_FOUND);
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const result = await this.dataSource.manager
+        .createQueryBuilder()
+        .insert()
+        .into(Image)
+        .values(imagesToInsert)
+        .execute();
+
+      const raw = result.raw as { insertId: number; affectedRows: number };
+
+      if (!raw || !raw.insertId) {
+        this.logger.error(ImageMessageLog.IMAGE_NOT_FOUND);
+        throw new InternalServerErrorException(
+          ErrorMessage.INTERNAL_SERVER_ERROR,
+        );
       }
 
-      return image;
+      const firstId = raw.insertId;
+      const count = imagesToInsert.length;
+      const imageIds: number[] = Array.from(
+        { length: count },
+        (_, i) => firstId + i,
+      );
+
+      const images = await this.imageRepo.findManyById(imageIds);
+
+      await queryRunner.commitTransaction();
+
+      return images;
     } catch (error) {
-      this.logger.error(`Error: ${error}`);
+      await queryRunner.rollbackTransaction();
+
+      this.logger.error((error as Error).stack);
       throw error;
     } finally {
-      this.logger.verbose(`Image with ${id} found`);
+      await queryRunner.release();
     }
   }
 }

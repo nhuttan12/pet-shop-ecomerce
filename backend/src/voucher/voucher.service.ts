@@ -1,24 +1,26 @@
-import { VoucherStatus } from '@enum/status/vouchers-status.enum';
-import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
-import { SearchService } from '@helper-modules/services/search.service';
-import { UtilityService } from '@helper-modules/services/utility.service';
-import { ErrorMessage } from '@message/error-message';
-import { MessageLog } from '@message/message-log';
-import {
-  VoucherErrorMessage,
-  VoucherMessageLog,
-} from '@message/voucher-error-message';
 import {
   Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { vouchers } from '@schema';
-import { Voucher } from '@schema-type';
-import { voucherMapping } from 'voucher/entities/voucher-mapping.schema';
+import { voucherMapping } from 'voucher/entities/voucher-mapping.entity';
 import { asc, eq, like } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
+import {
+  DrizzleAsyncProvider,
+  ErrorMessage,
+  MessageLog,
+  SearchService,
+  UtilityService,
+  Voucher,
+  vouchers,
+} from '@common';
+import {
+  VoucherErrorMessage,
+  VoucherMessageLog,
+  VoucherStatus,
+} from '@voucher';
 
 @Injectable()
 export class VoucherService {

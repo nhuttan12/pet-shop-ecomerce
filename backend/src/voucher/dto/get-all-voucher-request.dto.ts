@@ -1,7 +1,7 @@
+import { ErrorMessage } from '@common';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Min } from 'class-validator';
-import { ErrorMessage } from '@message/error-message';
 
 export class GetAllVoucherRequestDto {
   @ApiPropertyOptional({ default: 1 })

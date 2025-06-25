@@ -1,4 +1,4 @@
-import { HttpConfig, DatabaseConfig, DomainValidation } from '@interfaces';
+import { DatabaseConfig, DomainValidation, HttpConfig } from '@common';
 
 /**
  * @description: configuration info get form file yaml

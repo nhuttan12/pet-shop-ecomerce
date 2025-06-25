@@ -1,146 +1,43 @@
-import { GetAllUsersResponseDTO } from '@dtos/response/user/get-all-user-response.dto';
-import { CreateUserDto } from '@dtos/user/create-user.dto';
-import { UserUpdateDTO } from '@dtos/user/update-user.dto';
-import { UserStatus } from '@enum/status/user-status.enum';
-import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
-import { SearchService } from '@helper-modules/services/search.service';
-import { UtilityService } from '@helper-modules/services/utility.service';
-import { ErrorMessage } from '@message/error-message';
-import { MessageLog } from '@message/message-log';
+import { UtilityService, ErrorMessage, MessageLog } from '@common';
 import {
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { images, roles, userDetails, users } from '@schema';
-import { User } from '@schema-type';
-import { and, asc, eq, inArray, SQL } from 'drizzle-orm';
-import { MySql2Database } from 'drizzle-orm/mysql2';
-
-type UsersTable = typeof users;
+import { GetAllUsersResponseDTO, CreateUserDto, UserUpdateDTO } from '@user';
+import { User } from 'user/entites';
+import { UserRepository } from 'user/repositories/user.repository';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
   constructor(
-    @Inject(DrizzleAsyncProvider)
-    private db: MySql2Database<any>,
-    private searchService: SearchService,
     private utilityService: UtilityService,
-  ) { }
+    private readonly userRepo: UserRepository,
+  ) {}
 
-  /**
-   * @description: get user information with given
-   *  id from database, if not found, throw error
-   * @param id: id of user
-   * @returns: user
-   */
-  async getUserById(id: number): Promise<User> {
-    return this.searchService.findOneOrThrow<User>(
-      this.db,
-      users,
-      (u: UsersTable): SQL =>
-        and(eq(u.id, id), eq(u.status, UserStatus.ACTIVE)) as SQL,
-      ErrorMessage.USER_NOT_FOUND,
-    );
+  async getUserById(id: number): Promise<User | null> {
+    return this.userRepo.getUserById(id);
   }
 
-  /**
-   * @description: get user information with given
-   *  name from database, if not found, return udefined
-   * @param name: name of user
-   * @returns: user | undefinded
-   */
   async findUserByName(name: string): Promise<User[]> {
-    return await this.searchService.findManyOrReturnEmptyArray(
-      this.db,
-      users,
-      (u: UsersTable): SQL =>
-        and(eq(u.name, name), eq(u.status, UserStatus.ACTIVE)) as SQL,
-      undefined,
-      undefined,
-      asc(users.id),
-    );
+    return await this.userRepo.findUsers({ name });
   }
 
-  /**
-   * @description: get user information with given
-   *  username from database, if not found, throw error
-   * @param username: username of user
-   * @returns: user
-   */
-  async getUserByUsername(username: string): Promise<User> {
-    return await this.searchService.findOneOrThrow(
-      this.db,
-      users,
-      eq(users.username, username),
-      ErrorMessage.USER_NOT_FOUND,
-    );
+  async getUserByUsername(username: string): Promise<User | null> {
+    return await this.userRepo.getUserByUserName(username);
   }
 
   async findUserByUsername(username: string): Promise<User[]> {
-    return this.searchService.findManyOrReturnEmptyArray<User, any>(
-      this.db,
-      users,
-      (u: UsersTable) => eq(u.username, username),
-    );
+    return await this.userRepo.findUsers({ username });
   }
 
-  /**
-   * @description: get user information with given
-   *  email from database, if not found, throw error
-   * @param email: email of user
-   * @returns: user
-   */
-  async getUserByEmail(email: string): Promise<User> {
-    return await this.searchService.findOneOrThrow(
-      this.db,
-      users,
-      eq(users.email, email),
-      ErrorMessage.EMAIL_IS_NOT_FOUND,
-    );
+  async getUserByEmail(email: string): Promise<User | null> {
+    return await this.userRepo.getUserByEmail(email);
   }
 
-  /**
-   * @description: get user information with given
-   *  email from database, if not found, return udefined
-   * @param email: email of user
-   * @returns: user | undefinded
-   */
-  async findUserByEmail(email: string): Promise<User | undefined> {
-    this.logger.debug('Email to find', email);
-
-    const [user] = await this.db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
-
-    this.logger.debug('User finded', user);
-
-    return user;
-  }
-
-  /**
-   * @description: get user information with given
-   *  username, id from database, if not found, throw error
-   * @param id: id of user
-   * @param username: username of user
-   * @returns: user
-   */
-  async getUserByIdAndUsername(id: number, username: string): Promise<User> {
-    return this.searchService.findOneOrThrow(
-      this.db,
-      users,
-      (u: UsersTable) =>
-        and(
-          eq(u.id, id),
-          eq(u.username, username),
-          eq(u.status, UserStatus.ACTIVE),
-        ) as SQL,
-      ErrorMessage.USER_NOT_FOUND,
-    );
+  async findUserByEmail(email: string): Promise<User[]> {
+    return await this.userRepo.findUsers({ email });
   }
 
   async getAllUsers(
@@ -148,32 +45,21 @@ export class UserService {
     offset: number,
   ): Promise<GetAllUsersResponseDTO[]> {
     const { skip, take } = this.utilityService.getPagination(offset, limit);
-    this.logger.debug(`Limit and offset for pagination ${skip}, ${take}`);
 
-    const user = await this.db
-      .select()
-      .from(users)
-      .innerJoin(userDetails, eq(users.id, userDetails.id))
-      .innerJoin(roles, eq(users.roleId, roles.id))
-      .innerJoin(images, eq(userDetails.imageId, images.id))
-      .orderBy(asc(users.id))
-      .limit(take)
-      .offset(skip);
-
-    this.logger.debug(`User get from db ${JSON.stringify(user)}`);
+    const user: User[] = await this.userRepo.findUsers({}, take, skip);
 
     const result: GetAllUsersResponseDTO[] = user.map(
-      (row): GetAllUsersResponseDTO => ({
-        id: row.users.id,
-        username: row.users.username,
-        password: row.users.password,
-        name: row.users.name!,
-        email: row.users.email,
-        role: row.roles.name,
-        status: row.users.status as UserStatus,
-        phone: row.user_details.phone!,
-        adresss: row.user_details.adresss!,
-        image: row.images.url,
+      (u): GetAllUsersResponseDTO => ({
+        id: u.id,
+        username: u.username,
+        password: u.password,
+        name: u.name!,
+        email: u.email,
+        role: '',
+        status: u.status,
+        phone: '',
+        adresss: '',
+        image: '',
       }),
     );
 
@@ -186,7 +72,7 @@ export class UserService {
     this.logger.debug('User information to create', createUserDto);
 
     const [userCreatedId]: { id: number }[] = await this.db.transaction(
-      async (tx) => {
+      async (tx): Promise<{ id: number }[]> => {
         return await tx
           .insert(users)
           .values({

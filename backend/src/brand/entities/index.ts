@@ -1,1 +1,1 @@
-export * from './brands.schema';
+export * from './brands.entity';

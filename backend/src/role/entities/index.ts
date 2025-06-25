@@ -1,1 +1,1 @@
-export * from './roles.schema';
+export * from './roles.entity';

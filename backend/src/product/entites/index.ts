@@ -1,2 +1,2 @@
-export * from './products.schema';
-export * from './products.schema';
+export * from './products.entity';
+export * from './product-images.entity';

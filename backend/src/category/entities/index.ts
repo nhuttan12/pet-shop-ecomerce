@@ -1,2 +1,2 @@
-export * from './categories-mapping.schema';
-export * from './categories.schema';
+export * from './categories-mapping.entity';
+export * from './categories.entity';

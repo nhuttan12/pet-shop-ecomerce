@@ -1,2 +1,2 @@
-export * from './cart-details.schema';
-export * from './carts.schema';
+export * from './cart-details.entity';
+export * from './carts.entity';

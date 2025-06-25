@@ -19,31 +19,54 @@
     "noFallthroughCasesInSwitch": false,
     "baseUrl": "./src",
     "paths": {
-      "@auth/*": ["auth/*"],
-      "@cart/*": ["cart/*"],
-      "@contact/*": ["contact/*"],
-      "@order/*": ["order/*"],
-      "@product/*": ["product/*"],
-      "@user/*": ["user/*"],
-      "@role/*": ["role/*"],
-      "@category/*": ["category/*"],
-      "@brand/*": ["brand/*"],
-      "@wishlist/*": ["wishlist/*"],
-      "@voucher/*": ["voucher/*"],
-      "@comment/*": ["comment/*"],
-      "@post/*": ["post/*"],
-      "@image/*": ["common/image/*"],
-      "@config/*": ["common/config/*"],
-      "@db-helper": ["common/db-helper"],
-      "@mail/*": ["common/mail/*"],
-      "@paypal/*": ["common/paypal/*"],
-      "@services/*": ["common/services/*"],
-      "@database/*": ["common/database/*"],
-      "@messages/*": ["common/messages/*"],
-      "@decorator/*": ["common/decorator/*"],
-      "@api-response/*": ["common/api-response/*"],
-      "@filter/*": ["common/filter/*"],
-      "@guard/*": ["common/guard"],
+      "@auth": [
+        "auth"
+      ],
+      "@cart": [
+        "cart"
+      ],
+      "@contact": [
+        "contact"
+      ],
+      "@order": [
+        "order"
+      ],
+      "@product": [
+        "product"
+      ],
+      "@user": [
+        "user"
+      ],
+      "@role": [
+        "role"
+      ],
+      "@category": [
+        "category"
+      ],
+      "@brand": [
+        "brand"
+      ],
+      "@wishlist": [
+        "wishlist"
+      ],
+      "@wishlist/*": [
+        "wishlist/*"
+      ],
+      "@voucher": [
+        "voucher"
+      ],
+      "@comment": [
+        "comment"
+      ],
+      "@post": [
+        "post"
+      ],
+      "@product-rating": [
+        "product-rating"
+      ],
+      "@common": [
+        "common"
+      ],
     }
   }
 }

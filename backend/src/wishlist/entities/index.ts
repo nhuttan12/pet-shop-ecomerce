@@ -1,1 +1,1 @@
-export * from './wishlists.schema';
+export * from './wishlists.entity';

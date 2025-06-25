@@ -1,12 +1,16 @@
-import { RoleModule } from '@core-modules/role/role.module';
-import { UserController } from '@core-modules/user/user.controller';
-import { UserService } from '@core-modules/user/user.service';
-import { ImageModule } from '@helper-modules/image/image.module';
-import { UtilityModule } from '@helper-modules/services/utility.module';
+import { ImageModule, UtilityModule } from '@common';
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RoleModule } from '@role';
+import { User, UserController, UserService } from '@user';
 
 @Module({
-  imports: [ImageModule, RoleModule, UtilityModule],
+  imports: [
+    ImageModule,
+    RoleModule,
+    UtilityModule,
+    TypeOrmModule.forFeature([User]),
+  ],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService],

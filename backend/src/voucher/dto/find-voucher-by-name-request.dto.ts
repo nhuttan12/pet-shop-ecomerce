@@ -1,3 +1,4 @@
+import { ErrorMessage, NotUrlValidator } from '@common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -8,8 +9,6 @@ import {
   Min,
   Validate,
 } from 'class-validator';
-import { NotUrlValidator } from '@validator';
-import { ErrorMessage } from '@message/error-message';
 
 export class FindVoucherByCodeRequestDto {
   @ApiPropertyOptional({ default: 1 })

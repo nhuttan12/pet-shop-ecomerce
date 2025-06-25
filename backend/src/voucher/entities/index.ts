@@ -1,2 +1,2 @@
-export * from './voucher-mapping.schema';
-export * from './vouchers.schema';
+export * from './voucher-mapping.entity';
+export * from './vouchers.entity';

@@ -1,19 +1,42 @@
-import { int, mysqlEnum, mysqlTable } from 'drizzle-orm/mysql-core';
-import { products, users } from '@schema';
-import { timestamps } from '@db-helper/timestamp';
-import { RatingStatus } from '@enum/status/customer-rating.enum';
+import { User } from '@user';
+import { RatingStatus } from '@product-rating';
+import { Product } from '@product';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
+} from 'typeorm';
 
-export const productRatings = mysqlTable('product-rating', {
-  id: int().primaryKey().notNull().autoincrement(),
-  userId: int('user_id')
-    .notNull()
-    .references(() => users.id),
-  starRated: int('star_rated').notNull(),
-  productId: int('product_id')
-    .notNull()
-    .references(() => products.id),
-  status: mysqlEnum(Object.values(RatingStatus) as [string, ...string[]])
-    .notNull()
-    .default(RatingStatus.ACTIVE),
-  ...timestamps,
-});
+@Entity('product_rating') // Đổi tên bảng cho phù hợp (không dùng dấu '-')
+export class ProductRating {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @Column('int', { name: 'star_rated' })
+  starRated: number;
+
+  @ManyToOne(() => Product, { nullable: false })
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
+
+  @Column({
+    type: 'enum',
+    enum: RatingStatus,
+    default: RatingStatus.ACTIVE,
+  })
+  status: RatingStatus;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+}

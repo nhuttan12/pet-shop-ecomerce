@@ -1,9 +1,9 @@
-import { AppConfigModule } from '@helper-modules/config/app-config.module';
-import { ImageService } from '@helper-modules/image/image.service';
+import { AppConfigModule, Image, ImageService } from '@common';
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [AppConfigModule],
+  imports: [AppConfigModule, TypeOrmModule.forFeature([Image])],
   providers: [ImageService],
   exports: [ImageService],
 })

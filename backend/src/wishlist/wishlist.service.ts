@@ -1,12 +1,13 @@
+import {
+  DrizzleAsyncProvider,
+  SearchService,
+  Wishlist,
+  wishlists,
+} from '@common';
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
+import { WishlistErrorMessage, WishlistStatus } from '@wishlist';
 import { and, eq } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { wishlists } from '@wishlist/entities/wishlists.schema';
-import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
-import { DrizzleAsyncProvider } from '@database/drizzle.provider';
-import { SearchService } from '@services/search.service';
-import { Wishlist } from '@db-helper/schema-type';
-import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
 
 @Injectable()
 export class WishlistService {
@@ -80,7 +81,7 @@ export class WishlistService {
       });
 
       if (!result) {
-        this.logger.error('`${WishlistErrorMessage.WISHLIST_NOT_FOUND}`');
+        this.logger.error(WishlistErrorMessage.WISHLIST_NOT_FOUND);
         throw new ConflictException(WishlistErrorMessage.WISHLIST_NOT_FOUND);
       }
 

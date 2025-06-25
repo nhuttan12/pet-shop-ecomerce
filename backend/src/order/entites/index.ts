@@ -1,2 +1,2 @@
-export * from './order-details.schema';
-export * from './orders.schema';
+export * from './order-details.entity';
+export * from './orders.entity';

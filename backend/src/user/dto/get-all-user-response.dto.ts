@@ -1,4 +1,4 @@
-import { UserStatus } from '@enum/status/user-status.enum';
+import { UserStatus } from '@user';
 
 export class GetAllUsersResponseDTO {
   id: number;

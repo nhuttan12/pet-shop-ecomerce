@@ -1,20 +1,5 @@
-import { VoucherService } from '@core-modules/product/voucher/voucher.service';
-import { HasRole } from '@decorator/roles.decorator';
-import { GetUser } from '@decorator/user.decorator';
-import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
-import { CreateVoucherRequestDto } from '@dtos/voucher/create-voucher-request.dto';
-import { DeleteVoucherRequestDto } from '@dtos/voucher/delete-voucher-request.dto';
-import { FindVoucherByCodeRequestDto } from '@dtos/voucher/find-voucher-by-name-request.dto';
-import { GetAllVouchersByUserIdRequestDto } from '@dtos/voucher/get-all-voucher-by-user-id-request.dto';
-import { GetAllVoucherRequestDto } from '@dtos/voucher/get-all-voucher-request.dto';
-import { UpdateVoucherRequestDto } from '@dtos/voucher/update-voucher-request.dto';
-import { VoucherResponseDto } from '@dtos/voucher/voucher-response.dto';
-import { Role } from '@enum/role.enum';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { JwtAuthGuard } from '@guard/jwt-auth.guard';
-import { RolesGuard } from '@guard/roles.guard';
-import { JwtPayload } from '@interfaces';
-import { NotifyMessage } from '@message/notify-message';
+import { JwtPayload } from '@auth';
+import { ApiResponse, CatchEverythingFilter, GetUser, HasRole, JwtAuthGuard, NotifyMessage, RolesGuard, Voucher } from '@common';
 import {
   Body,
   Controller,
@@ -37,7 +22,8 @@ import {
   ApiResponse as ApiSwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Voucher } from '@schema-type';
+import { Role } from '@role';
+import { CreateVoucherRequestDto, DeleteVoucherRequestDto, FindVoucherByCodeRequestDto, GetAllVoucherRequestDto, GetAllVouchersByUserIdRequestDto, UpdateVoucherRequestDto, VoucherResponseDto, VoucherService } from '@voucher';
 
 @Controller('voucher')
 @ApiTags('Voucher')

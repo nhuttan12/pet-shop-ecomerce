@@ -1,28 +1,31 @@
+import { AuthModule } from '@auth';
+import { BrandModule } from '@brand';
+import { CartModule } from '@cart';
+import { CategoryModule } from '@category';
+import { CommentModule } from '@comment';
+import {
+  AppConfigModule,
+  CatchEverythingFilter,
+  ImageModule,
+  MailModule,
+  PaypalController,
+  PaypalModule,
+} from '@common';
+import { ContactModule } from '@contact';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import configuration from '@helper-modules/config/configuration';
-import { AppConfigModule } from '@helper-modules/config/app-config.module';
-import { DatabaseModule } from '@helper-modules/database/database.module';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { ImageModule } from '@helper-modules/image/image.module';
-import { AuthModule } from '@core-modules/auth/auth.module';
-import { UsersModule } from '@core-modules/user/user.module';
-import { RoleModule } from '@core-modules/role/role.module';
-import { ProductModule } from '@core-modules/product/product/product.module';
-import { MailModule } from '@helper-modules/mail/mail.module';
-import { BrandModule } from '@core-modules/product/brand/brand.module';
-import { CategoryModule } from '@core-modules/product/category/category.module';
-import { CartModule } from '@core-modules/cart/cart.module';
-import { OrderModule } from '@core-modules/order/order.module';
-import { VoucherModule } from '@core-modules/product/voucher/voucher.module';
-import { CommentModule } from '@core-modules/forum/comment/comment.module';
-import { PostModule } from '@core-modules/forum/post/post.module';
-import { WishlistModule } from '@core-modules/product/wishlist/wishlist.module';
-import { ProductRatingModule } from '@core-modules/product/product-rating/product-rating.module';
-import { ContactModule } from '@core-modules/contact/contact.module';
-import { PaypalController } from './modules/helper/paypal/paypal.controller';
-import { PaypalModule } from './modules/helper/paypal/paypal.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { OrderModule } from '@order';
+import { PostModule } from '@post';
+import { ProductModule } from '@product';
+import { ProductRatingModule } from '@product-rating';
+import { RoleModule } from '@role';
+import { UsersModule } from '@user';
+import { VoucherModule } from '@voucher';
+import { WishlistModule } from '@wishlist';
+import configuration from 'common/config/configuration';
+import { typeOrmConfig } from 'common/database/typeorm.config';
 
 @Module({
   imports: [
@@ -30,10 +33,9 @@ import { PaypalModule } from './modules/helper/paypal/paypal.module';
       load: [configuration],
       isGlobal: true,
     }),
-    // StripeModule,
+    TypeOrmModule.forRootAsync(typeOrmConfig),
     AuthModule,
     AppConfigModule,
-    DatabaseModule,
     UsersModule,
     RoleModule,
     ProductModule,

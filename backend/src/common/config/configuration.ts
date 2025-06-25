@@ -3,8 +3,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { NotAcceptableException } from '@nestjs/common';
 import appRootPath from 'app-root-path';
-import { ValidationType } from '@interfaces';
-import { schema } from '@helper-modules/config/app-config.validation';
+import { schema, ValidationType } from '@common';
 
 /**
  * @description: loading info from yaml file function and return the value after reading the file,

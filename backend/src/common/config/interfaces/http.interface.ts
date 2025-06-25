@@ -3,7 +3,7 @@ import {
   NodeMailerConfig,
   PayPalConfig,
   StripeConfig,
-} from '@interfaces';
+} from '@common';
 
 /**
  * @description: configuration info of http config
