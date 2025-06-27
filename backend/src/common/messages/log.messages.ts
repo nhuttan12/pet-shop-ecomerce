@@ -48,17 +48,6 @@ export enum MessageLog {
   PASSWORD_IS_REQUIRED = 'Password is required',
   PASSWORD_CANNT_BE_EMPTY = 'Password can not be empty',
 
-  USER_CREATED_SUCCESS = 'User created successfully',
-  NO_USER_CREATED = 'User creation failed, no user created',
-  USER_LOGIN_SUCCESS = 'User login successfully',
-  USER_LOGIN_FAILED = 'User login failed, no user login',
-  USER_NOT_FOUND = 'User not found',
-  USERNAME_OR_EMAIL_EXISTS = 'Username or email already exists',
-  PASSWORD_MISMATCH = 'Password mismatch',
-  INVALID_PASSWORD = 'Invalid password',
-  USER_BANNED = 'User is banned',
-  USER_NOT_ACTIVE = 'User is not active',
-
   /**
    * @description for cloudinary configuration information to check with joi message
    */
@@ -104,21 +93,9 @@ export enum MessageLog {
   EMAIL_EMPTY = 'Email is empty',
 
   /**
-   * @description = throw error when user not loggin
-   */
-  USER_NOT_LOG_IN = 'User is not log in',
-  INVALID_LOGIN_INFO = 'Invalid log in info',
-
-  /**
    * @description = throw error when user have no permission to approach the resource
    */
   USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE = 'User is forbidden to approach the resource',
-
-  /**
-   * @description = throw error when code with brand
-   */
-  BRAND_NOT_FOUND = 'Brand was not found',
-  BRAND_CANNOT_BE_UPDATED = "Brand can't be update",
 
   /**
    * @description = throw error when code with image

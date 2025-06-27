@@ -1,7 +1,7 @@
 /**
  * @description: enum type for role for creating decorator for authorization
  */
-export enum Role {
+export enum RoleName {
   USER = 'user',
   ADMIN = 'admin',
   MANAGER = 'manager',

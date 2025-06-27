@@ -1,5 +1,5 @@
-import { JwtPayload } from '@interfaces';
-import { User } from '@schema-type';
+import { JwtPayload } from '@auth';
+import { User } from '@user';
 
 export interface AuthenticatedRequest extends Request {
   user: JwtPayload;

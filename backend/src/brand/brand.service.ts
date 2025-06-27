@@ -1,65 +1,47 @@
-import { BrandCreateDTO } from '@dtos/brand/create-brand.dto';
-import { FindBrandById } from '@dtos/brand/find-brand-by-id.dto';
-import { FindBrandByName } from '@dtos/brand/find-brand-by-name.dto';
-import { GetAllBrandsDTO } from '@dtos/brand/get-all-brand.dto';
-import { BrandUpdateDTO } from '@dtos/brand/update-brand.dto';
-import { BrandStatus } from '@enum/status/brand-status.enum';
-import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
-import { SearchService } from '@helper-modules/services/search.service';
-import { UtilityService } from '@helper-modules/services/utility.service';
-import { ErrorMessage } from '@message/error-message';
-import { MessageLog } from '@message/message-log';
 import {
-  Inject,
+  Brand,
+  BrandCreateDTO,
+  BrandErrorMessages,
+  BrandMessagesLog,
+  FindBrandById,
+  FindBrandByName,
+  GetAllBrandsDTO,
+} from '@brand';
+import { UtilityService } from '@common';
+import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { brands } from '@schema';
-import { Brand, BrandInsert } from '@schema-type';
-import { eq, like } from 'drizzle-orm';
-import { MySql2Database } from 'drizzle-orm/mysql2';
+import { BrandRepository } from 'brand/repositories/brand.repository';
 
 @Injectable()
 export class BrandService {
   private readonly logger = new Logger();
   constructor(
-    @Inject(DrizzleAsyncProvider)
-    private db: MySql2Database<any>,
-    private searchService: SearchService,
     private utilityService: UtilityService,
+    private readonly brandRepo: BrandRepository,
   ) {}
-
-  private async findBrandByIdInternal(id: number): Promise<Brand | null> {
-    const result = await this.db
-      .select()
-      .from(brands)
-      .where(eq(brands.id, id))
-      .limit(1);
-    return result[0] || null;
-  }
 
   async getAllBrands({ page, limit }: GetAllBrandsDTO): Promise<Brand[]> {
     const { skip, take } = this.utilityService.getPagination(page, limit);
 
     this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
 
-    return await this.searchService.findManyOrReturnEmptyArray<Brand, any>(
-      this.db,
-      brands,
-      undefined,
-      take,
-      skip,
-    );
+    return await this.brandRepo.findBrands({}, take, skip);
   }
 
   async getBrandsById({ id }: FindBrandById): Promise<Brand> {
-    return await this.searchService.findOneOrThrow<Brand>(
-      this.db,
-      brands,
-      eq(brands.id, id),
-      ErrorMessage.BRAND_NOT_FOUND,
-    );
+    const brand: Brand | null = await this.brandRepo.getBrandById(id);
+    this.logger.debug(`Brand: ${JSON.stringify(brand)}`);
+
+    if (!brand) {
+      throw new InternalServerErrorException(
+        BrandErrorMessages.BRAND_NOT_FOUND,
+      );
+    }
+
+    return brand;
   }
 
   async findBrandsByName({
@@ -70,45 +52,45 @@ export class BrandService {
     const { skip, take } = this.utilityService.getPagination(page, limit);
 
     this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
-    return await this.searchService.findManyOrReturnEmptyArray(
-      this.db,
-      brands,
-      like(brands.name, `%${name}%`),
+
+    const brands: Brand[] = await this.brandRepo.findBrands(
+      {
+        name: name,
+      },
       take,
       skip,
     );
+    this.logger.debug(`Brands by name: ${JSON.stringify(brands)}`);
+
+    return brands;
   }
 
-  async insertBrand({ name }: BrandCreateDTO): Promise<Brand> {
+  async insertBrand(brandDto: BrandCreateDTO): Promise<Brand> {
     try {
-      const value: BrandInsert = {
-        name,
-        status: BrandStatus.ACTIVE,
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
-      this.logger.debug(`Value ${JSON.stringify(value)}`);
+      const existBrand = await this.brandRepo.getBrandByName(brandDto.name);
 
-      const [inserted]: { id: number }[] = await this.db.transaction((tx) =>
-        tx.insert(brands).values(value).$returningId(),
-      );
-
-      if (!inserted?.id)
+      if (existBrand) {
+        this.logger.warn(BrandMessagesLog.BRAND_ALREADY_EXIST);
         throw new InternalServerErrorException(
-          ErrorMessage.INTERNAL_SERVER_ERROR,
+          BrandErrorMessages.BRAND_ALREADY_EXIST,
         );
+      }
 
-      return await this.searchService.findOneOrThrow<Brand>(
-        this.db,
-        brands,
-        eq(brands.id, inserted.id),
-        ErrorMessage.BRAND_NOT_FOUND,
-      );
+      const brand: Brand = await this.brandRepo.insertBrand(brandDto);
+
+      if (!brand) {
+        this.logger.error(BrandMessagesLog.BRAND_CREATED_FAILED);
+        throw new InternalServerErrorException(
+          BrandErrorMessages.BRAND_CREATED_FAILED,
+        );
+      }
+
+      return brand;
     } catch (error) {
-      this.logger.error(`Error inserting brand: ${error}`);
+      this.logger.error(`Error inserting brand: ${(error as Error).stack}`);
       throw error;
     } finally {
-      this.logger.verbose(`Adding brand ${name} successfully`);
+      this.logger.verbose(`Adding brand ${brandDto.name} successfully`);
     }
   }
 

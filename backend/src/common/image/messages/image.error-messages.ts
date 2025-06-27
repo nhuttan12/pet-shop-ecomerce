@@ -1,3 +1,5 @@
-export enum ImageMessageLog {
-  IMAGE_NOT_FOUND = 'Image not found',
+export enum ImageErrorMessage {
+  IMAGE_NOT_FOUND_AFTER_CREATED = 'Không tìm thấy hình ảnh sau khi tạo mới',
+  IMAGE_IS_REQUIRED = 'Hình ảnh không được để trống',
+  IMAGE_INVALID_FORMAT = 'Hình ảnh không hợp lệ',
 }

@@ -1,14 +1,14 @@
+import { ErrorMessage, NotUrlValidator } from '@common';
+import { UserStatus } from '@user';
+import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
 import { IsEmail, IsEnum, IsInt, IsString, Validate } from 'class-validator';
-import { NotUrlValidator } from '@validator';
-import { ErrorMessage } from '@message/error-message';
-import { UserStatus } from '@enum/status/user-status.enum';
 
 export class CreateUserDto {
   @IsString({ message: ErrorMessage.PARAM_NOT_VALID })
   @Validate(NotUrlValidator)
   username: string;
 
-  @IsEmail({}, { message: ErrorMessage.INVALID_EMAIL })
+  @IsEmail({}, { message: AuthErrorMessages.INVALID_EMAIL })
   @Validate(NotUrlValidator)
   email: string;
 

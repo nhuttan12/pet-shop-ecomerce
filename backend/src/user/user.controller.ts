@@ -1,15 +1,10 @@
-import { UserService } from '@core-modules/user/user.service';
-import { HasRole } from '@decorator/roles.decorator';
-import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
-import { GetAllUsersResponseDTO } from '@dtos/response/user/get-all-user-response.dto';
-import { FindUserById, FindUserByName } from '@dtos/user/find-user.dto';
-import { GetAllUsersDto } from '@dtos/user/get-all-user.dto';
-import { UserUpdateDTO } from '@dtos/user/update-user.dto';
-import { Role } from '@enum/role.enum';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { JwtAuthGuard } from '@guard/jwt-auth.guard';
-import { RolesGuard } from '@guard/roles.guard';
-import { NotifyMessage } from '@message/notify-message';
+import {
+  ApiResponse,
+  CatchEverythingFilter,
+  HasRole,
+  JwtAuthGuard,
+  RolesGuard,
+} from '@common';
 import {
   Controller,
   Get,
@@ -30,7 +25,17 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from '@schema-type';
+import { RoleName } from '@role';
+import {
+  FindUserById,
+  FindUserByName,
+  GetAllUsersDto,
+  GetAllUsersResponseDTO,
+  User,
+  UserNotifyMessage,
+  UserService,
+  UserUpdateDTO,
+} from '@user';
 
 @ApiTags('User')
 @Controller('user')
@@ -42,7 +47,7 @@ export class UserController {
   @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @UseFilters(CatchEverythingFilter)
   @ApiOperation({
     summary: 'Lấy danh sách tất cả user (phân trang, chỉ ADMIN)',
@@ -70,14 +75,14 @@ export class UserController {
     this.logger.debug(`Info to get all user ${page} ${limit}`);
 
     const userList: GetAllUsersResponseDTO[] =
-      await this.userService.getAllUsers(limit, page);
+      await this.userService.findUserForAdmin({}, limit, page);
     this.logger.debug(
       `Get user list in controller ${JSON.stringify(userList)}`,
     );
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_USER_SUCCESSFUL,
+      message: UserNotifyMessage.GET_USER_SUCCESSFUL,
       data: userList,
     };
   }
@@ -86,7 +91,7 @@ export class UserController {
   @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @UseFilters(CatchEverythingFilter)
   @ApiOperation({ summary: 'Tìm user theo ID (chỉ ADMIN)' })
   @ApiParam({ name: 'id', type: Number, description: 'User id' })
@@ -103,7 +108,7 @@ export class UserController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_USER_SUCCESSFUL,
+      message: UserNotifyMessage.GET_USER_SUCCESSFUL,
       data: user,
     };
   }
@@ -112,7 +117,7 @@ export class UserController {
   @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @UseFilters(CatchEverythingFilter)
   @ApiOperation({ summary: 'Tìm user theo tên (chỉ ADMIN)' })
   @ApiParam({ name: 'name', type: String, description: 'Tên user' })
@@ -131,7 +136,7 @@ export class UserController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_USER_SUCCESSFUL,
+      message: UserNotifyMessage.GET_USER_SUCCESSFUL,
       data: userList,
     };
   }
@@ -140,7 +145,7 @@ export class UserController {
   @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @UseFilters(CatchEverythingFilter)
   @ApiOperation({ summary: 'Cập nhật thông tin user (chỉ ADMIN)' })
   @ApiQuery({ name: 'id', type: Number, description: 'User id' })
@@ -163,14 +168,13 @@ export class UserController {
   async updateUser(
     @Query() userQuery: UserUpdateDTO,
   ): Promise<ApiResponse<User>> {
-    const user: UserUpdateDTO = userQuery;
-    const newUser: User = await this.userService.updateUser(user);
+    const newUser: User = await this.userService.updateUser(userQuery);
 
     this.logger.debug(`Get user list in controller ${JSON.stringify(newUser)}`);
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.UPDATE_USER_SUCCESSFUL,
+      message: UserNotifyMessage.UPDATE_USER_SUCCESSFUL,
       data: newUser,
     };
   }

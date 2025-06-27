@@ -1,18 +1,12 @@
-import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
-import { SearchService } from '@helper-modules/services/search.service';
-import { ErrorMessage } from '@message/error-message';
-import { Inject, Injectable } from '@nestjs/common';
-import { roles } from '@schema';
-import { Role } from '@schema-type';
-import { eq } from 'drizzle-orm';
-import { MySql2Database } from 'drizzle-orm/mysql2';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Role, RoleRepository } from '@role';
 
 @Injectable()
 export class RoleService {
   constructor(
-    @Inject(DrizzleAsyncProvider)
-    private db: MySql2Database<any>,
-    private searchService: SearchService,
+    @InjectRepository(Role)
+    private readonly roleRepo: RoleRepository,
   ) {}
 
   /**
@@ -22,12 +16,7 @@ export class RoleService {
    * @returns: role
    */
   async getRoleById(id: number): Promise<Role> {
-    return this.searchService.findOneOrThrow(
-      this.db,
-      roles,
-      eq(roles.id, id),
-      ErrorMessage.ROLE_NOT_FOUND,
-    );
+    return await this.roleRepo.getRoleById(id);
   }
 
   /**
@@ -37,11 +26,6 @@ export class RoleService {
    * @returns: role
    */
   async getRoleByName(name: string): Promise<Role> {
-    return this.searchService.findOneOrThrow(
-      this.db,
-      roles,
-      eq(roles.name, name),
-      ErrorMessage.ROLE_NOT_FOUND,
-    );
+    return await this.getRoleByName(name);
   }
 }

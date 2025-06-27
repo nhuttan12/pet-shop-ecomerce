@@ -1,19 +1,20 @@
 import { Cart } from '@cart';
 import { Order } from '@order';
 import { Post, PostEditRequest, PostReport } from '@post';
+import { ProductRating } from '@product-rating';
 import { Role } from '@role';
 import { UserDetail, UserStatus } from '@user';
-import { Voucher, VoucherMapping } from '@voucher';
+import { VoucherMapping } from '@voucher';
 import { Wishlist } from '@wishlist';
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
-  JoinColumn,
-  CreateDateColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 

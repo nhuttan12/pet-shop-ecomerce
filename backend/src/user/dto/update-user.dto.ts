@@ -1,7 +1,18 @@
-import { IsInt, IsNotEmpty, IsString, Min, Validate } from 'class-validator';
-import { NotUrlValidator } from '@validator';
-import { ErrorMessage } from '@message/error-message';
+import {
+  ErrorMessage,
+  ImageErrorMessage,
+  NotUrlValidator,
+  SavedImageDTO,
+} from '@common';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import {
+  IsDefined,
+  IsInt,
+  IsString,
+  Validate,
+  ValidateNested,
+} from 'class-validator';
 
 export class UserUpdateDTO {
   @IsInt({ message: ErrorMessage.USER_ID_MUST_BE_INTEGER })
@@ -28,9 +39,9 @@ export class UserUpdateDTO {
   @ApiProperty()
   address: string;
 
-  @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })
-  @ApiProperty()
-  @IsNotEmpty()
-  @Min(1)
-  imageId: number;
+  @IsDefined({ message: ImageErrorMessage.IMAGE_IS_REQUIRED })
+  @ValidateNested({ message: ImageErrorMessage.IMAGE_INVALID_FORMAT })
+  @Type(() => SavedImageDTO) // Quan trọng: Chuyển đổi nested object
+  @ApiProperty({ type: SavedImageDTO })
+  image: SavedImageDTO;
 }

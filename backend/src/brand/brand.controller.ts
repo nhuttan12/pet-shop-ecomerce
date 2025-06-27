@@ -1,16 +1,11 @@
-import { BrandService } from '@core-modules/product/brand/brand.service';
-import { HasRole } from '@decorator/roles.decorator';
-import { BrandCreateDTO } from '@dtos/brand/create-brand.dto';
-import { FindBrandById } from '@dtos/brand/find-brand-by-id.dto';
-import { FindBrandByName } from '@dtos/brand/find-brand-by-name.dto';
-import { GetAllBrandsDTO } from '@dtos/brand/get-all-brand.dto';
-import { BrandUpdateDTO } from '@dtos/brand/update-brand.dto';
-import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
-import { Role } from '@enum/role.enum';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { JwtAuthGuard } from '@guard/jwt-auth.guard';
-import { RolesGuard } from '@guard/roles.guard';
-import { NotifyMessage } from '@message/notify-message';
+import { Brand, BrandCreateDTO, BrandNotifyMessages, BrandService, BrandUpdateDTO, FindBrandById, FindBrandByName, GetAllBrandsDTO } from '@brand';
+import {
+  ApiResponse,
+  CatchEverythingFilter,
+  HasRole,
+  JwtAuthGuard,
+  RolesGuard,
+} from '@common';
 import {
   Body,
   Controller,
@@ -34,7 +29,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Brand } from '@schema-type';
+import { RoleName } from '@role';
 
 @ApiTags('Brand')
 @Controller('brand')
@@ -46,7 +41,7 @@ export class BrandController {
   constructor(private brandSerivce: BrandService) {}
 
   @Post('adding')
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @HttpCode(HttpStatus.OK)
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Thêm mới thương hiệu (chỉ ADMIN)' })
@@ -65,7 +60,7 @@ export class BrandController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.BRAND_INSERT_SUCCESSFUL,
+      message: BrandNotifyMessages.BRAND_INSERT_SUCCESSFUL,
       data: newBrand,
     };
   }
@@ -103,7 +98,7 @@ export class BrandController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      message: BrandNotifyMessages.GET_BRAND_SUCCESSFUL,
       data: newBrand,
     };
   }
@@ -124,7 +119,7 @@ export class BrandController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      message: BrandNotifyMessages.GET_BRAND_SUCCESSFUL,
       data: newBrand,
     };
   }
@@ -145,13 +140,13 @@ export class BrandController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      message: BrandNotifyMessages.GET_BRAND_SUCCESSFUL,
       data: brands,
     };
   }
 
   @Put('update')
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Cập nhật thương hiệu (chỉ ADMIN)' })
@@ -168,7 +163,7 @@ export class BrandController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      message: BrandNotifyMessages.GET_BRAND_SUCCESSFUL,
       data: updatedBrand,
     };
   }

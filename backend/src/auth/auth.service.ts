@@ -1,10 +1,5 @@
-import {
-  MailService,
-  AppConfigService,
-  MessageLog,
-  ErrorMessage,
-  NotifyMessage,
-} from '@common';
+import { AuthMessageLog, JwtPayload } from '@auth';
+import { AppConfigService, ErrorMessage, MailService } from '@common';
 import {
   BadRequestException,
   Injectable,
@@ -12,18 +7,21 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RoleService, Role } from '@role';
+import { Role, RoleName, RoleService } from '@role';
 import {
-  UserService,
   User,
-  UserStatus,
-  UserRegisterDTO,
-  UserRegisterResponseDTO,
+  UserErrorMessage,
   UserForgotPasswordDTO,
   UserLoginResponseDTO,
+  UserMessageLog,
+  UserRegisterDTO,
+  UserRegisterResponseDTO,
   UserResetPasswordDTO,
+  UserService,
+  UserStatus,
 } from '@user';
-import { JwtPayload } from 'auth/interfaces';
+import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
+import { AuthNotifyMessages } from 'auth/messages/auth.notify-messages';
 import bcrypt from 'bcrypt';
 
 @Injectable()
@@ -38,30 +36,28 @@ export class AuthService {
     private appConfigService: AppConfigService,
   ) {}
 
-  /**
-   * Used to get user from payload, validate every a request is sent to server
-   * @param id: id of user
-   * @param username: username of user
-   * @returns JwtPayload: {sub: number; username: string; role: string; email?: string;}
-   */
   async getUserFromPayload(id: number, username: string): Promise<JwtPayload> {
-    const user: User = await this.userService.getUserByIdAndUsername(
-      id,
-      username,
-    );
-    this.logger.debug(`Get user info ${JSON.stringify(user)}`);
+    const userWithId: User = await this.userService.getUserById(id);
 
-    if (!user) {
-      this.logger.error(MessageLog.INVALID_LOGIN_INFO);
-      throw new UnauthorizedException(ErrorMessage.INVALID_LOGIN_INFO);
+    const userWithUsername: User =
+      await this.userService.getUserByUsername(username);
+
+    if (!userWithId || !userWithUsername) {
+      this.logger.error(AuthMessageLog.USER_EXIST);
+      throw new UnauthorizedException(AuthErrorMessages.USER_ALREADY_EXISTS);
     }
 
-    const role: Role = await this.roleService.getRoleById(user.roleId);
+    if (userWithId.id !== userWithUsername.id) {
+      this.logger.error(AuthMessageLog.INVALID_LOGIN_INFO);
+      throw new UnauthorizedException(AuthErrorMessages.INFOR_UNVALID);
+    }
+
+    const role: Role = await this.roleService.getRoleById(userWithId.role.id);
 
     const safeUser: JwtPayload = {
-      sub: user.id,
-      username: user.username,
-      email: user.email,
+      sub: userWithId.id,
+      username: userWithId.username,
+      email: userWithId.email,
       role: role.name,
     };
     this.logger.debug('Get safe user', safeUser);
@@ -80,25 +76,25 @@ export class AuthService {
     this.logger.debug(`Get user info ${JSON.stringify(user)}`);
 
     if (!user) {
-      this.logger.error(MessageLog.INVALID_LOGIN_INFO);
-      throw new UnauthorizedException(ErrorMessage.INVALID_LOGIN_INFO);
+      this.logger.error(AuthMessageLog.INVALID_LOGIN_INFO);
+      throw new UnauthorizedException(AuthErrorMessages.INFOR_UNVALID);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      this.logger.error(MessageLog.INVALID_LOGIN_INFO);
-      throw new UnauthorizedException(ErrorMessage.INVALID_LOGIN_INFO);
+      this.logger.error(AuthMessageLog.INVALID_LOGIN_INFO);
+      throw new UnauthorizedException(AuthErrorMessages.INFOR_UNVALID);
     }
 
     if (user.status === UserStatus.BANNED) {
-      this.logger.log(MessageLog.USER_BANNED, user.id);
-      throw new UnauthorizedException(ErrorMessage.USER_BANNED);
+      this.logger.log(UserMessageLog.USER_BANNED, user.id);
+      throw new UnauthorizedException(AuthErrorMessages.USER_BANNED);
     }
 
     if (user.status !== UserStatus.ACTIVE) {
-      this.logger.log(MessageLog.USER_NOT_ACTIVE, user.id);
-      throw new UnauthorizedException(ErrorMessage.USER_NOT_ACTIVE);
+      this.logger.log(UserMessageLog.USER_NOT_ACTIVE, user.id);
+      throw new UnauthorizedException(UserErrorMessage.USER_NOT_ACTIVE);
     }
 
     return user;
@@ -119,32 +115,35 @@ export class AuthService {
     try {
       // Check password and retype password match
       if (password !== retypePassword) {
-        this.logger.warn(MessageLog.PASSWORD_MISMATCH);
-        throw new UnauthorizedException(ErrorMessage.PASSWORD_MISMATCH);
+        this.logger.warn(AuthMessageLog.PASSWORD_MISMATCH);
+        throw new UnauthorizedException(AuthErrorMessages.PASSWORD_MISMATCH);
       }
 
       // Gind user by user name
       const [existingUserWithUsername]: User[] =
         await this.userService.findUserByUsername(username);
       this.logger.debug(
-        'Get existing user with username',
-        existingUserWithUsername,
+        `Get existing user with username ${JSON.stringify(existingUserWithUsername)}}`,
       );
 
       // Find user with email
-      const existingUserWithEmail: User | undefined =
-        await this.userService.findUserByEmail(email);
-      this.logger.debug('Get existing user with email', existingUserWithEmail);
+      const existingUserWithEmail: User | null =
+        await this.userService.getUserByEmail(email);
+      this.logger.debug(
+        `Get existing user with email: ${JSON.stringify(existingUserWithEmail)}`,
+      );
 
       if (existingUserWithUsername || existingUserWithEmail) {
-        this.logger.warn(MessageLog.USERNAME_OR_EMAIL_EXISTS);
-        throw new UnauthorizedException(ErrorMessage.USERNAME_OR_EMAIL_EXISTS);
+        this.logger.warn(UserMessageLog.USERNAME_OR_EMAIL_EXISTS);
+        throw new UnauthorizedException(
+          AuthErrorMessages.USERNAME_OR_EMAIL_EXISTS,
+        );
       }
 
       const hashedPassword = await bcrypt.hash(password, this.saltOrRounds);
       this.logger.debug(`Get hashed password ${hashedPassword}`);
 
-      const role = await this.roleService.getRoleByName(RoleName.USER);
+      const role = await this.roleService.getRoleByName(RoleName.CUSTOMER);
 
       const userCreated: User = await this.userService.createUser({
         username,
@@ -158,8 +157,8 @@ export class AuthService {
       if (userCreated) {
         await this.mailService.sendMail(
           email,
-          NotifyMessage.REGISTER_SUCCESSFUL,
-          NotifyMessage.YOUR_ACCOUNT_WITH_USERNAME + ' ' + username,
+          AuthNotifyMessages.REGISTER_SUCCESSFUL,
+          AuthNotifyMessages.YOUR_ACCOUNT_WITH_USERNAME + ' ' + username,
         );
       }
 
@@ -175,18 +174,24 @@ export class AuthService {
       throw error;
     } finally {
       if (userCreated) {
-        this.logger.log(MessageLog.USER_CREATED_SUCCESS, userCreated.id);
+        this.logger.log(UserMessageLog.USER_CREATED_SUCCESS, userCreated.id);
       } else {
-        this.logger.warn(MessageLog.NO_USER_CREATED);
+        this.logger.warn(UserMessageLog.NO_USER_CREATED);
       }
     }
   }
 
   async forgotPassword({ email }: UserForgotPasswordDTO): Promise<void> {
-    const existingUser: User = await this.userService.getUserByEmail(email);
+    const existingUser: User | null =
+      await this.userService.getUserByEmail(email);
     this.logger.debug(`Get user ${JSON.stringify(existingUser)}`);
 
-    const role: Role = await this.roleService.getRoleById(existingUser.roleId);
+    if (!existingUser) {
+      this.logger.warn(UserMessageLog.USER_NOT_FOUND);
+      throw new UnauthorizedException(UserErrorMessage.USER_NOT_FOUND);
+    }
+
+    const role: Role = await this.roleService.getRoleById(existingUser.role.id);
     this.logger.debug(`Get role ${JSON.stringify(role)}`);
 
     const payload: JwtPayload = {
@@ -210,21 +215,21 @@ export class AuthService {
     this.logger.debug(`Domain ${domain}`);
 
     const content: string = `
-      <p>${NotifyMessage.RESET_PASSWORD} ${NotifyMessage.AT_THE_LINK_BELOW}</p>
-      <a href="${domain}" target="_blank">${NotifyMessage.RESET_PASSWORD}</a>
+      <p>${AuthNotifyMessages.RESET_PASSWORD} ${AuthNotifyMessages.AT_THE_LINK_BELOW}</p>
+      <a href="${domain}" target="_blank">${AuthNotifyMessages.RESET_PASSWORD}</a>
     `;
     this.logger.debug(`Html content ${content}`);
 
     await this.mailService.sendMail(
       email,
-      NotifyMessage.RESET_PASSWORD,
+      AuthNotifyMessages.RESET_PASSWORD,
       content,
     );
     this.logger.verbose('Email sent');
   }
 
   async loginWithUser(user: User): Promise<UserLoginResponseDTO> {
-    const role: Role = await this.roleService.getRoleById(user.roleId);
+    const role: Role = await this.roleService.getRoleById(user.role.id);
 
     const payload: JwtPayload = {
       sub: user.id,
@@ -244,7 +249,7 @@ export class AuthService {
         username: user.username,
         email: user.email,
         role: role.name,
-        status: user.status!,
+        status: user.status,
       },
     };
 
@@ -257,8 +262,8 @@ export class AuthService {
     retypePassword,
   }: UserResetPasswordDTO): Promise<void> {
     if (password !== retypePassword) {
-      this.logger.error(MessageLog.PASSWORD_MISMATCH);
-      throw new BadRequestException(ErrorMessage.PASSWORD_MISMATCH);
+      this.logger.error(UserMessageLog.PASSWORD_MISMATCH);
+      throw new BadRequestException(UserMessageLog.PASSWORD_MISMATCH);
     }
 
     const decodeInfo: JwtPayload = await this.jwtService.decode(token);

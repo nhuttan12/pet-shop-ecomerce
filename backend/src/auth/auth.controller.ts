@@ -1,3 +1,5 @@
+import { AuthService, RequestWithUser } from '@auth';
+import { CatchEverythingFilter, LocalAuthGuard, main } from '@common';
 import {
   Body,
   Controller,
@@ -9,19 +11,15 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import { UserForgotPasswordDTO } from '@dtos/user/user-forgot-password.dto';
-import { UserResetPasswordDTO } from '@dtos/user/user-reset-password.dto';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { LocalAuthGuard } from '@guard/local-auth.guard';
-import { RequestWithUser } from '@interfaces';
-import { AuthService } from '@core-modules/auth/auth.service';
-import { UserLoginDTO, UserLoginResponseDTO } from '@dtos/user/user-login.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
+  UserForgotPasswordDTO,
+  UserLoginDTO,
+  UserLoginResponseDTO,
   UserRegisterDTO,
   UserRegisterResponseDTO,
-} from '@dtos/user/user-register.dto';
-import { main } from '@helper-modules/services/seed';
+  UserResetPasswordDTO,
+} from '@user';
 
 @ApiTags('Auth')
 @Controller('auth')

@@ -1,11 +1,13 @@
-import { BrandController } from '@core-modules/product/brand/brand.controller';
-import { BrandService } from '@core-modules/product/brand/brand.service';
-import { UtilityModule } from '@helper-modules/services/utility.module';
+import { BrandController, BrandService } from '@brand';
+import { UtilityModule } from '@common';
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Brand } from 'brand/entities';
+import { BrandRepository } from 'brand/repositories/brand.repository';
 
 @Module({
+  imports: [UtilityModule, TypeOrmModule.forFeature([Brand])],
   controllers: [BrandController],
-  providers: [BrandService],
-  imports: [UtilityModule],
+  providers: [BrandService, BrandRepository],
 })
 export class BrandModule {}

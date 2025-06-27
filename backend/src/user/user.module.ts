@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleModule } from '@role';
 import { User, UserController, UserService } from '@user';
+import { UserRepository } from 'user/repositories/user.repository';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { User, UserController, UserService } from '@user';
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, UserRepository],
   exports: [UserService],
 })
 export class UsersModule {}
