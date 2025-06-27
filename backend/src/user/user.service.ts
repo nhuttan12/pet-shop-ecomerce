@@ -84,7 +84,7 @@ export class UserService {
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    return await this.userRepo.inserUser(createUserDto);
+    return await this.userRepo.insertUser(createUserDto);
   }
 
   async updateUser(userUpdateDTO: UserUpdateDTO): Promise<User> {

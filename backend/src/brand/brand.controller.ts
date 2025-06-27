@@ -1,4 +1,13 @@
-import { Brand, BrandCreateDTO, BrandNotifyMessages, BrandService, BrandUpdateDTO, FindBrandById, FindBrandByName, GetAllBrandsDTO } from '@brand';
+import {
+  Brand,
+  BrandCreateDTO,
+  BrandNotifyMessages,
+  BrandService,
+  BrandUpdateDTO,
+  FindBrandById,
+  FindBrandByName,
+  GetAllBrandsDTO,
+} from '@brand';
 import {
   ApiResponse,
   CatchEverythingFilter,

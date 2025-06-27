@@ -1,5 +1,14 @@
 import { JwtPayload } from '@auth';
-import { ApiResponse, CatchEverythingFilter, GetUser, HasRole, JwtAuthGuard, NotifyMessage, RolesGuard, Voucher } from '@common';
+import {
+  ApiResponse,
+  CatchEverythingFilter,
+  GetUser,
+  HasRole,
+  JwtAuthGuard,
+  NotifyMessage,
+  RolesGuard,
+  Voucher,
+} from '@common';
 import {
   Body,
   Controller,
@@ -23,7 +32,16 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Role } from '@role';
-import { CreateVoucherRequestDto, DeleteVoucherRequestDto, FindVoucherByCodeRequestDto, GetAllVoucherRequestDto, GetAllVouchersByUserIdRequestDto, UpdateVoucherRequestDto, VoucherResponseDto, VoucherService } from '@voucher';
+import {
+  CreateVoucherRequestDto,
+  DeleteVoucherRequestDto,
+  FindVoucherByCodeRequestDto,
+  GetAllVoucherRequestDto,
+  GetAllVouchersByUserIdRequestDto,
+  UpdateVoucherRequestDto,
+  VoucherResponseDto,
+  VoucherService,
+} from '@voucher';
 
 @Controller('voucher')
 @ApiTags('Voucher')
@@ -127,14 +145,9 @@ export class VoucherController {
   })
   async createVoucher(
     @Body()
-    { discount, expireAt, status, voucherCode }: CreateVoucherRequestDto,
+    request: CreateVoucherRequestDto,
   ): Promise<ApiResponse<Voucher>> {
-    const voucher = await this.voucherService.createVouchers(
-      voucherCode,
-      discount,
-      expireAt,
-      status,
-    );
+    const voucher = await this.voucherService.createVouchers(request);
     this.logger.debug(`Voucher: ${JSON.stringify(voucher)}`);
 
     return {

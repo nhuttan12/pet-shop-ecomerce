@@ -6,4 +6,5 @@ export enum BrandErrorMessages {
   BRAND_ALREADY_EXIST = 'Thương hiệu đã tồn tại',
   BRAND_CREATED_FAILED = 'Tạo thương hiệu thất bai',
   BRAND_STATUS_MUST_BE_ENUM = 'Trạng thái của thương hiệu phải thuộc các loại chỉ định',
+  BRAND_UPDATED_FAILED = 'Cập nhật thông tin thương hiệu thất bai',
 }

@@ -94,20 +94,13 @@ export class BrandRepository {
     });
   }
 
-  async updateBrand(brand: BrandUpdateDTO): Promise<Brand> {
+  async updateBrand(brand: BrandUpdateDTO): Promise<void> {
     return await this.dataSource.transaction(async (manager) => {
       await manager.update(Brand, brand.id, {
         name: brand.name,
         status: brand.status,
         updatedAt: new Date(),
       });
-
-      const newBrand: Brand | null = await this.getBrandById(brand.id);
-
-      if(!newBrand) {
-        this.logger.error(BrandMessagesLog.BRAND_UPDATED_FAILED);
-        throw new COnflic(BrandErrorMessages.BRAND_NOT_FOUND);
-      }
     });
   }
 }

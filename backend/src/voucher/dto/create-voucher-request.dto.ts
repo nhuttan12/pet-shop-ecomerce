@@ -19,7 +19,7 @@ export class CreateVoucherRequestDto {
   @IsEnum(VoucherStatus, {
     message: VoucherErrorMessage.VOUCHER_STATUS_INVALID,
   })
-  @IsNotEmpty({ message: VoucherErrorMessage.VOUCHER_SHOULD_NOT_BE_EMPTY })
+  @IsNotEmpty({ message: VoucherErrorMessage.VOUCHER_CODE_SHOULD_NOT_BE_EMPTY })
   status: VoucherStatus;
 
   @ApiProperty()

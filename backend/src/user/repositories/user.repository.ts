@@ -143,7 +143,7 @@ export class UserRepository {
     });
   }
 
-  async inserUser(createUserDto: CreateUserDto): Promise<User> {
+  async insertUser(createUserDto: CreateUserDto): Promise<User> {
     return await this.dataSource.transaction(async (manager) => {
       const user = manager.create(User, {
         username: createUserDto.username,
