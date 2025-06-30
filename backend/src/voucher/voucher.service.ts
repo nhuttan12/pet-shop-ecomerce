@@ -1,4 +1,4 @@
-import { UtilityService } from '@common';
+import { PaginationResponse, UtilityService } from '@common';
 import {
   ConflictException,
   Injectable,
@@ -21,7 +21,10 @@ export class VoucherService {
     private utilityService: UtilityService,
     private voucherRepo: VoucherRepository,
   ) {}
-  async getAllVouchers(limit: number, offset: number): Promise<Voucher[]> {
+  async getAllVouchers(
+    limit: number,
+    offset: number,
+  ): Promise<PaginationResponse<Voucher>> {
     const { skip, take } = this.utilityService.getPagination(offset, limit);
     return await this.voucherRepo.findVouchers({}, take, skip);
   }
@@ -40,7 +43,7 @@ export class VoucherService {
     voucherCode: string,
     limit: number,
     offset: number,
-  ): Promise<Voucher[]> {
+  ): Promise<PaginationResponse<Voucher>> {
     const { skip, take } = this.utilityService.getPagination(offset, limit);
 
     return await this.voucherRepo.findVouchers({ voucherCode }, take, skip);

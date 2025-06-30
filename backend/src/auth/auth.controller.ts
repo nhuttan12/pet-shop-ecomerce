@@ -1,5 +1,10 @@
 import { AuthService, RequestWithUser } from '@auth';
-import { CatchEverythingFilter, LocalAuthGuard, main } from '@common';
+import {
+  ApiResponse,
+  CatchEverythingFilter,
+  LocalAuthGuard,
+  main,
+} from '@common';
 import {
   Body,
   Controller,
@@ -11,15 +16,20 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiResponse as SwaggerResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   UserForgotPasswordDTO,
   UserLoginDTO,
   UserLoginResponseDTO,
   UserRegisterDTO,
-  UserRegisterResponseDTO,
   UserResetPasswordDTO,
 } from '@user';
+import { AuthNotifyMessages } from 'auth/messages/auth.notify-messages';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -39,20 +49,24 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Đăng ký tài khoản mới' })
   @ApiBody({ type: UserRegisterDTO })
-  @ApiResponse({
+  @SwaggerResponse({
     status: HttpStatus.OK,
     description: 'User registered successfully',
-    type: UserRegisterResponseDTO,
   })
-  @ApiResponse({
+  @SwaggerResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Validation failed or user already exists',
   })
   async register(
     @Body() userRegisterDTO: UserRegisterDTO,
-  ): Promise<UserRegisterResponseDTO> {
+  ): Promise<ApiResponse<void>> {
     this.logger.debug(`Registering user: ${JSON.stringify(userRegisterDTO)}`);
-    return this.authService.register(userRegisterDTO);
+    await this.authService.register(userRegisterDTO);
+
+    return {
+      message: AuthNotifyMessages.REGISTER_SUCCESSFUL,
+      statusCode: HttpStatus.OK,
+    };
   }
 
   /**
@@ -66,54 +80,70 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: 'Đăng nhập tài khoản' })
   @ApiBody({ type: UserLoginDTO })
-  @ApiResponse({
+  @SwaggerResponse({
     status: HttpStatus.OK,
     description: 'User logged in successfully',
-    type: UserLoginResponseDTO,
   })
-  @ApiResponse({
+  @SwaggerResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: 'Invalid credentials',
   })
-  async login(@Request() req: RequestWithUser): Promise<UserLoginResponseDTO> {
-    return this.authService.loginWithUser(req.user);
+  async login(@Request() req: RequestWithUser): Promise<ApiResponse<void>> {
+    await this.authService.loginWithUser(req.user);
+    return {
+      message: AuthNotifyMessages.LOGIN_SUCCESSFUL,
+      statusCode: HttpStatus.OK,
+    };
   }
 
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Gửi email quên mật khẩu' })
   @ApiBody({ type: UserForgotPasswordDTO })
-  @ApiResponse({
+  @SwaggerResponse({
     status: HttpStatus.OK,
     description: 'Password reset email sent',
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Email not found' })
+  @SwaggerResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Email not found',
+  })
   async forgotPassword(
     @Body() userForgotPasswordDTO: UserForgotPasswordDTO,
-  ): Promise<void> {
+  ): Promise<ApiResponse<void>> {
     this.logger.debug(
       `User reset password ${JSON.stringify(userForgotPasswordDTO)}`,
     );
-    return this.authService.forgotPassword(userForgotPasswordDTO);
+    await this.authService.forgotPassword(userForgotPasswordDTO);
+    return {
+      message: AuthNotifyMessages.PLEASE_GO_TO_MAIL_TO_GET_LINK_RESET_PASSWORD,
+      statusCode: HttpStatus.OK,
+    };
   }
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Đặt lại mật khẩu sau khi nhận link qua email' })
   @ApiBody({ type: UserResetPasswordDTO })
-  @ApiResponse({
+  @SwaggerResponse({
     status: HttpStatus.OK,
     description: 'Password reset successfully',
   })
-  @ApiResponse({
+  @SwaggerResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid token or password',
   })
-  async resetPassword(@Body() userResetPasswordDTO: UserResetPasswordDTO) {
+  async resetPassword(
+    @Body() userResetPasswordDTO: UserResetPasswordDTO,
+  ): Promise<ApiResponse<void>> {
     this.logger.debug(
       `User reset password ${JSON.stringify(userResetPasswordDTO)}`,
     );
-    return this.authService.resetPassword(userResetPasswordDTO);
+    await this.authService.resetPassword(userResetPasswordDTO);
+    return {
+      message: AuthNotifyMessages.RESET_PASSWORD_SUCCESSFUL,
+      statusCode: HttpStatus.OK,
+    };
   }
 
   @Post('v1/login')
@@ -121,19 +151,26 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: 'Đăng nhập tài khoản' })
   @ApiBody({ type: UserLoginDTO })
-  @ApiResponse({
+  @SwaggerResponse({
     status: HttpStatus.OK,
     description: 'User logged in successfully',
     type: UserLoginResponseDTO,
   })
-  @ApiResponse({
+  @SwaggerResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: 'Invalid credentials',
   })
   async loginAdmin(
     @Request() req: RequestWithUser,
-  ): Promise<UserLoginResponseDTO> {
-    return this.authService.loginWithUser(req.user);
+  ): Promise<ApiResponse<UserLoginResponseDTO>> {
+    const payload = await this.authService.loginWithUser(req.user);
+    this.logger.debug(`Payload user when login: ${JSON.stringify(payload)}`);
+
+    return {
+      message: AuthNotifyMessages.LOGIN_SUCCESSFUL,
+      statusCode: HttpStatus.OK,
+      data: payload,
+    };
   }
 
   @Post('/seed')

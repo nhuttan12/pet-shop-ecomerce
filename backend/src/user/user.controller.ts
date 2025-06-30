@@ -3,6 +3,7 @@ import {
   CatchEverythingFilter,
   HasRole,
   JwtAuthGuard,
+  PaginationResponse,
   RolesGuard,
 } from '@common';
 import {
@@ -70,11 +71,11 @@ export class UserController {
   })
   async getAllUsers(
     @Query() query: GetAllUsersDto,
-  ): Promise<ApiResponse<GetAllUsersResponseDTO[]>> {
+  ): Promise<ApiResponse<PaginationResponse<GetAllUsersResponseDTO>>> {
     const { page, limit }: GetAllUsersDto = query;
     this.logger.debug(`Info to get all user ${page} ${limit}`);
 
-    const userList: GetAllUsersResponseDTO[] =
+    const userList: PaginationResponse<GetAllUsersResponseDTO> =
       await this.userService.findUserForAdmin({}, limit, page);
     this.logger.debug(
       `Get user list in controller ${JSON.stringify(userList)}`,

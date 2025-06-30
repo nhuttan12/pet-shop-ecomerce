@@ -26,7 +26,7 @@ export class Image {
   status?: ImageStatus;
 
   @Column()
-  subjectId: number;
+  subjectID: number;
 
   @Column()
   subjectType: string;

@@ -7,6 +7,7 @@ import {
   ImageType,
   MessageLog,
   SavedImageDTO,
+  SubjectType,
 } from '@common';
 import {
   Injectable,
@@ -31,18 +32,27 @@ export class ImageRepository {
     private readonly dataSource: DataSource,
   ) {}
 
-  async getById(id: number): Promise<Image | null> {
-    return await this.imageRepo.findOne({ where: { id } });
+  private async getByID(id: number): Promise<Image | null> {
+    return await this.imageRepo.findOneBy({ id });
+  }
+
+  async findOneBySubjectIdAndSubjectType(
+    subjectID: number,
+    subjectType: SubjectType,
+  ): Promise<Image> {
+    const [image]: Image[] = await this.imageRepo
+      .createQueryBuilder('image')
+      .where('image.subjectID = :subjectID', { subjectID })
+      .andWhere('image.subjectType = :subjectType', { subjectType })
+      .orderBy('image.createdAt', 'ASC')
+      .limit(1)
+      .getMany();
+
+    return image;
   }
 
   async findManyById(ids: number[]): Promise<Image[]> {
     return await this.imageRepo.find({ where: { id: In(ids) } });
-  }
-
-  async getImageForUser(userId: number, status: ImageStatus): Promise<Image[]> {
-    return await this.imageRepo.find({
-      where: { subjectId: userId, subjectType: 'user', status },
-    });
   }
 
   async updateImageForSubsject(
@@ -140,7 +150,11 @@ export class ImageRepository {
     }
   }
 
-  async saveImage(image: SavedImageDTO): Promise<Image> {
+  async saveImage(
+    image: SavedImageDTO,
+    subjectID: number,
+    subjectType: SubjectType,
+  ): Promise<Image> {
     this.logger.verbose('Save image');
 
     const value: Partial<Image> = {
@@ -148,6 +162,8 @@ export class ImageRepository {
       folder: image.folder,
       type: image.type,
       status: ImageStatus.ACTIVE,
+      subjectID,
+      subjectType: subjectType as string,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -169,7 +185,7 @@ export class ImageRepository {
 
       const insertImagedId: number = insertResult.identifiers[0].id as number;
 
-      const newImage: Image | null = await this.getById(insertImagedId);
+      const newImage: Image | null = await this.getByID(insertImagedId);
 
       if (!newImage || newImage === null) {
         this.logger.debug(MessageLog.IMAGE_CANNOT_BE_FOUND);

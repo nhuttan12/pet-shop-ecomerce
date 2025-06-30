@@ -1,4 +1,4 @@
-import { UtilityService } from '@common';
+import { PaginationResponse, UtilityService } from '@common';
 import {
   Injectable,
   InternalServerErrorException,
@@ -36,7 +36,7 @@ export class UserService {
   }
 
   async findUserByName(name: string): Promise<User[]> {
-    return await this.userRepo.findUsers({ name });
+    return await this.userRepo.findUsersByName(name);
   }
 
   async getUserByUsername(username: string): Promise<User> {
@@ -51,7 +51,7 @@ export class UserService {
   }
 
   async findUserByUsername(username: string): Promise<User[]> {
-    return await this.userRepo.findUsers({ username });
+    return await this.userRepo.findUsersByUsername(username);
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
@@ -59,7 +59,7 @@ export class UserService {
   }
 
   async findUserByEmail(email: string): Promise<User[]> {
-    return await this.userRepo.findUsers({ email });
+    return await this.userRepo.findUsersByEmail(email);
   }
 
   async findUserForAdmin(
@@ -73,7 +73,7 @@ export class UserService {
     skip?: number,
     sortField: keyof User = 'id',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-  ): Promise<GetAllUsersResponseDTO[]> {
+  ): Promise<PaginationResponse<GetAllUsersResponseDTO>> {
     return await this.userRepo.findUserForAdmin(
       filters,
       take,

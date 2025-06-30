@@ -1,4 +1,10 @@
-import { ErrorMessage, Image, ImageService } from '@common';
+import {
+  buildPaginationMeta,
+  ErrorMessage,
+  Image,
+  ImageService,
+  PaginationResponse,
+} from '@common';
 import {
   BadRequestException,
   Injectable,
@@ -46,52 +52,16 @@ export class UserRepository {
     return this.userRepo.findOne({ where: { username }, relations: ['role'] });
   }
 
-  async findUsers(
-    filters: Partial<{
-      name?: string;
-      username?: string;
-      email?: string;
-      status?: UserStatus;
-    }>,
-    take?: number,
-    skip?: number,
-    sortField: keyof User = 'id',
-    sortOrder: 'ASC' | 'DESC' = 'ASC',
-  ): Promise<User[]> {
-    const qb = this.userRepo.createQueryBuilder('user');
+  async findUsersByUsername(username: string): Promise<User[]> {
+    return this.userRepo.findBy({ username });
+  }
 
-    // Tìm kiếm LIKE cho các trường chuỗi
-    if (filters.name) {
-      qb.andWhere('user.name LIKE :name', { name: `%${filters.name}%` });
-    }
+  async findUsersByName(name: string): Promise<User[]> {
+    return this.userRepo.findBy({ name });
+  }
 
-    if (filters.username) {
-      qb.andWhere('user.username LIKE :username', {
-        username: `%${filters.username}%`,
-      });
-    }
-
-    if (filters.email) {
-      qb.andWhere('user.email LIKE :email', { email: `%${filters.email}%` });
-    }
-
-    // Lọc chính xác theo status nếu có
-    if (filters.status !== undefined) {
-      qb.andWhere('user.status = :status', { status: filters.status });
-    }
-
-    // Sắp xếp
-    qb.orderBy(`user.${sortField}`, sortOrder);
-
-    // Phân trang
-    if (take !== undefined) {
-      qb.take(take);
-    }
-    if (skip !== undefined) {
-      qb.skip(skip);
-    }
-
-    return qb.getMany();
+  async findUsersByEmail(email: string): Promise<User[]> {
+    return this.userRepo.findBy({ email });
   }
 
   async findUserForAdmin(
@@ -101,11 +71,11 @@ export class UserRepository {
       email?: string;
       status?: UserStatus;
     }>,
-    take?: number,
-    skip?: number,
+    take: number = 10,
+    skip: number = 0,
     sortField: keyof User = 'id',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-  ): Promise<GetAllUsersResponseDTO[]> {
+  ): Promise<PaginationResponse<GetAllUsersResponseDTO>> {
     const query = this.userRepo
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.userDetail', 'userDetail');
@@ -134,13 +104,26 @@ export class UserRepository {
     // Sắp xếp
     query.orderBy(`user.${sortField}`, sortOrder);
 
+    const totalItems = await query.getCount();
+
     // Thực thi truy vấn
     const users = await query.getMany();
 
-    return plainToInstance(GetAllUsersResponseDTO, users, {
+    const data = plainToInstance(GetAllUsersResponseDTO, users, {
       excludeExtraneousValues: true,
       enableImplicitConversion: true,
     });
+
+    const meta = buildPaginationMeta(
+      totalItems,
+      Math.floor(skip / take) + 1,
+      take,
+    );
+
+    return {
+      data,
+      meta,
+    };
   }
 
   async insertUser(createUserDto: CreateUserDto): Promise<User> {

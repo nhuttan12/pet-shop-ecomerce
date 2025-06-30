@@ -1,16 +1,20 @@
-import { CategoryService } from '@core-modules/product/category/category.service';
-import { HasRole } from '@decorator/roles.decorator';
-import { CategoryCreateDTO } from '@dtos/category/create-category.dto';
-import { FindCategoryById } from '@dtos/category/find-category-by-id.dto';
-import { FindCategoryByName } from '@dtos/category/find-category-by-name.dto';
-import { GetAllCategoryDTO } from '@dtos/category/get-all-category.dto';
-import { CategoryUpdateDTO } from '@dtos/category/update-category.dto';
-import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
-import { Role } from '@enum/role.enum';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { JwtAuthGuard } from '@guard/jwt-auth.guard';
-import { RolesGuard } from '@guard/roles.guard';
-import { NotifyMessage } from '@message/notify-message';
+import {
+  Category,
+  CategoryCreateDTO,
+  CategoryService,
+  CategoryUpdateDTO,
+  FindCategoryById,
+  FindCategoryByName,
+  GetAllCategoryDTO,
+  GetCategoryByIdResponse,
+} from '@category';
+import {
+  ApiResponse,
+  CatchEverythingFilter,
+  HasRole,
+  JwtAuthGuard,
+  RolesGuard,
+} from '@common';
 import {
   Body,
   Controller,
@@ -34,7 +38,8 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Category } from '@schema-type';
+import { RoleName } from '@role';
+import { CategoryNotifyMessages } from 'category/messages/category.notify-messages';
 
 @ApiTags('Category')
 @Controller('category')
@@ -47,7 +52,7 @@ export class CategoryController {
 
   @Post('adding')
   @UseGuards(RolesGuard)
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Thêm mới danh mục (chỉ ADMIN)' })
   @ApiBody({ type: CategoryCreateDTO })
@@ -63,7 +68,7 @@ export class CategoryController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_CATEGORY_SUCCESSFUL,
+      message: CategoryNotifyMessages.GET_CATEGORY_SUCCESSFUL,
       data: newCategory,
     };
   }
@@ -98,7 +103,7 @@ export class CategoryController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_CATEGORY_SUCCESSFUL,
+      message: CategoryNotifyMessages.GET_CATEGORY_SUCCESSFUL,
       data: categories,
     };
   }
@@ -114,16 +119,16 @@ export class CategoryController {
   })
   async getCategoryById(
     @Param() category: FindCategoryById,
-  ): Promise<ApiResponse<Category[]>> {
-    const categories: Category[] =
-      await this.categoryService.findCategoriesById(category);
+  ): Promise<ApiResponse<GetCategoryByIdResponse>> {
+    const categories: GetCategoryByIdResponse =
+      await this.categoryService.getCategoryById(category);
     this.logger.debug(
       `Get category in controller ${JSON.stringify(categories)}`,
     );
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      message: CategoryNotifyMessages.GET_CATEGORY_SUCCESSFUL,
       data: categories,
     };
   }
@@ -147,7 +152,7 @@ export class CategoryController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_BRAND_SUCCESSFUL,
+      message: CategoryNotifyMessages.GET_CATEGORY_SUCCESSFUL,
       data: newCategory,
     };
   }
@@ -155,26 +160,26 @@ export class CategoryController {
   @Put('update')
   @HttpCode(HttpStatus.OK)
   @UseGuards(RolesGuard)
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @ApiOperation({ summary: 'Cập nhật danh mục (chỉ ADMIN)' })
   @ApiBody({ type: CategoryUpdateDTO })
   @ApiOkResponse({
     type: ApiResponse,
     description: 'Cập nhật danh mục thành công',
   })
-  async updateBrand(
+  async updateCategory(
     @Body() category: CategoryUpdateDTO,
-  ): Promise<ApiResponse<Category>> {
-    const updatedCategory: Category =
+  ): Promise<ApiResponse<GetCategoryByIdResponse>> {
+    const response: GetCategoryByIdResponse =
       await this.categoryService.updateCategory(category);
     this.logger.debug(
-      `Get category after update in controller ${JSON.stringify(updatedCategory)}`,
+      `Get category after update in controller ${JSON.stringify(response)}`,
     );
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.UPDATE_CATEGORY_SUCCESSFUL,
-      data: updatedCategory,
+      message: CategoryNotifyMessages.UPDATE_CATEGORY_SUCCESSFUL,
+      data: response,
     };
   }
 }

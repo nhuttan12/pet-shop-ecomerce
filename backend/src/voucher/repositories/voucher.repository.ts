@@ -1,4 +1,4 @@
-import { ErrorMessage } from '@common';
+import { buildPaginationMeta, ErrorMessage, PaginationResponse } from '@common';
 import {
   Injectable,
   InternalServerErrorException,
@@ -32,11 +32,11 @@ export class VoucherRepository {
       toDate?: Date;
       status?: VoucherStatus;
     }>,
-    take?: number,
-    skip?: number,
+    take: number = 10,
+    skip: number = 0,
     sortField: keyof Voucher = 'id',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-  ): Promise<Voucher[]> {
+  ): Promise<PaginationResponse<Voucher>> {
     const qb = this.voucherRepo.createQueryBuilder('voucher');
 
     if (filters.voucherCode) {
@@ -68,6 +68,8 @@ export class VoucherRepository {
     // Sắp xếp
     qb.orderBy(`user.${sortField}`, sortOrder);
 
+    const totalItems = await qb.getCount();
+
     // Phân trang
     if (take !== undefined) {
       qb.take(take);
@@ -76,7 +78,18 @@ export class VoucherRepository {
       qb.skip(skip);
     }
 
-    return qb.getMany();
+    const data = await qb.getMany();
+
+    const meta = buildPaginationMeta(
+      totalItems,
+      Math.floor(take / skip) + 1,
+      take,
+    );
+
+    return {
+      data,
+      meta,
+    };
   }
 
   async getVoucherByUserId(

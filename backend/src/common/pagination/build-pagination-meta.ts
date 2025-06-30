@@ -1,4 +1,4 @@
-import { PaginationMeta } from '@dtos/response/pagination/pagination-meta';
+import { PaginationMeta } from '@common';
 
 export function buildPaginationMeta(
   totalItems: number,

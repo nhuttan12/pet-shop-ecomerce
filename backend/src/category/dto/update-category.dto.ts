@@ -1,3 +1,5 @@
+import { CategoryStatus } from '@category';
+import { ErrorMessage, NotUrlValidator, SavedImageDTO } from '@common';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEnum,
@@ -8,10 +10,6 @@ import {
   MinLength,
   Validate,
 } from 'class-validator';
-import { NotUrlValidator } from '@validator';
-import { CategoryStatus } from '@enum/status/categories-status.enum';
-import { ErrorMessage } from '@message/error-message';
-import { SavedImageDTO } from '@dtos/image/saved-image.dto';
 
 export class CategoryUpdateDTO {
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })

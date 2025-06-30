@@ -1,4 +1,10 @@
-import { Image, ImageStatus, ImageType, SavedImageDTO } from '@common';
+import {
+  Image,
+  ImageStatus,
+  ImageType,
+  SavedImageDTO,
+  SubjectType,
+} from '@common';
 import { Injectable, Logger } from '@nestjs/common';
 import { ImageRepository } from 'common/image/repositories/image.repository';
 import { DataSource, EntityManager } from 'typeorm';
@@ -11,24 +17,30 @@ export class ImageService {
     private imageRepo: ImageRepository,
   ) {}
 
-  async saveImage(image: SavedImageDTO): Promise<Image> {
-    return await this.imageRepo.saveImage(image);
+  async saveImage(
+    image: SavedImageDTO,
+    subjectId: number,
+    subjectType: SubjectType,
+  ): Promise<Image> {
+    return await this.imageRepo.saveImage(image, subjectId, subjectType);
   }
 
   async saveImages(imageList: SavedImageDTO[]): Promise<Image[]> {
     return await this.imageRepo.saveImages(imageList);
   }
 
-  async getById(id: number): Promise<Image | null> {
-    return await this.imageRepo.getById(id);
+  async findOneBySubjectIdAndSubjectType(
+    subjectID: number,
+    subjectType: SubjectType,
+  ): Promise<Image> {
+    return await this.imageRepo.findOneBySubjectIdAndSubjectType(
+      subjectID,
+      subjectType,
+    );
   }
 
   async findManyById(ids: number[]): Promise<Image[]> {
     return await this.imageRepo.findManyById(ids);
-  }
-
-  async getImageForUser(userId: number, status: ImageStatus): Promise<Image[]> {
-    return await this.imageRepo.getImageForUser(userId, status);
   }
 
   async updateImageForSubsject(

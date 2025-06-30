@@ -1,35 +1,37 @@
-import { CategoryCreateDTO } from '@dtos/category/create-category.dto';
-import { FindCategoryById } from '@dtos/category/find-category-by-id.dto';
-import { FindCategoryByName } from '@dtos/category/find-category-by-name.dto';
-import { GetAllCategoryDTO } from '@dtos/category/get-all-category.dto';
-import { CategoryUpdateDTO } from '@dtos/category/update-category.dto';
-import { CategoryStatus } from '@enum/status/categories-status.enum';
-import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
-import { ImageService } from '@helper-modules/image/image.service';
-import { SearchService } from '@helper-modules/services/search.service';
-import { UtilityService } from '@helper-modules/services/utility.service';
-import { ErrorMessage } from '@message/error-message';
-import { MessageLog } from '@message/message-log';
 import {
-  Inject,
+  Category,
+  CategoryCreateDTO,
+  CategoryErrorMessages,
+  CategoryRepository,
+  CategoryUpdateDTO,
+  FindCategoryById,
+  FindCategoryByName,
+  GetAllCategoryDTO,
+  GetCategoryByIdResponse,
+} from '@category';
+import {
+  ErrorMessage,
+  Image,
+  ImageService,
+  SavedImageDTO,
+  SubjectType,
+  UtilityService,
+} from '@common';
+import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { categories } from '@schema';
-import { Category, CategoryInsert, Image } from '@schema-type';
-import { eq, like } from 'drizzle-orm';
-import { MySql2Database, MySqlRawQueryResult } from 'drizzle-orm/mysql2';
+import { CategoryMessagesLog } from 'category/messages/category.messages-log';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CategoryService {
   private readonly logger = new Logger();
   constructor(
-    @Inject(DrizzleAsyncProvider)
-    private db: MySql2Database<any>,
-    private imageService: ImageService,
-    private searchService: SearchService,
     private utilityService: UtilityService,
+    private categoryRepo: CategoryRepository,
+    private imagesService: ImageService,
   ) {}
 
   async getAllCategories({
@@ -37,24 +39,40 @@ export class CategoryService {
     page,
   }: GetAllCategoryDTO): Promise<Category[]> {
     const { skip, take } = this.utilityService.getPagination(page, limit);
-
     this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
 
-    return await this.searchService.findManyOrReturnEmptyArray<Category, any>(
-      this.db,
-      categories,
-      undefined,
-      take,
-      skip,
-    );
+    return await this.categoryRepo.getAllCategories(skip, take);
   }
 
-  async findCategoriesById({ id }: FindCategoryById): Promise<Category[]> {
-    return await this.searchService.findManyOrReturnEmptyArray<Category, any>(
-      this.db,
-      categories,
-      eq(categories.id, id),
+  async getCategoryById(
+    request: FindCategoryById,
+  ): Promise<GetCategoryByIdResponse> {
+    const category: Category | null = await this.categoryRepo.getCategoryById(
+      request.id,
     );
+
+    if (!category) {
+      this.logger.error(CategoryMessagesLog.CATEGORY_NOT_FOUND);
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const categoryImage: Image =
+      await this.imagesService.findOneBySubjectIdAndSubjectType(
+        request.id,
+        SubjectType.CATEGORY,
+      );
+
+    const merged = {
+      ...category,
+      imageUrl: categoryImage.url,
+    };
+
+    return plainToInstance(GetCategoryByIdResponse, merged, {
+      excludeExtraneousValues: true,
+      enableImplicitConversion: true,
+    });
   }
 
   async findCategoriesByName({
@@ -65,51 +83,31 @@ export class CategoryService {
     const { skip, take } = this.utilityService.getPagination(page, limit);
 
     this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
-    return await this.searchService.findManyOrReturnEmptyArray<Category, any>(
-      this.db,
-      categories,
-      like(categories.name, `%${name}%`),
-      take,
-      skip,
-    );
+    return await this.categoryRepo.findCategoryByName(name, skip, take);
   }
 
   async insertCategory(category: CategoryCreateDTO): Promise<Category> {
     try {
-      const image: Image = await this.imageService.saveImage(
-        category.savedImageDTO,
-      );
-
       this.logger.debug(`Category: ${JSON.stringify(category)}`);
 
-      const value: CategoryInsert = {
-        name: category.name,
-        status: CategoryStatus.ACTIVE,
-        imageId: image.id,
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
-      this.logger.debug(`Value ${JSON.stringify(value)}`);
-
-      const [categoryCreatedId]: { id: number }[] = await this.db.transaction(
-        (tx) => {
-          return tx.insert(categories).values(value).$returningId();
-        },
+      const categoryInseted: Category = await this.categoryRepo.insertCategory(
+        category.name,
       );
 
-      if (!categoryCreatedId) {
-        this.logger.error(MessageLog.CATEGORY_NOT_FOUND);
+      if (!categoryInseted) {
+        this.logger.error(CategoryMessagesLog.CATEGORY_NOT_FOUND);
         throw new InternalServerErrorException(
           ErrorMessage.INTERNAL_SERVER_ERROR,
         );
       }
 
-      return await this.searchService.findOneOrThrow<Category>(
-        this.db,
-        categories,
-        eq(categories.id, categoryCreatedId.id),
-        ErrorMessage.INTERNAL_SERVER_ERROR,
+      await this.imagesService.saveImage(
+        category.savedImageDTO,
+        categoryInseted.id,
+        SubjectType.CATEGORY,
       );
+
+      return categoryInseted;
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;
@@ -118,48 +116,54 @@ export class CategoryService {
     }
   }
 
-  async updateCategory(category: CategoryUpdateDTO): Promise<Category> {
+  async updateCategory(
+    category: CategoryUpdateDTO,
+  ): Promise<GetCategoryByIdResponse> {
     try {
-      const image: Image = await this.imageService.saveImage(
-        category.savedImageDTO,
-      );
+      // Check if category exists
+      const existingCategory: Category | null =
+        await this.categoryRepo.getCategoryById(category.id);
 
-      const value: CategoryInsert = {
-        name: category.name,
-        status: category.status,
-        imageId: image.id,
-        updated_at: new Date(),
-      };
-
-      this.logger.debug(`Value to update ${JSON.stringify(value)}`);
-
-      const categoryId: number = category.id;
-      this.logger.debug(`Get category id ${categoryId}`);
-
-      const result: MySqlRawQueryResult = await this.db.transaction(
-        async (tx) => {
-          return await tx
-            .update(categories)
-            .set(value)
-            .where(eq(categories.id, categoryId));
-        },
-      );
-
-      this.logger.verbose(`Update result ${JSON.stringify(result)}`);
-
-      if (!result) {
-        this.logger.error(MessageLog.BRAND_CANNOT_BE_UPDATED);
+      if (!existingCategory) {
+        this.logger.error(CategoryMessagesLog.CATEGORY_NOT_FOUND);
         throw new InternalServerErrorException(
           ErrorMessage.INTERNAL_SERVER_ERROR,
         );
       }
 
-      return await this.searchService.findOneOrThrow<Category>(
-        this.db,
-        categories,
-        eq(categories.id, category.id),
-        ErrorMessage.INTERNAL_SERVER_ERROR,
+      const imageToSave: SavedImageDTO = category.savedImageDTO;
+
+      // Update category image
+      const image: Image = await this.imagesService.saveImage(
+        imageToSave,
+        category.id,
+        SubjectType.CATEGORY,
       );
+
+      if (!image) {
+        this.logger.error(
+          CategoryMessagesLog.CATEGORY_CANNOT_BE_FOUND_AFTER_CREATED,
+        );
+        throw new InternalServerErrorException(
+          ErrorMessage.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      // Check updating result
+      const result: boolean = await this.categoryRepo.updateCategory(category);
+
+      if (!result) {
+        this.logger.warn(CategoryMessagesLog.CATEGORY_UPDATED_FAILED);
+        throw new InternalServerErrorException(
+          CategoryErrorMessages.UPDATE_CATEGORY_FAILED,
+        );
+      }
+
+      const categoryAfterUpdate = await this.getCategoryById({
+        id: category.id,
+      });
+
+      return categoryAfterUpdate;
     } catch (error) {
       this.logger.error(`Error: ${error}`);
       throw error;

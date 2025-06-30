@@ -6,8 +6,8 @@ import {
   HasRole,
   JwtAuthGuard,
   NotifyMessage,
+  PaginationResponse,
   RolesGuard,
-  Voucher,
 } from '@common';
 import {
   Body,
@@ -31,7 +31,7 @@ import {
   ApiResponse as ApiSwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Role } from '@role';
+import { RoleName } from '@role';
 import {
   CreateVoucherRequestDto,
   DeleteVoucherRequestDto,
@@ -39,6 +39,7 @@ import {
   GetAllVoucherRequestDto,
   GetAllVouchersByUserIdRequestDto,
   UpdateVoucherRequestDto,
+  Voucher,
   VoucherResponseDto,
   VoucherService,
 } from '@voucher';
@@ -53,7 +54,7 @@ export class VoucherController {
   constructor(private voucherService: VoucherService) {}
 
   @Get()
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Lấy danh sách tất cả voucher (admin)' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -65,7 +66,7 @@ export class VoucherController {
   })
   async getAllVouchers(
     @Query() { limit, page }: GetAllVoucherRequestDto,
-  ): Promise<ApiResponse<Voucher[]>> {
+  ): Promise<ApiResponse<PaginationResponse<Voucher>>> {
     const vouchers = await this.voucherService.getAllVouchers(limit, page);
     this.logger.debug(`Vouchers: ${JSON.stringify(vouchers)}`);
 
@@ -77,7 +78,7 @@ export class VoucherController {
   }
 
   @Get('/user')
-  @HasRole(Role.USER)
+  @HasRole(RoleName.USER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Lấy voucher theo user đang đăng nhập' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -104,8 +105,8 @@ export class VoucherController {
   }
 
   @Get('/search')
-  @HasRole(Role.ADMIN)
-  @HasRole(Role.USER)
+  @HasRole(RoleName.ADMIN)
+  @HasRole(RoleName.USER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Tìm kiếm voucher theo mã code' })
   @ApiQuery({ name: 'voucherCode', required: true, type: String })
@@ -118,7 +119,7 @@ export class VoucherController {
   })
   async findVoucherByCode(
     @Query() { limit, page, voucherCode }: FindVoucherByCodeRequestDto,
-  ): Promise<ApiResponse<Voucher[]>> {
+  ): Promise<ApiResponse<PaginationResponse<Voucher>>> {
     const vouchers = await this.voucherService.findVoucherByCode(
       voucherCode,
       limit,
@@ -134,7 +135,7 @@ export class VoucherController {
   }
 
   @Post()
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Tạo mới voucher' })
   @ApiBody({ type: CreateVoucherRequestDto })
@@ -158,7 +159,7 @@ export class VoucherController {
   }
 
   @Put('/:id')
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Cập nhật voucher theo id' })
   @ApiBody({ type: UpdateVoucherRequestDto })
@@ -169,21 +170,9 @@ export class VoucherController {
   })
   async updateVoucher(
     @Body()
-    {
-      discount,
-      expireAt,
-      status,
-      voucherCode,
-      voucherId,
-    }: UpdateVoucherRequestDto,
+    request: UpdateVoucherRequestDto,
   ): Promise<ApiResponse<Voucher>> {
-    const voucher = await this.voucherService.updateVoucherInfo(
-      voucherId,
-      voucherCode,
-      discount,
-      new Date(expireAt),
-      status,
-    );
+    const voucher = await this.voucherService.updateVoucherInfo(request);
     this.logger.debug(`Voucher: ${JSON.stringify(voucher)}`);
 
     return {
@@ -194,7 +183,7 @@ export class VoucherController {
   }
 
   @Delete('/:id')
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Xoá voucher theo id' })
   @ApiBody({ type: DeleteVoucherRequestDto })

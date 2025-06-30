@@ -73,4 +73,5 @@ export enum ErrorMessage {
   IS_NOT_EMPTY = 'không được phép để trống',
   NOT_EXIST = 'không tồn tại',
   ID_SHOULD_NOT_BE_A_NEGATIVE_NUMBER = 'ID không được phép là số âm',
+  STATUS_MUST_BE_ENUM = 'Trạng thái phải hợp lệ',
 }
