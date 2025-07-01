@@ -1,3 +1,11 @@
+import { ApiResponse, CatchEverythingFilter, NotifyMessage } from '@common';
+import {
+  Contact,
+  ContactResponseDto,
+  ContactService,
+  CreateContactRequestDto,
+  GetAllContactInfoRequestDto,
+} from '@contact';
 import {
   Body,
   Controller,
@@ -14,14 +22,6 @@ import {
   ApiTags,
   ApiResponse as ApiSwaggerResponse,
 } from '@nestjs/swagger';
-import { Contact } from '@schema-type';
-import { CreateContactRequestDto } from '@dtos/contact/create-contact-request.dto';
-import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { NotifyMessage } from '@message/notify-message';
-import { ContactResponseDto } from '@dtos/contact/contact-response.dto';
-import { GetAllContactInfoRequestDto } from '@dtos/contact/get-all-contact-info-request.dto';
-import { ContactService } from '@core-modules/contact/contact.service';
 
 @Controller('contact')
 @ApiTags('Contact')
@@ -47,14 +47,9 @@ export class ContactController {
     description: 'Lỗi hệ thống',
   })
   async createContactInfo(
-    @Body() { name, email, title, message }: CreateContactRequestDto,
+    @Body() request: CreateContactRequestDto,
   ): Promise<ApiResponse<Contact>> {
-    const contact = await this.contactService.createContactInfo(
-      name,
-      email,
-      title,
-      message,
-    );
+    const contact = await this.contactService.createContactInfo(request);
     this.logger.debug(`Contact info: ${JSON.stringify(contact)}`);
 
     return {
@@ -80,9 +75,9 @@ export class ContactController {
     description: 'Lỗi hệ thống',
   })
   async getAllContact(
-    @Query() { limit, page }: GetAllContactInfoRequestDto,
+    @Query() request: GetAllContactInfoRequestDto,
   ): Promise<ApiResponse<Contact[]>> {
-    const contact = await this.contactService.getALlContact(limit, page);
+    const contact = await this.contactService.getALlContact(request);
     this.logger.debug(`Contact info: ${JSON.stringify(contact)}`);
 
     return {

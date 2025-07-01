@@ -5,3 +5,4 @@ export * from './dto';
 export * from './entites';
 export * from './enums';
 export * from './messages';
+export * from './repositories';

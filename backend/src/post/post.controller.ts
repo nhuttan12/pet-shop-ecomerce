@@ -1,3 +1,5 @@
+import { JwtPayload } from '@auth';
+import { ApiResponse, CatchEverythingFilter, GetUser, HasRole, JwtAuthGuard, RolesGuard } from '@common';
 import {
   Body,
   Controller,
@@ -22,34 +24,29 @@ import {
   ApiTags,
   ApiResponse as SwaggerApiResponse,
 } from '@nestjs/swagger';
-import { HasRole } from '@decorator/roles.decorator';
-import { GetUser } from '@decorator/user.decorator';
-import { CreatePostRequestDto } from '@dtos/post/create-post-request.dto';
-import { DeletePostRequestDto } from '@dtos/post/delete-post-request.dto';
-import { EditPostRequestDto } from '@dtos/post/edit-post-request.dto';
-import { GetAllPostsRequestDto } from '@dtos/post/get-all-posts-request.dto';
-import { PostResponse } from '@dtos/post/post-response.dto';
-import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
-import { Role } from '@enum/role.enum';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { JwtAuthGuard } from '@guard/jwt-auth.guard';
-import { RolesGuard } from '@guard/roles.guard';
-import { JwtPayload } from '@interfaces';
-import { NotifyMessage } from '@message/notify-message';
-import { PostService } from '@core-modules/forum/post/post.service';
-import { SendRequestChangingPostDto } from '@dtos/request-edit-post/send-request-edit.post.dto';
-import { ReportPostDto } from '@dtos/post/report-post-request.dto';
-import { PostReportResponseDto } from '@dtos/post/post-report-response.dto';
-import { GetAllPostReportsRequestDto } from '@dtos/post/get-all-post-report-request.dto';
+import {
+  CreatePostRequestDto,
+  DeletePostRequestDto,
+  EditPostRequestDto,
+  GetAllPostReportsRequestDto,
+  GetAllPostsRequestDto,
+  PostNotifyMessage,
+  PostReportResponseDto,
+  PostResponse,
+  PostService,
+  ReportPostDto,
+  SendRequestChangingPostDto,
+} from '@post';
+import { RoleName } from '@role';
 
 @Controller('/post')
 @ApiTags('Post')
 @ApiBearerAuth('jwt')
-@HasRole(Role.USER, Role.ADMIN)
+@HasRole(RoleName.USER, RoleName.ADMIN)
 @UseFilters(CatchEverythingFilter)
 export class PostController {
   private readonly logger = new Logger(PostController.name);
-  constructor(private readonly postService: PostService) { }
+  constructor(private readonly postService: PostService) {}
 
   @Get()
   @ApiOperation({ summary: 'Lấy danh sách bài viết (phân trang)' })
@@ -67,15 +64,15 @@ export class PostController {
   })
   @SwaggerApiResponse({
     status: 200,
-    description: NotifyMessage.GET_POST_SUCCESSFUL,
+    description: PostNotifyMessage.GET_POST_SUCCESSFUL,
   })
   async getAllPosts(
-    @Query() { limit, page }: GetAllPostsRequestDto,
+    @Query() request: GetAllPostsRequestDto,
   ): Promise<ApiResponse<PostResponse[]>> {
-    const posts = await this.postService.getAllPosts(limit, page);
+    const posts = await this.postService.getAllPosts(request);
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_POST_SUCCESSFUL,
+      message: PostNotifyMessage.GET_POST_SUCCESSFUL,
       data: posts,
     };
   }
@@ -86,7 +83,7 @@ export class PostController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @SwaggerApiResponse({
     status: 201,
-    description: NotifyMessage.CREATE_POST_SUCCESSFUL,
+    description: PostNotifyMessage.CREATE_POST_SUCCESSFUL,
   })
   async createPost(
     @GetUser() authorId: JwtPayload,
@@ -98,7 +95,7 @@ export class PostController {
 
     return {
       statusCode: HttpStatus.CREATED,
-      message: NotifyMessage.CREATE_POST_SUCCESSFUL,
+      message: PostNotifyMessage.CREATE_POST_SUCCESSFUL,
       data: post,
     };
   }
@@ -110,19 +107,19 @@ export class PostController {
   @ApiBody({ type: EditPostRequestDto })
   @SwaggerApiResponse({
     status: 200,
-    description: NotifyMessage.UPDATE_POST_SUCCESSFUL,
+    description: PostNotifyMessage.UPDATE_POST_SUCCESSFUL,
   })
   async editPost(
     @Param('postId', ParseIntPipe) postId: number,
     @GetUser() user: JwtPayload,
     @Body() editPostDto: EditPostRequestDto,
   ): Promise<ApiResponse<PostResponse>> {
-    const post = await this.postService.editPost(postId, user.sub, editPostDto);
+    const post = await this.postService.editPost(user.sub, editPostDto);
     this.logger.debug(`Post: ${JSON.stringify(post)}`);
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.UPDATE_POST_SUCCESSFUL,
+      message: PostNotifyMessage.UPDATE_POST_SUCCESSFUL,
       data: post,
     };
   }
@@ -132,7 +129,7 @@ export class PostController {
   @ApiBody({ type: DeletePostRequestDto })
   @SwaggerApiResponse({
     status: 200,
-    description: NotifyMessage.DELETE_POST_SUCCESSFUL,
+    description: PostNotifyMessage.DELETE_POST_SUCCESSFUL,
   })
   async removePost(
     @Body() { postId }: DeletePostRequestDto,
@@ -142,13 +139,13 @@ export class PostController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.DELETE_POST_SUCCESSFUL,
+      message: PostNotifyMessage.DELETE_POST_SUCCESSFUL,
       data: post,
     };
   }
 
   @Post('request-edit')
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @ApiOperation({ summary: 'Gửi yêu cầu chỉnh sửa bài viết' })
   @ApiBody({
     description: 'Thông tin lý do và nội dung chỉnh sửa gợi ý',
@@ -177,7 +174,7 @@ export class PostController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.REQUEST_CHANGE_POST_SUCCESSFUL,
+      message: PostNotifyMessage.REQUEST_CHANGE_POST_SUCCESSFUL,
     };
   }
 
@@ -249,7 +246,7 @@ export class PostController {
     schema: {
       example: {
         statusCode: 200,
-        message: NotifyMessage.GET_POST_REPORT_SUCCESSFUL,
+        message: PostNotifyMessage.GET_POST_REPORT_SUCCESSFUL,
         data: [
           {
             id: 1,
@@ -286,7 +283,7 @@ export class PostController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.GET_POST_REPORT_SUCCESSFUL,
+      message: PostNotifyMessage.GET_POST_REPORT_SUCCESSFUL,
       data: postReports,
     };
   }

@@ -112,4 +112,8 @@ export class UserService {
       this.logger.verbose(`User with ${id} updated`);
     }
   }
+
+  async findUsersById(ids: number[]): Promise<User[]> {
+    return await this.userRepo.findUsersById(ids);
+  }
 }

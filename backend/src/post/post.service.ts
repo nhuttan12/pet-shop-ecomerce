@@ -1,93 +1,86 @@
-import { UserService } from '@user/user.service';
-import { CreatePostRequestDto } from '@post/dto/create-post-request.dto';
-import { EditPostRequestDto } from '@post/dto/edit-post-request.dto';
-import { PostReportResponseDto } from '@post/dto/post-report-response.dto';
-import { PostResponse } from '@post/dto/post-response.dto';
-import { PostEditRequestStatus } from '@post/enums/post-edit-request-status.enum';
-import { PostStatus } from '@post/enums/posts-status.enum';
-import { DrizzleAsyncProvider } from '@database/drizzle.provider';
-import { SearchService } from '@services/search.service';
-import { UtilityService } from '@services/utility.service';
-import { NotifyMessage } from '@messages/notify.messages';
-import { PostErrorMessage, PostMessageLog } from '@message/post-message';
+import { ErrorMessage, UtilityService, postEditRequests } from '@common';
 import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
-  Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { postEditRequests, postReports, posts, users } from '@schema';
-import { Post, PostInsert, PostReport, User } from '@schema-type';
-import { and, eq, inArray } from 'drizzle-orm';
-import { MySql2Database } from 'drizzle-orm/mysql2';
+import {
+  CreatePostRequestDto,
+  EditPostRequestDto,
+  GetAllPostsRequestDto,
+  Post,
+  PostEditRequest,
+  PostEditRequestRepository,
+  PostErrorMessage,
+  PostMessageLog,
+  PostRepository,
+  PostResponse,
+  SendRequestChangingPostDto,
+} from '@post';
+import { User, UserService } from '@user';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class PostService {
   private readonly logger = new Logger(PostService.name);
   constructor(
-    @Inject(DrizzleAsyncProvider) private db: MySql2Database<any>,
-    private searchService: SearchService,
     private userService: UserService,
     private utilityService: UtilityService,
+    private readonly postRepo: PostRepository,
+    private readonly postEditRequestRepo: PostEditRequestRepository,
   ) {}
 
   async getAllPosts(
-    limit: number,
-    offset: number,
+    request: GetAllPostsRequestDto,
     userId?: number,
   ): Promise<PostResponse[]> {
     try {
       // 1. Get pagination
-      const { skip, take } = this.utilityService.getPagination(offset, limit);
+      const { skip, take } = this.utilityService.getPagination(
+        request.page,
+        request.limit,
+      );
 
       // 2. Check condition to get post each user or all user
-      const condition =
-        userId !== undefined
-          ? and(eq(posts.status, PostStatus.ACTIVE), eq(posts.authorId, userId))
-          : undefined;
+      const postList = !userId
+        ? await this.postRepo.getAllPosts(skip, take)
+        : await this.postRepo.getAllPostsOfUser(userId, skip, take);
 
-      // 3. Get post
-      const postList: Post[] =
-        await this.searchService.findManyOrReturnEmptyArray(
-          this.db,
-          posts,
-          condition,
-          userId !== undefined ? take : undefined,
-          userId !== undefined ? skip : undefined,
-        );
+      if (postList.length === 0) {
+        return [];
+      }
 
-      // 4. Get author id of each post
-      const postAuthorIdList: number[] = postList.map((p) => p.authorId);
+      // 3. Get author id of each post
+      const authorIds: number[] = postList.map((post) => post.author.id);
 
       // 5. Get author from author id list
-      const userList: User[] = await this.db
-        .select()
-        .from(users)
-        .where(inArray(users.id, postAuthorIdList));
+      const authorList: User[] =
+        await this.userService.findUsersById(authorIds);
 
       // 6. Map post and author
-      const result: PostResponse[] = postList.map((p) => {
-        const author: User | undefined = userList.find(
-          (u) => u.id === p.authorId,
-        );
+      const authorMap = new Map<number, User>();
 
+      for (const user of authorList) {
+        authorMap.set(user.id, user);
+      }
+
+      const mergedPost = postList.map((post) => {
+        const author = authorMap.get(post.author.id);
         return {
-          id: p.id,
-          title: p.title,
-          authorId: p.authorId,
-          authorName: author?.name ?? '',
-          content: p.content,
-          status: p.status,
-          hasPendingEditRequest: p.hasPendingEditRequest,
-          created_at: p.created_at,
-          updated_at: p.updated_at,
+          ...post,
+          authorID: post.author.id,
+          authorName: author?.name,
         };
       });
 
-      return result;
+      return plainToInstance(PostResponse, mergedPost, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      });
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -96,12 +89,25 @@ export class PostService {
 
   async getPostById(postId: number): Promise<PostResponse> {
     try {
-      return this.searchService.findOneOrThrow(
-        this.db,
-        posts,
-        eq(posts.id, postId),
-        PostErrorMessage.POST_NOT_FOUND,
-      );
+      const post: Post | null = await this.postRepo.getPostById(postId);
+
+      if (!post) {
+        this.logger.error(PostMessageLog.POST_NOT_FOUND);
+        throw new NotFoundException(PostErrorMessage.POST_NOT_FOUND);
+      }
+
+      const author: User = await this.userService.getUserById(post.author.id);
+
+      const merge = {
+        ...post,
+        authorID: post.author.id,
+        authorName: author.name,
+      };
+
+      return plainToInstance(PostResponse, merge, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      });
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -112,36 +118,26 @@ export class PostService {
 
   async createPost(
     authorId: number,
-    { content, title }: CreatePostRequestDto,
+    request: CreatePostRequestDto,
   ): Promise<PostResponse> {
     try {
-      const user: User = await this.searchService.findOneOrThrow<User>(
-        this.db,
-        users,
-        eq(users.id, authorId),
-        PostErrorMessage.USER_NOT_FOUND,
-      );
+      // 1. Check author exist
+      const user: User = await this.userService.getUserById(authorId);
 
-      const [createdId] = await this.db.transaction(async (tx) => {
-        return await tx
-          .insert(posts)
-          .values({
-            title,
-            content,
-            authorId: user.id,
-            status: PostStatus.ACTIVE,
-            created_at: new Date(),
-            updated_at: new Date(),
-          })
-          .$returningId();
+      // 2. Create post
+      const post: Post = await this.postRepo.createPost(authorId, request);
+
+      // 3. Mapping
+      const merge = {
+        ...post,
+        authorID: post.author.id,
+        authorName: user.name,
+      };
+
+      return plainToInstance(PostResponse, merge, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
       });
-
-      return await this.searchService.findOneOrThrow(
-        this.db,
-        posts,
-        eq(posts.id, createdId.id),
-        PostErrorMessage.POST_NOT_FOUND,
-      );
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -150,28 +146,25 @@ export class PostService {
     }
   }
 
-  async removePost(postId: number): Promise<PostResponse> {
+  async removePost(postID: number): Promise<PostResponse> {
     try {
-      const post: PostResponse = await this.searchService.findOneOrThrow(
-        this.db,
-        posts,
-        and(eq(posts.id, postId), eq(posts.status, PostStatus.ACTIVE)),
-        PostErrorMessage.POST_NOT_FOUND,
-      );
+      const post = await this.postRepo.getPostById(postID);
 
-      const result = await this.db.transaction(async (tx) => {
-        return await tx
-          .update(posts)
-          .set({ status: PostStatus.REMOVED, updated_at: new Date() })
-          .where(eq(posts.id, post.id));
-      });
-
-      if (!result) {
-        this.logger.error(PostErrorMessage.POST_NOT_FOUND);
-        throw new ConflictException(PostErrorMessage.POST_NOT_FOUND);
+      if (!post) {
+        this.logger.warn(PostMessageLog.POST_NOT_FOUND);
+        throw new NotFoundException(PostErrorMessage.POST_NOT_FOUND);
       }
 
-      return post;
+      const result: boolean = await this.postRepo.removePost(postID);
+
+      if (!result) {
+        this.logger.warn(PostMessageLog.CANNOT_UPDATE_POST);
+        throw new InternalServerErrorException(
+          ErrorMessage.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      return await this.getPostById(postID);
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -179,82 +172,66 @@ export class PostService {
   }
 
   async editPost(
-    postId: number,
     authorId: number,
     dto: EditPostRequestDto,
   ): Promise<PostResponse> {
-    const post: PostResponse = await this.getPostById(postId);
+    const post: PostResponse = await this.getPostById(dto.postID);
+
     if (post.authorId !== authorId) {
       this.logger.error(PostErrorMessage.POST_NOT_FOUND);
       throw new ForbiddenException(PostErrorMessage.POST_NOT_FOUND);
     }
 
-    const updateData: Partial<PostInsert> = {
-      ...dto,
-      updated_at: new Date(),
-    };
-
-    const result = await this.db.transaction(async (tx) => {
-      const post: Post = await this.searchService.findOneOrThrow(
-        this.db,
-        posts,
-        eq(posts.id, postId),
-      );
-
-      if (post.hasPendingEditRequest) {
-        updateData.hasPendingEditRequest = false;
-      }
-
-      return await tx.update(posts).set(updateData).where(eq(posts.id, postId));
-    });
+    const result: boolean = await this.postRepo.editPost(dto);
 
     if (!result) {
       this.logger.error(PostErrorMessage.CANNOT_UPDATE_POST);
       throw new ConflictException(PostMessageLog.CANNOT_UPDATE_POST);
     }
 
-    return await this.searchService.findOneOrThrow(
-      this.db,
-      posts,
-      eq(posts.id, postId),
-      PostErrorMessage.POST_NOT_FOUND,
-    );
+    return await this.getPostById(dto.postID);
   }
 
   async sendRequestChangingPost(
-    postId: number,
-    reason: string,
-    contentSuggested?: string,
+    request: SendRequestChangingPostDto,
   ): Promise<void> {
     try {
-      const post: PostResponse = await this.searchService.findOneOrThrow(
-        this.db,
-        posts,
-        eq(posts.id, postId),
-        PostErrorMessage.POST_NOT_FOUND,
-      );
+      await this.getPostById(request.postID);
 
-      const result = await this.db.transaction(async (tx) => {
-        const update = await tx
-          .update(posts)
-          .set({ hasPendingEditRequest: true })
-          .where(eq(posts.id, post.id));
+      const setPendingEditRequestResult =
+        await this.postRepo.setPendingEditRequestToTrue(request.postID);
 
-        const postEditRequest = await tx
-          .insert(postEditRequests)
-          .values({
-            postId: post.id,
-            employeeId: post.authorId,
-            status: PostEditRequestStatus.PENDING,
-            reason: reason,
-            contentSuggested: contentSuggested ?? '',
-            created_at: new Date(),
-            updated_at: new Date(),
-          })
-          .$returningId();
+      if (!setPendingEditRequestResult) {
+        this.logger.warn(PostMessageLog.CANNOT_UPDATE_POST);
+        throw new InternalServerErrorException(
+          ErrorMessage.INTERNAL_SERVER_ERROR,
+        );
+      }
 
-        return { update, postEditRequest };
-      });
+      const postEditRequests: PostEditRequest =
+        await this.postEditRequestRepo.createPostEditRequest(request);
+
+      // const result = await this.db.transaction(async (tx) => {
+      //   const update = await tx
+      //     .update(posts)
+      //     .set({ hasPendingEditRequest: true })
+      //     .where(eq(posts.id, post.id));
+
+      //   const postEditRequest = await tx
+      //     .insert(postEditRequests)
+      //     .values({
+      //       postId: post.id,
+      //       employeeId: post.authorId,
+      //       status: PostEditRequestStatus.PENDING,
+      //       reason: reason,
+      //       contentSuggested: contentSuggested ?? '',
+      //       created_at: new Date(),
+      //       updated_at: new Date(),
+      //     })
+      //     .$returningId();
+
+      //   return { update, postEditRequest };
+      // });
 
       if (!result) {
         this.logger.error(PostErrorMessage.POST_NOT_FOUND);

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PostErrorMessage } from '@post';
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
-import { PostErrorMessage } from '@message/post-message';
 
 export class CreatePostRequestDto {
   @ApiProperty({ example: 'Tiêu đề bài viết', maxLength: 255 })

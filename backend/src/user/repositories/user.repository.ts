@@ -24,7 +24,7 @@ import {
   UserUpdateDTO,
 } from '@user';
 import { plainToInstance } from 'class-transformer';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 
 @Injectable()
 export class UserRepository {
@@ -241,5 +241,9 @@ export class UserRepository {
     return await this.dataSource.transaction(async (manager) => {
       await manager.update(User, id, { password, updatedAt: new Date() });
     });
+  }
+
+  async findUsersById(ids: number[]): Promise<User[]> {
+    return await this.userRepo.find({ where: { id: In(ids) } });
   }
 }

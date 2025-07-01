@@ -1,10 +1,4 @@
-import {
-  Image,
-  ImageStatus,
-  ImageType,
-  SavedImageDTO,
-  SubjectType,
-} from '@common';
+import { Image, ImageType, SavedImageDTO, SubjectType } from '@common';
 import { Injectable, Logger } from '@nestjs/common';
 import { ImageRepository } from 'common/image/repositories/image.repository';
 import { DataSource, EntityManager } from 'typeorm';

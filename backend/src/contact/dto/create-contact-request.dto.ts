@@ -1,7 +1,7 @@
+import { NotUrlValidator } from '@common';
+import { ContactErrorMessage } from '@contact';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, Validate } from 'class-validator';
-import { NotUrlValidator } from '@validator';
-import { ContactErrorMessage } from '@message/contact-message';
 
 export class CreateContactRequestDto {
   @ApiProperty()

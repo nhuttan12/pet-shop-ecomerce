@@ -1,8 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
-import { PostErrorMessage } from '@message/post-message';
+import { PostErrorMessage } from '@post';
+import { IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 export class EditPostRequestDto {
+  @IsInt({ message: PostErrorMessage.POST_ID_MUST_BE_INTEGER })
+  @Min(1, { message: PostErrorMessage.POST_ID_MUST_BE_POSITIVE_NUMBER })
+  @ApiProperty()
+  postID: number;
+
   @IsOptional()
   @IsString({ message: PostErrorMessage.POST_TITLE_MUST_BE_A_STRING })
   @MaxLength(255, {
