@@ -14,4 +14,5 @@ export enum PostErrorMessage {
   POST_DESCRIPTION_MUST_BE_A_STRING = 'Nguyên nhân báo cáo phải là chuỗi',
   POST_DESCRIPTION_SHOULD_NOT_BE_EMPTY = 'Nguyên nhân báo cáo không được để trống',
   POST_ALREADY_REPORTED = 'Bạn đã báo cáo bài viết này rồi',
+  EDIT_REQUEST_NOT_FOUND = 'Không tìm thấy yêu cầu chỉnh sửa bài viết',
 }

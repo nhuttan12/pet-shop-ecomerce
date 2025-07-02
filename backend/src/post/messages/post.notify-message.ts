@@ -4,6 +4,7 @@ export enum PostNotifyMessage {
   UPDATE_POST_SUCCESSFUL = 'Chỉnh sửa bài viết thành công',
   DELETE_POST_SUCCESSFUL = 'Xoá bài viết thành công',
   REQUEST_CHANGE_POST_SUCCESSFUL = 'Gửi yêu cầu chỉnh sửa bài viết thành công',
-  POST_REPORT_SUCCESSFUL = 'Tố cáo bài viết thành công',
+  POST_REPORT_SUCCESSFUL = 'Báo cáo bài viết thành công',
   GET_POST_REPORT_SUCCESSFUL = 'Lấy ra toàn bộ bài viết được báo cáo báo cáo',
+  POST_REPORT_FAIL = 'Báo cáo bài viết không thành công',
 }

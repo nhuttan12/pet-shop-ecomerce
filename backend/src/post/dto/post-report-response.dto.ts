@@ -1,5 +1,6 @@
-import { PostReportStatus } from '@enum/status/post-report-status.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { PostReportStatus } from '@post';
+import { Expose } from 'class-transformer';
 
 export class PostReportResponseDto {
   @ApiProperty({
@@ -7,6 +8,7 @@ export class PostReportResponseDto {
     example: 1,
     type: Number,
   })
+  @Expose()
   id: number;
 
   @ApiProperty({
@@ -14,6 +16,7 @@ export class PostReportResponseDto {
     example: 'Bài viết mẫu',
     type: String,
   })
+  @Expose()
   postTitle: string;
 
   @ApiProperty({
@@ -21,6 +24,7 @@ export class PostReportResponseDto {
     example: 'user123',
     type: String,
   })
+  @Expose()
   userName: string;
 
   @ApiProperty({
@@ -28,6 +32,7 @@ export class PostReportResponseDto {
     example: 'PENDING',
     type: String,
   })
+  @Expose()
   status: PostReportStatus | string;
 
   @ApiProperty({
@@ -35,6 +40,7 @@ export class PostReportResponseDto {
     example: 'Phát hiện nội dung không phù hợp',
     type: String,
   })
+  @Expose()
   description: string;
 
   @ApiProperty({
@@ -42,5 +48,6 @@ export class PostReportResponseDto {
     example: '2025-06-10T09:57:00.000Z',
     type: String,
   })
+  @Expose()
   createdAt: Date | string;
 }

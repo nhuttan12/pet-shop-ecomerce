@@ -81,7 +81,7 @@ export class User {
 
   // Quan hệ 1-n với PostEditRequest
   @OneToMany(() => PostEditRequest, (request) => request.employee)
-  postEditRequest: PostEditRequest[];
+  postEditRequestAsEmployee: PostEditRequest[];
 
   // Quan hệ 1-n với PostReport
   @OneToMany(() => PostReport, (report) => report.user)

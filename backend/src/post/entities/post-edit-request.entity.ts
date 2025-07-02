@@ -18,12 +18,10 @@ export class PostEditRequest {
   @ManyToOne(() => Post, (post) => post.postEditRequest, { nullable: false })
   post: Post;
 
-  @ManyToOne(() => User, (user) => user.postEditRequest, { nullable: false })
-  @JoinColumn({ name: 'user_id' })
-  author: User;
-
-  @ManyToOne(() => User, (user) => user.postEditRequest, { nullable: false })
-  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.postEditRequestAsEmployee, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'employee_id' })
   employee: User;
 
   @Column({

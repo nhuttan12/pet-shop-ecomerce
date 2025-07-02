@@ -6,3 +6,5 @@ export * from './post.controller';
 export * from './post.service';
 export * from './post.module';
 export * from './repositories';
+export * from './post-report.service';
+export * from './post-edit-request.service';

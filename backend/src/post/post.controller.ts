@@ -1,5 +1,12 @@
 import { JwtPayload } from '@auth';
-import { ApiResponse, CatchEverythingFilter, GetUser, HasRole, JwtAuthGuard, RolesGuard } from '@common';
+import {
+  ApiResponse,
+  CatchEverythingFilter,
+  GetUser,
+  HasRole,
+  JwtAuthGuard,
+  RolesGuard,
+} from '@common';
 import {
   Body,
   Controller,
@@ -30,8 +37,10 @@ import {
   EditPostRequestDto,
   GetAllPostReportsRequestDto,
   GetAllPostsRequestDto,
+  PostEditRequestService,
   PostNotifyMessage,
   PostReportResponseDto,
+  PostReportService,
   PostResponse,
   PostService,
   ReportPostDto,
@@ -46,7 +55,11 @@ import { RoleName } from '@role';
 @UseFilters(CatchEverythingFilter)
 export class PostController {
   private readonly logger = new Logger(PostController.name);
-  constructor(private readonly postService: PostService) {}
+  constructor(
+    private readonly postService: PostService,
+    private readonly postEditRequestSerivce: PostEditRequestService,
+    private readonly postReportService: PostReportService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Lấy danh sách bài viết (phân trang)' })
@@ -164,12 +177,12 @@ export class PostController {
     description: 'Lỗi hệ thống khi gửi yêu cầu',
   })
   async sendRequestChangingPost(
-    @Body() { postId, reason, contentSuggested }: SendRequestChangingPostDto,
+    @Body() request: SendRequestChangingPostDto,
+    @GetUser() user: JwtPayload,
   ): Promise<ApiResponse<void>> {
-    await this.postService.sendRequestChangingPost(
-      postId,
-      reason,
-      contentSuggested,
+    await this.postEditRequestSerivce.sendRequestChangingPost(
+      request,
+      user.sub,
     );
 
     return {
@@ -205,7 +218,7 @@ export class PostController {
     @GetUser() user: JwtPayload,
     @Body() { postId, description }: ReportPostDto,
   ): Promise<ApiResponse<string>> {
-    const reportPost = await this.postService.reportPost(
+    const reportPost = await this.postReportService.reportPost(
       postId,
       description,
       user.sub,
@@ -214,7 +227,9 @@ export class PostController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: reportPost,
+      message: reportPost
+        ? PostNotifyMessage.POST_REPORT_SUCCESSFUL
+        : PostNotifyMessage.POST_REPORT_FAIL,
     };
   }
 
@@ -278,7 +293,7 @@ export class PostController {
     @GetUser() user: JwtPayload,
   ): Promise<ApiResponse<PostReportResponseDto[]>> {
     const postReports: PostReportResponseDto[] =
-      await this.postService.getAllPostsReported(limit, page, user.sub);
+      await this.postReportService.getAllPostsReported(limit, page, user.sub);
     this.logger.debug(`Post Reports: ${JSON.stringify(postReports)}`);
 
     return {

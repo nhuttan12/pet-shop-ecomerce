@@ -56,6 +56,21 @@ export class PostRepository {
     }
   }
 
+  async getPostByIdsWithAuthor(postIDs: number[]): Promise<Post[]> {
+    try {
+      if (!postIDs.length) return [];
+
+      return await this.postRepo
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.author', 'author')
+        .where('post.id IN (:...postIDs)', { postIDs })
+        .getMany();
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
   async createPost(
     authorId: number,
     request: CreatePostRequestDto,
@@ -148,5 +163,13 @@ export class PostRepository {
       this.logger.error(error);
       throw error;
     }
+  }
+
+  async getPostByIdWithAuthor(postId: number): Promise<Post | null> {
+    return this.postRepo
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.author', 'author')
+      .where('post.id = :postId', { postId })
+      .getOne();
   }
 }

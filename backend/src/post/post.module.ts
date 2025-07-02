@@ -5,7 +5,9 @@ import {
   Post,
   PostController,
   PostEditRequest,
+  PostEditRequestService,
   PostReport,
+  PostReportService,
   PostService,
 } from '@post';
 import { UsersModule } from '@user';
@@ -17,6 +19,6 @@ import { UsersModule } from '@user';
     TypeOrmModule.forFeature([Post, PostEditRequest, PostReport]),
   ],
   controllers: [PostController],
-  providers: [PostService],
+  providers: [PostService, PostReportService, PostEditRequestService],
 })
 export class PostModule {}
