@@ -5,3 +5,4 @@ export * from './messages';
 export * from './product-rating.module';
 export * from './product-rating.service';
 export * from './product-rating.controller';
+export * from './'

@@ -4,6 +4,7 @@ import {
   Image,
   ImageService,
   PaginationResponse,
+  SubjectType,
 } from '@common';
 import {
   BadRequestException,
@@ -205,6 +206,8 @@ export class UserRepository {
 
       const newImage: Image = await this.imageService.saveImage(
         userUpdateDTO.image,
+        userUpdateDTO.id,
+        SubjectType.USER,
       );
 
       await manager.update(UserDetail, userUpdateDTO.id, {
@@ -215,16 +218,15 @@ export class UserRepository {
       await this.imageService.updateImageForSubsject(
         manager,
         userUpdateDTO.id,
-        'user',
+        SubjectType.USER,
         newImage.url,
         newImage.type,
         newImage.folder,
       );
 
-      const updatedUser: User | null = await manager.findOne(User, {
-        where: { id: userUpdateDTO.id },
-        relations: ['userDetail', 'role'],
-      });
+      const updatedUser: User | null = await this.getUserWithUserDetailAndRole(
+        userUpdateDTO.id,
+      );
 
       if (!updatedUser) {
         this.logger.error(UserMessageLog.USER_NOT_FOUND_AFTER_UDPATED);
@@ -245,5 +247,16 @@ export class UserRepository {
 
   async findUsersById(ids: number[]): Promise<User[]> {
     return await this.userRepo.find({ where: { id: In(ids) } });
+  }
+
+  async getUserWithUserDetailAndRole(userID: number) {
+    return await this.dataSource.transaction(async (manager) => {
+      return await manager
+        .createQueryBuilder(User, 'user')
+        .leftJoinAndSelect('user.userDetail', 'userDetail')
+        .leftJoinAndSelect('user.role', 'role')
+        .where('user.id = :id', { id: userID })
+        .getOne();
+    });
   }
 }

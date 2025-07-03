@@ -123,7 +123,7 @@ export class BrandController {
   async getBrandById(
     @Param() brand: FindBrandById,
   ): Promise<ApiResponse<Brand>> {
-    const newBrand: Brand = await this.brandSerivce.getBrandsById(brand);
+    const newBrand: Brand = await this.brandSerivce.getBrandById(brand);
     this.logger.debug(`Get brand in controller ${JSON.stringify(newBrand)}`);
 
     return {

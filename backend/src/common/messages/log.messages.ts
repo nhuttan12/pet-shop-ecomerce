@@ -114,13 +114,6 @@ export enum MessageLog {
   CART_CANNOT_BE_DELETED = 'Cart cannot be delete',
   CART_DETAIL_NOT_FOUND = 'Cart detail not found',
 
-  ERROR_IN_UPDATE = 'Error in updating',
-  CAN_NOT_DELETE = 'can not be delete',
-  CAN_NOT_UPDATE = 'can not be update',
-  PRODUCT = 'Product',
-  ORDER = 'Order',
-  NOT_FOUND = 'not found',
-
   /**
    * @description = config for paypal
    */

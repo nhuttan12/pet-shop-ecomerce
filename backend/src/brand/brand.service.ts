@@ -32,7 +32,7 @@ export class BrandService {
     return await this.brandRepo.findBrands({}, take, skip);
   }
 
-  async getBrandsById({ id }: FindBrandById): Promise<Brand> {
+  async getBrandById({ id }: FindBrandById): Promise<Brand> {
     const brand: Brand | null = await this.brandRepo.getBrandById(id);
     this.logger.debug(`Brand: ${JSON.stringify(brand)}`);
 

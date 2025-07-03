@@ -94,4 +94,8 @@ export class CategoryRepository {
       return true;
     });
   }
+
+  getCategoryByName(categoryName: string): Promise<Category | null> {
+    return this.categoryRepo.findOneBy({ name: categoryName });
+  }
 }

@@ -8,8 +8,9 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ErrorMessage } from '@message/error-message';
-import { SavedImageDTO } from '@dtos/image/saved-image.dto';
+import { ErrorMessage, SavedImageDTO } from '@common';
+import { BrandErrorMessages } from '@brand';
+import { CategoryErrorMessages } from '@category';
 
 export class CreateProductRequest {
   @IsString({ message: ErrorMessage.NAME_MUST_BE_STRING })
@@ -28,10 +29,10 @@ export class CreateProductRequest {
   @ApiProperty()
   price: number;
 
-  @IsString({ message: ErrorMessage.BRAND_FULL_NAME_MUST_BE_STRING })
-  @IsNotEmpty()
+  @IsInt({ message: BrandErrorMessages.BRAND_ID_MUST_BE_INTEGER })
+  @Min(1, { message: BrandErrorMessages.BRAND_ID_MUST_BE_POSITIVE_NUMBER })
   @ApiProperty()
-  brandName: string;
+  brandID: number;
 
   @IsInt({ message: ErrorMessage.PRICE_MUST_BE_INTEGER })
   @IsNotEmpty()
@@ -40,15 +41,16 @@ export class CreateProductRequest {
   quantity: number;
 
   @IsInt({ message: ErrorMessage.PRICE_MUST_BE_INTEGER })
-  @IsNotEmpty()
   @Min(0, { message: ErrorMessage.PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER })
   @ApiProperty()
   discount: number = 0;
 
-  @IsString({ message: ErrorMessage.CATEGORY_MUST_BE_STRING })
-  @IsNotEmpty()
+  @IsString({ message: CategoryErrorMessages.CATEGORY_ID_MUST_BE_INTEGER })
+  @Min(1, {
+    message: CategoryErrorMessages.CATEGORY_ID_MUST_BE_POSITIVE_NUMBER,
+  })
   @ApiProperty()
-  categoryName: string;
+  categoryID: number;
 
   @ValidateNested()
   @Type(() => SavedImageDTO)

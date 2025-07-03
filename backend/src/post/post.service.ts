@@ -33,7 +33,7 @@ export class PostService {
 
   async getAllPosts(
     request: GetAllPostsRequestDto,
-    userId?: number,
+    userID?: number,
   ): Promise<PostResponse[]> {
     try {
       // 1. Get pagination
@@ -43,9 +43,7 @@ export class PostService {
       );
 
       // 2. Check condition to get post each user or all user
-      const postList = !userId
-        ? await this.postRepo.getAllPosts(skip, take)
-        : await this.postRepo.getAllPostsOfUser(userId, skip, take);
+      const postList = await this.postRepo.getAllPosts(skip, take, userID);
 
       if (postList.length === 0) {
         return [];
@@ -66,11 +64,10 @@ export class PostService {
       }
 
       const mergedPost = postList.map((post) => {
-        const author = authorMap.get(post.author.id);
         return {
           ...post,
           authorID: post.author.id,
-          authorName: author?.name,
+          authorName: post.author.name,
         };
       });
 

@@ -1,168 +1,128 @@
-import { CreateProductRequest } from '@dtos/product/create-product-request.dto';
-import { ProductFilterParams } from '@dtos/product/filter-product-request.dto';
-import { GetAllProductResponseDto } from '@dtos/product/get-all-product-response.dto';
-import { GetProductDetailResponseDto } from '@dtos/product/get-product-detail-response.dto';
-import { UpdateProductInforRequestDTO } from '@dtos/product/update-product-infor-request.dto';
-import { ImageType } from '@enum/image-type.enum';
-import { BrandStatus } from '@enum/status/brand-status.enum';
-import { CategoryStatus } from '@enum/status/categories-status.enum';
-import { ImageStatus } from '@enum/status/image-status.enum';
-import { ProductStatus } from '@enum/status/product-status.enum';
-import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
-import { ImageService } from '@helper-modules/image/image.service';
-import { SearchService } from '@helper-modules/services/search.service';
-import { UtilityService } from '@helper-modules/services/utility.service';
-import { ErrorMessage } from '@message/error-message';
-import { MessageLog } from '@message/message-log';
-import { Property } from '@message/property';
+import { Brand, BrandService } from '@brand';
+import {
+  Category,
+  CategoryErrorMessages,
+  CategoryMapping,
+  CategoryMappingService,
+  CategoryMessagesLog,
+  CategoryService,
+} from '@category';
+import {
+  Image,
+  ImageService,
+  ImageType,
+  SubjectType,
+  UtilityService,
+} from '@common';
 import {
   BadRequestException,
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import {
-  brands,
-  categories,
-  categoriesMapping,
-  images,
-  productImages,
-  productRatings,
-  products,
-} from '@schema';
-import { Brand, Category, Image, Product, ProductInsert } from '@schema-type';
-import { and, asc, desc, eq, gte, inArray, like, lte, SQL } from 'drizzle-orm';
-import { MySql2Database } from 'drizzle-orm/mysql2';
+  CreateProductRequest,
+  GetAllProductResponseDto,
+  Product,
+  ProductErrorMessage,
+  ProductMessageLog,
+  ProductRepository,
+} from '@product';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProductService {
   private readonly logger = new Logger(ProductService.name);
   constructor(
-    @Inject(DrizzleAsyncProvider)
-    private db: MySql2Database<any>,
-    private searchService: SearchService,
-    private imageService: ImageService,
-    private utilityService: UtilityService,
+    private readonly imageService: ImageService,
+    private readonly utilityService: UtilityService,
+    private readonly productRepo: ProductRepository,
+    private readonly brandService: BrandService,
+    private readonly categoryService: CategoryService,
+    private readonly categoryMappingService: CategoryMappingService,
   ) {}
 
-  async createProduct({
-    brandName,
-    categoryName,
-    description,
-    discount,
-    name,
-    price,
-    quantity,
-    mainImage,
-    subImages,
-  }: CreateProductRequest): Promise<Product> {
-    const brand: Brand = await this.searchService.findOneOrThrow(
-      this.db,
-      brands,
-      eq(brands.name, brandName),
-    );
+  async getProductByID(productID: number): Promise<Product> {
+    const product: Product | null =
+      await this.productRepo.getProductById(productID);
 
-    const category: Category = await this.searchService.findOneOrThrow(
-      this.db,
-      categories,
-      eq(categories.name, categoryName),
-    );
+    if (!product) {
+      this.logger.warn(ProductMessageLog.PRODUCT_NOT_FOUND);
+      throw new NotFoundException(ProductErrorMessage.PRODUCT_NOT_FOUND);
+    }
 
-    mainImage.type = ImageType.THUMBNAIL;
+    return product;
+  }
 
-    const thumbnail: Image = await this.imageService.saveImage(mainImage);
+  async createProduct(request: CreateProductRequest): Promise<Product> {
+    const brand: Brand = await this.brandService.getBrandById({
+      id: request.brandID,
+    });
 
-    subImages.forEach((image) => {
+    const category: Category = await this.categoryService.getCategoryById({
+      id: request.categoryID,
+    });
+
+    request.mainImage.type = ImageType.THUMBNAIL;
+
+    request.subImages.forEach((image) => {
       image.type = ImageType.PRODUCT;
     });
 
-    const imageList: Image[] = await this.imageService.saveImages(subImages);
-
-    const product: ProductInsert = {
-      brandId: brand.id,
-      description,
-      discount,
-      name,
-      price,
-      stocking: quantity,
-      status: ProductStatus.ACTIVE,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
-
-    const [productInsert] = await this.db.transaction((tx) => {
-      return tx.insert(products).values(product).$returningId();
-    });
-
-    const productResult: Product = await this.searchService.findOneOrThrow(
-      this.db,
-      products,
-      eq(products.id, productInsert.id),
+    const product: Product = await this.productRepo.createProduct(
+      request.name,
+      request.description,
+      request.price,
+      brand,
+      request.quantity,
+      request.discount,
     );
 
-    const result = await this.db.transaction(async (tx) => {
-      const [productImageThumbnailInserted] = await tx
-        .insert(productImages)
-        .values({
-          productId: productInsert.id,
-          imageId: thumbnail.id,
-          created_at: new Date(),
-          updated_at: new Date(),
-        })
-        .$returningId();
-
-      const [categoryMappingInserted] = await tx
-        .insert(categoriesMapping)
-        .values({
-          productId: productInsert.id,
-          categoryId: category.id,
-          created_at: new Date(),
-          updated_at: new Date(),
-        })
-        .$returningId();
-
-      const productImagesInsert = await tx
-        .insert(productImages)
-        .values(
-          imageList.map((img) => ({
-            productId: productInsert.id,
-            imageId: img.id,
-            created_at: new Date(),
-            updated_at: new Date(),
-          })),
-        )
-        .$returningId();
-
-      return {
-        productImageThumbnailInserted,
-        categoryMappingInserted,
-        productImagesInsert,
-      };
-    });
-
-    await this.searchService.findOneOrThrow(
-      this.db,
-      productImages,
-      eq(productImages.id, result.productImageThumbnailInserted.id),
+    const thumbnail: Image = await this.imageService.saveImage(
+      request.mainImage,
+      product.id,
+      SubjectType.PRODUCT,
     );
 
-    await this.searchService.findOneOrThrow(
-      this.db,
-      categoriesMapping,
-      eq(categoriesMapping.id, result.categoryMappingInserted.id),
+    if (!thumbnail) {
+      this.logger.warn(ProductMessageLog.THUMBNAIL_IMAGE_NOT_CREATED);
+      throw new InternalServerErrorException(
+        ProductErrorMessage.THUMBNAIL_IMAGE_NOT_CREATED,
+      );
+    }
+
+    const imageList: Image[] = await Promise.all(
+      request.subImages.map(async (image) => {
+        return await this.imageService.saveImage(
+          image,
+          product.id,
+          SubjectType.PRODUCT,
+        );
+      }),
     );
 
-    await this.searchService.findOneOrThrow(
-      this.db,
-      productImages,
-      inArray(
-        productImages.id,
-        result.productImagesInsert.map((img) => img.id),
-      ),
-    );
+    if (!imageList) {
+      this.logger.warn(ProductMessageLog.PRODUCT_IMAGE_NOT_CREATED);
+      throw new InternalServerErrorException(
+        ProductErrorMessage.PRODUCT_IMAGE_NOT_CREATED,
+      );
+    }
 
-    return productResult;
+    const categoryMapping: CategoryMapping =
+      await this.categoryMappingService.createCategoryMapping(
+        category,
+        product,
+      );
+
+    if (!categoryMapping) {
+      this.logger.warn(CategoryMessagesLog.CATEGORY_MAPPING_NOT_CREATED);
+      throw new InternalServerErrorException(
+        CategoryErrorMessages.CATEGORY_CANNOT_BE_CREATED,
+      );
+    }
+
+    return product;
   }
 
   async getAllProducts(
@@ -171,60 +131,42 @@ export class ProductService {
   ): Promise<GetAllProductResponseDto[]> {
     const { skip, take } = this.utilityService.getPagination(offset, limit);
 
-    const productList = await this.db
-      .select()
-      .from(products)
-      .innerJoin(brands, eq(brands.id, products.brandId))
-      .limit(take)
-      .offset(skip);
+    const productList: Product[] =
+      await this.productRepo.getAllProductWithImageAndCategory(skip, take);
 
-    const productIds = productList.map((p) => p.products.id);
+    const imageMap: Map<number, Image[]> = new Map();
 
-    const iamgeList = await this.db
-      .select()
-      .from(productImages)
-      .innerJoin(images, eq(productImages.imageId, images.id))
-      .where(inArray(productImages.productId, productIds));
+    await Promise.all(
+      productList.map(async (product) => {
+        const images =
+          await this.imageService.getImageListBySubjectIdAndSubjectType(
+            product.id,
+            SubjectType.PRODUCT,
+          );
+        imageMap.set(product.id, images);
+      }),
+    );
 
-    const categoryList = await this.db
-      .select()
-      .from(categoriesMapping)
-      .innerJoin(categories, eq(categoriesMapping.categoryId, categories.id))
-      .where(inArray(categoriesMapping.productId, productIds));
+    const productDtos = plainToInstance(
+      GetAllProductResponseDto,
+      productList.map((product) => ({
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        brandName: product.brand.name,
+        categoryName: product.categoriesMapping?.[0]?.category?.name,
+        status: product.status,
+        stock: product.stocking,
+        thumbnailUrl: imageMap.get(product.id)?.[0].url,
+      })),
+      {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      },
+    );
 
-    const productMap: GetAllProductResponseDto[] = productList.map((prod) => ({
-      id: prod.products.id,
-      name: prod.products.name,
-      description: prod.products.description,
-      price: prod.products.price,
-      brandName: prod.brands.name,
-      categoryName: '',
-      thumbnailUrl: '',
-      status: prod.products.status,
-      stock: prod.products.stocking,
-    }));
-
-    for (const prod of productMap) {
-      const img = iamgeList.find(
-        (img) =>
-          img.product_images.productId === prod.id &&
-          (img.images.type as ImageType) === ImageType.THUMBNAIL,
-      );
-
-      if (img) {
-        prod.thumbnailUrl = img.images.url;
-      }
-
-      const cate = categoryList.find(
-        (c) => c.categories_mapping.productId === prod.id,
-      );
-
-      if (cate) {
-        prod.categoryName = cate.categories.name;
-      }
-    }
-
-    return productMap;
+    return productDtos;
   }
 
   async findProductById(id: number): Promise<Product> {

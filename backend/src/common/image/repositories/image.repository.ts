@@ -36,17 +36,15 @@ export class ImageRepository {
     return await this.imageRepo.findOneBy({ id });
   }
 
-  async findOneBySubjectIdAndSubjectType(
+  async getImageBySubjectIdAndSubjectType(
     subjectID: number,
     subjectType: SubjectType,
-  ): Promise<Image> {
-    const [image]: Image[] = await this.imageRepo
-      .createQueryBuilder('image')
-      .where('image.subjectID = :subjectID', { subjectID })
-      .andWhere('image.subjectType = :subjectType', { subjectType })
-      .orderBy('image.createdAt', 'ASC')
-      .limit(1)
-      .getMany();
+  ): Promise<Image | null> {
+    const image: Image | null = await this.imageRepo.findOneByOrFail({
+      subjectID,
+      subjectType,
+      status: ImageStatus.ACTIVE,
+    });
 
     return image;
   }
@@ -94,12 +92,18 @@ export class ImageRepository {
     return imageInserted;
   }
 
-  async saveImages(imageList: SavedImageDTO[]): Promise<Image[]> {
+  async saveImages(
+    imageList: SavedImageDTO[],
+    subjectID: number,
+    subjectType: SubjectType,
+  ): Promise<Image[]> {
     const imagesToInsert = imageList.map((img) => {
       return {
         url: img.url,
         folder: img.folder,
         type: img.type,
+        subjectID,
+        subjectType: subjectType,
         status: ImageStatus.ACTIVE,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -204,5 +208,14 @@ export class ImageRepository {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async getImageListBySubjectIdAndSubjectType(
+    subjectID: number,
+    subjectType: SubjectType,
+  ): Promise<Image[]> {
+    return await this.imageRepo.find({
+      where: { subjectID, subjectType, status: ImageStatus.ACTIVE },
+    });
   }
 }

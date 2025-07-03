@@ -4,7 +4,6 @@ import { CategoryMapping } from '@category';
 import { OrderDetail } from '@order';
 import { ProductRating } from '@product-rating';
 import { WishlistsMapping } from '@wishlist/entities/wishlists-mapping.entity';
-import { ProductImage } from 'product/entites';
 import { ProductStatus } from 'product/enums';
 import {
   Column,
@@ -74,7 +73,4 @@ export class Product {
 
   @OneToMany(() => ProductRating, (productRating) => productRating.product)
   customerRating: ProductRating[];
-
-  @OneToMany(() => ProductImage, (productImage) => productImage.product)
-  productImages: ProductImage[];
 }

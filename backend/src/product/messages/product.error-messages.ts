@@ -16,4 +16,7 @@ export enum ProductErrorMessage {
   PRICE_IS_NOT_EMPTY = 'Giá không được để trống',
   PRICE_SHOULD_NOT_BE_A_NEGATIVE_NUMBER = 'Giá không được là số âm',
   NAME_MUST_BE_STRING = 'Tên phải là chuỗi ký tự',
+  PRODUCT_NOT_FOUND = 'Không tìm thấy sản phẩm',
+  THUMBNAIL_IMAGE_NOT_CREATED = 'Hình ảnh đại diện của sản phẩm không được tạo thành công',
+  PRODUCT_IMAGE_NOT_CREATED = 'Hình ảnh cơ bản của sản phẩm không được tạo thành công',
 }

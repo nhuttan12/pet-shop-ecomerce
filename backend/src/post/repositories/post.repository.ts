@@ -21,31 +21,43 @@ export class PostRepository {
     private readonly dataSource: DataSource,
   ) {}
 
-  async getAllPosts(skip: number, take: number): Promise<Post[]> {
+  async getAllPosts(
+    skip: number,
+    take: number,
+    userID?: number,
+  ): Promise<Post[]> {
     try {
-      return await this.postRepo.find({ skip, take });
+      const query = this.postRepo
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.author', 'author');
+
+      if (userID) {
+        query.where('author.id = :userId', { userID });
+      }
+
+      return query.skip(skip).take(take).getMany();
     } catch (error) {
       this.logger.error(error);
       throw error;
     }
   }
 
-  async getAllPostsOfUser(
-    userID: number,
-    skip: number,
-    take: number,
-  ): Promise<Post[]> {
-    try {
-      return await this.postRepo.find({
-        where: { author: { id: userID } },
-        skip,
-        take,
-      });
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
-    }
-  }
+  // async getAllPostsOfUser(
+  //   userID: number,
+  //   skip: number,
+  //   take: number,
+  // ): Promise<Post[]> {
+  //   try {
+  //     return await this.postRepo.find({
+  //       where: { author: { id: userID } },
+  //       skip,
+  //       take,
+  //     });
+  //   } catch (error) {
+  //     this.logger.error(error);
+  //     throw error;
+  //   }
+  // }
 
   async getPostById(postID: number): Promise<Post | null> {
     try {

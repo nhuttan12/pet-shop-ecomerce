@@ -1,6 +1,5 @@
 import { ImageStatus, ImageType } from '@common';
-import { ProductImage } from '@product';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('images')
 export class Image {
@@ -40,7 +39,4 @@ export class Image {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
-
-  @OneToMany(() => ProductImage, (productImage) => productImage.image)
-  productImages: ProductImage[];
 }

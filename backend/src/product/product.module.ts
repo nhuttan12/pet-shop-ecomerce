@@ -1,11 +1,10 @@
-import { ProductController } from '@core-modules/product/product/product.controller';
-import { ProductService } from '@core-modules/product/product/product.service';
-import { ImageModule } from '@helper-modules/image/image.module';
-import { UtilityModule } from '@helper-modules/services/utility.module';
+import { ImageModule, UtilityModule } from '@common';
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Product, ProductController, ProductService } from '@product';
 
 @Module({
-  imports: [UtilityModule, ImageModule],
+  imports: [UtilityModule, ImageModule, TypeOrmModule.forFeature([Product])],
   controllers: [ProductController],
   providers: [ProductService],
   exports: [ProductService],

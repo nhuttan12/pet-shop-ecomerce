@@ -44,7 +44,7 @@ export class CategoryService {
     return await this.categoryRepo.getAllCategories(skip, take);
   }
 
-  async getCategoryById(
+  async getCategoryWithImageById(
     request: FindCategoryById,
   ): Promise<GetCategoryByIdResponse> {
     const category: Category | null = await this.categoryRepo.getCategoryById(
@@ -59,7 +59,7 @@ export class CategoryService {
     }
 
     const categoryImage: Image =
-      await this.imagesService.findOneBySubjectIdAndSubjectType(
+      await this.imagesService.getImageBySubjectIdAndSubjectType(
         request.id,
         SubjectType.CATEGORY,
       );
@@ -159,7 +159,7 @@ export class CategoryService {
         );
       }
 
-      const categoryAfterUpdate = await this.getCategoryById({
+      const categoryAfterUpdate = await this.getCategoryWithImageById({
         id: category.id,
       });
 
@@ -170,5 +170,20 @@ export class CategoryService {
     } finally {
       this.logger.verbose(`Update category info ${category.id} successful`);
     }
+  }
+
+  async getCategoryById(request: FindCategoryById): Promise<Category> {
+    const category: Category | null = await this.categoryRepo.getCategoryById(
+      request.id,
+    );
+
+    if (!category) {
+      this.logger.error(CategoryMessagesLog.CATEGORY_NOT_FOUND);
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return category;
   }
 }

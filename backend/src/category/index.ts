@@ -6,3 +6,4 @@ export * from './entities';
 export * from './enums';
 export * from './repositories';
 export * from './messages';
+export * from './category-mapping.service';

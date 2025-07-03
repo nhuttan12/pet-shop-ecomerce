@@ -121,7 +121,7 @@ export class CategoryController {
     @Param() category: FindCategoryById,
   ): Promise<ApiResponse<GetCategoryByIdResponse>> {
     const categories: GetCategoryByIdResponse =
-      await this.categoryService.getCategoryById(category);
+      await this.categoryService.getCategoryWithImageById(category);
     this.logger.debug(
       `Get category in controller ${JSON.stringify(categories)}`,
     );
