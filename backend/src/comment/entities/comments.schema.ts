@@ -1,32 +1,62 @@
-import { int, mysqlEnum, mysqlTable, text } from 'drizzle-orm/mysql-core';
-import { CommentStatus } from '@enum/status/comment-status.enum';
-import { relations } from 'drizzle-orm';
-import { timestamps } from '@db-helper/timestamp';
-import { posts, users } from '@schema';
+import { CommentStatus } from '@comment';
+import { Post } from '@post';
+import { User } from '@user';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-export const comments = mysqlTable('comments', {
-  id: int().primaryKey().notNull().autoincrement(),
-  userId: int('user_id')
-    .notNull()
-    .references(() => users.id),
-  postId: int('post_id')
-    .notNull()
-    .references(() => posts.id),
-  commentId: int('comment_id'),
-  content: text(),
-  status: mysqlEnum(
-    Object.values(CommentStatus) as [string, ...string[]],
-  ).default(CommentStatus.ACTIVE),
-  ...timestamps,
-});
+@Entity('comments')
+export class Comment {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-export const CommentsRelation = relations(comments, ({ one }) => ({
-  users: one(users, {
-    fields: [comments.userId],
-    references: [users.id],
-  }),
-  parentComment: one(comments, {
-    fields: [comments.commentId],
-    references: [comments.id],
-  }),
-}));
+  @Column({ name: 'user_id' })
+  userId: number;
+
+  @Column({ name: 'post_id' })
+  postId: number;
+
+  @Column({ name: 'comment_id', nullable: true })
+  commentId: number;
+
+  @Column({ type: 'text', nullable: true })
+  content: string;
+
+  @Column({
+    type: 'enum',
+    enum: CommentStatus,
+    default: CommentStatus.ACTIVE,
+  })
+  status: CommentStatus;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+
+  // 👉 Relations
+
+  @ManyToOne(() => User, (user) => user.comments)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @ManyToOne(() => Post, (post) => post.comments)
+  @JoinColumn({ name: 'post_id' })
+  post: Post;
+
+  @ManyToOne(() => Comment, (comment) => comment.children, { nullable: true })
+  @JoinColumn({ name: 'comment_id' })
+  parentComment: Comment;
+
+  // 👇 optional reverse relation (not required unless needed)
+  @OneToMany(() => Comment, (comment) => comment.parentComment)
+  children: Comment[];
+}

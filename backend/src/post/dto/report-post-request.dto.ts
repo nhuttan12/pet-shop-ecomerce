@@ -1,6 +1,6 @@
-import { PostErrorMessage } from '@message/post-message';
+import { NotUrlValidator } from '@common';
 import { ApiProperty } from '@nestjs/swagger';
-import { NotUrlValidator } from '@validator';
+import { PostErrorMessage } from '@post';
 import { IsInt, IsNotEmpty, IsString, Min, Validate } from 'class-validator';
 
 export class ReportPostDto {

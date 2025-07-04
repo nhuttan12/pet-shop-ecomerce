@@ -7,7 +7,7 @@ import {
   ImageType,
   SubjectType,
 } from '@common';
-import { Product, ProductImage, ProductStatus } from '@product';
+import { Product, ProductStatus } from '@product';
 import { Role, RoleStatus } from '@role';
 import { User, UserStatus } from '@user';
 import bcrypt from 'bcrypt';
@@ -130,21 +130,12 @@ export async function main() {
       });
 
       // Tạo category mapping
-      const mainImage = await manager.save(Image, {
+      await manager.save(Image, {
         url: row['main_image_url'],
         type: ImageType.THUMBNAIL,
         subjectType: SubjectType.PRODUCT,
         subjectID: product.id,
         status: ImageStatus.ACTIVE,
-        folder: 'products',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-
-      // Main Image
-      await manager.save(ProductImage, {
-        product,
-        image: mainImage,
         folder: 'products',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -156,20 +147,12 @@ export async function main() {
         .filter(Boolean);
 
       for (const url of allImages) {
-        const galleryImage = await manager.save(Image, {
+        await manager.save(Image, {
           url,
           type: ImageType.PRODUCT,
           status: ImageStatus.ACTIVE,
           subjectType: SubjectType.PRODUCT,
           subjectID: product.id,
-          folder: 'products',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-
-        await manager.save(ProductImage, {
-          product,
-          image: galleryImage,
           folder: 'products',
           createdAt: new Date(),
           updatedAt: new Date(),

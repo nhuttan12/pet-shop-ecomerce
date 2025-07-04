@@ -1,4 +1,4 @@
-import { MessageLog } from '@message/message-log';
+import { MessageLog } from '@common';
 import * as Joi from 'joi';
 
 export const schema = Joi.object({

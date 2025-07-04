@@ -1,3 +1,4 @@
+import { Comment } from '@comment';
 import { PostEditRequest, PostReport, PostStatus } from '@post';
 import { User } from '@user';
 import {
@@ -44,4 +45,7 @@ export class Post {
 
   @OneToMany(() => PostReport, (postReport) => postReport.post)
   postReports: PostReport[];
+
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
 }

@@ -1,6 +1,5 @@
-import { CommentController } from '@core-modules/forum/comment/comment.controller';
-import { CommentService } from '@core-modules/forum/comment/comment.service';
-import { UtilityModule } from '@helper-modules/services/utility.module';
+import { CommentController, CommentService } from '@comment';
+import { UtilityModule } from '@common';
 import { Module } from '@nestjs/common';
 
 @Module({

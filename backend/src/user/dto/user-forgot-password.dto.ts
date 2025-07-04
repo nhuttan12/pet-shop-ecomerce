@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
 import { IsEmail, IsNotEmpty } from 'class-validator';
-import { ErrorMessage } from '@message/error-message';
 
 export class UserForgotPasswordDTO {
-  @IsNotEmpty({ message: ErrorMessage.EMAIL_IS_NOT_EMPTY })
+  @IsNotEmpty({ message: AuthErrorMessages.EMAIL_IS_NOT_EMPTY })
   @IsEmail()
   @ApiProperty()
   email: string;

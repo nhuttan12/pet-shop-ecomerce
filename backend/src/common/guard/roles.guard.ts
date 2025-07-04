@@ -1,8 +1,5 @@
-import { ROLES_KEY } from '@decorator/roles.decorator';
-import { Role } from '@enum/role.enum';
-import { AuthenticatedRequest } from '@interfaces';
-import { ErrorMessage } from '@message/error-message';
-import { MessageLog } from '@message/message-log';
+import { AuthenticatedRequest } from '@auth';
+import { MessageLog, ROLES_KEY } from '@common';
 import {
   CanActivate,
   ExecutionContext,
@@ -11,6 +8,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { RoleName } from '@role';
+import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
 
 /**
  * @description: create HasRole() decorator by get role from meta data
@@ -25,10 +24,9 @@ export class RolesGuard implements CanActivate {
     const { user } = context.switchToHttp().getRequest<AuthenticatedRequest>();
     this.logger.log(`Get user: ${JSON.stringify(user)}`);
 
-    const requiredRoles: Role[] = this.reflector.getAllAndOverride<Role[]>(
-      ROLES_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const requiredRoles: RoleName[] = this.reflector.getAllAndOverride<
+      RoleName[]
+    >(ROLES_KEY, [context.getHandler(), context.getClass()]);
     if (requiredRoles) {
       this.logger.log(`Required role: ${requiredRoles.toString()}`);
     }
@@ -51,7 +49,7 @@ export class RolesGuard implements CanActivate {
     if (!hasRole) {
       this.logger.error(MessageLog.USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE);
       throw new ForbiddenException(
-        ErrorMessage.USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE,
+        AuthErrorMessages.USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE,
       );
     }
 

@@ -9,7 +9,6 @@ export * from './class-validator-contraint';
 export * from './constants';
 export * from './database';
 export * from './decorator';
-export * from './db-helper';
 export * from './filter';
 export * from './guard';
 export * from './messages';

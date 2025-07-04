@@ -1,4 +1,4 @@
-import { AppConfigService } from '@helper-modules/config/app-config.service';
+import { AppConfigService } from '@common';
 import { Module } from '@nestjs/common';
 
 @Module({

@@ -1,6 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ErrorMessage } from '@message/error-message';
+import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
 
 /**
  * @description: create shorter version to call jwt auth guard instead of call AuthGuard('jwt')
@@ -13,7 +13,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       this.logger.warn(
         `JWT info: ${info}\n JWT err: ${err}\n JWT context: ${context}`,
       );
-      throw new UnauthorizedException(ErrorMessage.USER_NOT_LOG_IN);
+      throw new UnauthorizedException(AuthErrorMessages.USER_NOT_LOG_IN);
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return user;

@@ -1,4 +1,4 @@
-import { ErrorMessage } from '@message/error-message';
+import { ErrorMessage } from '@common';
 import {
   ValidationArguments,
   ValidatorConstraint,

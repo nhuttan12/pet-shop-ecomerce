@@ -1,7 +1,8 @@
 import { Cart } from '@cart';
+import { Comment } from '@comment';
 import { Order } from '@order';
 import { Post, PostEditRequest, PostReport } from '@post';
-import { ProductRating } from '@product-rating';
+import { ProductRating } from '@product';
 import { Role } from '@role';
 import { UserDetail, UserStatus } from '@user';
 import { VoucherMapping } from '@voucher';
@@ -86,4 +87,7 @@ export class User {
   // Quan hệ 1-n với PostReport
   @OneToMany(() => PostReport, (report) => report.user)
   postReports: PostReport[];
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 }

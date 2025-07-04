@@ -26,6 +26,7 @@ import {
 import {
   CreateProductRequest,
   GetAllProductResponseDto,
+  GetProductDetailRequestDto,
   GetProductDetailResponseDto,
   Product,
   ProductErrorMessage,
@@ -420,17 +421,18 @@ export class ProductService {
   }
 
   async getProductDetail(
-    productID: number,
-    page: number,
-    limit: number,
+    request: GetProductDetailRequestDto,
   ): Promise<GetProductDetailResponseDto> {
     try {
       // 1. Get pagination information
-      const { skip, take } = this.utilityService.getPagination(page, limit);
+      const { skip, take } = this.utilityService.getPagination(
+        request.page,
+        request.limit,
+      );
       this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
 
       const product: Product | null = await this.productRepo.getProductDetail(
-        productID,
+        request.productID,
         skip,
         take,
       );
@@ -449,13 +451,13 @@ export class ProductService {
 
       const productImage: Image[] =
         await this.imageService.getImageListBySubjectIdAndSubjectType(
-          productID,
+          request.productID,
           SubjectType.PRODUCT,
           ImageType.PRODUCT,
         );
 
       const productRatingList: ProductRating[] =
-        await this.productRatingService.getRatingByProductId(productID);
+        await this.productRatingService.getRatingByProductId(request.productID);
 
       const avgRating =
         productRatingList.length > 0
@@ -498,7 +500,7 @@ export class ProductService {
       this.logger.error(`Error getting product detail: ${error}`);
       throw error;
     } finally {
-      this.logger.log(`Get info with product id ${productID}`);
+      this.logger.log(`Get info with product id ${request.productID}`);
     }
   }
 

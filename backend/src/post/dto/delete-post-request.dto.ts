@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PostErrorMessage } from '@post';
 import { IsInt, IsNotEmpty, Min } from 'class-validator';
-import { PostErrorMessage } from '@message/post-message';
 
 export class DeletePostRequestDto {
   @IsInt({ message: PostErrorMessage.POST_ID_MUST_BE_POSITIVE_NUMBER })

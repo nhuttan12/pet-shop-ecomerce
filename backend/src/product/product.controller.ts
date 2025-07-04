@@ -156,13 +156,9 @@ export class ProductController {
     description: 'Chi tiết sản phẩm trả về thành công',
   })
   async getProductDetail(
-    @Query() { productId, limit, page }: GetProductDetailRequestDto,
+    @Query() request: GetProductDetailRequestDto,
   ): Promise<ApiResponse<GetProductDetailResponseDto>> {
-    const products = await this.productService.getProductDetail(
-      productId,
-      page,
-      limit,
-    );
+    const products = await this.productService.getProductDetail(request);
     this.logger.debug(`Product: ${JSON.stringify(products)}`);
 
     return {

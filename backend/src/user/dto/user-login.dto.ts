@@ -1,18 +1,22 @@
+import { NotUrlValidator } from '@common';
 import { ApiProperty } from '@nestjs/swagger';
+import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
 import { IsString, MinLength, NotContains, Validate } from 'class-validator';
-import { NotUrlValidator } from '@validator';
-import { ErrorMessage } from '@message/error-message';
 
 export class UserLoginDTO {
-  @IsString({ message: ErrorMessage.USERNAME_IS_NOT_EMPTY })
-  @MinLength(3, { message: ErrorMessage.USER_NAME_HAVE_AT_LEAST_3_CHARACTERS })
+  @IsString({ message: AuthErrorMessages.USERNAME_IS_NOT_EMPTY })
+  @MinLength(3, {
+    message: AuthErrorMessages.USER_NAME_HAVE_AT_LEAST_3_CHARACTERS,
+  })
   @Validate(NotUrlValidator)
   @NotContains(' ')
   @ApiProperty()
   username: string;
 
-  @IsString({ message: ErrorMessage.PASSWORD_IS_NOT_EMPTY })
-  @MinLength(6, { message: ErrorMessage.PASSWORD_HAVE_AT_LEAST_3_CHARACTERS })
+  @IsString({ message: AuthErrorMessages.PASSWORD_IS_NOT_EMPTY })
+  @MinLength(6, {
+    message: AuthErrorMessages.PASSWORD_HAVE_AT_LEAST_3_CHARACTERS,
+  })
   @Validate(NotUrlValidator)
   @ApiProperty()
   password: string;

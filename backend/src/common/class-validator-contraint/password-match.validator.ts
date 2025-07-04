@@ -1,4 +1,4 @@
-import { ErrorMessage } from '@message/error-message';
+import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
 import {
   ValidationArguments,
   ValidatorConstraint,
@@ -16,6 +16,6 @@ export class IsPasswordMatch implements ValidatorConstraintInterface {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   defaultMessage(args?: ValidationArguments) {
-    return ErrorMessage.PASSWORD_MISMATCH;
+    return AuthErrorMessages.PASSWORD_MISMATCH;
   }
 }

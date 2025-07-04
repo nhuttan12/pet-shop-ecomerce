@@ -1,17 +1,17 @@
-import { ErrorMessage } from '@message/error-message';
-import { Property } from '@message/property';
+import { ErrorMessage } from '@common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Min } from 'class-validator';
+import { ProductErrorMessage } from 'product/messages';
 
 export class GetProductDetailRequestDto {
   @Type(() => Number)
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })
   @Min(1, {
-    message: `${Property.PRODUCT} ${Property.ID} ${ErrorMessage.SHOULD_NOT_BE_A_NEGATIVE_NUMBER}`,
+    message: ProductErrorMessage.PRODUCT_ID_MUST_BE_POSITIVE,
   })
   @ApiProperty()
-  productId: number;
+  productID: number;
 
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
