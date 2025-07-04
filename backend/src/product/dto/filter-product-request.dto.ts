@@ -1,7 +1,6 @@
-import { ProductStatus } from '@enum/status/product-status.enum';
-import { ErrorMessage } from '@message/error-message';
-import { ProductErrorMessage } from '@message/product-message';
+import { ErrorMessage } from '@common';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ProductErrorMessage, ProductStatus } from '@product';
 import { Type } from 'class-transformer';
 import {
   IsEnum,

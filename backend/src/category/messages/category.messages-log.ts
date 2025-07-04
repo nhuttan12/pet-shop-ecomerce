@@ -7,4 +7,7 @@ export enum CategoryMessagesLog {
   CATEGORY_CANNOT_BE_FOUND_AFTER_UPDATED = 'Category cannot be found after updated',
   CATEGORY_CANNOT_BE_FOUND_AFTER_CREATED = 'Category cannot be found after created',
   CATEGORY_MAPPING_NOT_CREATED = 'Category mapping is not created',
+  CATEGORY_MAPPING_DELETED_FAILED = 'Category mapping deleted failed',
+  CATEGORY_MAPPING_NOT_FOUND = 'Category mapping not found',
+  CATEGORY_MAPPING_UPDATED_FAILED = 'Category mapping updated failed',
 }

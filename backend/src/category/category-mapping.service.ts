@@ -22,4 +22,19 @@ export class CategoryMappingService {
       product,
     );
   }
+
+  async removeCategoryMapping(id: number): Promise<boolean> {
+    return await this.categoryMappingRepo.removeCategoryMapping(id);
+  }
+
+  async findCategoryMappingListWithProduct(
+    product: Product,
+  ): Promise<CategoryMapping[]> {
+    const categoryMapping: CategoryMapping[] =
+      await this.categoryMappingRepo.findCategoryMappingListWithProduct(
+        product,
+      );
+
+    return categoryMapping;
+  }
 }

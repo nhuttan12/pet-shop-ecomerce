@@ -7,3 +7,4 @@ export * from './get-product-by-name-request.dto';
 export * from './get-product-detail-request.dto';
 export * from './get-product-detail-response.dto';
 export * from './update-product-infor-request.dto';
+export * from './toggle-rating-product-request.dto';

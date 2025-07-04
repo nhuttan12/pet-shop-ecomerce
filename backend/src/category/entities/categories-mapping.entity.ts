@@ -1,6 +1,7 @@
-import { Category } from '@category';
+import { Category, CategoryMappingStatus } from '@category';
 import { Product } from '@product';
 import {
+  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
@@ -25,6 +26,13 @@ export class CategoryMapping {
   })
   @JoinColumn({ name: 'category_id' })
   category: Category;
+
+  @Column({
+    type: 'enum',
+    enum: CategoryMappingStatus,
+    default: CategoryMappingStatus.ACTIVE,
+  })
+  status: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

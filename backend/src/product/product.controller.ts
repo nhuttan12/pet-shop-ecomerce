@@ -1,20 +1,13 @@
-import { ProductService } from '@core-modules/product/product/product.service';
-import { HasRole } from '@decorator/roles.decorator';
-import { CreateProductRequest } from '@dtos/product/create-product-request.dto';
-import { DeleteProductByProductIdRequestDto } from '@dtos/product/delete-product-by-product-id-request.dto';
-import { ProductFilterParams } from '@dtos/product/filter-product-request.dto';
-import { GetAllProductsRequest } from '@dtos/product/get-all-product-request.dto';
-import { GetAllProductResponseDto } from '@dtos/product/get-all-product-response.dto';
-import { GetProductByNameRequest } from '@dtos/product/get-product-by-name-request.dto';
-import { GetProductDetailRequestDto } from '@dtos/product/get-product-detail-request.dto';
-import { GetProductDetailResponseDto } from '@dtos/product/get-product-detail-response.dto';
-import { UpdateProductInforRequestDTO } from '@dtos/product/update-product-infor-request.dto';
-import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
-import { Role } from '@enum/role.enum';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { JwtAuthGuard } from '@guard/jwt-auth.guard';
-import { RolesGuard } from '@guard/roles.guard';
-import { NotifyMessage } from '@message/notify-message';
+import { JwtPayload } from '@auth';
+import {
+  ApiResponse,
+  CatchEverythingFilter,
+  GetUser,
+  HasRole,
+  JwtAuthGuard,
+  NotifyMessage,
+  RolesGuard,
+} from '@common';
 import {
   Body,
   Controller,
@@ -39,7 +32,22 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Product } from '@schema-type';
+import {
+  CreateProductRequest,
+  DeleteProductByProductIdRequestDto,
+  GetAllProductResponseDto,
+  GetAllProductsRequest,
+  GetProductByNameRequest,
+  GetProductDetailRequestDto,
+  GetProductDetailResponseDto,
+  Product,
+  ProductFilterParams,
+  ProductRatingService,
+  ProductService,
+  ToggleRatingProductRequestDTO,
+  UpdateProductInforRequestDTO,
+} from '@product';
+import { RoleName } from '@role';
 
 @ApiTags('Product')
 @Controller('product')
@@ -47,7 +55,10 @@ import { Product } from '@schema-type';
 @UseFilters(CatchEverythingFilter)
 export class ProductController {
   private readonly logger = new Logger(ProductController.name);
-  constructor(private productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly productRatingService: ProductRatingService,
+  ) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -163,7 +174,7 @@ export class ProductController {
 
   @Put('update')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Cập nhật thông tin sản phẩm (chỉ ADMIN)' })
   @ApiBody({ type: UpdateProductInforRequestDTO })
@@ -172,32 +183,9 @@ export class ProductController {
     description: 'Cập nhật sản phẩm thành công',
   })
   async updateProductInfor(
-    @Body()
-    {
-      id,
-      name,
-      brandName,
-      categoryName,
-      description,
-      price,
-      stock,
-      status,
-      mainImage,
-      subImages,
-    }: UpdateProductInforRequestDTO,
+    @Body() request: UpdateProductInforRequestDTO,
   ): Promise<ApiResponse<Product>> {
-    const product = await this.productService.updateProductInfor({
-      id,
-      name,
-      brandName,
-      categoryName,
-      description,
-      price,
-      stock,
-      status,
-      mainImage,
-      subImages,
-    });
+    const product = await this.productService.updateProductInfor(request);
     this.logger.debug(`Product: ${JSON.stringify(product)}`);
 
     return {
@@ -209,7 +197,7 @@ export class ProductController {
 
   @Delete()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Xóa sản phẩm (chỉ ADMIN)' })
   @ApiBody({ type: DeleteProductByProductIdRequestDto })
@@ -232,7 +220,7 @@ export class ProductController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @HasRole(Role.ADMIN)
+  @HasRole(RoleName.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Tạo mới sản phẩm (chỉ ADMIN)' })
   @ApiBody({ type: CreateProductRequest })
@@ -241,30 +229,9 @@ export class ProductController {
     description: 'Tạo sản phẩm thành công',
   })
   async createProduct(
-    @Body()
-    {
-      brandName,
-      categoryName,
-      description,
-      discount,
-      name,
-      price,
-      quantity,
-      mainImage,
-      subImages,
-    }: CreateProductRequest,
+    @Body() request: CreateProductRequest,
   ): Promise<ApiResponse<Product>> {
-    const product = await this.productService.createProduct({
-      brandName,
-      categoryName,
-      description,
-      discount,
-      name,
-      price,
-      quantity,
-      mainImage,
-      subImages,
-    });
+    const product = await this.productService.createProduct(request);
     this.logger.debug(`Product: ${JSON.stringify(product)}`);
 
     return {
@@ -282,6 +249,9 @@ export class ProductController {
     type: GetAllProductResponseDto,
     isArray: true,
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HasRole(RoleName.ADMIN)
+  @HttpCode(HttpStatus.OK)
   async getFilteredProducts(
     @Query() query: ProductFilterParams,
   ): Promise<ApiResponse<GetAllProductResponseDto[]>> {
@@ -292,6 +262,31 @@ export class ProductController {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.GET_PRODUCT_SUCCESSFUL,
       data: products,
+    };
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Đánh giá hoặc gỡ đánh giá sản phẩm' })
+  @ApiOkResponse({
+    status: 200,
+    description: 'Thành công cập nhật trạng thái đánh giá',
+  })
+  @ApiBody({
+    type: ToggleRatingProductRequestDTO,
+    description: 'Số sao đánh giá (1-5)',
+  })
+  @HttpCode(HttpStatus.OK)
+  async toggleRating(
+    @Body() request: ToggleRatingProductRequestDTO,
+    @GetUser() user: JwtPayload,
+  ): Promise<ApiResponse<string>> {
+    const ratingNotify: string =
+      await this.productRatingService.toggleRatingProduct(user.sub, request);
+    this.logger.debug(`Toggle rating: ${ratingNotify}`);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: ratingNotify,
     };
   }
 }

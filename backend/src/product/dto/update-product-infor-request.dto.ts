@@ -1,6 +1,8 @@
-import { SavedImageDTO } from '@image/dto/saved-image.dto';
-import { ProductStatus } from '@product/enums/product-status.enum';
+import { BrandErrorMessages } from '@brand';
+import { CategoryErrorMessages } from '@category';
+import { SavedImageDTO } from '@common';
 import { ApiProperty } from '@nestjs/swagger';
+import { ProductErrorMessage, ProductStatus } from '@product';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -12,13 +14,12 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { ProductErrorMessage } from '@product/messages/product.error-messages';
 
 export class UpdateProductInforRequestDTO {
   @Type(() => Number)
   @IsInt({ message: ProductErrorMessage.ID_MUST_BE_INTEGER })
   @Min(1, {
-    message: `${ProductErrorMessage.ID_SHOULD_NOT_BE_A_NEGATIVE_NUMBER}`,
+    message: ProductErrorMessage.ID_SHOULD_NOT_BE_A_NEGATIVE_NUMBER,
   })
   @ApiProperty()
   id: number;
@@ -48,25 +49,21 @@ export class UpdateProductInforRequestDTO {
   @ApiProperty()
   price: number;
 
-  @Type(() => String)
-  @IsString({
-    message: ProductErrorMessage.BRAND_NAME_MUST_BE_STRING,
-  })
-  @IsNotEmpty({
-    message: ProductErrorMessage.BRAND_NAME_IS_NOT_EMPTY,
-  })
+  @Type(() => Number)
+  @IsInt({ message: BrandErrorMessages.BRAND_ID_MUST_BE_INTEGER })
+  @Min(1, { message: BrandErrorMessages.BRAND_ID_MUST_BE_POSITIVE_NUMBER })
   @ApiProperty()
-  brandName: string;
+  brandID: number;
 
-  @Type(() => String)
-  @IsString({
-    message: ProductErrorMessage.CATEGORY_NAME_MUST_BE_STRING,
+  @IsArray()
+  @Type(() => Number)
+  @IsInt({ message: CategoryErrorMessages.CATEGORY_ID_MUST_BE_INTEGER })
+  @Min(1, {
+    each: true,
+    message: CategoryErrorMessages.CATEGORY_ID_MUST_BE_POSITIVE_NUMBER,
   })
-  @IsNotEmpty({
-    message: ProductErrorMessage.CATEGORY_NAME_IS_NOT_EMPTY,
-  })
-  @ApiProperty()
-  categoryName: string;
+  @ApiProperty({ type: [Number] })
+  categoryIDs: number[];
 
   @Type(() => Enumerator)
   @IsEnum(ProductStatus, {

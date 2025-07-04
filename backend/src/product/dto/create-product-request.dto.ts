@@ -29,6 +29,7 @@ export class CreateProductRequest {
   @ApiProperty()
   price: number;
 
+  @Type(() => Number)
   @IsInt({ message: BrandErrorMessages.BRAND_ID_MUST_BE_INTEGER })
   @Min(1, { message: BrandErrorMessages.BRAND_ID_MUST_BE_POSITIVE_NUMBER })
   @ApiProperty()

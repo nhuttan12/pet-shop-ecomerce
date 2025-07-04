@@ -21,6 +21,7 @@ import {
   In,
   InsertResult,
   Repository,
+  UpdateResult,
 } from 'typeorm';
 
 @Injectable()
@@ -39,11 +40,13 @@ export class ImageRepository {
   async getImageBySubjectIdAndSubjectType(
     subjectID: number,
     subjectType: SubjectType,
+    imageType?: ImageType,
   ): Promise<Image | null> {
-    const image: Image | null = await this.imageRepo.findOneByOrFail({
+    const image: Image | null = await this.imageRepo.findOneBy({
       subjectID,
       subjectType,
       status: ImageStatus.ACTIVE,
+      type: imageType,
     });
 
     return image;
@@ -213,9 +216,40 @@ export class ImageRepository {
   async getImageListBySubjectIdAndSubjectType(
     subjectID: number,
     subjectType: SubjectType,
+    imageType?: ImageType,
   ): Promise<Image[]> {
     return await this.imageRepo.find({
-      where: { subjectID, subjectType, status: ImageStatus.ACTIVE },
+      where: {
+        subjectID,
+        subjectType,
+        status: ImageStatus.ACTIVE,
+        type: imageType,
+      },
+    });
+  }
+
+  async removeImage(imageID: number): Promise<boolean> {
+    return await this.dataSource.transaction(async (manager) => {
+      const update: UpdateResult = await manager.update(
+        Image,
+        {
+          id: imageID,
+          status: ImageStatus.ACTIVE,
+        },
+        {
+          status: ImageStatus.REMOVED,
+          updatedAt: new Date(),
+        },
+      );
+
+      if (update.affected === 0) {
+        this.logger.error(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+        throw new InternalServerErrorException(
+          ImageErrorMessage.CANNOT_UPDATE_IMAGE,
+        );
+      }
+
+      return true;
     });
   }
 }

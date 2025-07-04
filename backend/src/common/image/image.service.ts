@@ -37,11 +37,13 @@ export class ImageService {
   async getImageBySubjectIdAndSubjectType(
     subjectID: number,
     subjectType: SubjectType,
+    imageType?: ImageType,
   ): Promise<Image> {
     const image: Image | null =
       await this.imageRepo.getImageBySubjectIdAndSubjectType(
         subjectID,
         subjectType,
+        imageType,
       );
 
     if (!image) {
@@ -77,10 +79,23 @@ export class ImageService {
   async getImageListBySubjectIdAndSubjectType(
     subjectID: number,
     subjectType: SubjectType,
+    imageType?: ImageType,
   ): Promise<Image[]> {
     return await this.imageRepo.getImageListBySubjectIdAndSubjectType(
       subjectID,
       subjectType,
+      imageType,
     );
+  }
+
+  async removeImage(imageID: number): Promise<boolean> {
+    const result: boolean = await this.imageRepo.removeImage(imageID);
+
+    if (!result) {
+      this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+      throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
+    }
+
+    return result;
   }
 }

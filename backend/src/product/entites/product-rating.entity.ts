@@ -1,6 +1,5 @@
 import { User } from '@user';
-import { RatingStatus } from '@product-rating';
-import { Product } from '@product';
+import { Product, RatingStatus } from '@product';
 import {
   Entity,
   PrimaryGeneratedColumn,

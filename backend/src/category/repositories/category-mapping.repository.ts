@@ -1,5 +1,15 @@
-import { Category, CategoryMapping } from '@category';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Category,
+  CategoryMapping,
+  CategoryMappingStatus,
+  CategoryMessagesLog,
+} from '@category';
+import { ErrorMessage } from '@common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { Product } from '@product';
 import { DataSource, Repository } from 'typeorm';
 
@@ -20,12 +30,56 @@ export class CategoryMappingRepository {
         const categoryMapping = manager.create(CategoryMapping, {
           category,
           product,
+          status: CategoryMappingStatus.ACTIVE,
           createdAt: new Date(),
           updatedAt: new Date(),
         });
 
         return await manager.save(categoryMapping);
       });
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async removeCategoryMapping(id: number): Promise<boolean> {
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const result = await manager.update(
+          CategoryMapping,
+          { id },
+          { status: CategoryMappingStatus.REMOVED, updatedAt: new Date() },
+        );
+
+        if (result.affected === 0) {
+          this.logger.error(
+            CategoryMessagesLog.CATEGORY_MAPPING_DELETED_FAILED,
+          );
+          throw new InternalServerErrorException(
+            ErrorMessage.INTERNAL_SERVER_ERROR,
+          );
+        }
+
+        return true;
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async findCategoryMappingListWithProduct(
+    product: Product,
+  ): Promise<CategoryMapping[]> {
+    try {
+      // return await this.categoryMappingRepo.findBy({ product });
+      return await this.categoryMappingRepo
+        .createQueryBuilder('categoryMapping')
+        .leftJoinAndSelect('categoryMapping.category', 'category')
+        .orderBy('categoryMapping.id', 'ASC')
+        .where('product.id = :id', { id: product.id })
+        .getMany();
     } catch (error) {
       this.logger.error(error);
       throw error;

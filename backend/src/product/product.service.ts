@@ -8,14 +8,16 @@ import {
   CategoryService,
 } from '@category';
 import {
+  ErrorMessage,
   Image,
+  ImageErrorMessage,
+  ImageMessageLog,
   ImageService,
   ImageType,
   SubjectType,
   UtilityService,
 } from '@common';
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -24,10 +26,15 @@ import {
 import {
   CreateProductRequest,
   GetAllProductResponseDto,
+  GetProductDetailResponseDto,
   Product,
   ProductErrorMessage,
+  ProductFilterParams,
   ProductMessageLog,
+  ProductRating,
+  ProductRatingService,
   ProductRepository,
+  UpdateProductInforRequestDTO,
 } from '@product';
 import { plainToInstance } from 'class-transformer';
 
@@ -41,12 +48,15 @@ export class ProductService {
     private readonly brandService: BrandService,
     private readonly categoryService: CategoryService,
     private readonly categoryMappingService: CategoryMappingService,
+    private readonly productRatingService: ProductRatingService,
   ) {}
 
   async getProductByID(productID: number): Promise<Product> {
+    // 1. Get product by id
     const product: Product | null =
       await this.productRepo.getProductById(productID);
 
+    // 2. Check get product by id result
     if (!product) {
       this.logger.warn(ProductMessageLog.PRODUCT_NOT_FOUND);
       throw new NotFoundException(ProductErrorMessage.PRODUCT_NOT_FOUND);
@@ -56,6 +66,7 @@ export class ProductService {
   }
 
   async createProduct(request: CreateProductRequest): Promise<Product> {
+    // 1. Get brand and category from id
     const brand: Brand = await this.brandService.getBrandById({
       id: request.brandID,
     });
@@ -64,12 +75,15 @@ export class ProductService {
       id: request.categoryID,
     });
 
+    // 2. Change image type of main image to thumbnail
     request.mainImage.type = ImageType.THUMBNAIL;
 
+    // 3. Change image type of sub images to product
     request.subImages.forEach((image) => {
       image.type = ImageType.PRODUCT;
     });
 
+    // 4. Create product
     const product: Product = await this.productRepo.createProduct(
       request.name,
       request.description,
@@ -79,12 +93,22 @@ export class ProductService {
       request.discount,
     );
 
+    // 5. Check create product result
+    if (!product) {
+      this.logger.warn(ProductMessageLog.PRODUCT_CREATED_FAILED);
+      throw new InternalServerErrorException(
+        ProductErrorMessage.PRODUCT_CREATED_FAILED,
+      );
+    }
+
+    // 6. Save image
     const thumbnail: Image = await this.imageService.saveImage(
       request.mainImage,
       product.id,
       SubjectType.PRODUCT,
     );
 
+    // 7. Check create thumbnail image result
     if (!thumbnail) {
       this.logger.warn(ProductMessageLog.THUMBNAIL_IMAGE_NOT_CREATED);
       throw new InternalServerErrorException(
@@ -92,6 +116,7 @@ export class ProductService {
       );
     }
 
+    // 8. Save sub images
     const imageList: Image[] = await Promise.all(
       request.subImages.map(async (image) => {
         return await this.imageService.saveImage(
@@ -102,6 +127,7 @@ export class ProductService {
       }),
     );
 
+    // 9. Check create sub image result
     if (!imageList) {
       this.logger.warn(ProductMessageLog.PRODUCT_IMAGE_NOT_CREATED);
       throw new InternalServerErrorException(
@@ -109,12 +135,14 @@ export class ProductService {
       );
     }
 
+    // 10. Create category mapping
     const categoryMapping: CategoryMapping =
       await this.categoryMappingService.createCategoryMapping(
         category,
         product,
       );
 
+    // 11. Check create category mapping
     if (!categoryMapping) {
       this.logger.warn(CategoryMessagesLog.CATEGORY_MAPPING_NOT_CREATED);
       throw new InternalServerErrorException(
@@ -129,11 +157,14 @@ export class ProductService {
     limit: number,
     offset: number,
   ): Promise<GetAllProductResponseDto[]> {
+    // 1. Get pagination information
     const { skip, take } = this.utilityService.getPagination(offset, limit);
 
+    // 2. Get product list
     const productList: Product[] =
       await this.productRepo.getAllProductWithImageAndCategory(skip, take);
 
+    // 3. Create Map for mapping image to product list
     const imageMap: Map<number, Image[]> = new Map();
 
     await Promise.all(
@@ -147,6 +178,7 @@ export class ProductService {
       }),
     );
 
+    // 4. Mapping product list to dto using plainToInstance
     const productDtos = plainToInstance(
       GetAllProductResponseDto,
       productList.map((product) => ({
@@ -169,321 +201,261 @@ export class ProductService {
     return productDtos;
   }
 
-  async findProductById(id: number): Promise<Product> {
-    return await this.searchService.findOneOrThrow(
-      this.db,
-      products,
-      eq(products.id, id),
-      ErrorMessage.PRODUCT_NOT_FOUND,
-    );
-  }
-
   async findProductByName(
     name: string,
     limit: number,
     offset: number,
   ): Promise<GetAllProductResponseDto[]> {
+    // 1. Get pagination information
     const { skip, take } = this.utilityService.getPagination(offset, limit);
 
-    const productList = await this.db
-      .select()
-      .from(products)
-      .where(
-        and(
-          like(products.name, `%${name}%`),
-          eq(products.status, ProductStatus.ACTIVE),
-        ),
-      )
-      .limit(take)
-      .offset(skip);
-
-    const productIds = productList.map((p) => p.id);
-    const brandIds = productList.map((p) => p.brandId);
-
-    const iamgeList = await this.db
-      .select()
-      .from(productImages)
-      .innerJoin(images, eq(productImages.imageId, images.id))
-      .where(inArray(productImages.productId, productIds));
-
-    const categoryList = await this.db
-      .select()
-      .from(categoriesMapping)
-      .innerJoin(categories, eq(categoriesMapping.categoryId, categories.id))
-      .where(inArray(categoriesMapping.productId, productIds));
-
-    const brandList = await this.db
-      .select()
-      .from(brands)
-      .where(inArray(brands.id, brandIds));
-
-    const productMap: GetAllProductResponseDto[] = productList.map((prod) => ({
-      id: prod.id,
-      name: prod.name,
-      description: prod.description,
-      price: prod.price,
-      brandName: '',
-      categoryName: '',
-      thumbnailUrl: '',
-      status: prod.status,
-      stock: prod.stocking,
-    }));
-
-    for (const prod of productMap) {
-      const img = iamgeList.find(
-        (img) =>
-          img.product_images.productId === prod.id &&
-          (img.images.type as ImageType) === ImageType.THUMBNAIL,
-      );
-
-      if (img) {
-        prod.thumbnailUrl = img.images.url;
-      }
-
-      const cate = categoryList.find(
-        (c) => c.categories_mapping.productId === prod.id,
-      );
-
-      if (cate) {
-        prod.categoryName = cate.categories.name;
-      }
-
-      const brand = brandList.find((b) => b.id === prod.id);
-
-      if (brand) {
-        prod.brandName = brand.name;
-      }
-    }
-
-    return productMap;
-  }
-  async getProductById(producId: number): Promise<Product> {
-    return this.searchService.findOneOrThrow(
-      this.db,
-      products,
-      eq(products.id, producId),
+    // 2. Get product list
+    const productList: Product[] = await this.productRepo.findProductByName(
+      name,
+      skip,
+      take,
     );
+
+    // 3. Create map for mapping image to product list
+    const imageMap: Map<number, Image[]> = new Map();
+
+    await Promise.all(
+      productList.map(async (product) => {
+        const images =
+          await this.imageService.getImageListBySubjectIdAndSubjectType(
+            product.id,
+            SubjectType.PRODUCT,
+          );
+        imageMap.set(product.id, images);
+      }),
+    );
+
+    // 4. Convert product list to dto using plainToInstance method
+    const productDtos = plainToInstance(
+      GetAllProductResponseDto,
+      productList.map((product) => ({
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        brandName: product.brand.name,
+        categoryName: product.categoriesMapping?.[0]?.category?.name,
+        status: product.status,
+        stock: product.stocking,
+        thumbnailUrl: imageMap.get(product.id)?.[0].url,
+      })),
+      {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      },
+    );
+
+    return productDtos;
   }
-  async updateProductInfor({
-    id,
-    name,
-    brandName,
-    categoryName,
-    description,
-    price,
-    stock,
-    status,
-    mainImage,
-    subImages,
-  }: UpdateProductInforRequestDTO): Promise<Product> {
+
+  async updateProductInfor(
+    request: UpdateProductInforRequestDTO,
+  ): Promise<Product> {
     // 1. Check product exist
-    await this.searchService.findOneOrThrow(
-      this.db,
-      products,
-      eq(products.id, id),
-    );
+    const product = await this.getProductByID(request.id);
 
-    // 2. Save image to db
-    let thumbnail: Image;
+    // 2. Get thumbnail image and product image from product
+    const thumbnailImage =
+      await this.imageService.getImageBySubjectIdAndSubjectType(
+        product.id,
+        SubjectType.PRODUCT,
+        ImageType.THUMBNAIL,
+      );
+    const productImages =
+      await this.imageService.getImageListBySubjectIdAndSubjectType(
+        product.id,
+        SubjectType.PRODUCT,
+        ImageType.PRODUCT,
+      );
 
     // 3. Change image type to thumnnail
-    if (mainImage) {
-      mainImage.type = ImageType.THUMBNAIL;
+    if (request.mainImage.url !== thumbnailImage.url) {
+      request.mainImage.type = ImageType.THUMBNAIL;
 
-      // 3.1. Save image to db
-      thumbnail = await this.imageService.saveImage(mainImage);
-    }
+      // 3.1. Soft delete old thumbnail image
+      const result = await this.imageService.removeImage(thumbnailImage.id);
 
-    // 4. Declare image list
-    let imageList: Image[];
-
-    // 5. Change image type to product
-    if (subImages) {
-      subImages.forEach((image) => {
-        image.type = ImageType.PRODUCT;
-      });
-
-      // 5.1. Save sub image to db
-      imageList = await this.imageService.saveImages(subImages);
-    }
-
-    // 6. Get image list id
-    const imageListIds = await this.db
-      .select()
-      .from(productImages)
-      .innerJoin(images, eq(productImages.imageId, images.id))
-      .where(
-        and(
-          eq(productImages.productId, id),
-          eq(images.status, ImageStatus.ACTIVE),
-        ),
-      );
-
-    // 7. Get thumbnail image
-    const productThumbnail = imageListIds.find(
-      (img) => (img.images.type as ImageType) === ImageType.THUMBNAIL,
-    );
-
-    // 8. Check thumbnail image of product is exist
-    if (!productThumbnail) {
-      throw new BadRequestException(
-        `${Property.PRODUCT_THUMNAIL} ${ErrorMessage.NOT_EXIST}`,
-      );
-    }
-
-    // 9. Get brand and category from name
-    const brand: Brand = await this.searchService.findOneOrThrow(
-      this.db,
-      brands,
-      eq(brands.name, brandName),
-    );
-
-    const category: Category = await this.searchService.findOneOrThrow(
-      this.db,
-      categories,
-      eq(categories.name, categoryName),
-    );
-
-    // 10. Update product
-    const updateResult = await this.db.transaction(async (tx) => {
-      // 10.1. Update product with new product info
-      const updatedProduct = await tx
-        .update(products)
-        .set({
-          name,
-          brandId: brand.id,
-          description,
-          price,
-          stocking: stock,
-          status,
-          updated_at: new Date(),
-        })
-        .where(eq(products.id, id));
-
-      // 10.5. Update category mapping
-      await tx
-        .update(categoriesMapping)
-        .set({ categoryId: category.id, updated_at: new Date() })
-        .where(eq(categoriesMapping.productId, id));
-
-      // 10.6. Update thumnail image
-      await tx
-        .update(productImages)
-        .set({
-          productId: id,
-          imageId: thumbnail.id,
-          updated_at: new Date(),
-        })
-        .where(eq(productImages.imageId, productThumbnail.images.id));
-
-      // 10.7. Get sub image list use for soft delete
-      const subImageIds = await tx
-        .select({ imageId: productImages.imageId })
-        .from(productImages)
-        .innerJoin(images, eq(productImages.imageId, images.id))
-        .where(
-          and(
-            eq(productImages.productId, id),
-            eq(images.type, ImageType.PRODUCT),
-          ),
-        );
-
-      // 10.8. Soft delete sub image
-      await tx
-        .update(images)
-        .set({ status: ImageStatus.REMOVED, updated_at: new Date() })
-        .where(
-          inArray(
-            images.id,
-            subImageIds.map((row) => row.imageId),
-          ),
-        );
-
-      // 10.9 Insert new sub image
-      if (imageList && imageList.length > 0) {
-        await tx
-          .insert(productImages)
-          .values(
-            imageList.map((img) => ({
-              productId: id,
-              imageId: img.id,
-              updated_at: new Date(),
-              imageType: ImageType.PRODUCT,
-              status: ImageStatus.ACTIVE,
-            })),
-          )
-          .$returningId();
+      if (!result) {
+        this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+        throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
       }
-      // 10.10. Return updated product
-      return {
-        updatedProduct,
-      };
+
+      // 3.2. Save thumbnail image to db
+      const newThumbnailImage: Image = await this.imageService.saveImage(
+        request.mainImage,
+        request.id,
+        SubjectType.PRODUCT,
+      );
+
+      // 3.3. Check save thumbnail image result
+      if (!newThumbnailImage) {
+        this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+        throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
+      }
+    }
+
+    // 4. Change image type to product
+    if (request.subImages) {
+      // 4.1. Get current url and request url
+      const currentUrls: string[] = productImages.map((img) => img.url).sort();
+      const requestUrls: string[] = request.subImages
+        .map((img) => img.url)
+        .sort();
+
+      // 4.2. Check difference between two array
+      const isDifferent: boolean =
+        currentUrls.length !== requestUrls.length ||
+        currentUrls.some((url, index) => url !== requestUrls[index]);
+
+      if (isDifferent) {
+        // 4.2.1. Change image type to produc
+        request.subImages.forEach((image) => {
+          image.type = ImageType.PRODUCT;
+        });
+
+        // 4.2.2. Soft delete old sub image
+        for (const img of productImages) {
+          const deleted: boolean = await this.imageService.removeImage(img.id);
+
+          if (!deleted) {
+            this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+            throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
+          }
+        }
+      }
+
+      // 4.2. Save sub image to db
+      const newProductImages: Image[] = await this.imageService.saveImages(
+        request.subImages,
+        request.id,
+        SubjectType.PRODUCT,
+      );
+
+      // 4.3. Check save sub image result
+      if (!newProductImages) {
+        this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+        throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
+      }
+    }
+
+    // 5. Get brand and category by id
+    const brand: Brand = await this.brandService.getBrandById({
+      id: request.brandID,
     });
 
-    // 11. Check if updating product is success
+    // 6. Update product
+    const updateResult: boolean = await this.productRepo.updateProduct(
+      request.id,
+      request.name,
+      request.description,
+      request.price,
+      brand,
+      request.status,
+      request.stock,
+    );
+
+    // 7. Check if updating product is success
     if (!updateResult) {
-      this.logger.error(`${MessageLog.PRODUCT} ${MessageLog.CAN_NOT_UPDATE}`);
+      this.logger.warn(ProductMessageLog.PRODUCT_UPDATED_FAILED);
       throw new InternalServerErrorException(
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );
     }
 
-    return await this.getProductById(id);
+    // 8. Get category mapping list with category and product
+    const oldCategoryMappings: CategoryMapping[] =
+      await this.categoryMappingService.findCategoryMappingListWithProduct(
+        product,
+      );
+
+    // 9. Iterate category mapping list and soft delete each of them
+    for (const mapping of oldCategoryMappings) {
+      const success: boolean =
+        await this.categoryMappingService.removeCategoryMapping(mapping.id);
+      if (!success) {
+        throw new InternalServerErrorException(
+          `Deleting category mapping with ID ${mapping.id} failed.`,
+        );
+      }
+    }
+
+    // 10. Create new category mapping
+    const categoryIDs = request.categoryIDs || [];
+
+    for (const categoryId of categoryIDs) {
+      const category = await this.categoryService.getCategoryById({
+        id: categoryId,
+      });
+      await this.categoryMappingService.createCategoryMapping(
+        category,
+        product,
+      );
+    }
+
+    return await this.getProductByID(request.id);
   }
 
-  async removeProductById(productId: number): Promise<Product> {
+  async removeProductById(productID: number): Promise<Product> {
     // 1. Get product infor
-    const product: Product = await this.searchService.findOneOrThrow(
-      this.db,
-      products,
-      eq(products.id, productId),
-    );
+    const product: Product = await this.getProductByID(productID);
 
     // 2. Soft delete product
-    const updateResult = await this.db.transaction((tx) =>
-      tx
-        .update(products)
-        .set({ status: ProductStatus.REMOVED, updated_at: new Date() })
-        .where(eq(products.id, productId)),
-    );
+    const updateResult = await this.productRepo.removeProduct(product.id);
 
-    // 3. Check if updati@ng product status is success
+    // 3. Checking update product result
     if (!updateResult) {
-      this.logger.error(`${MessageLog.PRODUCT} ${MessageLog.CAN_NOT_DELETE}`);
+      this.logger.warn(ProductMessageLog.REMOVE_PRODUCT_FAILED);
       throw new InternalServerErrorException(
-        ErrorMessage.INTERNAL_SERVER_ERROR,
+        ProductErrorMessage.REMOVE_PRODUCT_FAILED,
       );
     }
 
-    return product;
+    // 4. Return new product
+    return await this.getProductByID(productID);
   }
 
   async getProductDetail(
-    productId: number,
+    productID: number,
     page: number,
     limit: number,
   ): Promise<GetProductDetailResponseDto> {
     try {
+      // 1. Get pagination information
       const { skip, take } = this.utilityService.getPagination(page, limit);
       this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
 
-      const [product]: Product[] = await this.db
-        .select()
-        .from(products)
-        .where(eq(products.id, productId))
-        .limit(take)
-        .offset(skip);
+      const product: Product | null = await this.productRepo.getProductDetail(
+        productID,
+        skip,
+        take,
+      );
 
-      const imageList = await this.db
-        .select()
-        .from(productImages)
-        .innerJoin(images, eq(productImages.imageId, images.id))
-        .where(eq(productImages.productId, productId));
+      if (!product) {
+        this.logger.warn(ProductMessageLog.PRODUCT_NOT_FOUND);
+        throw new NotFoundException(ProductErrorMessage.PRODUCT_NOT_FOUND);
+      }
 
-      const productRatingList: { starRated: number }[] = await this.db
-        .select({ starRated: productRatings.starRated })
-        .from(productRatings)
-        .where(eq(productRatings.productId, productId));
+      const thumbnailImage: Image =
+        await this.imageService.getImageBySubjectIdAndSubjectType(
+          product.id,
+          SubjectType.PRODUCT,
+          ImageType.THUMBNAIL,
+        );
+
+      const productImage: Image[] =
+        await this.imageService.getImageListBySubjectIdAndSubjectType(
+          productID,
+          SubjectType.PRODUCT,
+          ImageType.PRODUCT,
+        );
+
+      const productRatingList: ProductRating[] =
+        await this.productRatingService.getRatingByProductId(productID);
 
       const avgRating =
         productRatingList.length > 0
@@ -493,167 +465,86 @@ export class ProductService {
             ) / productRatingList.length
           : 0;
 
-      const categoryList = await this.db
-        .select()
-        .from(categoriesMapping)
-        .innerJoin(categories, eq(categoriesMapping.categoryId, categories.id))
-        .where(eq(categoriesMapping.productId, productId));
+      const categoryMappingList: CategoryMapping[] =
+        await this.categoryMappingService.findCategoryMappingListWithProduct(
+          product,
+        );
 
-      const brandList = await this.db
-        .select()
-        .from(brands)
-        .where(eq(brands.id, product.brandId));
+      const brand: Brand = await this.brandService.getBrandById({
+        id: product.brand.id,
+      });
 
-      const result: GetProductDetailResponseDto = {
+      const rawResponse = {
         id: product.id,
         name: product.name,
         description: product.description,
         price: product.price,
-        brandName: '',
-        categoryName: '',
-        thumbnailUrl: '',
-        imagesUrl: [],
+        brandName: brand,
+        categoryName: categoryMappingList.map(
+          (mapping) => mapping.category.name,
+        ),
+        thumbnailUrl: thumbnailImage.url,
+        imagesUrl: productImage.map((img) => img.url),
         starRated: avgRating,
         status: product.status,
         stock: product.stocking,
       };
 
-      const img = imageList.find(
-        (img) =>
-          img.product_images.productId === productId &&
-          (img.images.type as ImageType) === ImageType.THUMBNAIL,
-      );
-
-      if (img) {
-        result.thumbnailUrl = img.images.url;
-      }
-
-      const subImg = imageList.filter(
-        (img) =>
-          img.product_images.productId === productId &&
-          (img.images.type as ImageType) === ImageType.PRODUCT,
-      );
-
-      if (subImg.length > 0) {
-        result.imagesUrl = subImg.map((img) => img.images.url);
-      }
-
-      const cate = categoryList.find(
-        (c) =>
-          c.categories_mapping.productId === productId &&
-          (c.categories.status as CategoryStatus) === CategoryStatus.ACTIVE,
-      );
-
-      if (cate) {
-        result.categoryName = cate.categories.name;
-      }
-
-      const brandName = brandList.find(
-        (b) =>
-          b.id === product.brandId &&
-          (b.status as BrandStatus) === BrandStatus.ACTIVE,
-      );
-
-      if (brandName) {
-        result.brandName = brandName.name;
-      }
-
-      return result;
+      return plainToInstance(GetProductDetailResponseDto, rawResponse, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      });
     } catch (error) {
       this.logger.error(`Error getting product detail: ${error}`);
       throw error;
     } finally {
-      this.logger.log(`Get info with product id ${productId}`);
+      this.logger.log(`Get info with product id ${productID}`);
     }
   }
 
-  async filterProducts({
-    limit,
-    page,
-    brandName,
-    discount,
-    maxPrice,
-    minPrice,
-    name,
-    sortOrder,
-    stocking,
-    status,
-    category,
-  }: ProductFilterParams): Promise<GetAllProductResponseDto[]> {
-    const { skip, take } = this.utilityService.getPagination(page, limit);
+  async filterProducts(
+    request: ProductFilterParams,
+  ): Promise<GetAllProductResponseDto[]> {
+    const { skip, take } = this.utilityService.getPagination(
+      request.page,
+      request.limit,
+    );
 
-    const cleanName = name?.trim().toLowerCase();
+    const productList = await this.productRepo.filterProducts(
+      request,
+      skip,
+      take,
+    );
 
-    const conditions: SQL[] = [];
+    const imageMap: Map<number, Image> = new Map();
 
-    const query = this.db
-      .select()
-      .from(products)
-      .innerJoin(brands, eq(brands.id, products.brandId));
+    await Promise.all(
+      productList.map(async (product) => {
+        const images: Image =
+          await this.imageService.getImageBySubjectIdAndSubjectType(
+            product.id,
+            SubjectType.PRODUCT,
+            ImageType.THUMBNAIL,
+          );
+        imageMap.set(product.id, images);
+      }),
+    );
 
-    if (conditions.length > 0) {
-      query.where(and(...conditions));
-    }
-
-    const productList = await this.db
-      .select()
-      .from(products)
-      .innerJoin(brands, eq(brands.id, products.brandId))
-      .innerJoin(
-        categoriesMapping,
-        eq(categoriesMapping.productId, products.id),
-      )
-      .innerJoin(categories, eq(categoriesMapping.categoryId, categories.id))
-      .where(
-        and(
-          minPrice ? gte(products.price, minPrice) : undefined,
-          maxPrice ? lte(products.price, maxPrice) : undefined,
-          status ? eq(products.status, status) : undefined,
-          name ? like(products.name, `%${cleanName}%`) : undefined,
-          brandName ? like(brands.name, `%${brandName}%`) : undefined,
-          stocking ? eq(products.stocking, stocking) : undefined,
-          discount ? eq(products.discount, discount) : undefined,
-          category ? eq(categories.name, category) : undefined,
-        ),
-      )
-      .orderBy(sortOrder === 'asc' ? asc(products.price) : desc(products.price))
-      .limit(take)
-      .offset(skip);
-
-    this.logger.log(JSON.stringify(productList));
-
-    const productIds = productList.map((p) => p.products.id);
-
-    const imageList = await this.db
-      .select()
-      .from(productImages)
-      .innerJoin(images, eq(productImages.imageId, images.id))
-      .where(inArray(productImages.productId, productIds));
-
-    const productMap: GetAllProductResponseDto[] = productList.map((prod) => ({
-      id: prod.products.id,
-      name: prod.products.name,
-      description: prod.products.description,
-      price: prod.products.price,
-      brandName: prod.brands.name,
-      categoryName: prod.categories.name,
-      thumbnailUrl: '',
-      status: prod.products.status,
-      stock: prod.products.stocking,
+    const rawData = productList.map((product) => ({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      brandName: product.brand?.name ?? '',
+      categoryName: product.categoriesMapping?.[0]?.category?.name ?? '',
+      thumbnailUrl: imageMap.get(product.id)?.url ?? '',
+      status: product.status,
+      stock: product.stocking,
     }));
 
-    for (const prod of productMap) {
-      const img = imageList.find(
-        (img) =>
-          img.product_images.productId === prod.id &&
-          (img.images.type as ImageType) === ImageType.THUMBNAIL,
-      );
-
-      if (img) {
-        prod.thumbnailUrl = img.images.url;
-      }
-    }
-
-    return productMap;
+    return plainToInstance(GetAllProductResponseDto, rawData, {
+      excludeExtraneousValues: true,
+      enableImplicitConversion: true,
+    });
   }
 }

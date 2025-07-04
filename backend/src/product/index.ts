@@ -6,3 +6,4 @@ export * from './messages';
 export * from './enums';
 export * from './entites';
 export * from './repositories';
+export * from './product-rating.service';

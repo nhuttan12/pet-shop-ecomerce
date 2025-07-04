@@ -2,7 +2,7 @@ import { Brand } from '@brand';
 import { CartDetail } from '@cart';
 import { CategoryMapping } from '@category';
 import { OrderDetail } from '@order';
-import { ProductRating } from '@product-rating';
+import { ProductRating } from '@product';
 import { WishlistsMapping } from '@wishlist/entities/wishlists-mapping.entity';
 import { ProductStatus } from 'product/enums';
 import {
@@ -72,5 +72,5 @@ export class Product {
   wishlistMappings: WishlistsMapping[];
 
   @OneToMany(() => ProductRating, (productRating) => productRating.product)
-  customerRating: ProductRating[];
+  productRating: ProductRating[];
 }

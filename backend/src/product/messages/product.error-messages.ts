@@ -19,4 +19,23 @@ export enum ProductErrorMessage {
   PRODUCT_NOT_FOUND = 'Không tìm thấy sản phẩm',
   THUMBNAIL_IMAGE_NOT_CREATED = 'Hình ảnh đại diện của sản phẩm không được tạo thành công',
   PRODUCT_IMAGE_NOT_CREATED = 'Hình ảnh cơ bản của sản phẩm không được tạo thành công',
+  PRODUCT_CREATED_FAILED = 'Không thể tạo sản phẩm',
+  PRODUCT_UPDATED_FAILED = 'Không thể cập nhật sản phẩm',
+  REMOVE_PRODUCT_FAILED = 'Không thể xoá sản phẩm chỉ định',
+  PRODUCT_RATING_NOT_FOUND = 'Không thể tìm thấy đánh giá sản phẩm',
+  CREATE_PRODUCT_RATING_FAILED = 'Không thế đánh giá sản phẩm',
+  UPDATE_PRODUCT_RATING_FAILED = 'Không thể cập nhật đánh giá sản phẩm',
+  RATING_PRODUCT_FAILED = 'Đánh giá sản phẩm thất bại',
+
+  PRODUCT_ID_MUST_BE_INTEGER = 'ID sản phẩm phải là số nguyên.',
+  PRODUCT_ID_MUST_BE_POSITIVE = 'ID sản phẩm phải lớn hơn 0.',
+  PRODUCT_ID_REQUIRED = 'ID sản phẩm là bắt buộc.',
+
+  USER_ID_MUST_BE_INTEGER = 'ID người dùng phải là số nguyên.',
+  USER_ID_MUST_BE_POSITIVE = 'ID người dùng phải lớn hơn 0.',
+  USER_ID_REQUIRED = 'ID người dùng là bắt buộc.',
+
+  STAR_RATED_MUST_BE_INTEGER = 'Số sao đánh giá phải là số nguyên.',
+  STAR_RATED_MUST_BE_POSITIVE = 'Số sao đánh giá phải lớn hơn 0.',
+  STAR_RATED_REQUIRED = 'Số sao đánh giá là bắt buộc.',
 }
