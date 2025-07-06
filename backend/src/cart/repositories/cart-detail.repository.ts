@@ -22,8 +22,8 @@ export class CartDetailRepository {
 
   async getAllCartDetailByUserID(
     userID: number,
-    skip: number,
-    take: number,
+    skip?: number,
+    take?: number,
   ): Promise<CartDetail[]> {
     try {
       return this.repo.find({
@@ -33,6 +33,7 @@ export class CartDetailRepository {
               id: userID,
             },
           },
+          status: CartDetailStatus.ACTIVE,
         },
         skip,
         take,

@@ -4,7 +4,7 @@ import {
   CartErrorMessage,
   CartMessageLog,
   CreateCartDetailDto,
-  RemoveCartDetailDTO
+  RemoveCartDetailDTO,
 } from '@cart';
 import {
   Injectable,
@@ -102,8 +102,8 @@ export class CartDetailService {
 
   async getAllCartDetailByUserID(
     userID: number,
-    skip: number,
-    take: number,
+    skip?: number,
+    take?: number,
   ): Promise<CartDetail[]> {
     return this.cartDetailRepo.getAllCartDetailByUserID(userID, skip, take);
   }

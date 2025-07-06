@@ -1,12 +1,13 @@
 import {
   Cart,
-  GetAllCartsDTO,
-  CartRepository,
+  CartDetail,
+  CartDetailResponse,
+  CartDetailService,
   CartErrorMessage,
   CartMessageLog,
-  CartDetailService,
-  CartDetailResponse,
-  CartDetail,
+  CartRepository,
+  CartStatus,
+  GetAllCartsDTO,
 } from '@cart';
 import { Image, ImageService, SubjectType, UtilityService } from '@common';
 import {
@@ -54,6 +55,7 @@ export class CartService {
             detail.product.id,
             SubjectType.PRODUCT,
           );
+        this.logger.debug('Thumbnail:', thumbnail);
 
         // 3.1.2. Return cart detail with product
         return {
@@ -82,6 +84,24 @@ export class CartService {
     return await this.cartRepo.getCartByUserID(cartID);
   }
 
+  async getCartByUserIDAndStatus(
+    userID: number,
+    status: CartStatus,
+  ): Promise<Cart> {
+    // 1. Get cart by user ID and cart status
+    const cart = await this.cartRepo.getCartByUserIDAndStatus(userID, status);
+    this.logger.debug('Get cart by user ID and cart status:', cart);
+
+    // 2. Check if cart exist
+    if (!cart) {
+      this.logger.error(CartMessageLog.CART_NOT_FOUND);
+      throw new InternalServerErrorException(CartErrorMessage.CART_NOT_FOUND);
+    }
+
+    // 3. Return cart after check
+    return cart;
+  }
+
   async addToCart(
     userID: number,
     productID: number,
@@ -89,12 +109,15 @@ export class CartService {
   ): Promise<Cart> {
     // 1. Find active cart of current user
     let cart: Cart | null = await this.getCartByUserID(userID);
+    this.logger.debug('Find active cart of current user:', cart);
 
     // 2. Check if cart exists
     if (!cart) {
+      // 2.1. Create new cart
       cart = await this.cartRepo.createCart(userID);
+      this.logger.debug('Create new cart:', cart);
 
-      // 2.1 Check if cart is created
+      // 2.2. Check if cart is created
       if (!cart) {
         this.logger.error(CartMessageLog.CART_NOT_FOUND);
         throw new InternalServerErrorException(
@@ -109,21 +132,43 @@ export class CartService {
         productID,
         userID,
       );
+    this.logger.debug('Cart with cart detail:', cartWithCartDetail);
 
     // 4. Check if cart with cart detail exist
     if (!cartWithCartDetail) {
+      // 4.1. Get product by product ID
       const product: Product =
         await this.productService.getProductByID(productID);
+      this.logger.debug('Product:', product);
 
-      // 4.1. Add product to cart detail
-      await this.cartDetailService.addProductToCartDetails({
-        cartId: cart.id,
-        productId: product.id,
-        quantity,
-        price: product.price,
-      });
+      // 4.2. Add product to cart detail
+      const cartDetail: CartDetail =
+        await this.cartDetailService.addProductToCartDetails({
+          cartId: cart.id,
+          productId: product.id,
+          quantity,
+          price: product.price,
+        });
+      this.logger.debug('Cart detail:', cartDetail);
     }
 
     return cart;
+  }
+
+  async updateCartStatus(cartID: number, status: CartStatus): Promise<boolean> {
+    // 1. Update cart status
+    const result = await this.cartRepo.updateCartStatus(cartID, status);
+    this.logger.debug('Update cart status result:', result);
+
+    // 2. Check update result
+    if (!result) {
+      this.logger.error(CartMessageLog.UPDATE_CART_STATUS_FAILED);
+      throw new InternalServerErrorException(
+        CartErrorMessage.UPDATE_CART_STATUS_FAILED,
+      );
+    }
+
+    // 3. Return result
+    return result;
   }
 }

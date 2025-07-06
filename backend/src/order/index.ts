@@ -5,3 +5,5 @@ export * from './messages';
 export * from './order.controller';
 export * from './order.service';
 export * from './order.module';
+export * from './repositories';
+export * from './order-detail.service';

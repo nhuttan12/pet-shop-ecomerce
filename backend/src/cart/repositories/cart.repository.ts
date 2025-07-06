@@ -1,7 +1,17 @@
-import { Cart, CartDetailStatus, CartStatus } from '@cart';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Cart,
+  CartDetailStatus,
+  CartErrorMessage,
+  CartMessageLog,
+  CartStatus,
+} from '@cart';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { UserStatus } from '@user';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class CartRepository {
@@ -10,6 +20,28 @@ export class CartRepository {
     private readonly dataSource: DataSource,
     private readonly repo: Repository<Cart>,
   ) {}
+
+  async getCartByUserIDAndStatus(
+    userID: number,
+    status: CartStatus,
+  ): Promise<Cart | null> {
+    try {
+      return this.repo.findOne({
+        where: {
+          status,
+          user: {
+            id: userID,
+          },
+        },
+        relations: {
+          user: true,
+        },
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
 
   async getCartByUserID(userID: number): Promise<Cart | null> {
     try {
@@ -73,6 +105,35 @@ export class CartRepository {
             product: true,
           },
         },
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async updateCartStatus(cartID: number, status: CartStatus): Promise<boolean> {
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const result: UpdateResult = await manager.update(
+          Cart,
+          {
+            id: cartID,
+          },
+          {
+            status,
+            updatedAt: new Date(),
+          },
+        );
+
+        if (result.affected !== 1) {
+          this.logger.error(CartMessageLog.UPDATE_CART_STATUS_FAILED);
+          throw new InternalServerErrorException(
+            CartErrorMessage.UPDATE_CART_STATUS_FAILED,
+          );
+        }
+
+        return result.affected === 1;
       });
     } catch (error) {
       this.logger.error(error);

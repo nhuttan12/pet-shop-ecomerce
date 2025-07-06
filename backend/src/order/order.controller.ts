@@ -1,3 +1,13 @@
+import { JwtPayload } from '@auth';
+import {
+  ApiResponse,
+  CatchEverythingFilter,
+  GetUser,
+  HasRole,
+  JwtAuthGuard,
+  NotifyMessage,
+  RolesGuard,
+} from '@common';
 import {
   Body,
   Controller,
@@ -12,12 +22,6 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import { GetAllOrdersResponseDto } from '@dtos/order/get-all-order-response.dto';
-import { OrderService } from '@core-modules/order/order.service';
-import { GetUser } from '@decorator/user.decorator';
-import { GetAllOrderRequestDto } from '@dtos/order/get-all-order-request.dto';
-import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
-import { NotifyMessage } from '@message/notify-message';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -27,27 +31,31 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@guard/jwt-auth.guard';
-import { RolesGuard } from '@guard/roles.guard';
-import { HasRole } from '@decorator/roles.decorator';
-import { Role } from '@enum/role.enum';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { JwtPayload } from '@interfaces';
-import { GetOrderDetailsByOrderIdResponseDto } from '@dtos/order/get-order-details-by-order-id-response.dto';
-import { GetOrderDetailsByOrderIdRequestDto } from '@dtos/order/get-order-details-by-order-id-request.dto';
-import { CancelOrderRequestDto } from '@dtos/order/cancel-order-request.dto';
-import { Order } from '@schema-type';
-import { CreateOrderRequestDto } from '@dtos/order/create-order-request.dto';
+import {
+  CancelOrderRequestDto,
+  CreateOrderRequestDto,
+  GetAllOrderRequestDto,
+  GetAllOrdersResponseDto,
+  GetOrderDetailsByOrderIdRequestDto,
+  GetOrderDetailsByOrderIdResponseDto,
+  Order,
+  OrderDetailService,
+  OrderService,
+} from '@order';
+import { RoleName } from '@role';
 
 @Controller('orders')
 @ApiTags('Order')
 @ApiBearerAuth('jwt')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@HasRole(Role.USER)
+@HasRole(RoleName.USER)
 @UseFilters(CatchEverythingFilter)
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);
-  constructor(private orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly orderDetailService: OrderDetailService,
+  ) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -99,7 +107,7 @@ export class OrderController {
     @Param() { orderId }: GetOrderDetailsByOrderIdRequestDto,
     @GetUser() userId: JwtPayload,
   ): Promise<ApiResponse<GetOrderDetailsByOrderIdResponseDto[]>> {
-    const orderDetails = await this.orderService.getOrderDetailByOrderId(
+    const orderDetails = await this.orderDetailService.getOrderDetailByOrderId(
       orderId,
       userId.sub,
     );

@@ -1,6 +1,6 @@
+import { ErrorMessage } from '@common';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, Min } from 'class-validator';
-import { ErrorMessage } from '@message/error-message';
 
 export class GetOrderDetailsByOrderIdRequestDto {
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })
