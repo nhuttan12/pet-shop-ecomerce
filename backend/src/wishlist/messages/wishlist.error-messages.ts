@@ -6,4 +6,6 @@ export const WishlistErrorMessage = {
   WISHLIST_ID_MUST_BE_POSITIVE_NUMBER:
     'Mã số yêu thích phải là số nguyên dương',
   WISHLIST_ID_MUST_BE_INTEGER: 'Mã số yêu thích phải là số nguyên',
+  ADD_PRODUCT_TO_WISHLIST_FAILED: 'Thêm sản phẩm vào mục yêu thích thất bại',
+  WISHLIST_MAPPING_REMOVED_FAILED: 'Xoá sản phẩm trong mục yêu thích thất bại',
 };

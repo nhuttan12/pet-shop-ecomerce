@@ -1,15 +1,9 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ErrorMessage } from '@common';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsOptional, Min } from 'class-validator';
-import { ErrorMessage } from '@message/error-message';
+import { IsInt, IsOptional, Min } from 'class-validator';
 
 export class GetCartDetailByCartId {
-  @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })
-  @Min(1)
-  @IsNotEmpty()
-  @ApiProperty()
-  id: number;
-
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
   @Type(() => Number)

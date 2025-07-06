@@ -1,100 +1,103 @@
 import {
-  DrizzleAsyncProvider,
-  SearchService,
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import {
   Wishlist,
-  wishlists,
-} from '@common';
-import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
-import { WishlistErrorMessage, WishlistStatus } from '@wishlist';
-import { and, eq } from 'drizzle-orm';
-import { MySql2Database } from 'drizzle-orm/mysql2';
+  WishlistErrorMessage,
+  WishListMappingService,
+  WishlistMessageLog,
+  WishlistRepository,
+} from '@wishlist';
 
 @Injectable()
 export class WishlistService {
   private readonly logger = new Logger(WishlistService.name);
   constructor(
-    private searchService: SearchService,
-    @Inject(DrizzleAsyncProvider) private db: MySql2Database<any>,
+    private readonly wishlistRepo: WishlistRepository,
+    private readonly wishlistMappingService: WishListMappingService,
   ) {}
-  async createWishList(userId: number, productId: number): Promise<Wishlist> {
-    try {
-      const exist = await this.db
-        .select()
-        .from(wishlists)
-        .where(
-          and(eq(wishlists.userId, userId), eq(wishlists.productId, productId)),
-        )
-        .limit(1);
-      this.logger.debug(`Wishlist ${JSON.stringify(exist)}`);
 
-      if (exist.length > 0) {
-        throw new ConflictException(WishlistErrorMessage.WISHLIST_EXISTS);
+  /**
+   * Create wishlist (if not exist) and add product to it
+   * @param userID - ID of user
+   * @param productID - ID of product to add to wishlist
+   * @returns The updated wishlist including the newly created wishlist mapping
+   * @throws ConflictException if the product already exists in the wishlist
+   * @throws InternalServerErrorException if creation fails
+   */
+  async createWishList(userID: number, productID: number): Promise<Wishlist> {
+    try {
+      // 1. Get wishlist
+      let wishlist: Wishlist | null =
+        await this.wishlistRepo.getWishtListByUserID(userID);
+      this.logger.debug(`Wishlist: ${JSON.stringify(wishlist)}`);
+
+      // 2. Check wishlist exist
+      if (!wishlist) {
+        wishlist = await this.wishlistRepo.createWishlist(userID);
       }
 
-      const [wishlistCreated] = await this.db.transaction(async (tx) => {
-        return await tx
-          .insert(wishlists)
-          .values({
-            userId,
-            productId,
-            created_at: new Date(),
-            updated_at: new Date(),
-          })
-          .$returningId();
-      });
+      // 3. Create wishlist mapping
+      const wishlistMappingCreated =
+        await this.wishlistMappingService.createWishlistMapping(
+          wishlist.id,
+          productID,
+        );
 
-      return await this.searchService.findOneOrThrow(
-        this.db,
-        wishlists,
-        eq(wishlists.id, wishlistCreated.id),
-      );
+      // 4. Check create wishlist result
+      if (!wishlistMappingCreated) {
+        this.logger.warn(WishlistMessageLog.WISHLIST_MAPPING_CREATED_FAILED);
+        throw new ConflictException(
+          WishlistErrorMessage.ADD_PRODUCT_TO_WISHLIST_FAILED,
+        );
+      }
+
+      // 5. Return wishlist with wishlist mapping nesting
+      return this.getWishlistAndWishlistMappingByUserID(userID);
     } catch (error) {
       this.logger.error(error);
       throw error;
     } finally {
       this.logger.debug(
-        `Wishlist created with product id ${productId} and user id ${userId}`,
+        `Wishlist created with product id ${productID} and user id ${userID}`,
       );
     }
   }
 
-  async removeWishList(wishlistId: number, userId: number): Promise<Wishlist> {
-    try {
-      await this.searchService.findOneOrThrow(
-        this.db,
-        wishlists,
-        and(eq(wishlists.userId, userId), eq(wishlists.id, wishlistId)),
-        WishlistErrorMessage.WISHLIST_NOT_FOUND,
-      );
+  /**
+   * Get wishlist and wishlist mapping by user id
+   * @param userID - ID of user
+   * @returns The wishlist and wishlist mapping
+   * @throws NotFoundException if the wishlist is not found
+   */
+  async getWishlistAndWishlistMappingByUserID(
+    userID: number,
+  ): Promise<Wishlist> {
+    // 1. Get wishlist
+    const wishtlist: Wishlist | null =
+      await this.wishlistRepo.getWishlistAndWishlistMappingByUserID(userID);
 
-      const result = await this.db.transaction(async (tx) => {
-        return await tx
-          .update(wishlists)
-          .set({ status: WishlistStatus.REMOVED, updated_at: new Date() })
-          .where(
-            and(
-              eq(wishlists.userId, userId),
-              eq(wishlists.id, wishlistId),
-              eq(wishlists.status, WishlistStatus.ACTIVE),
-            ),
-          );
-      });
-
-      if (!result) {
-        this.logger.error(WishlistErrorMessage.WISHLIST_NOT_FOUND);
-        throw new ConflictException(WishlistErrorMessage.WISHLIST_NOT_FOUND);
-      }
-
-      return await this.searchService.findOneOrThrow(
-        this.db,
-        wishlists,
-        and(eq(wishlists.userId, userId), eq(wishlists.id, wishlistId)),
-      );
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
-    } finally {
-      this.logger.log(`Update wishlist: ${wishlistId}`);
+    // 2. Check wishlist exist
+    if (!wishtlist) {
+      this.logger.warn(WishlistMessageLog.WISHLIST_NOT_FOUND);
+      throw new NotFoundException(WishlistErrorMessage.WISHLIST_NOT_FOUND);
     }
+
+    return wishtlist;
+  }
+
+  async getWishtListByUserID(userID: number): Promise<Wishlist | null> {
+    const wishlist: Wishlist | null =
+      await this.wishlistRepo.getWishtListByUserID(userID);
+
+    if (!wishlist) {
+      this.logger.warn(WishlistMessageLog.WISHLIST_NOT_FOUND);
+      throw new NotFoundException(WishlistErrorMessage.WISHLIST_NOT_FOUND);
+    }
+
+    return wishlist;
   }
 }

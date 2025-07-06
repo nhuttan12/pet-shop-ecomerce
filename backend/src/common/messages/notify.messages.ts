@@ -1,13 +1,5 @@
 export enum NotifyMessage {
   /**
-   * Cart
-   * */
-  GET_CART_SUCCESSFUL = 'Lấy ra thông tin giỏ hàng thành công',
-  CREATE_CART_DETAIL_SUCCESSFUL = 'Tạo chi tiết giỏ hàng thành công',
-  GET_CART_DETAIL_SUCCESSFUL = 'Lấy ra chi tiết giỏ hàng thành công',
-  REMOVE_CART_DETAIL_SUCCESSFUL = 'Xoa chi tiết giỏ hàng thành công',
-
-  /**
    * Product
    * */
   GET_PRODUCT_SUCCESSFUL = 'Lấy ra thông tin sản phẩm thành công',
@@ -43,10 +35,4 @@ export enum NotifyMessage {
    */
   CREATE_CONTACT_SUCCESSFUL = 'Tạo thống tin liên hệ thành công',
   GET_ALL_CONTACT_SUCCESSFUL = 'Lấy ra toàn bộ thống tin liên hệ thành công',
-
-  /**
-   * Wishlist
-   */
-  CREATE_WISHLIST_SUCCESSFUL = 'Thêm sản phẩm vào mục yêu thích thành công',
-  REMOVE_WISHLIST_SUCCESSFUL = 'Xoá sản phẩm trong mục yêu thích thành công',
 }

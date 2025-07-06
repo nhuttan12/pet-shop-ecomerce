@@ -3,7 +3,7 @@ import { CartDetail } from '@cart';
 import { CategoryMapping } from '@category';
 import { OrderDetail } from '@order';
 import { ProductRating } from '@product';
-import { WishlistsMapping } from '@wishlist/entities/wishlists-mapping.entity';
+import { WishlistMapping } from '@wishlist';
 import { ProductStatus } from 'product/enums';
 import {
   Column,
@@ -65,11 +65,11 @@ export class Product {
   cartDetails: CartDetail[];
 
   @OneToMany(
-    () => WishlistsMapping,
+    () => WishlistMapping,
     (wishlistMapping) => wishlistMapping.product,
     { nullable: true },
   )
-  wishlistMappings: WishlistsMapping[];
+  wishlistMappings: WishlistMapping[];
 
   @OneToMany(() => ProductRating, (productRating) => productRating.product)
   productRating: ProductRating[];

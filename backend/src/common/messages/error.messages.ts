@@ -45,12 +45,6 @@ export enum ErrorMessage {
   INVALID_RESET_TOKEN = 'Token không hợp lệ',
 
   /**
-   * Cart
-   */
-  CART_NOT_FOUND = 'Không tìm thấy giỏ hàng',
-  CART_ITEM_NOT_FOUND = 'Không tìm thấy sản phẩm trong giỏ hàng',
-
-  /**
    * Category
    */
   CATEGORY_MUST_BE_STRING = 'Tên danh phải là một chuỗi',

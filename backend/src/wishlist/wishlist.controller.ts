@@ -5,7 +5,6 @@ import {
   GetUser,
   HasRole,
   JwtAuthGuard,
-  NotifyMessage,
   RolesGuard,
 } from '@common';
 import {
@@ -20,16 +19,19 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
-  ApiTags,
   ApiResponse as ApiSwaggerResponse,
-  ApiBearerAuth,
+  ApiTags,
 } from '@nestjs/swagger';
-import { Role } from '@role';
+import { RoleName } from '@role';
 import {
   CreateWishlistDto,
   RemoveWishlistDto,
+  Wishlist,
+  WishListMappingService,
+  WishlistNotifyMessage,
   WishlistResponseDto,
   WishlistService,
 } from '@wishlist';
@@ -38,12 +40,15 @@ import {
 @ApiTags('Wishlist')
 @ApiBearerAuth('jwt')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@HasRole(Role.USER, Role.ADMIN)
+@HasRole(RoleName.USER, RoleName.ADMIN)
 @UseFilters(CatchEverythingFilter)
 export class WishlistController {
   private readonly logger = new Logger(WishlistController.name);
 
-  constructor(private readonly wishlistService: WishlistService) {}
+  constructor(
+    private readonly wishlistService: WishlistService,
+    private readonly wishlistMappingService: WishListMappingService,
+  ) {}
 
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
@@ -52,7 +57,7 @@ export class WishlistController {
   @ApiSwaggerResponse({
     status: HttpStatus.CREATED,
     description: 'Thêm vào wishlist thành công',
-    type: WishlistResponseDto,
+    type: Wishlist,
   })
   @ApiSwaggerResponse({
     status: HttpStatus.CONFLICT,
@@ -61,7 +66,7 @@ export class WishlistController {
   async createWishlist(
     @GetUser() userId: JwtPayload,
     @Body() { productId }: CreateWishlistDto,
-  ): Promise<ApiResponse<WishlistResponseDto>> {
+  ): Promise<ApiResponse<Wishlist>> {
     const wishlists = await this.wishlistService.createWishList(
       userId.sub,
       productId,
@@ -70,7 +75,7 @@ export class WishlistController {
 
     return {
       statusCode: HttpStatus.CREATED,
-      message: NotifyMessage.CREATE_WISHLIST_SUCCESSFUL,
+      message: WishlistNotifyMessage.CREATE_WISHLIST_SUCCESSFUL,
       data: wishlists,
     };
   }
@@ -89,19 +94,19 @@ export class WishlistController {
     description: 'Wishlist không tồn tại',
   })
   async removeWishlist(
-    @Body() { wishlistId }: RemoveWishlistDto,
+    @Body() { wishlistID }: RemoveWishlistDto,
     @GetUser() userId: JwtPayload,
-  ): Promise<ApiResponse<WishlistResponseDto>> {
-    const wishtlist = await this.wishlistService.removeWishList(
-      wishlistId,
+  ): Promise<ApiResponse<Wishlist>> {
+    const wishlist: Wishlist = await this.wishlistMappingService.removeWishList(
+      wishlistID,
       userId.sub,
     );
-    this.logger.debug(`Remove wishlist: ${JSON.stringify(wishtlist)}`);
+    this.logger.debug(`Remove wishlist result: ${JSON.stringify(wishlist)}`);
 
     return {
       statusCode: HttpStatus.OK,
-      message: NotifyMessage.REMOVE_WISHLIST_SUCCESSFUL,
-      data: wishtlist,
+      message: WishlistNotifyMessage.REMOVE_WISHLIST_SUCCESSFUL,
+      data: wishlist,
     };
   }
 }

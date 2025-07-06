@@ -1,6 +1,5 @@
 import { User } from '@user';
-import { WishlistStatus } from '@wishlist';
-import { WishlistsMapping } from '@wishlist/entities/wishlists-mapping.entity';
+import { WishlistMapping, WishlistStatus } from '@wishlist';
 import {
   Column,
   CreateDateColumn,
@@ -22,12 +21,12 @@ export class Wishlist {
   user: User;
 
   @OneToMany(
-    () => WishlistsMapping,
-    (wishlistsMapping) => wishlistsMapping.wishlist,
+    () => WishlistMapping,
+    (wishlistMapping) => wishlistMapping.wishlist,
     { nullable: false },
   )
   @JoinColumn({ name: 'wishlist_id' })
-  wishlistMappings: WishlistsMapping[];
+  wishlistMappings: WishlistMapping[];
 
   @Column({
     type: 'enum',

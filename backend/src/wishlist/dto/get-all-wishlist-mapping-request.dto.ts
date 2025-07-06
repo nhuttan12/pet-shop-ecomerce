@@ -1,9 +1,16 @@
 import { ErrorMessage } from '@common';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { WishlistErrorMessage } from '@wishlist/messages';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Min } from 'class-validator';
 
-export class GetAllCartsDTO {
+export class GetAllWishListMappingDTO {
+  @ApiPropertyOptional({ default: 1 })
+  @Type(() => Number)
+  @IsInt({ message: WishlistErrorMessage.PRODUCT_ID_MUST_BE_INTEGER })
+  @Min(1, { message: WishlistErrorMessage.PRODUCT_ID_MUST_BE_POSITIVE_NUMBER })
+  wishlistID: number;
+
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
   @Type(() => Number)

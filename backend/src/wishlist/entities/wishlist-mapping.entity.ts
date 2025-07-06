@@ -1,6 +1,7 @@
 import { Product } from '@product';
-import { Wishlist } from '@wishlist';
+import { Wishlist, WishlistStatus } from '@wishlist';
 import {
+  Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
@@ -9,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity('wishlists_mapping')
-export class WishlistsMapping {
+export class WishlistMapping {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -22,6 +23,13 @@ export class WishlistsMapping {
     nullable: false,
   })
   product: Product;
+
+  @Column({
+    type: 'enum',
+    enum: WishlistStatus,
+    default: WishlistStatus.ACTIVE,
+  })
+  status: WishlistStatus;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

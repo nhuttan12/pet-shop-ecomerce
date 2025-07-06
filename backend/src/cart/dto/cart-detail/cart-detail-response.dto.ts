@@ -1,15 +1,35 @@
-import { CartDetailStatus } from '@enum/status/cart-detail-status.enum';
-import { ProductStatus } from '@enum/status/product-status.enum';
+import { CartDetailStatus } from '@cart';
+import { ProductStatus } from '@product';
+import { Expose } from 'class-transformer';
 
-export interface CartDetailResponse {
-  cartDetailId: number;
+export class CartDetailResponse {
+  @Expose()
+  cartDetailID: number;
+
+  @Expose()
   quantity: number;
+
+  @Expose()
   price: number;
+
+  @Expose()
   cartDetailStatus: CartDetailStatus;
-  productId: number;
+
+  @Expose()
+  productID: number;
+
+  @Expose()
   productName: string;
+
+  @Expose()
   productPrice: number;
+
+  @Expose()
   productStocking: number;
+
+  @Expose()
   productStatus: ProductStatus;
+
+  @Expose()
   imageUrl: string | null;
 }
