@@ -1,6 +1,7 @@
-import { CommentController, CommentService } from '@comment';
-import { UtilityModule } from '@common';
+import { CommentController } from '@comment/comment.controller';
+import { CommentService } from '@comment/comment.service';
 import { Module } from '@nestjs/common';
+import { UtilityModule } from '@services/utility.module';
 
 @Module({
   imports: [UtilityModule],

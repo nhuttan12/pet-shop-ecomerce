@@ -1,186 +1,190 @@
-import { GetCommentResponseDto } from '@dtos/comment/get-all-comment-response.dto';
-import { CommentStatus } from '@enum/status/comment-status.enum';
-import { DrizzleAsyncProvider } from '@helper-modules/database/drizzle.provider';
-import { SearchService } from '@helper-modules/services/search.service';
-import { UtilityService } from '@helper-modules/services/utility.service';
+import { GetCommentResponseDto } from '@comment/dto/get-all-comment-response.dto';
+import { Comment } from '@comment/entities/comments.entity';
+import { CommentErrorMessage } from '@comment/messages/comment.error-messages';
+import { CommentMessageLog } from '@comment/messages/comment.messages-log';
+import { CommentRepository } from '@comment/repositories/comment.repository';
 import {
-  CommentErrorMessage,
-  CommentMessageLog,
-} from '@message/comment-message';
-import {
-  Inject,
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { comments, users } from '@schema';
-import { and, asc, eq } from 'drizzle-orm';
-import { MySql2Database } from 'drizzle-orm/mysql2';
+import { UtilityService } from '@services/utility.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CommentService {
   private readonly logger = new Logger(CommentService.name);
   constructor(
-    @Inject(DrizzleAsyncProvider) private db: MySql2Database<any>,
-    private searchService: SearchService,
     private utilityService: UtilityService,
+    private readonly commentRepo: CommentRepository,
   ) {}
 
   async createComment(
-    postId: number,
-    userId: number,
+    postID: number,
+    userID: number,
     content: string,
   ): Promise<Comment> {
     try {
-      const comment: { id: number }[] = await this.db.transaction(
-        async (tx) => {
-          return await tx
-            .insert(comments)
-            .values({
-              postId,
-              userId,
-              content,
-              created_at: new Date(),
-            })
-            .$returningId();
-        },
+      // 1. Create comment by post ID, user ID, conent
+      const comment: Comment = await this.commentRepo.createComment(
+        postID,
+        userID,
+        content,
       );
 
-      return await this.searchService.findOneOrThrow(
-        this.db,
-        comments,
-        eq(comments.id, comment[0].id),
-      );
+      // 2. Check create comment result
+      if (!comment) {
+        this.logger.error(CommentMessageLog.CANNOT_CREATE_COMMENT);
+        throw new InternalServerErrorException(
+          CommentErrorMessage.CANNOT_CREATE_COMMENT,
+        );
+      }
+
+      // 3. Returning comment
+      return comment;
     } catch (e) {
       this.logger.error(e);
       throw e;
     } finally {
-      this.logger.log(
-        `Comment created with User Id: ${userId} - Post Id: ${postId} - Content: ${content}`,
-      );
+      this.logger.log('Comment created', {
+        userId: userID,
+        postId: postID,
+        content,
+      });
     }
   }
 
   async removeComment(
-    commentId: number,
-    postId: number,
-    userId: number,
+    commentID: number,
+    postID: number,
+    userID: number,
   ): Promise<Comment> {
     try {
-      await this.searchService.findOneOrThrow(
-        this.db,
-        comments,
-        and(
-          eq(comments.id, commentId),
-          eq(comments.postId, postId),
-          eq(comments.userId, userId),
-        ),
-      );
-
-      const comment = await this.db.transaction(async (tx) => {
-        return await tx
-          .update(comments)
-          .set({ status: CommentStatus.REMOVED, created_at: new Date() })
-          .where(eq(comments.id, commentId));
+      // 1. Get comment by comment ID, post ID, user ID
+      const comment: Comment = await this.getCommentByFilter({
+        commentID,
+        postID,
+        userID,
       });
 
-      if (!comment) {
+      // 2. Remove comment
+      const removeComment: boolean = await this.commentRepo.removeComment(
+        comment.id,
+      );
+
+      // 3. Check romve comment result
+      if (!removeComment) {
         this.logger.error(CommentMessageLog.CANNOT_DELETE_COMMENT);
         throw new InternalServerErrorException(
           CommentErrorMessage.CANNOT_DELETE_COMMENT,
         );
       }
 
-      return this.searchService.findOneOrThrow(
-        this.db,
-        comments,
-        eq(comments.id, commentId),
-      );
+      // 4. Returning comment removed
+      return this.getCommentByFilter({ commentID: comment.id, postID, userID });
     } catch (e) {
       this.logger.error(e);
       throw e;
+    } finally {
+      this.logger.log('Comment deleted', {
+        commentID,
+        postID,
+        userID,
+      });
     }
   }
+
   async updateComment(
-    commentId: number,
+    commentID: number,
     content: string,
-    userId: number,
+    userID: number,
   ): Promise<Comment> {
     try {
-      await this.searchService.findOneOrThrow(
-        this.db,
-        comments,
-        and(eq(comments.id, commentId), eq(comments.userId, userId)),
-      );
-
-      const comment = await this.db.transaction(async (tx) => {
-        return await tx
-          .update(comments)
-          .set({ content, updated_at: new Date() })
-          .where(eq(comments.id, commentId));
+      // 1. Get comment by comment ID, user ID
+      const comment: Comment = await this.getCommentByFilter({
+        commentID,
+        userID,
       });
 
-      if (!comment) {
+      // 2. Update comment
+      const updateResult: boolean = await this.commentRepo.updateComment(
+        comment.id,
+        content,
+      );
+
+      // 3. Check update comment result
+      if (!updateResult) {
         this.logger.error(CommentMessageLog.CANNOT_UPDATE_COMMENT);
         throw new InternalServerErrorException(
           CommentErrorMessage.CANNOT_UPDATE_COMMENT,
         );
       }
 
-      return this.searchService.findOneOrThrow(
-        this.db,
-        comments,
-        eq(comments.id, commentId),
-      );
+      // 4. Returning comment updated
+      return await this.getCommentByFilter({
+        commentID: comment.id,
+        userID,
+      });
     } catch (e) {
       this.logger.error(e);
       throw e;
+    } finally {
+      this.logger.log('Comment updated', {
+        commentID,
+        content,
+        userID,
+      });
     }
   }
 
   async replyComment(
-    postId: number,
-    userId: number,
-    parentCommentId: number,
+    postID: number,
+    userID: number,
+    parentCommentID: number,
     content: string,
   ): Promise<Comment> {
     try {
-      await this.searchService.findOneOrThrow(
-        this.db,
-        comments,
-        and(eq(comments.id, parentCommentId), eq(comments.postId, postId)),
+      // 1. Check exist parent comment
+      const parentComment: Comment = await this.getCommentByFilter({
+        commentID: parentCommentID,
+        postID,
+      });
+
+      // 2. Check if parent comment post ID is equal to post ID
+      if (parentComment.post.id !== postID) {
+        this.logger.warn(CommentMessageLog.CANNOT_REPLY_COMMENT);
+        throw new BadRequestException(CommentErrorMessage.CANNOT_REPLY_COMMENT);
+      }
+
+      // 3. Reply comment
+      const replyComment: Comment = await this.commentRepo.replyComment(
+        postID,
+        userID,
+        parentCommentID,
+        content,
       );
 
-      const [comment]: { id: number }[] = await this.db.transaction(
-        async (tx) => {
-          return await tx
-            .insert(comments)
-            .values({
-              postId,
-              userId,
-              commentId: parentCommentId,
-              content,
-              created_at: new Date(),
-            })
-            .$returningId();
-        },
-      );
-
-      if (!comment) {
+      // 4. Check reply comment created result
+      if (!replyComment) {
         this.logger.error(CommentMessageLog.CANNOT_REPLY_COMMENT);
         throw new InternalServerErrorException(
           CommentErrorMessage.CANNOT_REPLY_COMMENT,
         );
       }
 
-      return this.searchService.findOneOrThrow(
-        this.db,
-        comments,
-        eq(comments.id, comment.id),
-      );
+      // 5. Returning reply comment
+      return replyComment;
     } catch (e) {
       this.logger.error(e);
       throw e;
+    } finally {
+      this.logger.log('Comment reply', {
+        postID,
+        userID,
+        parentCommentID,
+        content,
+      });
     }
   }
 
@@ -220,7 +224,7 @@ export class CommentService {
   }
 
   private async getCommentByPostId(
-    postId: number,
+    postID: number,
     limit: number,
     offset: number,
   ): Promise<GetCommentResponseDto[]> {
@@ -228,29 +232,46 @@ export class CommentService {
     const { skip, take } = this.utilityService.getPagination(offset, limit);
 
     // 2. Get all comment
-    const rows = await this.db
-      .select({
-        id: comments.id,
-        content: comments.content,
-        authorId: comments.userId,
-        authorName: users.username,
-        createdAt: comments.created_at,
-        parentId: comments.commentId,
-      })
-      .from(comments)
-      // đây 
-      .leftJoin(users, eq(users.id, comments.userId))
-      .where(
-        and(
-          eq(comments.postId, postId),
-          eq(comments.status, CommentStatus.ACTIVE),
-        ),
-      )
-      .limit(take)
-      .offset(skip)
-      .orderBy(asc(comments.created_at));
+    const comments: Comment[] = await this.commentRepo.getCommentByPostIDPaging(
+      postID,
+      skip,
+      take,
+    );
 
-    // cast and return
-    return rows as GetCommentResponseDto[];
+    // 3. Create response mapping with class transformer
+    const response: GetCommentResponseDto[] = comments.map((comment) =>
+      plainToInstance(GetCommentResponseDto, {
+        id: comment.id,
+        content: comment.content,
+        authorId: comment.user.id,
+        authorName: comment.user.username,
+        createdAt: comment.createdAt,
+        parentId: comment.parentComment?.id || null,
+      }),
+    );
+
+    // 4. Returning response
+    return response;
+  }
+
+  async getCommentByFilter(filter: {
+    commentID?: number;
+    postID?: number;
+    userID?: number;
+  }): Promise<Comment> {
+    // 1. Get comment
+    const comment: Comment | null =
+      await this.commentRepo.getCommentByFilter(filter);
+
+    // 2. Check comment is exist
+    if (!comment) {
+      this.logger.error(CommentMessageLog.COMMENT_NOT_FOUND);
+      throw new InternalServerErrorException(
+        CommentErrorMessage.COMMENT_NOT_FOUND,
+      );
+    }
+
+    // 3. Returning comment
+    return comment;
   }
 }

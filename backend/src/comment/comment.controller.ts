@@ -1,19 +1,18 @@
-import { CommentService } from '@core-modules/forum/comment/comment.service';
-import { HasRole } from '@decorator/roles.decorator';
-import { GetUser } from '@decorator/user.decorator';
-import { CreateCommentRequestDto } from '@dtos/comment/create-comment-request.dto';
-import { GetAllCommentRequest } from '@dtos/comment/get-all-comment-request.dto';
-import { RemoveCommentRequestDto } from '@dtos/comment/remove-comment-request.dto';
-import { ReplyCommentRequestDto } from '@dtos/comment/reply-comment-request.dto';
-import { UpdateCommentRequestDto } from '@dtos/comment/update-comment-request.dto';
-import { ApiResponse } from '@dtos/response/ApiResponse/ApiResponse';
-import { GetCommentResponseDto } from '@dtos/comment/get-all-comment-response.dto';
-import { Role } from '@enum/role.enum';
-import { CatchEverythingFilter } from '@filter/exception.filter';
-import { JwtAuthGuard } from '@guard/jwt-auth.guard';
-import { RolesGuard } from '@guard/roles.guard';
-import { JwtPayload } from '@interfaces';
-import { CommentNotifyMessage } from '@message/comment-message';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { CommentService } from '@comment/comment.service';
+import { CreateCommentRequestDto } from '@comment/dto/create-comment-request.dto';
+import { GetAllCommentRequest } from '@comment/dto/get-all-comment-request.dto';
+import { GetCommentResponseDto } from '@comment/dto/get-all-comment-response.dto';
+import { RemoveCommentRequestDto } from '@comment/dto/remove-comment-request.dto';
+import { ReplyCommentRequestDto } from '@comment/dto/reply-comment-request.dto';
+import { UpdateCommentRequestDto } from '@comment/dto/update-comment-request.dto';
+import { CommentNotifyMessage } from '@comment/messages/comment.notify-messages';
+import { HasRole } from '@decorators/roles.decorator';
+import { GetUser } from '@decorators/user.decorator';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { JwtAuthGuard } from '@guards/jwt-auth.guard';
+import { RolesGuard } from '@guards/roles.guard';
 import {
   Body,
   Controller,
@@ -35,11 +34,12 @@ import {
   ApiTags,
   ApiBody,
 } from '@nestjs/swagger';
+import { RoleName } from '@role/enums/role.enum';
 
 @Controller('comment')
 @ApiBearerAuth('jwt')
 @ApiTags('Comment')
-@HasRole(Role.USER, Role.ADMIN) // Allow USER and ADMIN roles for all endpoints
+@HasRole(RoleName.USER, RoleName.ADMIN) // Allow USER and ADMIN roles for all endpoints
 @UseFilters(CatchEverythingFilter)
 export class CommentController {
   private readonly logger = new Logger(CommentController.name);
@@ -140,7 +140,7 @@ export class CommentController {
   }
 
   @Delete('remove')
-  @HasRole(Role.ADMIN) // Restrict to ADMIN only for deleting comments
+  @HasRole(RoleName.ADMIN) // Restrict to ADMIN only for deleting comments
   @ApiOperation({ summary: 'Xoá (ẩn) bình luận' })
   @SwaggerApiResponse({
     status: 200,
