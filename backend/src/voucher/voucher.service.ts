@@ -1,18 +1,17 @@
-import { PaginationResponse, UtilityService } from '@common';
+import { PaginationResponse } from '@pagination/pagination-response';
+import { UtilityService } from '@services/utility.service';
+import { CreateVoucherRequestDto } from './dto/create-voucher-request.dto';
+import { UpdateVoucherRequestDto } from './dto/update-voucher-request.dto';
+import { Voucher } from './entities/vouchers.entity';
+import { VoucherErrorMessage } from './messages/voucher.error-messages';
+import { VoucherMessageLog } from './messages/voucher.messages-log';
+import { VoucherRepository } from './repositories/voucher.repository';
 import {
-  ConflictException,
   Injectable,
-  InternalServerErrorException,
   Logger,
+  ConflictException,
+  InternalServerErrorException,
 } from '@nestjs/common';
-import {
-  CreateVoucherRequestDto,
-  UpdateVoucherRequestDto,
-  Voucher,
-  VoucherErrorMessage,
-  VoucherMessageLog,
-  VoucherRepository,
-} from '@voucher';
 
 @Injectable()
 export class VoucherService {

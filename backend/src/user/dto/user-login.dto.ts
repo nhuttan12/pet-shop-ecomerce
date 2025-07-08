@@ -1,7 +1,7 @@
-import { NotUrlValidator } from '@common';
+import { AuthErrorMessages } from '@auth/messages/auth.error-messages';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
-import { IsString, MinLength, NotContains, Validate } from 'class-validator';
+import { IsString, MinLength, Validate, NotContains } from 'class-validator';
 
 export class UserLoginDTO {
   @IsString({ message: AuthErrorMessages.USERNAME_IS_NOT_EMPTY })
@@ -20,15 +20,4 @@ export class UserLoginDTO {
   @Validate(NotUrlValidator)
   @ApiProperty()
   password: string;
-}
-
-export class UserLoginResponseDTO {
-  access_token: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-    status: string;
-  };
 }

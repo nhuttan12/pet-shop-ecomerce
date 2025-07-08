@@ -1,18 +1,16 @@
-import { Brand } from '@brand';
-import { ErrorMessage } from '@common';
+import { Brand } from '@brand/entities/brands.entity';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import {
-  Product,
-  ProductErrorMessage,
-  ProductFilterParams,
-  ProductMessageLog,
-  ProductStatus,
-} from '@product';
-import { DataSource, Repository, UpdateResult } from 'typeorm';
+import { ProductFilterParams } from '@product/dto/filter-product-request.dto';
+import { Product } from '@product/entites/products.entity';
+import { ProductStatus } from '@product/enums/product-status.enum';
+import { ProductErrorMessage } from '@product/messages/product.error-messages';
+import { ProductMessageLog } from '@product/messages/product.messages-log';
+import { DataSource, EntityManager, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class ProductRepository {
@@ -35,21 +33,23 @@ export class ProductRepository {
     discount: number,
   ): Promise<Product> {
     try {
-      return await this.dataSource.transaction(async (manager) => {
-        const product: Product = manager.create(Product, {
-          name,
-          description,
-          price,
-          brand,
-          status: ProductStatus.ACTIVE,
-          stocking: quantity,
-          discount,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+      return await this.dataSource.transaction(
+        async (manager: EntityManager) => {
+          const product: Product = manager.create(Product, {
+            name,
+            description,
+            price,
+            brand,
+            status: ProductStatus.ACTIVE,
+            stocking: quantity,
+            discount,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
 
-        return await manager.save(product);
-      });
+          return await manager.save(product);
+        },
+      );
     } catch (error) {
       this.logger.error(error);
       throw error;

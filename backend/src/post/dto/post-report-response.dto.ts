@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PostReportStatus } from '@post';
+import { PostReportStatus } from '@post/enums/post-report-status.enum';
 import { Expose } from 'class-transformer';
 
 export class PostReportResponseDto {

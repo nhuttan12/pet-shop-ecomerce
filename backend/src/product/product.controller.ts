@@ -1,13 +1,10 @@
-import { JwtPayload } from '@auth';
-import {
-  ApiResponse,
-  CatchEverythingFilter,
-  GetUser,
-  HasRole,
-  JwtAuthGuard,
-  NotifyMessage,
-  RolesGuard,
-} from '@common';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { HasRole } from '@decorators/roles.decorator';
+import { GetUser } from '@decorators/user.decorator';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { JwtAuthGuard } from '@guards/jwt-auth.guard';
+import { RolesGuard } from '@guards/roles.guard';
+import { NotifyMessage } from '@messages/notify.messages';
 import {
   Body,
   Controller,
@@ -26,28 +23,27 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
+  ApiResponse as ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  CreateProductRequest,
-  DeleteProductByProductIdRequestDto,
-  GetAllProductResponseDto,
-  GetAllProductsRequest,
-  GetProductByNameRequest,
-  GetProductDetailRequestDto,
-  GetProductDetailResponseDto,
-  Product,
-  ProductFilterParams,
-  ProductRatingService,
-  ProductService,
-  ToggleRatingProductRequestDTO,
-  UpdateProductInforRequestDTO,
-} from '@product';
-import { RoleName } from '@role';
+import { ApiResponse } from '@paypal/paypal-server-sdk';
+import { CreateProductRequest } from '@product/dto/create-product-request.dto';
+import { DeleteProductByProductIdRequestDto } from '@product/dto/delete-product-by-product-id-request.dto';
+import { ProductFilterParams } from '@product/dto/filter-product-request.dto';
+import { GetAllProductsRequest } from '@product/dto/get-all-product-request.dto';
+import { GetAllProductResponseDto } from '@product/dto/get-all-product-response.dto';
+import { GetProductByNameRequest } from '@product/dto/get-product-by-name-request.dto';
+import { GetProductDetailRequestDto } from '@product/dto/get-product-detail-request.dto';
+import { GetProductDetailResponseDto } from '@product/dto/get-product-detail-response.dto';
+import { ToggleRatingProductRequestDTO } from '@product/dto/toggle-rating-product-request.dto';
+import { UpdateProductInforRequestDTO } from '@product/dto/update-product-infor-request.dto';
+import { Product } from '@product/entites/products.entity';
+import { ProductRatingService } from '@product/product-rating.service';
+import { ProductService } from '@product/product.service';
+import { RoleName } from '@role/enums/role.enum';
 
 @ApiTags('Product')
 @Controller('product')

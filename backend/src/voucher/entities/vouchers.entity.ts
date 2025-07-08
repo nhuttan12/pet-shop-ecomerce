@@ -1,14 +1,14 @@
-import { Order } from '@order';
-import { VoucherMapping } from '@voucher';
+import { Order } from '@order/entites/orders.entity';
+import { VoucherStatus } from '@voucher/enums/vouchers-status.enum';
+import { VoucherMapping } from './voucher-mapping.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
-import { VoucherStatus } from 'voucher/enums';
 
 @Entity('vouchers')
 export class Voucher {

@@ -1,7 +1,8 @@
-import { IsPasswordMatch, NotUrlValidator } from '@common';
+import { AuthErrorMessages } from '@auth/messages/auth.error-messages';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
+import { IsPasswordMatch } from '@class-validator/password-match.validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
-import { IsNotEmpty, IsString, MinLength, Validate } from 'class-validator';
+import { IsString, IsNotEmpty, Validate, MinLength } from 'class-validator';
 
 export class UserResetPasswordDTO {
   @IsString()

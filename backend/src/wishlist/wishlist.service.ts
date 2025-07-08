@@ -4,13 +4,11 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  Wishlist,
-  WishlistErrorMessage,
-  WishListMappingService,
-  WishlistMessageLog,
-  WishlistRepository,
-} from '@wishlist';
+import { Wishlist } from '@wishlist/entities/wishlists.entity';
+import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
+import { WishlistMessageLog } from '@wishlist/messages/wishlist.message-logs';
+import { WishlistRepository } from '@wishlist/repositories/wishlist.repository';
+import { WishListMappingService } from '@wishlist/wishlist-mapping.service';
 
 @Injectable()
 export class WishlistService {

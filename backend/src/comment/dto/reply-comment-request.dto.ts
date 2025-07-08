@@ -1,6 +1,6 @@
-import { CommentErrorMessage } from '@message/comment-message';
+import { CommentErrorMessage } from '@comment/messages/comment.error-messages';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
+import { IsInt, Min, IsString, IsNotEmpty } from 'class-validator';
 
 export class ReplyCommentRequestDto {
   @ApiProperty({

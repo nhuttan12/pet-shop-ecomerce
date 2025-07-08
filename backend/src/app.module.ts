@@ -1,29 +1,26 @@
-import { AuthModule } from '@auth';
-import { BrandModule } from '@brand';
-import { CartModule } from '@cart';
-import { CategoryModule } from '@category';
-import { CommentModule } from '@comment';
-import {
-  AppConfigModule,
-  CatchEverythingFilter,
-  ImageModule,
-  MailModule,
-  PaypalController,
-  PaypalModule,
-} from '@common';
-import { ContactModule } from '@contact';
+import { AuthModule } from '@auth/auth.module';
+import { BrandModule } from '@brand/brand.module';
+import { CartModule } from '@cart/cart.module';
+import { CategoryModule } from '@category/category.module';
+import { CommentModule } from '@comment/comment.module';
+import { AppConfigModule } from '@config/app-config.module';
+import { ContactModule } from '@contact/contact.module';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { ImageModule } from '@images/image.module';
+import { MailModule } from '@mail/mail.module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrderModule } from '@order';
-import { PostModule } from '@post';
-import { ProductModule } from '@product';
-import { ProductRatingModule } from '@product-rating';
-import { RoleModule } from '@role';
-import { UsersModule } from '@user';
-import { VoucherModule } from '@voucher';
-import { WishlistModule } from '@wishlist';
+import { OrderModule } from '@order/order.module';
+import { PaypalController } from '@paypal/paypal.controller';
+import { PaypalModule } from '@paypal/paypal.module';
+import { PostModule } from '@post/post.module';
+import { ProductModule } from '@product/product.module';
+import { RoleModule } from '@role/role.module';
+import { UsersModule } from '@user/user.module';
+import { VoucherModule } from '@voucher/voucher.module';
+import { WishlistModule } from '@wishlist/wishlist.module';
 import configuration from 'common/config/configuration';
 import { typeOrmConfig } from 'common/database/typeorm.config';
 
@@ -50,7 +47,6 @@ import { typeOrmConfig } from 'common/database/typeorm.config';
     PostModule,
     ContactModule,
     WishlistModule,
-    ProductRatingModule,
     PaypalModule,
   ],
   providers: [
@@ -59,9 +55,9 @@ import { typeOrmConfig } from 'common/database/typeorm.config';
       useValue: new ValidationPipe({
         transform: true,
         transformOptions: { enableImplicitConversion: true },
-        enableDebugMessages: true,
-        whitelist: true,
-        forbidNonWhitelisted: true,
+        // enableDebugMessages: true,
+        // whitelist: true,
+        // forbidNonWhitelisted: true,
       }),
     },
     {

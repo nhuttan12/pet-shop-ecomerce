@@ -1,8 +1,8 @@
-import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
+import { AuthErrorMessages } from '@auth/messages/auth.error-messages';
 import {
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
+  ValidationArguments,
 } from 'class-validator';
 
 @ValidatorConstraint({ async: true })

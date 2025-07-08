@@ -1,4 +1,5 @@
-import { AppConfigModule, Image, ImageService } from '@common';
+import { AppConfigModule } from '@config/app-config.module';
+import { ImageService } from '@images/image.service';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 

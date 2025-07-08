@@ -1,5 +1,6 @@
-import { ImageStatus, ImageType } from '@common';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { ImageStatus } from '@images/enums/image-status.enum';
+import { ImageType } from '@images/enums/image-type.enum';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('images')
 export class Image {

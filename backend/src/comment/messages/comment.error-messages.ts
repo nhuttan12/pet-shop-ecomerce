@@ -12,4 +12,6 @@ export enum CommentErrorMessage {
   PARENT_COMMENT_ID_MUST_BE_POSITIVE = 'ID bình luận cha phải lớn hơn 0',
   COMMENT_ID_MUST_BE_INTEGER = 'ID bình luận phải là số nguyên',
   COMMENT_ID_MUST_BE_POSITIVE = 'ID bình luận phải lớn hơn 0',
+  CANNOT_CREATE_COMMENT = 'Không thể bình luận',
+  COMMENT_NOT_FOUND = 'Không tìm thấy bình luận',
 }

@@ -1,4 +1,4 @@
-import { ContactStatus } from '@contact';
+import { ContactStatus } from '@contact/enums/contact-status.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ContactResponseDto {

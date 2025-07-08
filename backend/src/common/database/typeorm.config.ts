@@ -1,5 +1,6 @@
+import { AppConfigService } from '@config/app-config.service';
 import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
-import { AppConfigService } from 'common/config';
+
 type Dialect =
   | 'mysql'
   | 'mariadb'

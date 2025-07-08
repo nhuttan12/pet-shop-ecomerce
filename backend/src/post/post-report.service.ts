@@ -1,21 +1,19 @@
-import { UtilityService } from '@common';
 import {
   BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  PostErrorMessage,
-  PostMessageLog,
-  PostReport,
-  PostReportRepository,
-  PostReportResponseDto,
-  PostRepository,
-  PostResponse,
-  PostService,
-} from '@post';
-import { UserService } from '@user';
+import { PostReportResponseDto } from '@post/dto/post-report-response.dto';
+import { PostResponse } from '@post/dto/post-response.dto';
+import { PostReport } from '@post/entities/post-report.entity';
+import { PostErrorMessage } from '@post/messages/post.error-messages';
+import { PostMessageLog } from '@post/messages/post.messages-log';
+import { PostService } from '@post/post.service';
+import { PostReportRepository } from '@post/repositories/post-report.repository';
+import { PostRepository } from '@post/repositories/post.repository';
+import { UtilityService } from '@services/utility.service';
+import { UserService } from '@user/user.service';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()

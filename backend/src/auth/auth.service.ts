@@ -1,5 +1,9 @@
-import { AuthMessageLog, JwtPayload } from '@auth';
-import { AppConfigService, ErrorMessage, MailService } from '@common';
+import { UserLoginResponseDTO } from '@auth/dto/user-login-response.dto';
+import { UserRegisterResponseDTO } from '@auth/dto/user-register-response.dto';
+import { AuthMessageLog } from '@auth/messages/auth.messages-log';
+import { AppConfigService } from '@config/app-config.service';
+import { MailService } from '@mail/mail.service';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   BadRequestException,
   Injectable,
@@ -7,22 +11,21 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Role, RoleName, RoleService } from '@role';
-import {
-  User,
-  UserErrorMessage,
-  UserForgotPasswordDTO,
-  UserLoginResponseDTO,
-  UserMessageLog,
-  UserRegisterDTO,
-  UserRegisterResponseDTO,
-  UserResetPasswordDTO,
-  UserService,
-  UserStatus,
-} from '@user';
+import { Role } from '@role/entities/roles.entity';
+import { RoleName } from '@role/enums/role.enum';
+import { RoleService } from '@role/role.service';
+import { UserForgotPasswordDTO } from '@user/dto/user-forgot-password.dto';
+import { UserRegisterDTO } from '@user/dto/user-register.dto';
+import { UserResetPasswordDTO } from '@user/dto/user-reset-password.dto';
+import { User } from '@user/entites/users.entity';
+import { UserStatus } from '@user/enums/user-status.enum';
+import { UserErrorMessage } from '@user/messages/user.error-messages';
+import { UserMessageLog } from '@user/messages/user.messages-log';
+import { UserService } from '@user/user.service';
 import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
 import { AuthNotifyMessages } from 'auth/messages/auth.notify-messages';
 import bcrypt from 'bcrypt';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {

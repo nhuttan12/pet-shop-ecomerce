@@ -1,14 +1,12 @@
-import {
-  ErrorMessage,
-  Image,
-  ImageErrorMessage,
-  ImageMessageLog,
-  ImageStatus,
-  ImageType,
-  MessageLog,
-  SavedImageDTO,
-  SubjectType,
-} from '@common';
+import { SavedImageDTO } from '@images/dto/saved-image.dto';
+import { Image } from '@images/entites/images.entity';
+import { ImageStatus } from '@images/enums/image-status.enum';
+import { ImageType } from '@images/enums/image-type.enum';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { ImageErrorMessage } from '@images/messages/image.error-messages';
+import { ImageMessageLog } from '@images/messages/image.messages-log';
+import { ErrorMessage } from '@messages/error.messages';
+import { MessageLog } from '@messages/log.messages';
 import {
   Injectable,
   InternalServerErrorException,

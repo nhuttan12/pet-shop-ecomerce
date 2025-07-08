@@ -1,31 +1,27 @@
-import {
-  Cart,
-  CartDetail,
-  CartDetailService,
-  CartErrorMessage,
-  CartMessageLog,
-  CartService,
-  CartStatus,
-} from '@cart';
-import { UtilityService } from '@common';
+import { CartDetailService } from '@cart/cart-detail.service';
+import { CartService } from '@cart/cart.service';
+import { CartDetail } from '@cart/entities/cart-details.entity';
+import { Cart } from '@cart/entities/carts.entity';
+import { CartStatus } from '@cart/enums/cart-status.enum';
+import { CartErrorMessage } from '@cart/messages/cart.error-messages';
+import { CartMessageLog } from '@cart/messages/cart.message-logs';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  GetAllOrdersResponseDto,
-  Order,
-  OrderDetail,
-  OrderDetailService,
-  OrderErrorMessage,
-  OrderMessageLog,
-  OrderRepository,
-  OrderStatus,
-  PaymentMethod,
-  ShippingMethod,
-} from '@order';
+import { GetAllOrdersResponseDto } from '@order/dto/get-all-order-response.dto';
+import { OrderDetail } from '@order/entites/order-details.entity';
+import { Order } from '@order/entites/orders.entity';
+import { OrderStatus } from '@order/enums/order-status.enum';
+import { PaymentMethod } from '@order/enums/payment-method.enum';
+import { ShippingMethod } from '@order/enums/shipping_method.enum';
+import { OrderErrorMessage } from '@order/messages/order.error-messages';
+import { OrderMessageLog } from '@order/messages/order.message-logs';
+import { OrderDetailService } from '@order/order-detail.service';
+import { OrderRepository } from '@order/repositories/order.repository';
+import { UtilityService } from '@services/utility.service';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()
@@ -159,7 +155,6 @@ export class OrderService {
     // 6. Create new order
     const orderCreated: Order = await this.orderRepo.createOrder(
       userID,
-      cart.id,
       totalPrice,
       paymentMethod,
       shippingMethod,

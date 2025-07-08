@@ -1,16 +1,14 @@
-import { ErrorMessage } from '@common';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import {
-  CreatePostRequestDto,
-  EditPostRequestDto,
-  Post,
-  PostMessageLog,
-  PostStatus,
-} from '@post';
+import { CreatePostRequestDto } from '@post/dto/create-post-request.dto';
+import { EditPostRequestDto } from '@post/dto/edit-post-request.dto';
+import { Post } from '@post/entities/posts.entity';
+import { PostStatus } from '@post/enums/posts-status.enum';
+import { PostMessageLog } from '@post/messages/post.messages-log';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()

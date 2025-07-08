@@ -1,13 +1,14 @@
-import { Post, PostEditRequestStatus } from '@post';
-import { User } from '@user';
+import { PostEditRequestStatus } from '@post/enums/post-edit-request-status.enum';
+import { User } from '@user/entites/users.entity';
+import { Post } from './posts.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
-  Column,
   ManyToOne,
+  JoinColumn,
+  Column,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinColumn,
 } from 'typeorm';
 
 @Entity('post_edit_request')

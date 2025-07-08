@@ -1,5 +1,7 @@
-import { Image } from '@common';
-import { User, UserDetail, UserStatus } from '@user';
+import { Image } from '@images/entites/images.entity';
+import { UserDetail } from '@user/entites/user-details.entity';
+import { User } from '@user/entites/users.entity';
+import { UserStatus } from '@user/enums/user-status.enum';
 import { Expose, Transform } from 'class-transformer';
 
 export class GetAllUsersResponseDTO {
@@ -38,7 +40,7 @@ export class GetAllUsersResponseDTO {
   @Expose()
   @Transform(({ obj }) => {
     const userDetail = obj as UserDetail;
-    return userDetail.adresss ?? '';
+    return userDetail.adress ?? '';
   })
   adresss: string;
 

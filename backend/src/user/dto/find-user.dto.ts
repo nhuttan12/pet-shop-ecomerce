@@ -1,6 +1,7 @@
-import { IsInt, IsString, Validate } from 'class-validator';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty } from '@nestjs/swagger';
-import { ErrorMessage, NotUrlValidator } from '@common';
+import { IsInt, IsString, Validate } from 'class-validator';
 
 export class FindUserById {
   @IsInt({ message: ErrorMessage.USER_ID_MUST_BE_INTEGER })

@@ -1,8 +1,6 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'role/entities';
-import { RoleErrorMessages, RoleMessageLog } from 'role/messages';
-import { DataSource, Repository } from 'typeorm';
+import { Role } from "@role/entities/roles.entity";
+import { RoleErrorMessages } from "@role/messages/role.error-messages";
+import { RoleMessageLog } from "@role/messages/role.mesages-log";
 
 @Injectable()
 export class RoleRepository {
@@ -36,3 +34,5 @@ export class RoleRepository {
     return role;
   }
 }
+
+

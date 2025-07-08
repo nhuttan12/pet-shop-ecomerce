@@ -1,4 +1,4 @@
-import { ErrorMessage } from '@message/error-message';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Min } from 'class-validator';

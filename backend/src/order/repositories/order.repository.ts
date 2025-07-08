@@ -3,14 +3,12 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import {
-  Order,
-  OrderErrorMessage,
-  OrderMessageLog,
-  OrderStatus,
-  PaymentMethod,
-  ShippingMethod,
-} from '@order';
+import { Order } from '@order/entites/orders.entity';
+import { OrderStatus } from '@order/enums/order-status.enum';
+import { PaymentMethod } from '@order/enums/payment-method.enum';
+import { ShippingMethod } from '@order/enums/shipping_method.enum';
+import { OrderErrorMessage } from '@order/messages/order.error-messages';
+import { OrderMessageLog } from '@order/messages/order.message-logs';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
@@ -24,22 +22,18 @@ export class OrderRepository {
 
   async createOrder(
     userID: number,
-    cartID: number,
     totalPrice: number,
     paymentMethod: PaymentMethod,
     shippingMethod: ShippingMethod,
     address: string,
     city: string,
     country: string,
-  ) {
+  ): Promise<Order> {
     try {
       return await this.dataSource.transaction(async (manager) => {
-        const order: Order = manager.create(Order, {
+        const order = manager.create(Order, {
           user: {
             id: userID,
-          },
-          cart: {
-            id: cartID,
           },
           totalPrice,
           paymentMethod,

@@ -1,10 +1,8 @@
-import {
-  CartDetail,
-  CartDetailStatus,
-  CartErrorMessage,
-  CartMessageLog,
-  CreateCartDetailDto,
-} from '@cart';
+import { CreateCartDetailDto } from '@cart/dto/cart-detail/create-cart-detail.dto';
+import { CartDetail } from '@cart/entities/cart-details.entity';
+import { CartDetailStatus } from '@cart/enums/cart-detail-status.enum';
+import { CartErrorMessage } from '@cart/messages/cart.error-messages';
+import { CartMessageLog } from '@cart/messages/cart.message-logs';
 import {
   Injectable,
   InternalServerErrorException,

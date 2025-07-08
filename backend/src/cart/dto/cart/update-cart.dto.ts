@@ -1,6 +1,6 @@
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, Min } from 'class-validator';
-import { ErrorMessage } from '@message/error-message';
 
 export class CartUpdateDTO {
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })

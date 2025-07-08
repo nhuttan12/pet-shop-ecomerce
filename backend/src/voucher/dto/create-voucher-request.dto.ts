@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { VoucherErrorMessage, VoucherStatus } from '@voucher';
+import { VoucherStatus } from '@voucher/enums/vouchers-status.enum';
+import { VoucherErrorMessage } from '@voucher/messages/voucher.error-messages';
 import {
-  IsDate,
+  IsString,
+  IsNotEmpty,
   IsEnum,
   IsInt,
-  IsNotEmpty,
-  IsString,
   Min,
+  IsDate,
 } from 'class-validator';
 
 export class CreateVoucherRequestDto {

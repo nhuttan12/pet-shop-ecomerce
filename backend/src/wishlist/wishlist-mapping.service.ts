@@ -1,19 +1,17 @@
-import { UtilityService } from '@common';
 import {
   ConflictException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  GetAllWishListMappingDTO,
-  Wishlist,
-  WishlistErrorMessage,
-  WishlistMapping,
-  WishlistMappingRepository,
-  WishlistMessageLog,
-  WishlistService,
-} from '@wishlist';
+import { UtilityService } from '@services/utility.service';
+import { GetAllWishListMappingDTO } from '@wishlist/dto/get-all-wishlist-mapping-request.dto';
+import { WishlistMapping } from '@wishlist/entities/wishlist-mapping.entity';
+import { Wishlist } from '@wishlist/entities/wishlists.entity';
+import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
+import { WishlistMessageLog } from '@wishlist/messages/wishlist.message-logs';
+import { WishlistMappingRepository } from '@wishlist/repositories/wishlist-mapping.repository';
+import { WishlistService } from '@wishlist/wishlist.service';
 
 @Injectable()
 export class WishListMappingService {

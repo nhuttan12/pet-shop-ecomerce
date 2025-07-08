@@ -1,11 +1,7 @@
-import {
-  buildPaginationMeta,
-  ErrorMessage,
-  Image,
-  ImageService,
-  PaginationResponse,
-  SubjectType,
-} from '@common';
+import { Image } from '@images/entites/images.entity';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { ImageService } from '@images/image.service';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   BadRequestException,
   Injectable,
@@ -14,16 +10,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  CreateUserDto,
-  GetAllUsersResponseDTO,
-  User,
-  UserDetail,
-  UserErrorMessage,
-  UserMessageLog,
-  UserStatus,
-  UserUpdateDTO,
-} from '@user';
+import { buildPaginationMeta } from '@pagination/build-pagination-meta';
+import { PaginationResponse } from '@pagination/pagination-response';
+import { CreateUserDto } from '@user/dto/create-user.dto';
+import { GetAllUsersResponseDTO } from '@user/dto/get-all-user-response.dto';
+import { UserUpdateDTO } from '@user/dto/update-user.dto';
+import { UserDetail } from '@user/entites/user-details.entity';
+import { User } from '@user/entites/users.entity';
+import { UserStatus } from '@user/enums/user-status.enum';
+import { UserErrorMessage } from '@user/messages/user.error-messages';
+import { UserMessageLog } from '@user/messages/user.messages-log';
 import { plainToInstance } from 'class-transformer';
 import { DataSource, In, Repository } from 'typeorm';
 
@@ -212,7 +208,7 @@ export class UserRepository {
 
       await manager.update(UserDetail, userUpdateDTO.id, {
         phone: userUpdateDTO.phone,
-        adresss: userUpdateDTO.address,
+        adress: userUpdateDTO.address,
       });
 
       await this.imageService.updateImageForSubsject(

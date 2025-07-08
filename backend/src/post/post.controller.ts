@@ -1,12 +1,10 @@
-import { JwtPayload } from '@auth';
-import {
-  ApiResponse,
-  CatchEverythingFilter,
-  GetUser,
-  HasRole,
-  JwtAuthGuard,
-  RolesGuard,
-} from '@common';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { HasRole } from '@decorators/roles.decorator';
+import { GetUser } from '@decorators/user.decorator';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { JwtAuthGuard } from '@guards/jwt-auth.guard';
+import { RolesGuard } from '@guards/roles.guard';
 import {
   Body,
   Controller,
@@ -31,22 +29,20 @@ import {
   ApiTags,
   ApiResponse as SwaggerApiResponse,
 } from '@nestjs/swagger';
-import {
-  CreatePostRequestDto,
-  DeletePostRequestDto,
-  EditPostRequestDto,
-  GetAllPostReportsRequestDto,
-  GetAllPostsRequestDto,
-  PostEditRequestService,
-  PostNotifyMessage,
-  PostReportResponseDto,
-  PostReportService,
-  PostResponse,
-  PostService,
-  ReportPostDto,
-  SendRequestChangingPostDto,
-} from '@post';
-import { RoleName } from '@role';
+import { CreatePostRequestDto } from '@post/dto/create-post-request.dto';
+import { DeletePostRequestDto } from '@post/dto/delete-post-request.dto';
+import { EditPostRequestDto } from '@post/dto/edit-post-request.dto';
+import { GetAllPostReportsRequestDto } from '@post/dto/get-all-post-report-request.dto';
+import { GetAllPostsRequestDto } from '@post/dto/get-all-posts-request.dto';
+import { PostReportResponseDto } from '@post/dto/post-report-response.dto';
+import { PostResponse } from '@post/dto/post-response.dto';
+import { ReportPostDto } from '@post/dto/report-post-request.dto';
+import { SendRequestChangingPostDto } from '@post/dto/send-request-edit.post.dto';
+import { PostNotifyMessage } from '@post/messages/post.notify-message';
+import { PostEditRequestService } from '@post/post-edit-request.service';
+import { PostReportService } from '@post/post-report.service';
+import { PostService } from '@post/post.service';
+import { RoleName } from '@role/enums/role.enum';
 
 @Controller('/post')
 @ApiTags('Post')
@@ -145,9 +141,9 @@ export class PostController {
     description: PostNotifyMessage.DELETE_POST_SUCCESSFUL,
   })
   async removePost(
-    @Body() { postId }: DeletePostRequestDto,
+    @Body() { postID }: DeletePostRequestDto,
   ): Promise<ApiResponse<PostResponse>> {
-    const post = await this.postService.removePost(postId);
+    const post = await this.postService.removePost(postID);
     this.logger.debug(`Post: ${JSON.stringify(post)}`);
 
     return {

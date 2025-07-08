@@ -1,13 +1,11 @@
-import { JwtPayload } from '@auth';
-import {
-  ApiResponse,
-  CatchEverythingFilter,
-  GetUser,
-  HasRole,
-  JwtAuthGuard,
-  NotifyMessage,
-  RolesGuard,
-} from '@common';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { HasRole } from '@decorators/roles.decorator';
+import { GetUser } from '@decorators/user.decorator';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { JwtAuthGuard } from '@guards/jwt-auth.guard';
+import { RolesGuard } from '@guards/roles.guard';
+import { NotifyMessage } from '@messages/notify.messages';
 import {
   Body,
   Controller,
@@ -25,24 +23,22 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
+  ApiResponse as ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  CancelOrderRequestDto,
-  CreateOrderRequestDto,
-  GetAllOrderRequestDto,
-  GetAllOrdersResponseDto,
-  GetOrderDetailsByOrderIdRequestDto,
-  GetOrderDetailsByOrderIdResponseDto,
-  Order,
-  OrderDetailService,
-  OrderService,
-} from '@order';
-import { RoleName } from '@role';
+import { CancelOrderRequestDto } from '@order/dto/cancel-order-request.dto';
+import { CreateOrderRequestDto } from '@order/dto/create-order-request.dto';
+import { GetAllOrderRequestDto } from '@order/dto/get-all-order-request.dto';
+import { GetAllOrdersResponseDto } from '@order/dto/get-all-order-response.dto';
+import { GetOrderDetailsByOrderIdRequestDto } from '@order/dto/get-order-details-by-order-id-request.dto';
+import { GetOrderDetailsByOrderIdResponseDto } from '@order/dto/get-order-details-by-order-id-response.dto';
+import { OrderDetailService } from '@order/order-detail.service';
+import { OrderService } from '@order/order.service';
+import { RoleName } from '@role/enums/role.enum';
+import { Order } from '@order/entites/orders.entity';
 
 @Controller('orders')
 @ApiTags('Order')

@@ -1,21 +1,23 @@
-import {
-  Cart,
-  CartDetail,
-  CartDetailResponse,
-  CartDetailService,
-  CartErrorMessage,
-  CartMessageLog,
-  CartRepository,
-  CartStatus,
-  GetAllCartsDTO,
-} from '@cart';
-import { Image, ImageService, SubjectType, UtilityService } from '@common';
+import { CartDetailService } from '@cart/cart-detail.service';
+import { CartDetailResponse } from '@cart/dto/cart-detail/cart-detail-response.dto';
+import { GetAllCartsDTO } from '@cart/dto/cart/get-all-cart.dto';
+import { CartDetail } from '@cart/entities/cart-details.entity';
+import { Cart } from '@cart/entities/carts.entity';
+import { CartStatus } from '@cart/enums/cart-status.enum';
+import { CartErrorMessage } from '@cart/messages/cart.error-messages';
+import { CartMessageLog } from '@cart/messages/cart.message-logs';
+import { CartRepository } from '@cart/repositories/cart.repository';
+import { Image } from '@images/entites/images.entity';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { ImageService } from '@images/image.service';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { Product, ProductService } from '@product';
+import { Product } from '@product/entites/products.entity';
+import { ProductService } from '@product/product.service';
+import { UtilityService } from '@services/utility.service';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()

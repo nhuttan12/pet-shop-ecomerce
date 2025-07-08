@@ -1,8 +1,10 @@
-import { AuthService, JwtPayload } from '@auth';
+import { AuthService } from '@auth/auth.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Strategy, ExtractJwt } from 'passport-jwt';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(JwtStrategy.name);

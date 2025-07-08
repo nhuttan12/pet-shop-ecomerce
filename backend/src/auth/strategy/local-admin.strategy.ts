@@ -1,7 +1,8 @@
-import { AuthService } from '@auth';
+import { AuthService } from '@auth/auth.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { User, UserLoginDTO } from '@user';
+import { UserLoginDTO } from '@user/dto/user-login.dto';
+import { User } from '@user/entites/users.entity';
 import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';

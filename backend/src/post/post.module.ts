@@ -1,16 +1,13 @@
-import { UtilityModule } from '@common';
-import { Module } from '@nestjs/common';
+import { Module, Post } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  Post,
-  PostController,
-  PostEditRequest,
-  PostEditRequestService,
-  PostReport,
-  PostReportService,
-  PostService,
-} from '@post';
-import { UsersModule } from '@user';
+import { PostEditRequest } from '@post/entities/post-edit-request.entity';
+import { PostReport } from '@post/entities/post-report.entity';
+import { PostEditRequestService } from '@post/post-edit-request.service';
+import { PostReportService } from '@post/post-report.service';
+import { PostController } from '@post/post.controller';
+import { PostService } from '@post/post.service';
+import { UtilityModule } from '@services/utility.module';
+import { UsersModule } from '@user/user.module';
 
 @Module({
   imports: [

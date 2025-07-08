@@ -1,11 +1,12 @@
-import { Product } from '@product';
-import { Wishlist, WishlistStatus } from '@wishlist';
+import { Product } from '@product/entites/products.entity';
+import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
+import { Wishlist } from './wishlists.entity';
 import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
   Column,
   CreateDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 

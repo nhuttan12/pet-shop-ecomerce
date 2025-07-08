@@ -1,11 +1,11 @@
-import { Order } from '@order';
-import { Product } from '@product';
+import { Order } from '@order/entites/orders.entity';
+import { Product } from '@product/entites/products.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
-  Column,
   ManyToOne,
   JoinColumn,
+  Column,
 } from 'typeorm';
 
 @Entity('order_details')
@@ -13,11 +13,13 @@ export class OrderDetail {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Order, (order) => order.orderDetails, { nullable: false })
+  @ManyToOne(() => Order, (order: Order) => order.orderDetails, {
+    nullable: false,
+  })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
-  @ManyToOne(() => Product, (product) => product.orderDetails, {
+  @ManyToOne(() => Product, (product: Product) => product.orderDetails, {
     nullable: false,
   })
   @JoinColumn({ name: 'product_id' })

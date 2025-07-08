@@ -1,13 +1,14 @@
-import { ErrorMessage, NotUrlValidator } from '@common';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsInt,
+  IsString,
+  Validate,
   IsNotEmpty,
   IsOptional,
-  IsString,
+  IsInt,
   Min,
-  Validate,
 } from 'class-validator';
 
 export class FindCategoryByName {

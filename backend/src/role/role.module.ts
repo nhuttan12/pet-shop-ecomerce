@@ -1,6 +1,6 @@
-import { UtilityModule } from '@common';
-import { Module } from '@nestjs/common';
-import { RoleService } from '@role';
+import { UtilityModule } from "@services/utility.module";
+import Module from "module";
+import { RoleService } from "./role.service";
 
 @Module({
   imports: [UtilityModule],
@@ -8,3 +8,5 @@ import { RoleService } from '@role';
   exports: [RoleService],
 })
 export class RoleModule {}
+
+

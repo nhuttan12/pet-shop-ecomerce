@@ -1,22 +1,25 @@
-import { Cart } from '@cart';
-import { Comment } from '@comment';
-import { Order } from '@order';
-import { Post, PostEditRequest, PostReport } from '@post';
-import { ProductRating } from '@product';
-import { Role } from '@role';
-import { UserDetail, UserStatus } from '@user';
-import { VoucherMapping } from '@voucher';
-import { Wishlist } from '@wishlist';
+import { Cart } from '@cart/entities/carts.entity';
+import { Comment } from '@comment/entities/comments.entity';
+import { Order } from '@order/entites/orders.entity';
+import { PostEditRequest } from '@post/entities/post-edit-request.entity';
+import { PostReport } from '@post/entities/post-report.entity';
+import { Post } from '@post/entities/posts.entity';
+import { ProductRating } from '@product/entites/product-rating.entity';
+import { Role } from '@role/entities/roles.entity';
+import { UserDetail } from '@user/entites/user-details.entity';
+import { UserStatus } from '@user/enums/user-status.enum';
+import { VoucherMapping } from '@voucher/entities/voucher-mapping.entity';
+import { Wishlist } from '@wishlist/entities/wishlists.entity';
 import {
-  Column,
-  CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('users')
@@ -36,7 +39,7 @@ export class User {
   @Column({ length: 100, unique: true })
   email: string;
 
-  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
+  @ManyToOne(() => Role, (role: Role) => role.users, { nullable: false })
   @JoinColumn({ name: 'role_id' })
   role: Role;
 
@@ -53,41 +56,44 @@ export class User {
   updatedAt: Date;
 
   // Quan hệ 1-1 với UserDetail
-  @OneToOne(() => UserDetail, (userDetail) => userDetail.user)
+  @OneToOne(() => UserDetail, (userDetail: UserDetail) => userDetail.user)
   userDetail: UserDetail;
 
   // Quan hệ 1-n với Order
-  @OneToMany(() => Order, (order) => order.user)
+  @OneToMany(() => Order, (order: Order) => order.user)
   orders: Order[];
 
   // Quan hệ 1-n với Cart
-  @OneToMany(() => Cart, (cart) => cart.user)
+  @OneToMany(() => Cart, (cart: Cart) => cart.user)
   carts: Cart[];
 
   // Quan hệ 1-n với Wishlist
-  @OneToMany(() => Wishlist, (wishlist) => wishlist.user)
+  @OneToMany(() => Wishlist, (wishlist: Wishlist) => wishlist.user)
   wishlists: Wishlist[];
 
   // Quan hệ 1-n với ProductRating (customerRating)
-  @OneToMany(() => ProductRating, (rating) => rating.user)
+  @OneToMany(() => ProductRating, (rating: ProductRating) => rating.user)
   customerRating: ProductRating[];
 
   // Quan hệ 1-n với VoucherMapping
-  @OneToMany(() => VoucherMapping, (mapping) => mapping.user)
+  @OneToMany(() => VoucherMapping, (mapping: VoucherMapping) => mapping.user)
   voucherMapping: VoucherMapping[];
 
   // Quan hệ 1-n với Post
-  @OneToMany(() => Post, (post) => post.author)
+  @OneToMany(() => Post, (post: Post) => post.author)
   posts: Post[];
 
   // Quan hệ 1-n với PostEditRequest
-  @OneToMany(() => PostEditRequest, (request) => request.employee)
+  @OneToMany(
+    () => PostEditRequest,
+    (request: PostEditRequest) => request.employee,
+  )
   postEditRequestAsEmployee: PostEditRequest[];
 
   // Quan hệ 1-n với PostReport
-  @OneToMany(() => PostReport, (report) => report.user)
+  @OneToMany(() => PostReport, (report: PostReport) => report.user)
   postReports: PostReport[];
 
-  @OneToMany(() => Comment, (comment) => comment.user)
+  @OneToMany(() => Comment, (comment: Comment) => comment.user)
   comments: Comment[];
 }

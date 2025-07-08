@@ -1,7 +1,7 @@
-import { NotUrlValidator } from '@common';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PostErrorMessage } from '@post';
-import { IsInt, IsNotEmpty, IsString, Min, Validate } from 'class-validator';
+import { PostErrorMessage } from '@post/messages/post.error-messages';
+import { IsInt, IsNotEmpty, Min, IsString, Validate } from 'class-validator';
 
 export class ReportPostDto {
   @ApiProperty({

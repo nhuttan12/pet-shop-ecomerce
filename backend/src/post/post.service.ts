@@ -1,24 +1,24 @@
-import { ErrorMessage, UtilityService } from '@common';
+import { ErrorMessage } from '@messages/error.messages';
+import { UtilityService } from '@services/utility.service';
+import { User } from '@user/entites/users.entity';
+import { UserService } from '@user/user.service';
+import { CreatePostRequestDto } from './dto/create-post-request.dto';
+import { EditPostRequestDto } from './dto/edit-post-request.dto';
+import { GetAllPostsRequestDto } from './dto/get-all-posts-request.dto';
+import { PostResponse } from './dto/post-response.dto';
+import { Post } from './entities/posts.entity';
+import { PostErrorMessage } from './messages/post.error-messages';
+import { PostMessageLog } from './messages/post.messages-log';
+import { PostEditRequestRepository } from './repositories/post-edit-request.repository';
+import { PostRepository } from './repositories/post.repository';
 import {
-  ConflictException,
-  ForbiddenException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
+  InternalServerErrorException,
+  ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
-import {
-  CreatePostRequestDto,
-  EditPostRequestDto,
-  GetAllPostsRequestDto,
-  Post,
-  PostEditRequestRepository,
-  PostErrorMessage,
-  PostMessageLog,
-  PostRepository,
-  PostResponse,
-} from '@post';
-import { User, UserService } from '@user';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()

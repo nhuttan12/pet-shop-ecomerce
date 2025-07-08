@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
-import {
-  WishlistController,
-  WishListMappingService,
-  WishlistService,
-} from '@wishlist';
-import { UtilityModule } from '@common';
+import { UtilityModule } from '@services/utility.module';
+import { WishListMappingService } from '@wishlist/wishlist-mapping.service';
+import { WishlistController } from '@wishlist/wishlist.controller';
+import { WishlistService } from '@wishlist/wishlist.service';
 
 @Module({
   imports: [UtilityModule],

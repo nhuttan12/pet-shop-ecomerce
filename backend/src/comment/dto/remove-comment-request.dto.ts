@@ -1,6 +1,6 @@
-import { IsInt, Min } from 'class-validator';
+import { CommentErrorMessage } from '@comment/messages/comment.error-messages';
 import { ApiProperty } from '@nestjs/swagger';
-import { CommentErrorMessage } from '@message/comment-message';
+import { IsInt, Min } from 'class-validator';
 
 export class RemoveCommentRequestDto {
   @ApiProperty({

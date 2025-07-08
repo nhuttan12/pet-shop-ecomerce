@@ -1,18 +1,19 @@
-import { BrandErrorMessages } from '@brand';
-import { CategoryErrorMessages } from '@category';
-import { SavedImageDTO } from '@common';
+import { BrandErrorMessages } from '@brand/messages/brand.error-messages';
+import { CategoryErrorMessages } from '@category/messages/category.error-messages';
+import { SavedImageDTO } from '@images/dto/saved-image.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { ProductErrorMessage, ProductStatus } from '@product';
+import { ProductStatus } from '@product/enums/product-status.enum';
+import { ProductErrorMessage } from '@product/messages/product.error-messages';
 import { Type } from 'class-transformer';
 import {
+  IsInt,
+  Min,
+  IsString,
+  IsNotEmpty,
   IsArray,
   IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Min,
   ValidateNested,
+  IsOptional,
 } from 'class-validator';
 
 export class UpdateProductInforRequestDTO {

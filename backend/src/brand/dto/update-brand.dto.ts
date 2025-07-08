@@ -1,6 +1,4 @@
-import { BrandErrorMessages, BrandStatus } from '@brand';
-import { ErrorMessage, NotUrlValidator } from '@common';
-import { ApiProperty } from '@nestjs/swagger';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   IsEnum,
   IsInt,
@@ -10,6 +8,10 @@ import {
   MinLength,
   Validate,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
+import { BrandStatus } from '@brand/enums/brand-status.enum';
+import { BrandErrorMessages } from '@brand/messages/brand.error-messages';
 
 export class BrandUpdateDTO {
   @IsInt({ message: ErrorMessage.ID_MUST_BE_INTEGER })

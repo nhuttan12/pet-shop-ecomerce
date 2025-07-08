@@ -1,18 +1,17 @@
-import {
-  Brand,
-  BrandCreateDTO,
-  BrandErrorMessages,
-  BrandMessagesLog,
-  BrandStatus,
-  BrandUpdateDTO,
-} from '@brand';
+import { Brand } from '@brand/entities/brands.entity';
+import { BrandStatus } from '@brand/enums/brand-status.enum';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
+import { BrandCreateDTO } from '@brand/dto/create-brand.dto';
+import { BrandMessagesLog } from '@brand/messages/brand.messages-log';
+import { BrandErrorMessages } from '@brand/messages/brand.error-messages';
+import { BrandUpdateDTO } from '@brand/dto/update-brand.dto';
 
 @Injectable()
 export class BrandRepository {
   private readonly logger = new Logger(BrandRepository.name);
+
   constructor(
     @InjectRepository(Brand)
     private readonly brandRepo: Repository<Brand>,

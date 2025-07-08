@@ -1,19 +1,18 @@
-import { PaginationResponse, UtilityService } from '@common';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  CreateUserDto,
-  GetAllUsersResponseDTO,
-  UserErrorMessage,
-  UserMessageLog,
-  UserStatus,
-  UserUpdateDTO,
-} from '@user';
-import { User } from 'user/entites';
+import { PaginationResponse } from '@pagination/pagination-response';
+import { UtilityService } from '@services/utility.service';
+import { CreateUserDto } from '@user/dto/create-user.dto';
+import { GetAllUsersResponseDTO } from '@user/dto/get-all-user-response.dto';
+import { UserUpdateDTO } from '@user/dto/update-user.dto';
+import { User } from '@user/entites/users.entity';
+import { UserStatus } from '@user/enums/user-status.enum';
+import { UserErrorMessage } from '@user/messages/user.error-messages';
+import { UserMessageLog } from '@user/messages/user.messages-log';
 import { UserRepository } from 'user/repositories/user.repository';
 
 @Injectable()

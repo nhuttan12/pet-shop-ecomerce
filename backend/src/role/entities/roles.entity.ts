@@ -1,12 +1,12 @@
-import { RoleStatus } from '@role';
-import { User } from '@user';
+import { RoleStatus } from '@role/enums/role-status.enum';
+import { User } from '@user/entites/users.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('roles')
@@ -30,7 +30,6 @@ export class Role {
   updatedAt: Date;
 
   // Quan hệ 1-n với User
-  // Đảm bảo entity User có trường 'role' với @ManyToOne
-  @OneToMany(() => User, (user) => user.role)
+  @OneToMany(() => User, (user: User) => user.role)
   users: User[];
 }

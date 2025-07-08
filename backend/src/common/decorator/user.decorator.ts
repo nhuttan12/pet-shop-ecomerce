@@ -1,4 +1,4 @@
-import { AuthenticatedRequest } from '@auth';
+import { AuthenticatedRequest } from '@auth/interfaces/authenticated.interface';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 /**

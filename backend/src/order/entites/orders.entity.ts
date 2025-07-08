@@ -1,20 +1,18 @@
+import { OrderDetail } from '@order/entites/order-details.entity';
+import { OrderStatus } from '@order/enums/order-status.enum';
+import { PaymentMethod } from '@order/enums/payment-method.enum';
+import { ShippingMethod } from '@order/enums/shipping_method.enum';
+import { User } from '@user/entites/users.entity';
+import { Voucher } from '@voucher/entities/vouchers.entity';
 import {
-  OrderDetail,
-  OrderStatus,
-  PaymentMethod,
-  ShippingMethod,
-} from '@order';
-import { User } from '@user';
-import { Voucher } from '@voucher';
-import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
   Column,
   CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('orders')
@@ -22,7 +20,7 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.orders, { nullable: false })
+  @ManyToOne(() => User, (user: User) => user.orders, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
@@ -43,7 +41,9 @@ export class Order {
   })
   shippingMethod: ShippingMethod;
 
-  @ManyToOne(() => Voucher, (voucher) => voucher.orders, { nullable: true })
+  @ManyToOne(() => Voucher, (voucher: Voucher) => voucher.orders, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'voucher_id' })
   voucher?: Voucher;
 
@@ -68,6 +68,6 @@ export class Order {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order)
+  @OneToMany(() => OrderDetail, (orderDetail: OrderDetail) => orderDetail.order)
   orderDetails: OrderDetail[];
 }

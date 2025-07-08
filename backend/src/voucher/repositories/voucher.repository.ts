@@ -1,18 +1,18 @@
-import { buildPaginationMeta, ErrorMessage, PaginationResponse } from '@common';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  CreateVoucherRequestDto,
-  UpdateVoucherRequestDto,
-  Voucher,
-  VoucherErrorMessage,
-  VoucherMessageLog,
-  VoucherStatus,
-} from '@voucher';
+import { buildPaginationMeta } from '@pagination/build-pagination-meta';
+import { PaginationResponse } from '@pagination/pagination-response';
+import { CreateVoucherRequestDto } from '@voucher/dto/create-voucher-request.dto';
+import { UpdateVoucherRequestDto } from '@voucher/dto/update-voucher-request.dto';
+import { Voucher } from '@voucher/entities/vouchers.entity';
+import { VoucherStatus } from '@voucher/enums/vouchers-status.enum';
+import { VoucherErrorMessage } from '@voucher/messages/voucher.error-messages';
+import { VoucherMessageLog } from '@voucher/messages/voucher.messages-log';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()

@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { RoleName } from '@role';
+import { RoleName } from '@role/enums/role.enum';
 
 /**
  * @description: create decorator @HasRole() for authorization

@@ -1,11 +1,12 @@
-import { CategoryMapping, CategoryStatus } from '@category';
+import { CategoryStatus } from '@category/enums/categories-status.enum';
+import { CategoryMapping } from './categories-mapping.entity';
 import {
+  Entity,
+  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('categories')

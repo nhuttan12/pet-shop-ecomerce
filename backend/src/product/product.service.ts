@@ -1,42 +1,37 @@
-import { Brand, BrandService } from '@brand';
-import {
-  Category,
-  CategoryErrorMessages,
-  CategoryMapping,
-  CategoryMappingService,
-  CategoryMessagesLog,
-  CategoryService,
-} from '@category';
-import {
-  ErrorMessage,
-  Image,
-  ImageErrorMessage,
-  ImageMessageLog,
-  ImageService,
-  ImageType,
-  SubjectType,
-  UtilityService,
-} from '@common';
+import { BrandService } from '@brand/brand.service';
+import { Brand } from '@brand/entities/brands.entity';
+import { CategoryMappingService } from '@category/category-mapping.service';
+import { CategoryService } from '@category/category.service';
+import { CategoryMapping } from '@category/entities/categories-mapping.entity';
+import { Category } from '@category/entities/categories.entity';
+import { CategoryErrorMessages } from '@category/messages/category.error-messages';
+import { CategoryMessagesLog } from '@category/messages/category.messages-log';
+import { Image } from '@images/entites/images.entity';
+import { ImageType } from '@images/enums/image-type.enum';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { ImageService } from '@images/image.service';
+import { ImageErrorMessage } from '@images/messages/image.error-messages';
+import { ImageMessageLog } from '@images/messages/image.messages-log';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  CreateProductRequest,
-  GetAllProductResponseDto,
-  GetProductDetailRequestDto,
-  GetProductDetailResponseDto,
-  Product,
-  ProductErrorMessage,
-  ProductFilterParams,
-  ProductMessageLog,
-  ProductRating,
-  ProductRatingService,
-  ProductRepository,
-  UpdateProductInforRequestDTO,
-} from '@product';
+import { CreateProductRequest } from '@product/dto/create-product-request.dto';
+import { ProductFilterParams } from '@product/dto/filter-product-request.dto';
+import { GetAllProductResponseDto } from '@product/dto/get-all-product-response.dto';
+import { GetProductDetailRequestDto } from '@product/dto/get-product-detail-request.dto';
+import { GetProductDetailResponseDto } from '@product/dto/get-product-detail-response.dto';
+import { UpdateProductInforRequestDTO } from '@product/dto/update-product-infor-request.dto';
+import { ProductRating } from '@product/entites/product-rating.entity';
+import { Product } from '@product/entites/products.entity';
+import { ProductErrorMessage } from '@product/messages/product.error-messages';
+import { ProductMessageLog } from '@product/messages/product.messages-log';
+import { ProductRatingService } from '@product/product-rating.service';
+import { ProductRepository } from '@product/repositories/product.repository';
+import { UtilityService } from '@services/utility.service';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()

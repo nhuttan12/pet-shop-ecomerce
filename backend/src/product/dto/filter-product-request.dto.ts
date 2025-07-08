@@ -1,15 +1,16 @@
-import { ErrorMessage } from '@common';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { ProductErrorMessage, ProductStatus } from '@product';
+import { ProductStatus } from '@product/enums/product-status.enum';
+import { ProductErrorMessage } from '@product/messages/product.error-messages';
 import { Type } from 'class-transformer';
 import {
-  IsEnum,
-  IsIn,
-  IsInt,
-  IsNumber,
   IsOptional,
   IsString,
+  IsNumber,
   Min,
+  IsIn,
+  IsEnum,
+  IsInt,
 } from 'class-validator';
 
 export class ProductFilterParams {

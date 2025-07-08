@@ -1,42 +1,37 @@
-import {
-  ApiResponse,
-  CatchEverythingFilter,
-  HasRole,
-  JwtAuthGuard,
-  PaginationResponse,
-  RolesGuard,
-} from '@common';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { HasRole } from '@decorators/roles.decorator';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { JwtAuthGuard } from '@guards/jwt-auth.guard';
+import { RolesGuard } from '@guards/roles.guard';
+import { PaginationResponse } from '@pagination/pagination-response';
+import { RoleName } from '@role/enums/role.enum';
+import { FindUserById, FindUserByName } from './dto/find-user.dto';
+import { GetAllUsersResponseDTO } from './dto/get-all-user-response.dto';
+import { GetAllUsersDto } from './dto/get-all-user.dto';
+import { UserUpdateDTO } from './dto/update-user.dto';
+import { User } from './entites/users.entity';
+import { UserNotifyMessage } from './messages/user.notify-messages';
+import { UserService } from './user.service';
 import {
   Controller,
+  Logger,
   Get,
   HttpCode,
   HttpStatus,
-  Logger,
+  UseGuards,
+  UseFilters,
+  Query,
   Param,
   Put,
-  Query,
-  UseFilters,
-  UseGuards,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
   ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiOkResponse,
+  ApiParam,
 } from '@nestjs/swagger';
-import { RoleName } from '@role';
-import {
-  FindUserById,
-  FindUserByName,
-  GetAllUsersDto,
-  GetAllUsersResponseDTO,
-  User,
-  UserNotifyMessage,
-  UserService,
-  UserUpdateDTO,
-} from '@user';
 
 @ApiTags('User')
 @Controller('user')

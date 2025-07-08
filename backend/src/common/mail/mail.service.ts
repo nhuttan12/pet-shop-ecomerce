@@ -1,4 +1,4 @@
-import { AppConfigService } from '@helper-modules/config/app-config.service';
+import { AppConfigService } from '@config/app-config.service';
 import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';

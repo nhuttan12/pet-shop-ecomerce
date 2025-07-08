@@ -1,12 +1,10 @@
-import { JwtPayload } from '@auth';
-import {
-  ApiResponse,
-  CatchEverythingFilter,
-  GetUser,
-  HasRole,
-  JwtAuthGuard,
-  RolesGuard,
-} from '@common';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { HasRole } from '@decorators/roles.decorator';
+import { GetUser } from '@decorators/user.decorator';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { JwtAuthGuard } from '@guards/jwt-auth.guard';
+import { RolesGuard } from '@guards/roles.guard';
 import {
   Body,
   Controller,
@@ -25,16 +23,14 @@ import {
   ApiResponse as ApiSwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RoleName } from '@role';
-import {
-  CreateWishlistDto,
-  RemoveWishlistDto,
-  Wishlist,
-  WishListMappingService,
-  WishlistNotifyMessage,
-  WishlistResponseDto,
-  WishlistService,
-} from '@wishlist';
+import { RoleName } from '@role/enums/role.enum';
+import { CreateWishlistDto } from '@wishlist/dto/create-wishlist.dto';
+import { RemoveWishlistDto } from '@wishlist/dto/remove-wishlist.dto';
+import { WishlistResponseDto } from '@wishlist/dto/wishlist-response.dto';
+import { Wishlist } from '@wishlist/entities/wishlists.entity';
+import { WishlistNotifyMessage } from '@wishlist/messages/wishlist.notify-messages';
+import { WishListMappingService } from '@wishlist/wishlist-mapping.service';
+import { WishlistService } from '@wishlist/wishlist.service';
 
 @Controller('wishlist')
 @ApiTags('Wishlist')

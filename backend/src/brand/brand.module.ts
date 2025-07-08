@@ -1,8 +1,9 @@
-import { BrandController, BrandService } from '@brand';
-import { UtilityModule } from '@common';
+import { BrandController } from '@brand/brand.controller';
+import { BrandService } from '@brand/brand.service';
+import { Brand } from '@brand/entities/brands.entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Brand } from 'brand/entities';
+import { UtilityModule } from '@services/utility.module';
 import { BrandRepository } from 'brand/repositories/brand.repository';
 
 @Module({

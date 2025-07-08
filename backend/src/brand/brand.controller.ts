@@ -1,21 +1,4 @@
 import {
-  Brand,
-  BrandCreateDTO,
-  BrandNotifyMessages,
-  BrandService,
-  BrandUpdateDTO,
-  FindBrandById,
-  FindBrandByName,
-  GetAllBrandsDTO,
-} from '@brand';
-import {
-  ApiResponse,
-  CatchEverythingFilter,
-  HasRole,
-  JwtAuthGuard,
-  RolesGuard,
-} from '@common';
-import {
   Body,
   Controller,
   Get,
@@ -32,13 +15,26 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiOkResponse,
   ApiOperation,
+  ApiResponse as ApiOkResponse,
+  ApiTags,
   ApiParam,
   ApiQuery,
-  ApiTags,
 } from '@nestjs/swagger';
-import { RoleName } from '@role';
+import { BrandUpdateDTO } from './dto/update-brand.dto';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { Brand } from './entities/brands.entity';
+import { BrandNotifyMessages } from './messages/brand.notify-message';
+import { JwtAuthGuard } from '@guards/jwt-auth.guard';
+import { RoleName } from '@role/enums/role.enum';
+import { HasRole } from '@decorators/roles.decorator';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { BrandService } from './brand.service';
+import { RolesGuard } from '@guards/roles.guard';
+import { BrandCreateDTO } from './dto/create-brand.dto';
+import { FindBrandById } from '@brand/dto/find-brand-by-id.dto';
+import { FindBrandByName } from '@brand/dto/find-brand-by-name.dto';
+import { GetAllBrandsDTO } from '@brand/dto/get-all-brand.dto';
 
 @ApiTags('Brand')
 @Controller('brand')
@@ -47,6 +43,7 @@ import { RoleName } from '@role';
 @UseFilters(CatchEverythingFilter)
 export class BrandController {
   private readonly logger = new Logger(BrandController.name);
+
   constructor(private brandSerivce: BrandService) {}
 
   @Post('adding')

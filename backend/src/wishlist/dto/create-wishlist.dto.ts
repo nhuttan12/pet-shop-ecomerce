@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { WishlistErrorMessage } from '@wishlist';
-import { IsInt, Min } from 'class-validator';
+import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
+import { Min, IsInt } from 'class-validator';
 
 export class CreateWishlistDto {
   @ApiProperty({ example: 10 })

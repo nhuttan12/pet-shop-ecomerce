@@ -1,8 +1,11 @@
-import { ImageModule, UtilityModule } from '@common';
+import { ImageModule } from '@images/image.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RoleModule } from '@role';
-import { User, UserController, UserService } from '@user';
+import { RoleModule } from '@role/role.module';
+import { UtilityModule } from '@services/utility.module';
+import { User } from '@user/entites/users.entity';
+import { UserController } from '@user/user.controller';
+import { UserService } from '@user/user.service';
 import { UserRepository } from 'user/repositories/user.repository';
 
 @Module({

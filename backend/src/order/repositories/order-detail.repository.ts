@@ -1,7 +1,8 @@
-import { CartDetail } from '@cart';
+import { CartDetail } from '@cart/entities/cart-details.entity';
 import { Injectable, Logger } from '@nestjs/common';
-import { Order, OrderDetail } from '@order';
-import { Product } from '@product';
+import { OrderDetail } from '@order/entites/order-details.entity';
+import { Order } from '@order/entites/orders.entity';
+import { Product } from '@product/entites/products.entity';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()

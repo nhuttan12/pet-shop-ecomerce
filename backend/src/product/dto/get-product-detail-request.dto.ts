@@ -1,8 +1,8 @@
-import { ErrorMessage } from '@common';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ProductErrorMessage } from '@product/messages/product.error-messages';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, Min } from 'class-validator';
-import { ProductErrorMessage } from 'product/messages';
+import { IsInt, Min, IsOptional } from 'class-validator';
 
 export class GetProductDetailRequestDto {
   @Type(() => Number)

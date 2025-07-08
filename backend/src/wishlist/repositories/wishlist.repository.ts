@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Wishlist, WishlistStatus } from '@wishlist';
+import { Wishlist } from '@wishlist/entities/wishlists.entity';
+import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()

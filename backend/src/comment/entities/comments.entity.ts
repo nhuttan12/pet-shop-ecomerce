@@ -1,30 +1,21 @@
-import { CommentStatus } from '@comment';
-import { Post } from '@post';
-import { User } from '@user';
+import { CommentStatus } from '@comment/enums/comment-status.enum';
+import { Post } from '@post/entities/posts.entity';
+import { User } from '@user/entites/users.entity';
 import {
+  Entity,
+  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('comments')
 export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column({ name: 'user_id' })
-  userId: number;
-
-  @Column({ name: 'post_id' })
-  postId: number;
-
-  @Column({ name: 'comment_id', nullable: true })
-  commentId: number;
 
   @Column({ type: 'text', nullable: true })
   content: string;
@@ -44,19 +35,22 @@ export class Comment {
 
   // 👉 Relations
 
-  @ManyToOne(() => User, (user) => user.comments)
+  @ManyToOne(() => User, (user: User) => user.comments)
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Post, (post) => post.comments)
+  @ManyToOne(() => Post, (post: Post) => post.comments)
   @JoinColumn({ name: 'post_id' })
   post: Post;
 
-  @ManyToOne(() => Comment, (comment) => comment.children, { nullable: true })
+  @ManyToOne(() => Comment, (comment) => comment.children, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'comment_id' })
-  parentComment: Comment;
+  parentComment: Comment | null;
 
   // 👇 optional reverse relation (not required unless needed)
-  @OneToMany(() => Comment, (comment) => comment.parentComment)
+  @OneToMany(() => Comment, (comment: Comment) => comment.parentComment)
   children: Comment[];
 }

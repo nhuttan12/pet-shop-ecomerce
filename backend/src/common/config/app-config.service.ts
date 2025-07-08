@@ -1,19 +1,17 @@
-import {
-  CloudinaryConfig,
-  DatabaseConfig,
-  DomainValidation,
-  ErrorMessage,
-  HttpConfig,
-  MessageLog,
-  NodeMailerConfig,
-  PayPalConfig,
-  StripeConfig,
-} from '@common';
+import { ErrorMessage } from '@messages/error.messages';
+import { MessageLog } from '@messages/log.messages';
+import { CloudinaryConfig } from './interfaces/cloudinary.interface';
+import { DatabaseConfig } from './interfaces/database.interface';
+import { DomainValidation } from './interfaces/domain.interface';
+import { HttpConfig } from './interfaces/http.interface';
+import { NodeMailerConfig } from './interfaces/nodemailer.interface';
+import { PayPalConfig } from './interfaces/paypal.interface';
+import { StripeConfig } from './interfaces/stripe.interface';
 import {
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotAcceptableException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 

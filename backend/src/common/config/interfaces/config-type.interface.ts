@@ -1,4 +1,6 @@
-import { DatabaseConfig, DomainValidation, HttpConfig } from '@common';
+import { DatabaseConfig } from './database.interface';
+import { DomainValidation } from './domain.interface';
+import { HttpConfig } from './http.interface';
 
 /**
  * @description: configuration info get form file yaml

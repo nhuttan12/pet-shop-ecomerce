@@ -1,10 +1,12 @@
-import { ErrorMessage } from '@common';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { PostMessageLog, PostReport, PostReportStatus } from '@post';
+import { PostReport } from '@post/entities/post-report.entity';
+import { PostReportStatus } from '@post/enums/post-report-status.enum';
+import { PostMessageLog } from '@post/messages/post.messages-log';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()

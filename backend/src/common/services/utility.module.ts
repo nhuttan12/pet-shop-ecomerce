@@ -1,5 +1,5 @@
-import { UtilityService } from '@common';
 import { Module } from '@nestjs/common';
+import { UtilityService } from '@services/utility.service';
 
 @Module({
   exports: [UtilityService],

@@ -1,6 +1,6 @@
-import { ErrorMessage } from '@common';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty } from '@nestjs/swagger';
-import { ProductErrorMessage } from '@product';
+import { ProductErrorMessage } from '@product/messages/product.error-messages';
 import { IsInt, Min } from 'class-validator';
 
 export class RemoveCartDetailDTO {

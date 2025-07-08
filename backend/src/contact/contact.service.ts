@@ -1,15 +1,14 @@
-import { ErrorMessage, UtilityService } from '@common';
-import {
-  Contact,
-  ContactMessageLog,
-  ContactRepository,
-  CreateContactRequestDto,
-  GetAllContactInfoRequestDto,
-} from '@contact';
+import { ErrorMessage } from '@messages/error.messages';
+import { UtilityService } from '@services/utility.service';
+import { CreateContactRequestDto } from './dto/create-contact-request.dto';
+import { GetAllContactInfoRequestDto } from './dto/get-all-contact-info-request.dto';
+import { Contact } from './entites/contacts.schema';
+import { ContactMessageLog } from './messages/contact.messages-log';
+import { ContactRepository } from './repositories/contact.repository';
 import {
   Injectable,
-  InternalServerErrorException,
   Logger,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 @Injectable()

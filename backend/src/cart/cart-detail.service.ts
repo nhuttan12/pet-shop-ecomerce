@@ -1,17 +1,16 @@
-import {
-  CartDetail,
-  CartDetailRepository,
-  CartErrorMessage,
-  CartMessageLog,
-  CreateCartDetailDto,
-  RemoveCartDetailDTO,
-} from '@cart';
+import { CreateCartDetailDto } from '@cart/dto/cart-detail/create-cart-detail.dto';
+import { RemoveCartDetailDTO } from '@cart/dto/cart-detail/remove-cart-detail.dto';
+import { CartDetail } from '@cart/entities/cart-details.entity';
+import { CartErrorMessage } from '@cart/messages/cart.error-messages';
+import { CartMessageLog } from '@cart/messages/cart.message-logs';
+import { CartDetailRepository } from '@cart/repositories/cart-detail.repository';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { Product, ProductService } from '@product';
+import { Product } from '@product/entites/products.entity';
+import { ProductService } from '@product/product.service';
 
 @Injectable()
 export class CartDetailService {

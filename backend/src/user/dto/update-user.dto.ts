@@ -1,16 +1,14 @@
-import {
-  ErrorMessage,
-  ImageErrorMessage,
-  NotUrlValidator,
-  SavedImageDTO,
-} from '@common';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
+import { SavedImageDTO } from '@images/dto/saved-image.dto';
+import { ImageErrorMessage } from '@images/messages/image.error-messages';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsDefined,
   IsInt,
   IsString,
   Validate,
+  IsDefined,
   ValidateNested,
 } from 'class-validator';
 

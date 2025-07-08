@@ -1,20 +1,19 @@
-import { ErrorMessage, NotifyMessage } from '@common';
+import { ErrorMessage } from '@messages/error.messages';
+import { NotifyMessage } from '@messages/notify.messages';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  ProductErrorMessage,
-  ProductMessageLog,
-  ProductRating,
-  ProductRatingRepository,
-  ProductService,
-  RatingStatus,
-  ToggleRatingProductRequestDTO,
-} from '@product';
-import { UserService } from '@user';
+import { ToggleRatingProductRequestDTO } from '@product/dto/toggle-rating-product-request.dto';
+import { ProductRating } from '@product/entites/product-rating.entity';
+import { RatingStatus } from '@product/enums/product-rating.enum';
+import { ProductErrorMessage } from '@product/messages/product.error-messages';
+import { ProductMessageLog } from '@product/messages/product.messages-log';
+import { ProductService } from '@product/product.service';
+import { ProductRatingRepository } from '@product/repositories/product-rating.repository';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class ProductRatingService {

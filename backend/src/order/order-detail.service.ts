@@ -1,13 +1,14 @@
-import { CartDetail } from '@cart';
-import { Image, ImageService, ImageType, SubjectType } from '@common';
+import { CartDetail } from '@cart/entities/cart-details.entity';
+import { ImageType } from '@images/enums/image-type.enum';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { ImageService } from '@images/image.service';
+import { GetOrderDetailsByOrderIdResponseDto } from './dto/get-order-details-by-order-id-response.dto';
+import { OrderDetail } from './entites/order-details.entity';
+import { OrderErrorMessage } from './messages/order.error-messages';
+import { OrderMessageLog } from './messages/order.message-logs';
+import { OrderDetailRepository } from './repositories/order-detail.repository';
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  GetOrderDetailsByOrderIdResponseDto,
-  OrderDetail,
-  OrderDetailRepository,
-  OrderErrorMessage,
-  OrderMessageLog,
-} from '@order';
+import { Image } from '@images/entites/images.entity';
 
 @Injectable()
 export class OrderDetailService {

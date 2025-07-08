@@ -1,14 +1,15 @@
-import { Comment } from '@comment';
-import { PostEditRequest, PostReport, PostStatus } from '@post';
-import { User } from '@user';
+import { PostStatus } from '@post/enums/posts-status.enum';
+import { User } from '@user/entites/users.entity';
+import { PostEditRequest } from './post-edit-request.entity';
+import { PostReport } from './post-report.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('posts')

@@ -1,13 +1,14 @@
-import { User } from '@user';
-import { WishlistMapping, WishlistStatus } from '@wishlist';
+import { User } from '@user/entites/users.entity';
+import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
+import { WishlistMapping } from './wishlist-mapping.entity';
 import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
   Column,
   CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 

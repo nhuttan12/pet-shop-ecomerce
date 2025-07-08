@@ -1,4 +1,5 @@
-import { Contact, CreateContactRequestDto } from '@contact';
+import { CreateContactRequestDto } from '@contact/dto/create-contact-request.dto';
+import { Contact } from '@contact/entites/contacts.schema';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

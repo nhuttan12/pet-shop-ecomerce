@@ -1,16 +1,14 @@
-import {
-  Category,
-  CategoryMapping,
-  CategoryMappingStatus,
-  CategoryMessagesLog,
-} from '@category';
-import { ErrorMessage } from '@common';
+import { CategoryMapping } from '@category/entities/categories-mapping.entity';
+import { Category } from '@category/entities/categories.entity';
+import { CategoryMappingStatus } from '@category/enums/categories-mapping-status.enum';
+import { CategoryMessagesLog } from '@category/messages/category.messages-log';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { Product } from '@product';
+import { Product } from '@product/entites/products.entity';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()

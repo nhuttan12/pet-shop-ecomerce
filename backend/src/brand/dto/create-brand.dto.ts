@@ -1,9 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
-import { ErrorMessage } from '@message/error-message';
+import { BrandErrorMessages } from '@brand/messages/brand.error-messages';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class BrandCreateDTO {
-  @IsString({ message: ErrorMessage.NAME_MUST_BE_STRING })
+  @IsString({ message: BrandErrorMessages.BRAND_NAME_MUST_BE_STRING })
   @IsNotEmpty()
   @ApiProperty()
   name: string;

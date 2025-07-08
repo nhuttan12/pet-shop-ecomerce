@@ -1,10 +1,21 @@
-import { AuthService, RequestWithUser } from '@auth';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { LocalAuthGuard } from '@guards/local-auth.guard';
+import { main } from '@services/seed';
+import { UserForgotPasswordDTO } from '@user/dto/user-forgot-password.dto';
+import { UserLoginDTO } from '@user/dto/user-login.dto';
+import { UserRegisterDTO } from '@user/dto/user-register.dto';
+import { UserResetPasswordDTO } from '@user/dto/user-reset-password.dto';
+import { AuthService } from './auth.service';
+import { UserLoginResponseDTO } from './dto/user-login-response.dto';
+import { RequestWithUser } from './interfaces/authenticated.interface';
+import { AuthNotifyMessages } from './messages/auth.notify-messages';
 import {
-  ApiResponse,
-  CatchEverythingFilter,
-  LocalAuthGuard,
-  main,
-} from '@common';
+  ApiBody,
+  ApiOperation,
+  ApiTags,
+  ApiResponse as SwaggerResponse,
+} from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -16,26 +27,13 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOperation,
-  ApiResponse as SwaggerResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import {
-  UserForgotPasswordDTO,
-  UserLoginDTO,
-  UserLoginResponseDTO,
-  UserRegisterDTO,
-  UserResetPasswordDTO,
-} from '@user';
-import { AuthNotifyMessages } from 'auth/messages/auth.notify-messages';
 
 @ApiTags('Auth')
 @Controller('auth')
 @UseFilters(CatchEverythingFilter)
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly authService: AuthService) {}
 
   /**

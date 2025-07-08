@@ -1,15 +1,19 @@
-import { Brand, BrandStatus } from '@brand';
-import { Category, CategoryMapping, CategoryStatus } from '@category';
-import {
-  CsvProduct,
-  Image,
-  ImageStatus,
-  ImageType,
-  SubjectType,
-} from '@common';
-import { Product, ProductStatus } from '@product';
-import { Role, RoleStatus } from '@role';
-import { User, UserStatus } from '@user';
+import { CsvProduct } from './interfaces/csvProduct.interface';
+import { Brand } from '@brand/entities/brands.entity';
+import { BrandStatus } from '@brand/enums/brand-status.enum';
+import { CategoryMapping } from '@category/entities/categories-mapping.entity';
+import { Category } from '@category/entities/categories.entity';
+import { CategoryStatus } from '@category/enums/categories-status.enum';
+import { Image } from '@images/entites/images.entity';
+import { ImageStatus } from '@images/enums/image-status.enum';
+import { ImageType } from '@images/enums/image-type.enum';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { Product } from '@product/entites/products.entity';
+import { ProductStatus } from '@product/enums/product-status.enum';
+import { Role } from '@role/entities/roles.entity';
+import { RoleStatus } from '@role/enums/role-status.enum';
+import { User } from '@user/entites/users.entity';
+import { UserStatus } from '@user/enums/user-status.enum';
 import bcrypt from 'bcrypt';
 import csv from 'csv-parser';
 import fs from 'fs';

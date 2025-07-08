@@ -1,19 +1,19 @@
-import { Brand } from '@brand';
-import { CartDetail } from '@cart';
-import { CategoryMapping } from '@category';
-import { OrderDetail } from '@order';
-import { ProductRating } from '@product';
-import { WishlistMapping } from '@wishlist';
-import { ProductStatus } from 'product/enums';
+import { Brand } from '@brand/entities/brands.entity';
+import { CartDetail } from '@cart/entities/cart-details.entity';
+import { CategoryMapping } from '@category/entities/categories-mapping.entity';
+import { OrderDetail } from '@order/entites/order-details.entity';
+import { ProductRating } from '@product/entites/product-rating.entity';
+import { ProductStatus } from '@product/enums/product-status.enum';
+import { WishlistMapping } from '@wishlist/entities/wishlist-mapping.entity';
 import {
-  Column,
-  CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('products')
@@ -52,25 +52,31 @@ export class Product {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.product)
+  @OneToMany(
+    () => OrderDetail,
+    (orderDetail: OrderDetail) => orderDetail.product,
+  )
   orderDetails: OrderDetail[];
 
   @OneToMany(
     () => CategoryMapping,
-    (categoryMapping) => categoryMapping.product,
+    (categoryMapping: CategoryMapping) => categoryMapping.product,
   )
   categoriesMapping: CategoryMapping[];
 
-  @OneToMany(() => CartDetail, (cartDetail) => cartDetail.product)
+  @OneToMany(() => CartDetail, (cartDetail: CartDetail) => cartDetail.product)
   cartDetails: CartDetail[];
 
   @OneToMany(
     () => WishlistMapping,
-    (wishlistMapping) => wishlistMapping.product,
+    (wishlistMapping: WishlistMapping) => wishlistMapping.product,
     { nullable: true },
   )
   wishlistMappings: WishlistMapping[];
 
-  @OneToMany(() => ProductRating, (productRating) => productRating.product)
+  @OneToMany(
+    () => ProductRating,
+    (productRating: ProductRating) => productRating.product,
+  )
   productRating: ProductRating[];
 }

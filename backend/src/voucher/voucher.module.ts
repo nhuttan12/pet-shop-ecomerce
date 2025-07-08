@@ -1,7 +1,9 @@
-import { UtilityModule } from '@common';
+import { UtilityModule } from '@services/utility.module';
+import { Voucher } from './entities/vouchers.entity';
+import { VoucherController } from './voucher.controller';
+import { VoucherService } from './voucher.service';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Voucher, VoucherController, VoucherService } from '@voucher';
 
 @Module({
   imports: [UtilityModule, TypeOrmModule.forFeature([Voucher])],

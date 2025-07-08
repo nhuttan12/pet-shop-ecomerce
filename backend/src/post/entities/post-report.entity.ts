@@ -1,10 +1,11 @@
-import { Post, PostReportStatus } from '@post';
-import { User } from '@user';
+import { PostReportStatus } from '@post/enums/post-report-status.enum';
+import { User } from '@user/entites/users.entity';
+import { Post } from './posts.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
-  Column,
   ManyToOne,
+  Column,
   CreateDateColumn,
 } from 'typeorm';
 

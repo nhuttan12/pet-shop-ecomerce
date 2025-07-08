@@ -1,4 +1,6 @@
-import { ErrorMessage, ResponseBody, ResponsePayload } from '@common';
+import { ResponseBody } from './response-body.interface';
+import { ResponsePayload } from '@filters/response-payload.type';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   ArgumentsHost,
   Catch,

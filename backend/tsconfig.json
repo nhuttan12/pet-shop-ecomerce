@@ -22,29 +22,56 @@
       "@auth": [
         "auth"
       ],
+      "@auth/*": [
+        "auth/*"
+      ],
       "@cart": [
         "cart"
+      ],
+      "@cart/*": [
+        "cart/*"
       ],
       "@contact": [
         "contact"
       ],
+      "@contact/*": [
+        "contact/*"
+      ],
       "@order": [
         "order"
+      ],
+      "@order/*": [
+        "order/*"
       ],
       "@product": [
         "product"
       ],
+      "@product/*": [
+        "product/*"
+      ],
       "@user": [
         "user"
+      ],
+      "@user/*": [
+        "user/*"
       ],
       "@role": [
         "role"
       ],
+      "@role/*": [
+        "role/*"
+      ],
       "@category": [
         "category"
       ],
+      "@category/*": [
+        "category/*"
+      ],
       "@brand": [
         "brand"
+      ],
+      "@brand/*": [
+        "brand/*"
       ],
       "@wishlist": [
         "wishlist"
@@ -55,18 +82,63 @@
       "@voucher": [
         "voucher"
       ],
+      "@voucher/*": [
+        "voucher/*"
+      ],
       "@comment": [
         "comment"
+      ],
+      "@comment/*": [
+        "comment/*"
       ],
       "@post": [
         "post"
       ],
-      "@product-rating": [
-        "product-rating"
+      "@post/*": [
+        "post/*"
       ],
-      "@common": [
-        "common"
+      "@api-response/*": [
+        "common/api-response/*"
       ],
+      "@class-validator/*": [
+        "common/class-validator-contraint/*"
+      ],
+      "@config/*": [
+        "common/config/*"
+      ],
+      "@constants/*": [
+        "common/constants/*"
+      ],
+      "@db/*": [
+        "common/database/*"
+      ],
+      "@decorators/*": [
+        "common/decorator/*"
+      ],
+      "@filters/*": [
+        "common/filter/*"
+      ],
+      "@guards/*": [
+        "common/guard/*"
+      ],
+      "@images/*": [
+        "common/image/*"
+      ],
+      "@mail/*": [
+        "common/mail/*"
+      ],
+      "@messages/*": [
+        "common/messages/*"
+      ],
+      "@pagination/*": [
+        "common/pagination/*"
+      ],
+      "@paypal/*": [
+        "common/paypal/*"
+      ],
+      "@services/*": [
+        "common/services/*"
+      ]
     }
   }
 }

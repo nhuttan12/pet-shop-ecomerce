@@ -1,5 +1,5 @@
-import { User } from '@user';
-import { Voucher } from '@voucher';
+import { User } from '@user/entites/users.entity';
+import { Voucher } from './vouchers.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

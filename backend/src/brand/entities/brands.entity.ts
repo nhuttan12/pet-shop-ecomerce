@@ -1,5 +1,4 @@
-import { BrandStatus } from '@brand';
-import { Product } from '@product';
+import { BrandStatus } from '@brand/enums/brand-status.enum';
 import {
   Column,
   CreateDateColumn,
@@ -8,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Product } from '@product/entites/products.entity';
 
 @Entity('brands')
 export class Brand {

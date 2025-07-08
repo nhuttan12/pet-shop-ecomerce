@@ -1,8 +1,8 @@
-import { ErrorMessage } from '@common';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { WishlistErrorMessage } from '@wishlist/messages';
+import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, Min, IsOptional } from 'class-validator';
 
 export class GetAllWishListMappingDTO {
   @ApiPropertyOptional({ default: 1 })

@@ -1,5 +1,7 @@
-import { UtilityModule } from '@common';
-import { Contact, ContactController, ContactService } from '@contact';
+import { UtilityModule } from '@services/utility.module';
+import { ContactController } from './contact.controller';
+import { ContactService } from './contact.service';
+import { Contact } from './entites/contacts.schema';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 

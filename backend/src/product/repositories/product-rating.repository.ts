@@ -3,17 +3,16 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import {
-  ProductErrorMessage,
-  ProductMessageLog,
-  ProductRating,
-  RatingStatus,
-} from '@product';
+import { ProductRating } from '@product/entites/product-rating.entity';
+import { RatingStatus } from '@product/enums/product-rating.enum';
+import { ProductErrorMessage } from '@product/messages/product.error-messages';
+import { ProductMessageLog } from '@product/messages/product.messages-log';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class ProductRatingRepository {
   private readonly logger = new Logger(ProductRatingRepository.name);
+
   constructor(
     private readonly productRatingRepo: Repository<ProductRating>,
     private readonly dataSource: DataSource,
@@ -86,21 +85,16 @@ export class ProductRatingRepository {
   ): Promise<boolean> {
     try {
       return await this.dataSource.transaction(async (manager) => {
-        const updatePayload: Partial<ProductRating> = {
-          status,
-          updatedAt: new Date(),
-        };
-
-        if (starRated !== undefined) {
-          updatePayload.starRated = starRated;
-        }
-
         const result: UpdateResult = await manager.update(
           ProductRating,
           {
             id: ratingID,
           },
-          updatePayload,
+          {
+            status,
+            updatedAt: new Date(),
+            ...(starRated !== undefined && { starRated }),
+          },
         );
 
         if (result.affected === 0) {

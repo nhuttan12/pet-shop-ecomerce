@@ -1,5 +1,3 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
   IsInt,
   IsNotEmpty,
@@ -8,11 +6,14 @@ import {
   Min,
   Validate,
 } from 'class-validator';
-import { NotUrlValidator } from '@validator';
-import { ErrorMessage } from '@message/error-message';
+import { BrandErrorMessages } from '@brand/messages/brand.error-messages';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { ErrorMessage } from '@messages/error.messages';
 
 export class FindBrandByName {
-  @IsString({ message: ErrorMessage.BRAND_FULL_NAME_MUST_BE_STRING })
+  @IsString({ message: BrandErrorMessages.BRAND_NAME_MUST_BE_STRING })
   @Validate(NotUrlValidator)
   @IsNotEmpty()
   @ApiProperty()

@@ -1,13 +1,14 @@
+import { AuthErrorMessages } from '@auth/messages/auth.error-messages';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
+import { IsPasswordMatch } from '@class-validator/password-match.validator';
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsEmail,
   IsNotEmpty,
   MinLength,
-  NotContains,
   Validate,
+  NotContains,
+  IsEmail,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
-import { IsPasswordMatch, NotUrlValidator } from '@common';
 
 export class UserRegisterDTO {
   @IsNotEmpty({ message: AuthErrorMessages.USERNAME_IS_NOT_EMPTY })

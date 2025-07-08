@@ -1,16 +1,17 @@
-import {
-  IsArray,
-  IsInt,
-  IsNotEmpty,
-  IsString,
-  Min,
-  ValidateNested,
-} from 'class-validator';
+import { BrandErrorMessages } from '@brand/messages/brand.error-messages';
+import { CategoryErrorMessages } from '@category/messages/category.error-messages';
+import { SavedImageDTO } from '@images/dto/saved-image.dto';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ErrorMessage, SavedImageDTO } from '@common';
-import { BrandErrorMessages } from '@brand';
-import { CategoryErrorMessages } from '@category';
+import {
+  IsString,
+  IsNotEmpty,
+  IsInt,
+  Min,
+  ValidateNested,
+  IsArray,
+} from 'class-validator';
 
 export class CreateProductRequest {
   @IsString({ message: ErrorMessage.NAME_MUST_BE_STRING })

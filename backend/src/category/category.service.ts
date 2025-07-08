@@ -1,27 +1,23 @@
-import {
-  Category,
-  CategoryCreateDTO,
-  CategoryErrorMessages,
-  CategoryRepository,
-  CategoryUpdateDTO,
-  FindCategoryById,
-  FindCategoryByName,
-  GetAllCategoryDTO,
-  GetCategoryByIdResponse,
-} from '@category';
-import {
-  ErrorMessage,
-  Image,
-  ImageService,
-  SavedImageDTO,
-  SubjectType,
-  UtilityService,
-} from '@common';
+import { CategoryCreateDTO } from '@category/dto/create-category.dto';
+import { FindCategoryById } from '@category/dto/find-category-by-id.dto';
+import { FindCategoryByName } from '@category/dto/find-category-by-name.dto';
+import { GetAllCategoryDTO } from '@category/dto/get-all-category.dto';
+import { GetCategoryByIdResponse } from '@category/dto/get-category-by-id-response.dto';
+import { CategoryUpdateDTO } from '@category/dto/update-category.dto';
+import { Category } from '@category/entities/categories.entity';
+import { CategoryErrorMessages } from '@category/messages/category.error-messages';
+import { CategoryRepository } from '@category/repositories/category.repository';
+import { SavedImageDTO } from '@images/dto/saved-image.dto';
+import { Image } from '@images/entites/images.entity';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { ImageService } from '@images/image.service';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { UtilityService } from '@services/utility.service';
 import { CategoryMessagesLog } from 'category/messages/category.messages-log';
 import { plainToInstance } from 'class-transformer';
 

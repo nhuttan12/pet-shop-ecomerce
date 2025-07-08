@@ -1,14 +1,16 @@
-import { CategoryStatus } from '@category';
-import { ErrorMessage, NotUrlValidator, SavedImageDTO } from '@common';
+import { CategoryStatus } from '@category/enums/categories-status.enum';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
+import { SavedImageDTO } from '@images/dto/saved-image.dto';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsEnum,
   IsInt,
   IsNotEmpty,
-  IsString,
   Min,
-  MinLength,
+  IsString,
   Validate,
+  IsEnum,
+  MinLength,
 } from 'class-validator';
 
 export class CategoryUpdateDTO {

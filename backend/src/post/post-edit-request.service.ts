@@ -1,18 +1,16 @@
-import { ErrorMessage } from '@common';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  PostEditRequest,
-  PostEditRequestRepository,
-  PostErrorMessage,
-  PostMessageLog,
-  PostService,
-  SendRequestChangingPostDto,
-} from '@post';
+import { SendRequestChangingPostDto } from '@post/dto/send-request-edit.post.dto';
+import { PostEditRequest } from '@post/entities/post-edit-request.entity';
+import { PostErrorMessage } from '@post/messages/post.error-messages';
+import { PostMessageLog } from '@post/messages/post.messages-log';
+import { PostService } from '@post/post.service';
+import { PostEditRequestRepository } from '@post/repositories/post-edit-request.repository';
 
 @Injectable()
 export class PostEditRequestService {

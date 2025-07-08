@@ -1,14 +1,15 @@
-import { CartDetail, CartStatus } from '@cart';
-import { User } from '@user';
+import { CartStatus } from '@cart/enums/cart-status.enum';
+import { User } from '@user/entites/users.entity';
+import { CartDetail } from './cart-details.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
-  Column,
   ManyToOne,
-  OneToMany,
+  JoinColumn,
+  Column,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('carts')

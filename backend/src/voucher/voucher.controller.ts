@@ -1,14 +1,11 @@
-import { JwtPayload } from '@auth';
-import {
-  ApiResponse,
-  CatchEverythingFilter,
-  GetUser,
-  HasRole,
-  JwtAuthGuard,
-  NotifyMessage,
-  PaginationResponse,
-  RolesGuard,
-} from '@common';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { HasRole } from '@decorators/roles.decorator';
+import { GetUser } from '@decorators/user.decorator';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { JwtAuthGuard } from '@guards/jwt-auth.guard';
+import { RolesGuard } from '@guards/roles.guard';
+import { NotifyMessage } from '@messages/notify.messages';
 import {
   Body,
   Controller,
@@ -31,18 +28,17 @@ import {
   ApiResponse as ApiSwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RoleName } from '@role';
-import {
-  CreateVoucherRequestDto,
-  DeleteVoucherRequestDto,
-  FindVoucherByCodeRequestDto,
-  GetAllVoucherRequestDto,
-  GetAllVouchersByUserIdRequestDto,
-  UpdateVoucherRequestDto,
-  Voucher,
-  VoucherResponseDto,
-  VoucherService,
-} from '@voucher';
+import { PaginationResponse } from '@pagination/pagination-response';
+import { RoleName } from '@role/enums/role.enum';
+import { CreateVoucherRequestDto } from '@voucher/dto/create-voucher-request.dto';
+import { DeleteVoucherRequestDto } from '@voucher/dto/delete-voucher-request.dto';
+import { FindVoucherByCodeRequestDto } from '@voucher/dto/find-voucher-by-name-request.dto';
+import { GetAllVouchersByUserIdRequestDto } from '@voucher/dto/get-all-voucher-by-user-id-request.dto';
+import { GetAllVoucherRequestDto } from '@voucher/dto/get-all-voucher-request.dto';
+import { UpdateVoucherRequestDto } from '@voucher/dto/update-voucher-request.dto';
+import { VoucherResponseDto } from '@voucher/dto/voucher-response.dto';
+import { Voucher } from '@voucher/entities/vouchers.entity';
+import { VoucherService } from '@voucher/voucher.service';
 
 @Controller('voucher')
 @ApiTags('Voucher')

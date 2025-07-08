@@ -1,5 +1,5 @@
-import { MessageLog } from '@common';
-import * as Joi from 'joi';
+import { MessageLog } from '@messages/log.messages';
+import Joi from 'joi';
 
 export const schema = Joi.object({
   http: Joi.object({

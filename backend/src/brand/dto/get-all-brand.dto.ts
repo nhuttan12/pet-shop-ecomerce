@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Min } from 'class-validator';
-import { ErrorMessage } from '@message/error-message';
+import { Type } from 'class-transformer';
+import { ErrorMessage } from '@messages/error.messages';
 
 export class GetAllBrandsDTO {
   @ApiPropertyOptional({ default: 1 })

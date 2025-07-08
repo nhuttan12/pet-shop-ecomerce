@@ -1,16 +1,14 @@
-import {
-  Cart,
-  CartDetailStatus,
-  CartErrorMessage,
-  CartMessageLog,
-  CartStatus,
-} from '@cart';
+import { Cart } from '@cart/entities/carts.entity';
+import { CartDetailStatus } from '@cart/enums/cart-detail-status.enum';
+import { CartStatus } from '@cart/enums/cart-status.enum';
+import { CartErrorMessage } from '@cart/messages/cart.error-messages';
+import { CartMessageLog } from '@cart/messages/cart.message-logs';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { UserStatus } from '@user';
+import { UserStatus } from '@user/enums/user-status.enum';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()

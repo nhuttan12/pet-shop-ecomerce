@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ProductErrorMessage } from '@product/messages/product.error-messages';
 import { IsInt, IsNotEmpty, Min } from 'class-validator';
-import { ProductErrorMessage } from 'product/messages';
 
 export class ToggleRatingProductRequestDTO {
   @ApiProperty({

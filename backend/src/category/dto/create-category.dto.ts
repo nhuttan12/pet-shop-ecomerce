@@ -1,7 +1,8 @@
+import { SavedImageDTO } from '@images/dto/saved-image.dto';
+import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ErrorMessage, SavedImageDTO } from '@common';
+import { IsString, IsNotEmpty, ValidateNested } from 'class-validator';
 
 export class CategoryCreateDTO {
   @IsString({ message: ErrorMessage.NAME_MUST_BE_STRING })

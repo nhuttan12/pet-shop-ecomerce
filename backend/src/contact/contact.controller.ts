@@ -1,25 +1,25 @@
-import { ApiResponse, CatchEverythingFilter, NotifyMessage } from '@common';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { NotifyMessage } from '@messages/notify.messages';
+import { ContactService } from './contact.service';
+import { ContactResponseDto } from './dto/contact-response.dto';
+import { CreateContactRequestDto } from './dto/create-contact-request.dto';
+import { GetAllContactInfoRequestDto } from './dto/get-all-contact-info-request.dto';
+import { Contact } from './entites/contacts.schema';
 import {
-  Contact,
-  ContactResponseDto,
-  ContactService,
-  CreateContactRequestDto,
-  GetAllContactInfoRequestDto,
-} from '@contact';
-import {
-  Body,
   Controller,
-  Get,
-  HttpStatus,
-  Logger,
-  Post,
-  Query,
   UseFilters,
+  Logger,
+  HttpStatus,
+  Body,
+  Get,
+  Query,
+  Post,
 } from '@nestjs/common';
 import {
-  ApiBody,
-  ApiOperation,
   ApiTags,
+  ApiOperation,
+  ApiBody,
   ApiResponse as ApiSwaggerResponse,
 } from '@nestjs/swagger';
 

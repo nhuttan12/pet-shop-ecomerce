@@ -1,15 +1,16 @@
-import { AuthenticatedRequest } from '@auth';
-import { MessageLog, ROLES_KEY } from '@common';
+import { AuthenticatedRequest } from '@auth/interfaces/authenticated.interface';
+import { AuthErrorMessages } from '@auth/messages/auth.error-messages';
+import { ROLES_KEY } from '@decorators/roles.decorator';
+import { MessageLog } from '@messages/log.messages';
 import {
+  Injectable,
   CanActivate,
+  Logger,
   ExecutionContext,
   ForbiddenException,
-  Injectable,
-  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RoleName } from '@role';
-import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
+import { RoleName } from '@role/enums/role.enum';
 
 /**
  * @description: create HasRole() decorator by get role from meta data

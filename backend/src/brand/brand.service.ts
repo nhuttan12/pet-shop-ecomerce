@@ -1,19 +1,17 @@
-import {
-  Brand,
-  BrandCreateDTO,
-  BrandErrorMessages,
-  BrandMessagesLog,
-  BrandUpdateDTO,
-  FindBrandById,
-  FindBrandByName,
-  GetAllBrandsDTO,
-} from '@brand';
-import { UtilityService } from '@common';
+import { BrandCreateDTO } from '@brand/dto/create-brand.dto';
+import { FindBrandById } from '@brand/dto/find-brand-by-id.dto';
+import { FindBrandByName } from '@brand/dto/find-brand-by-name.dto';
+import { GetAllBrandsDTO } from '@brand/dto/get-all-brand.dto';
+import { BrandUpdateDTO } from '@brand/dto/update-brand.dto';
+import { Brand } from '@brand/entities/brands.entity';
+import { BrandErrorMessages } from '@brand/messages/brand.error-messages';
+import { BrandMessagesLog } from '@brand/messages/brand.messages-log';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { UtilityService } from '@services/utility.service';
 import { BrandRepository } from 'brand/repositories/brand.repository';
 
 @Injectable()

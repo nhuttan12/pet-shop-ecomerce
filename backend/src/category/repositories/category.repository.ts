@@ -1,10 +1,8 @@
-import {
-  Category,
-  CategoryErrorMessages,
-  CategoryMessagesLog,
-  CategoryStatus,
-  CategoryUpdateDTO,
-} from '@category';
+import { CategoryUpdateDTO } from '@category/dto/update-category.dto';
+import { Category } from '@category/entities/categories.entity';
+import { CategoryStatus } from '@category/enums/categories-status.enum';
+import { CategoryErrorMessages } from '@category/messages/category.error-messages';
+import { CategoryMessagesLog } from '@category/messages/category.messages-log';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, InsertResult, Repository, UpdateResult } from 'typeorm';

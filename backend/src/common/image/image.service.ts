@@ -1,11 +1,9 @@
-import {
-  Image,
-  ImageErrorMessage,
-  ImageMessageLog,
-  ImageType,
-  SavedImageDTO,
-  SubjectType,
-} from '@common';
+import { SavedImageDTO } from '@images/dto/saved-image.dto';
+import { Image } from '@images/entites/images.entity';
+import { ImageType } from '@images/enums/image-type.enum';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { ImageErrorMessage } from '@images/messages/image.error-messages';
+import { ImageMessageLog } from '@images/messages/image.messages-log';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ImageRepository } from 'common/image/repositories/image.repository';
 import { DataSource, EntityManager } from 'typeorm';

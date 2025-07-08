@@ -1,13 +1,14 @@
-import { ErrorMessage, NotUrlValidator } from '@common';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { NotUrlValidator } from '@class-validator/not-url.validator';
+import { ErrorMessage } from '@messages/error.messages';
+import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsInt,
-  IsNotEmpty,
   IsOptional,
-  IsString,
+  IsInt,
   Min,
+  IsString,
   Validate,
+  IsNotEmpty,
 } from 'class-validator';
 
 export class FindVoucherByCodeRequestDto {

@@ -1,5 +1,5 @@
-import { CartDetailStatus } from '@cart';
-import { ProductStatus } from '@product';
+import { CartDetailStatus } from '@cart/enums/cart-detail-status.enum';
+import { ProductStatus } from '@product/enums/product-status.enum';
 import { Expose } from 'class-transformer';
 
 export class CartDetailResponse {

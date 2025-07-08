@@ -4,8 +4,9 @@ import {
   Logger,
 } from '@nestjs/common';
 import { WishlistMapping } from '@wishlist/entities/wishlist-mapping.entity';
-import { WishlistStatus } from '@wishlist/enums';
-import { WishlistErrorMessage, WishlistMessageLog } from '@wishlist/messages';
+import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
+import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
+import { WishlistMessageLog } from '@wishlist/messages/wishlist.message-logs';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()

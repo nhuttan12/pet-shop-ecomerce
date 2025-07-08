@@ -1,22 +1,18 @@
-import { JwtPayload } from '@auth';
-import {
-  Cart,
-  CartCreateDTO,
-  CartDetail,
-  CartDetailResponse,
-  CartDetailService,
-  CartService,
-  GetCartDetailByCartId,
-  RemoveCartDetailDTO,
-} from '@cart';
-import {
-  ApiResponse,
-  CatchEverythingFilter,
-  GetUser,
-  HasRole,
-  JwtAuthGuard,
-  RolesGuard,
-} from '@common';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+import { ApiResponse } from '@api-response/ApiResponse';
+import { CartDetailService } from '@cart/cart-detail.service';
+import { CartService } from '@cart/cart.service';
+import { CartDetailResponse } from '@cart/dto/cart-detail/cart-detail-response.dto';
+import { GetCartDetailByCartId } from '@cart/dto/cart-detail/get-cart-detail-by-cart-id';
+import { RemoveCartDetailDTO } from '@cart/dto/cart-detail/remove-cart-detail.dto';
+import { CartCreateDTO } from '@cart/dto/cart/create-cart.dto';
+import { CartDetail } from '@cart/entities/cart-details.entity';
+import { Cart } from '@cart/entities/carts.entity';
+import { HasRole } from '@decorators/roles.decorator';
+import { GetUser } from '@decorators/user.decorator';
+import { CatchEverythingFilter } from '@filters/exception.filter';
+import { JwtAuthGuard } from '@guards/jwt-auth.guard';
+import { RolesGuard } from '@guards/roles.guard';
 import {
   Body,
   Controller,
@@ -33,13 +29,13 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
+  ApiResponse as ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RoleName } from '@role';
+import { RoleName } from '@role/enums/role.enum';
 import { CartNotifyMessage } from 'cart/messages/cart.notify-messages';
 
 @ApiTags('Cart')
@@ -63,12 +59,12 @@ export class CartController {
     description: 'Thêm giỏ hàng thành công',
   })
   async addProductToCart(
-    @Body() { productId, quantity }: CartCreateDTO,
+    @Body() { productID, quantity }: CartCreateDTO,
     @GetUser() user: JwtPayload,
   ): Promise<ApiResponse<Cart>> {
     const newCart = await this.cartService.addToCart(
       user.sub,
-      productId,
+      productID,
       quantity,
     );
     this.logger.debug(`Cart: ${JSON.stringify(newCart)}`);

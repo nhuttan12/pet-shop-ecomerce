@@ -1,7 +1,4 @@
-/**
- * @description = message to throw out the console or terminal when
- *  meeting error in dev, or run in production
- */
+console.log('>>> log.messages.ts LOADED');
 export enum MessageLog {
   INVALID_TOKEN = 'Invalid token',
   TOKEN_EXPIRED = 'Token expired',
