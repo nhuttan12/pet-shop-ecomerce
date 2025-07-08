@@ -6,6 +6,8 @@ import { CartStatus } from '@cart/enums/cart-status.enum';
 import { CartErrorMessage } from '@cart/messages/cart.error-messages';
 import { CartMessageLog } from '@cart/messages/cart.message-logs';
 import {
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -32,6 +34,7 @@ export class OrderService {
     private readonly orderRepo: OrderRepository,
     private readonly cartService: CartService,
     private readonly cartDetailService: CartDetailService,
+    @Inject(forwardRef(() => OrderDetailService))
     private readonly orderDetailService: OrderDetailService,
   ) {}
   async getAllOrders(

@@ -1,6 +1,8 @@
 import { ErrorMessage } from '@messages/error.messages';
 import { NotifyMessage } from '@messages/notify.messages';
 import {
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -19,6 +21,7 @@ import { UserService } from '@user/user.service';
 export class ProductRatingService {
   private readonly logger = new Logger(ProductRatingService.name);
   constructor(
+    @Inject(forwardRef(() => ProductService))
     private productService: ProductService,
     private userService: UserService,
     private readonly productRatingRepo: ProductRatingRepository,

@@ -10,5 +10,6 @@ import { BrandRepository } from 'brand/repositories/brand.repository';
   imports: [UtilityModule, TypeOrmModule.forFeature([Brand])],
   controllers: [BrandController],
   providers: [BrandService, BrandRepository],
+  exports: [BrandService],
 })
 export class BrandModule {}

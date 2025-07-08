@@ -9,7 +9,6 @@ import { PostResponse } from './dto/post-response.dto';
 import { Post } from './entities/posts.entity';
 import { PostErrorMessage } from './messages/post.error-messages';
 import { PostMessageLog } from './messages/post.messages-log';
-import { PostEditRequestRepository } from './repositories/post-edit-request.repository';
 import { PostRepository } from './repositories/post.repository';
 import {
   Injectable,
@@ -28,7 +27,6 @@ export class PostService {
     private userService: UserService,
     private utilityService: UtilityService,
     private readonly postRepo: PostRepository,
-    private readonly postEditRequestRepo: PostEditRequestRepository,
   ) {}
 
   async getAllPosts(

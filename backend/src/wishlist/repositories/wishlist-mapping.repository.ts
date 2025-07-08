@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { WishlistMapping } from '@wishlist/entities/wishlist-mapping.entity';
 import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
 import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
@@ -15,6 +16,7 @@ export class WishlistMappingRepository {
 
   constructor(
     private readonly dataSource: DataSource,
+    @InjectRepository(WishlistMapping)
     private readonly repo: Repository<WishlistMapping>,
   ) {}
 

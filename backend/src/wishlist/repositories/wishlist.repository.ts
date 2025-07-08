@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Wishlist } from '@wishlist/entities/wishlists.entity';
 import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
 import { DataSource, Repository } from 'typeorm';
@@ -8,6 +9,7 @@ export class WishlistRepository {
   private readonly logger = new Logger(WishlistRepository.name);
   constructor(
     private readonly dataSource: DataSource,
+    @InjectRepository(Wishlist)
     private readonly repo: Repository<Wishlist>,
   ) {}
 

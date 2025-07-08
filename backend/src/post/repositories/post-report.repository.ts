@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { PostReport } from '@post/entities/post-report.entity';
 import { PostReportStatus } from '@post/enums/post-report-status.enum';
 import { PostMessageLog } from '@post/messages/post.messages-log';
@@ -13,6 +14,7 @@ import { DataSource, Repository } from 'typeorm';
 export class PostReportRepository {
   private readonly logger = new Logger(PostReportRepository.name);
   constructor(
+    @InjectRepository(PostReport)
     private readonly postReportRepo: Repository<PostReport>,
     private readonly dataSource: DataSource,
   ) {}

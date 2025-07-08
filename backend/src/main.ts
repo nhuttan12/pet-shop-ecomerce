@@ -10,9 +10,9 @@ import {
   ExpressAdapter,
   NestExpressApplication,
 } from '@nestjs/platform-express';
-import { CatchEverythingFilter } from '@filter/exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import { CatchEverythingFilter } from '@filters/exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(

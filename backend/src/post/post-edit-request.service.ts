@@ -1,5 +1,7 @@
 import { ErrorMessage } from '@messages/error.messages';
 import {
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -17,6 +19,7 @@ export class PostEditRequestService {
   private readonly logger = new Logger(PostEditRequestService.name);
   constructor(
     private readonly postEditRequestRepo: PostEditRequestRepository,
+    @Inject(forwardRef(() => PostService))
     private readonly postService: PostService,
   ) {}
 

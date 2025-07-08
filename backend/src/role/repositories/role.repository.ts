@@ -1,13 +1,14 @@
-import { Role } from "@role/entities/roles.entity";
-import { RoleErrorMessages } from "@role/messages/role.error-messages";
-import { RoleMessageLog } from "@role/messages/role.mesages-log";
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
+import { Role } from '@role/entities/roles.entity';
+import { RoleMessageLog } from '@role/messages/role.mesages-log';
+import { RoleErrorMessages } from '@role/messages/role.error-messages';
 
 @Injectable()
 export class RoleRepository {
   private readonly logger = new Logger(RoleRepository.name);
 
   constructor(
-    @InjectRepository(Role)
     private readonly roleRepo: Repository<Role>,
     private readonly dataSource: DataSource,
   ) {}

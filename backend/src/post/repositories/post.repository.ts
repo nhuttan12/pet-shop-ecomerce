@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostRequestDto } from '@post/dto/create-post-request.dto';
 import { EditPostRequestDto } from '@post/dto/edit-post-request.dto';
 import { Post } from '@post/entities/posts.entity';
@@ -15,6 +16,7 @@ import { DataSource, Repository, UpdateResult } from 'typeorm';
 export class PostRepository {
   private readonly logger = new Logger(PostRepository.name);
   constructor(
+    @InjectRepository(Post)
     private readonly postRepo: Repository<Post>,
     private readonly dataSource: DataSource,
   ) {}

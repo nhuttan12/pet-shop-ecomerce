@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { ProductFilterParams } from '@product/dto/filter-product-request.dto';
 import { Product } from '@product/entites/products.entity';
 import { ProductStatus } from '@product/enums/product-status.enum';
@@ -16,6 +17,7 @@ import { DataSource, EntityManager, Repository, UpdateResult } from 'typeorm';
 export class ProductRepository {
   private readonly logger = new Logger(ProductRepository.name);
   constructor(
+    @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
     private readonly dataSource: DataSource,
   ) {}
@@ -102,7 +104,7 @@ export class ProductRepository {
     name: string,
     description: string,
     price: number,
-    brand: Brand,
+    brandID: number,
     status: ProductStatus,
     quantity: number,
   ): Promise<boolean> {
@@ -112,7 +114,9 @@ export class ProductRepository {
           name,
           description,
           price,
-          brand,
+          brand: {
+            id: brandID,
+          },
           status,
           stocking: quantity,
           updatedAt: new Date(),

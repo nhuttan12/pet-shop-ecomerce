@@ -1,4 +1,3 @@
-console.log('>>> log.messages.ts LOADED');
 export enum MessageLog {
   INVALID_TOKEN = 'Invalid token',
   TOKEN_EXPIRED = 'Token expired',

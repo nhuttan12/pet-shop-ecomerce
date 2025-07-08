@@ -7,12 +7,14 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class CommentRepository {
   private readonly logger = new Logger(CommentRepository.name);
   constructor(
+    @InjectRepository(Comment)
     private readonly commentRepo: Repository<Comment>,
     private readonly dataSource: DataSource,
   ) {}

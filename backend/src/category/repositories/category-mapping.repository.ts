@@ -8,6 +8,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '@product/entites/products.entity';
 import { DataSource, Repository } from 'typeorm';
 
@@ -15,6 +16,7 @@ import { DataSource, Repository } from 'typeorm';
 export class CategoryMappingRepository {
   private readonly logger = new Logger(CategoryMappingRepository.name);
   constructor(
+    @InjectRepository(CategoryMapping)
     private readonly categoryMappingRepo: Repository<CategoryMapping>,
     private readonly dataSource: DataSource,
   ) {}

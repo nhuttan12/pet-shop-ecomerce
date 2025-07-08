@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { ProductRating } from '@product/entites/product-rating.entity';
 import { RatingStatus } from '@product/enums/product-rating.enum';
 import { ProductErrorMessage } from '@product/messages/product.error-messages';
@@ -14,6 +15,7 @@ export class ProductRatingRepository {
   private readonly logger = new Logger(ProductRatingRepository.name);
 
   constructor(
+    @InjectRepository(ProductRating)
     private readonly productRatingRepo: Repository<ProductRating>,
     private readonly dataSource: DataSource,
   ) {}

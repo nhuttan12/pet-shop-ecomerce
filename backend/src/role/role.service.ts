@@ -1,5 +1,7 @@
-import { Role } from "./entities/roles.entity";
-import { RoleRepository } from "./repositories/role.repository";
+import { Injectable } from '@nestjs/common';
+import { RoleRepository } from '@role/repositories/role.repository';
+import { Role } from '@role/entities/roles.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class RoleService {
@@ -28,5 +30,3 @@ export class RoleService {
     return await this.getRoleByName(name);
   }
 }
-
-

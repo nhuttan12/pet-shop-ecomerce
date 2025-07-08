@@ -1,3 +1,4 @@
+import { AppConfigModule } from '@config/app-config.module';
 import { AppConfigService } from '@config/app-config.service';
 import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
 
@@ -11,7 +12,8 @@ type Dialect =
   | 'mongodb';
 
 export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
-  imports: [AppConfigService],
+  imports: [AppConfigModule],
+  inject: [AppConfigService],
   useFactory: (configService: AppConfigService) => ({
     type: configService.getDatabaseConfig.mysql.dialect as Dialect,
     host: configService.getDatabaseConfig.mysql.host,
@@ -23,5 +25,4 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
     synchronize: true,
     autoLoadEntities: true,
   }),
-  inject: [AppConfigService],
 };

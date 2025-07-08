@@ -350,7 +350,7 @@ export class ProductService {
       request.name,
       request.description,
       request.price,
-      brand,
+      brand.id,
       request.status,
       request.stock,
     );

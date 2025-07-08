@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -18,6 +20,7 @@ export class WishListMappingService {
   private readonly logger = new Logger(WishListMappingService.name);
   constructor(
     private readonly wishlistMappingRepo: WishlistMappingRepository,
+    @Inject(forwardRef(() => WishlistService))
     private readonly wishlistService: WishlistService,
     private readonly utilityService: UtilityService,
   ) {}

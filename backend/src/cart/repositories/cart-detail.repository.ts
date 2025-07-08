@@ -8,6 +8,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class CartDetailRepository {
   private readonly logger = new Logger(CartDetailRepository.name);
   constructor(
     private readonly dataSource: DataSource,
+    @InjectRepository(CartDetail)
     private readonly repo: Repository<CartDetail>,
   ) {}
 

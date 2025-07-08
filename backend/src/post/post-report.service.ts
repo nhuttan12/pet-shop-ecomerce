@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -11,7 +13,6 @@ import { PostErrorMessage } from '@post/messages/post.error-messages';
 import { PostMessageLog } from '@post/messages/post.messages-log';
 import { PostService } from '@post/post.service';
 import { PostReportRepository } from '@post/repositories/post-report.repository';
-import { PostRepository } from '@post/repositories/post.repository';
 import { UtilityService } from '@services/utility.service';
 import { UserService } from '@user/user.service';
 import { plainToInstance } from 'class-transformer';
@@ -20,8 +21,8 @@ import { plainToInstance } from 'class-transformer';
 export class PostReportService {
   private readonly logger = new Logger(PostReportService.name);
   constructor(
-    private readonly postRepo: PostRepository,
     private readonly postReportRepo: PostReportRepository,
+    @Inject(forwardRef(() => PostService))
     private readonly postService: PostService,
     private readonly utilityService: UtilityService,
     private readonly userService: UserService,

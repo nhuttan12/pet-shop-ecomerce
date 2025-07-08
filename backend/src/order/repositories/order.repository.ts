@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from '@order/entites/orders.entity';
 import { OrderStatus } from '@order/enums/order-status.enum';
 import { PaymentMethod } from '@order/enums/payment-method.enum';
@@ -17,6 +18,7 @@ export class OrderRepository {
 
   constructor(
     private readonly dataSource: DataSource,
+    @InjectRepository(Order)
     private readonly repo: Repository<Order>,
   ) {}
 

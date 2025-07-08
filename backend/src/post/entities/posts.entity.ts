@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
+import { Comment } from '@comment/entities/comments.entity';
 
 @Entity('posts')
 export class Post {
@@ -47,6 +48,6 @@ export class Post {
   @OneToMany(() => PostReport, (postReport) => postReport.post)
   postReports: PostReport[];
 
-  @OneToMany(() => Comment, (comment) => comment.post)
+  @OneToMany(() => Comment, (comment: Comment) => comment.post)
   comments: Comment[];
 }

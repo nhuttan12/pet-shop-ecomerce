@@ -1,3 +1,4 @@
+import { JwtPayload } from './../auth/interfaces/jwt-payload.interface';
 import { ApiResponse } from '@api-response/ApiResponse';
 import { HasRole } from '@decorators/roles.decorator';
 import { GetUser } from '@decorators/user.decorator';
@@ -29,7 +30,6 @@ import {
   ApiResponse as ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiResponse } from '@paypal/paypal-server-sdk';
 import { CreateProductRequest } from '@product/dto/create-product-request.dto';
 import { DeleteProductByProductIdRequestDto } from '@product/dto/delete-product-by-product-id-request.dto';
 import { ProductFilterParams } from '@product/dto/filter-product-request.dto';

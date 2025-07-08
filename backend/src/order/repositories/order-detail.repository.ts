@@ -1,5 +1,6 @@
 import { CartDetail } from '@cart/entities/cart-details.entity';
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { OrderDetail } from '@order/entites/order-details.entity';
 import { Order } from '@order/entites/orders.entity';
 import { Product } from '@product/entites/products.entity';
@@ -10,6 +11,7 @@ export class OrderDetailRepository {
   private readonly logger = new Logger(OrderDetailRepository.name);
   constructor(
     private readonly dataSource: DataSource,
+    @InjectRepository(OrderDetail)
     private readonly repo: Repository<OrderDetail>,
   ) {}
 
