@@ -8,4 +8,5 @@ export enum AuthMessageLog {
   USERNAME_OR_EMAIL_EXISTS = 'Username or email is exist',
   USER_CREATED_SUCCESS = 'User created success',
   NO_USER_CREATED = 'No user created',
+  USER_NOT_FOUND_WITH_PAYLOAD = 'User not found with payload',
 }

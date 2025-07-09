@@ -4,7 +4,7 @@ import { Brand } from '@brand/entities/brands.entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UtilityModule } from '@services/utility.module';
-import { BrandRepository } from 'brand/repositories/brand.repository';
+import { BrandRepository } from '@brand/repositories/brand.repository';
 
 @Module({
   imports: [UtilityModule, TypeOrmModule.forFeature([Brand])],

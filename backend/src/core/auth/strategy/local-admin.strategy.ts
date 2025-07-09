@@ -3,7 +3,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { UserLoginDTO } from '@user/dto/user-login.dto';
 import { User } from '@user/entites/users.entity';
-import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
+import { AuthErrorMessages } from '@auth/messages/auth.error-messages';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 import { Strategy } from 'passport-local';

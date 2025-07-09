@@ -44,7 +44,7 @@ import { Order } from '@order/entites/orders.entity';
 @ApiTags('Order')
 @ApiBearerAuth('jwt')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@HasRole(RoleName.USER)
+@HasRole(RoleName.CUSTOMER)
 @UseFilters(CatchEverythingFilter)
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);

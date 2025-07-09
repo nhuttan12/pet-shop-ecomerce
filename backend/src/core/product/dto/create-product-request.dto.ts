@@ -56,10 +56,18 @@ export class CreateProductRequest {
 
   @ValidateNested()
   @Type(() => SavedImageDTO)
+  @ApiProperty({
+    description: 'Ảnh chính của sản phẩm',
+    type: () => SavedImageDTO,
+  })
   mainImage: SavedImageDTO;
 
   @IsArray({ message: ErrorMessage.SUB_IMAGES_MUST_BE_ARRAY })
   @ValidateNested({ each: true })
   @Type(() => SavedImageDTO)
+  @ApiProperty({
+    description: 'Danh sách ảnh phụ (nếu có)',
+    type: [SavedImageDTO],
+  })
   subImages: SavedImageDTO[];
 }

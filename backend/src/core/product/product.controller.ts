@@ -257,7 +257,7 @@ export class ProductController {
     };
   }
 
-  @Post()
+  @Post('rating')
   @ApiOperation({ summary: 'Đánh giá hoặc gỡ đánh giá sản phẩm' })
   @ApiOkResponse({
     status: 200,

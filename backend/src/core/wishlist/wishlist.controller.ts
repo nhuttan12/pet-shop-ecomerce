@@ -36,7 +36,7 @@ import { WishlistService } from '@wishlist/wishlist.service';
 @ApiTags('Wishlist')
 @ApiBearerAuth('jwt')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@HasRole(RoleName.USER, RoleName.ADMIN)
+@HasRole(RoleName.CUSTOMER, RoleName.ADMIN)
 @UseFilters(CatchEverythingFilter)
 export class WishlistController {
   private readonly logger = new Logger(WishlistController.name);

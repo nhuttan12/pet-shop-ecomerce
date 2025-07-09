@@ -104,7 +104,7 @@ export async function main() {
       // Chèn dữ liệu mẫu
       const roles: Role[] = await manager.save(Role, [
         { id: 1, name: RoleName.ADMIN, status: RoleStatus.ACTIVE },
-        { id: 2, name: RoleName.USER, status: RoleStatus.ACTIVE },
+        { id: 2, name: RoleName.CUSTOMER, status: RoleStatus.ACTIVE },
         { id: 3, name: RoleName.CUSTOMER, status: RoleStatus.ACTIVE },
         { id: 4, name: RoleName.MANAGER, status: RoleStatus.ACTIVE },
         { id: 5, name: RoleName.MARKETING_EMPLOYEE, status: RoleStatus.ACTIVE },

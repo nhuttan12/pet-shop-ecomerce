@@ -34,7 +34,7 @@ export class UserRepository {
   ) {}
 
   async getUserById(id: number): Promise<User | null> {
-    return this.userRepo.findOne({ where: { id } });
+    return this.userRepo.findOne({ where: { id }, relations: { role: true } });
   }
 
   async getUserByName(name: string): Promise<User | null> {

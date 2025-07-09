@@ -22,4 +22,5 @@ export enum AuthErrorMessages {
   INVALID_LOGIN_INFO = 'Sai thông tin đăng nhập',
 
   USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE = 'Bạn không có quyền để truy cập tài nguyên này',
+  USER_NOT_EXISTS = 'Tài khoản không tồn tại',
 }

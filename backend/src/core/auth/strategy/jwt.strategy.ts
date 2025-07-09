@@ -1,9 +1,11 @@
 import { AuthService } from '@auth/auth.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+import { AuthMessageLog } from '@auth/messages/auth.messages-log';
+import { AuthErrorMessages } from '@auth/messages/auth.error-messages';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -21,14 +23,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     this.logger.debug('Jwt key:', jwtKey);
   }
 
-  async validate(payload: JwtPayload) {
+  async validate(payload: JwtPayload): Promise<JwtPayload> {
     this.logger.debug('Payload info:', payload);
 
     const user: JwtPayload = await this.authService.getUserFromPayload(
       payload.sub,
-      payload.username,
     );
     this.logger.debug('Validate user:', user);
+
+    if (!user) {
+      this.logger.error(AuthMessageLog.USER_NOT_FOUND_WITH_PAYLOAD);
+      throw new UnauthorizedException(AuthErrorMessages.USER_NOT_EXISTS);
+    }
 
     return user;
   }

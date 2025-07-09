@@ -7,7 +7,6 @@ import {
 import { CreateOrderDto } from '@payment/dto/create-order.dto';
 import { PaymentErrorMessages } from '@payment/messages/payment.error-messages';
 import { PaymentMessageLog } from '@payment/messages/payment.message-logs';
-import { PayPalHttpResponse } from '@payment/type/paypal-http-response.type';
 import paypal from '@paypal/checkout-server-sdk';
 import {
   LiveEnvironment,
@@ -19,6 +18,7 @@ import {
   OrdersCreateRequest,
 } from '@paypal/checkout-server-sdk/lib/orders/lib';
 import { LinkDescription } from '@paypal/checkout-server-sdk/lib/payments/lib';
+import paypalhttp from '@paypal/paypalhttp';
 
 @Injectable()
 export class PaymentService {
@@ -54,8 +54,9 @@ export class PaymentService {
       },
     });
 
-    const response: PayPalHttpResponse<Order> =
-      await this.client.execute(request);
+    const response = (await this.client.execute(
+      request,
+    )) as paypalhttp.HttpResponse<Order>;
 
     const approvalUrl: string | undefined = response.result?.links.find(
       (l: LinkDescription) => l.rel === 'approve',
@@ -74,8 +75,9 @@ export class PaymentService {
       new paypal.orders.OrdersCaptureRequest(orderID);
     request.requestBody({} as any);
 
-    const response: PayPalHttpResponse<Order> =
-      await this.client.execute(request);
+    const response = (await this.client.execute(
+      request,
+    )) as paypalhttp.HttpResponse<Order>;
 
     const result: Order | undefined = response.result;
 

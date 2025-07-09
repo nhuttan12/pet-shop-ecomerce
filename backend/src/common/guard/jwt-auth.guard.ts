@@ -11,7 +11,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   handleRequest<TUser = any>(err, user, info, context): TUser {
     if (err || !user) {
       this.logger.warn(
-        `JWT info: ${info}\n JWT err: ${err}\n JWT context: ${context}`,
+        'JWT info:',
+        info,
+        'JWT err: ',
+        err,
+        'JWT context: ',
+        context,
       );
       throw new UnauthorizedException(AuthErrorMessages.USER_NOT_LOG_IN);
     }

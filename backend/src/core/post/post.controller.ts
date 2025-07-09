@@ -47,7 +47,7 @@ import { RoleName } from '@role/enums/role.enum';
 @Controller('/post')
 @ApiTags('Post')
 @ApiBearerAuth('jwt')
-@HasRole(RoleName.USER, RoleName.ADMIN)
+@HasRole(RoleName.CUSTOMER, RoleName.ADMIN)
 @UseFilters(CatchEverythingFilter)
 export class PostController {
   private readonly logger = new Logger(PostController.name);

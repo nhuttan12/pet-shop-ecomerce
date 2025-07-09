@@ -18,7 +18,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { UtilityService } from '@services/utility.service';
-import { CategoryMessagesLog } from 'category/messages/category.messages-log';
+import { CategoryMessagesLog } from '@category/messages/category.messages-log';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()

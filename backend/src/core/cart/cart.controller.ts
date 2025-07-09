@@ -36,7 +36,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { RoleName } from '@role/enums/role.enum';
-import { CartNotifyMessage } from 'cart/messages/cart.notify-messages';
+import { CartNotifyMessage } from '@cart/messages/cart.notify-messages';
 
 @ApiTags('Cart')
 @ApiBearerAuth('jwt')
@@ -51,7 +51,7 @@ export class CartController {
   ) {}
 
   @Post('add-to-cart')
-  @HasRole(RoleName.USER)
+  @HasRole(RoleName.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Thêm giỏ hàng mới' })
   @ApiOkResponse({
@@ -77,7 +77,7 @@ export class CartController {
   }
 
   @Get('/cart-detail')
-  @HasRole(RoleName.USER)
+  @HasRole(RoleName.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Lấy chi tiết giỏ hàng (phân trang)' })
   @ApiQuery({
@@ -118,7 +118,7 @@ export class CartController {
   }
 
   @Delete('/cart-detail/:id')
-  @HasRole(RoleName.USER)
+  @HasRole(RoleName.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Xóa chi tiết giỏ hàng theo ID' })
   @ApiParam({ name: 'id', type: Number, description: 'OrderDetail ID' })

@@ -6,7 +6,7 @@ import { UtilityModule } from '@services/utility.module';
 import { User } from '@user/entites/users.entity';
 import { UserController } from '@user/user.controller';
 import { UserService } from '@user/user.service';
-import { UserRepository } from 'user/repositories/user.repository';
+import { UserRepository } from '@user/repositories/user.repository';
 import { UserDetail } from '@user/entites/user-details.entity';
 
 @Module({

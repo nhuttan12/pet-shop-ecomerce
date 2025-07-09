@@ -74,7 +74,7 @@ export class VoucherController {
   }
 
   @Get('/user')
-  @HasRole(RoleName.USER)
+  @HasRole(RoleName.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Lấy voucher theo user đang đăng nhập' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -102,7 +102,7 @@ export class VoucherController {
 
   @Get('/search')
   @HasRole(RoleName.ADMIN)
-  @HasRole(RoleName.USER)
+  @HasRole(RoleName.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Tìm kiếm voucher theo mã code' })
   @ApiQuery({ name: 'voucherCode', required: true, type: String })

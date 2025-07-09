@@ -1,3 +1,4 @@
+import { CategoryMappingService } from '@category/category-mapping.service';
 import { CategoryController } from '@category/category.controller';
 import { CategoryService } from '@category/category.service';
 import { CategoryMapping } from '@category/entities/categories-mapping.entity';
@@ -8,7 +9,6 @@ import { ImageModule } from '@images/image.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UtilityModule } from '@services/utility.module';
-import { CategoryMappingService } from 'category/category-mapping.service';
 
 @Module({
   imports: [

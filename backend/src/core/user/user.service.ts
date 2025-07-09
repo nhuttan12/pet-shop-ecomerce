@@ -13,7 +13,7 @@ import { User } from '@user/entites/users.entity';
 import { UserStatus } from '@user/enums/user-status.enum';
 import { UserErrorMessage } from '@user/messages/user.error-messages';
 import { UserMessageLog } from '@user/messages/user.messages-log';
-import { UserRepository } from 'user/repositories/user.repository';
+import { UserRepository } from '@user/repositories/user.repository';
 
 @Injectable()
 export class UserService {

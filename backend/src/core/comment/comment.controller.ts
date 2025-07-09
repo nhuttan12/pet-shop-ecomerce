@@ -39,7 +39,7 @@ import { RoleName } from '@role/enums/role.enum';
 @Controller('comment')
 @ApiBearerAuth('jwt')
 @ApiTags('Comment')
-@HasRole(RoleName.USER, RoleName.ADMIN) // Allow USER and ADMIN roles for all endpoints
+@HasRole(RoleName.CUSTOMER, RoleName.ADMIN) // Allow USER and ADMIN roles for all endpoints
 @UseFilters(CatchEverythingFilter)
 export class CommentController {
   private readonly logger = new Logger(CommentController.name);

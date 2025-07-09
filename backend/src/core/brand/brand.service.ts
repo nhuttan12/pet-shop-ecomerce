@@ -12,7 +12,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { UtilityService } from '@services/utility.service';
-import { BrandRepository } from 'brand/repositories/brand.repository';
+import { BrandRepository } from '@brand/repositories/brand.repository';
 
 @Injectable()
 export class BrandService {

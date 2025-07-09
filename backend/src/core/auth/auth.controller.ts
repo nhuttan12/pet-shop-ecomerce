@@ -89,11 +89,16 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Invalid credentials',
   })
-  async login(@Request() req: RequestWithUser): Promise<ApiResponse<void>> {
-    await this.authService.loginWithUser(req.user);
+  async login(
+    @Request() req: RequestWithUser,
+  ): Promise<ApiResponse<UserLoginResponseDTO>> {
+    const user: UserLoginResponseDTO = await this.authService.loginWithUser(
+      req.user,
+    );
     return {
       message: AuthNotifyMessages.LOGIN_SUCCESSFUL,
       statusCode: HttpStatus.OK,
+      data: user,
     };
   }
 

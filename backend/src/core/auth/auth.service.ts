@@ -22,8 +22,8 @@ import { UserStatus } from '@user/enums/user-status.enum';
 import { UserErrorMessage } from '@user/messages/user.error-messages';
 import { UserMessageLog } from '@user/messages/user.messages-log';
 import { UserService } from '@user/user.service';
-import { AuthErrorMessages } from 'auth/messages/auth.error-messages';
-import { AuthNotifyMessages } from 'auth/messages/auth.notify-messages';
+import { AuthErrorMessages } from '@auth/messages/auth.error-messages';
+import { AuthNotifyMessages } from '@auth/messages/auth.notify-messages';
 import bcrypt from 'bcrypt';
 import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 
@@ -39,32 +39,31 @@ export class AuthService {
     private appConfigService: AppConfigService,
   ) {}
 
-  async getUserFromPayload(id: number, username: string): Promise<JwtPayload> {
+  async getUserFromPayload(id: number): Promise<JwtPayload> {
+    // 1. Find user by user ID
     const userWithId: User = await this.userService.getUserById(id);
+    this.logger.debug('User found with user ID', JSON.stringify(userWithId));
 
-    const userWithUsername: User =
-      await this.userService.getUserByUsername(username);
-
-    if (!userWithId || !userWithUsername) {
-      this.logger.error(AuthMessageLog.USER_EXIST);
+    // 2. Check user is exist
+    if (!userWithId) {
+      this.logger.warn(AuthMessageLog.USER_EXIST);
       throw new UnauthorizedException(AuthErrorMessages.USER_ALREADY_EXISTS);
     }
 
-    if (userWithId.id !== userWithUsername.id) {
-      this.logger.error(AuthMessageLog.INVALID_LOGIN_INFO);
-      throw new UnauthorizedException(AuthErrorMessages.INFOR_UNVALID);
-    }
-
+    // 3. Get role
     const role: Role = await this.roleService.getRoleById(userWithId.role.id);
+    this.logger.debug('Get role: ', JSON.stringify(role));
 
+    // 4. Get safe user
     const safeUser: JwtPayload = {
       sub: userWithId.id,
       username: userWithId.username,
       email: userWithId.email,
       role: role.name,
     };
-    this.logger.debug('Get safe user', safeUser);
+    this.logger.debug('Get safe user', JSON.stringify(safeUser));
 
+    // 5. Return safe user
     return safeUser;
   }
 
@@ -79,14 +78,14 @@ export class AuthService {
     this.logger.debug('Get user info:', user);
 
     if (!user) {
-      this.logger.error(AuthMessageLog.INVALID_LOGIN_INFO);
+      this.logger.warn(AuthMessageLog.INVALID_LOGIN_INFO);
       throw new UnauthorizedException(AuthErrorMessages.INFOR_UNVALID);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      this.logger.error(AuthMessageLog.INVALID_LOGIN_INFO);
+      this.logger.warn(AuthMessageLog.INVALID_LOGIN_INFO);
       throw new UnauthorizedException(AuthErrorMessages.INFOR_UNVALID);
     }
 
@@ -273,13 +272,13 @@ export class AuthService {
     retypePassword,
   }: UserResetPasswordDTO): Promise<void> {
     if (password !== retypePassword) {
-      this.logger.error(UserMessageLog.PASSWORD_MISMATCH);
+      this.logger.warn(UserMessageLog.PASSWORD_MISMATCH);
       throw new BadRequestException(UserMessageLog.PASSWORD_MISMATCH);
     }
 
     const decodeInfo: JwtPayload = await this.jwtService.decode(token);
     if (!decodeInfo || !decodeInfo.sub) {
-      this.logger.error('Invalid or expired reset token');
+      this.logger.warn('Invalid or expired reset token');
       throw new BadRequestException(ErrorMessage.INVALID_RESET_TOKEN);
     }
     const userId: number = decodeInfo.sub;

@@ -13,8 +13,6 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderModule } from '@order/order.module';
-import { PaypalController } from '@paypal/paypal.controller';
-import { PaypalModule } from '@paypal/paypal.module';
 import { PostModule } from '@post/post.module';
 import { ProductModule } from '@product/product.module';
 import { RoleModule } from '@role/role.module';
@@ -23,7 +21,7 @@ import { VoucherModule } from '@voucher/voucher.module';
 import { WishlistModule } from '@wishlist/wishlist.module';
 import configuration from 'common/config/configuration';
 import { typeOrmConfig } from 'common/database/typeorm.config';
-import { PaymentModule } from './payment/payment.module';
+import { PaymentModule } from '@payment/payment.module';
 
 @Module({
   imports: [
@@ -48,7 +46,6 @@ import { PaymentModule } from './payment/payment.module';
     PostModule,
     ContactModule,
     WishlistModule,
-    PaypalModule,
     PaymentModule,
   ],
   providers: [
@@ -71,6 +68,5 @@ import { PaymentModule } from './payment/payment.module';
       useClass: ValidationPipe,
     },
   ],
-  controllers: [PaypalController],
 })
 export class AppModule {}
