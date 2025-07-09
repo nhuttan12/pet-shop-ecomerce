@@ -13,6 +13,7 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { CatchEverythingFilter } from '@filters/exception.filter';
+import express from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(
@@ -28,7 +29,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Thương mại điện tử')
-    .setDescription('API test for Tmdt-ck')
+    .setDescription('API test for Pet Shop')
     .setVersion('1.0')
     .addBearerAuth(
       {
@@ -39,7 +40,7 @@ async function bootstrap() {
       },
       'jwt',
     )
-    .addTag('Tmdt-ck')
+    .addTag('Pet Shop')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -51,12 +52,11 @@ async function bootstrap() {
   const configService: ConfigService = app.get(ConfigService);
   const port: number = configService.get<number>('http.port') || 3000;
 
-  // Enable CORS for the frontend origin (http://localhost:5173)
   app.enableCors({
-    origin: ['http://localhost:5173', 'http://localhost:3000'], // Allow requests from Vite frontend
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // Include OPTIONS for preflight requests
-    allowedHeaders: 'Content-Type, Authorization', // Allow JWT token and content type
-    credentials: true, // Allow cookies or credentials if needed
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization',
+    credentials: true,
   });
 
   app.useGlobalPipes(
@@ -74,6 +74,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
   await app.listen(port);
   console.log(`🚀 Application is running on: http://localhost:${port}`);

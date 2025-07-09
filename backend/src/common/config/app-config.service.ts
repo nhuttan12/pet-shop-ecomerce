@@ -1,19 +1,21 @@
 import { ErrorMessage } from '@messages/error.messages';
 import { MessageLog } from '@messages/log.messages';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotAcceptableException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CloudinaryConfig } from './interfaces/cloudinary.interface';
 import { DatabaseConfig } from './interfaces/database.interface';
 import { DomainValidation } from './interfaces/domain.interface';
 import { HttpConfig } from './interfaces/http.interface';
 import { NodeMailerConfig } from './interfaces/nodemailer.interface';
 import { PayPalConfig } from './interfaces/paypal.interface';
-import { StripeConfig } from './interfaces/stripe.interface';
-import {
-  Injectable,
-  Logger,
-  NotAcceptableException,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { EmailConfigErrorMessage } from '@config/messages/email-config.error-messages';
+import { CloudinaryConfigErrorMessage } from '@config/messages/cloudinary-config.error-messages';
+import { PaypalConfigErrorMessage } from '@config/messages/paypal-config.error-messages';
 
 @Injectable()
 export class AppConfigService {
@@ -44,7 +46,7 @@ export class AppConfigService {
     const config = this.configService.get<DomainValidation>('domain');
 
     if (!config) {
-      this.logger.error(MessageLog.DOMAIN_CONFIG_NOT_FOUND);
+      this.logger.error(EmailConfigErrorMessage.DOMAIN_CONFIG_NOT_FOUND);
       throw new NotAcceptableException(ErrorMessage.DOMAIN_CONFIG_NOT_FOUND);
     }
 
@@ -88,7 +90,7 @@ export class AppConfigService {
     const cloudName = this.getCloudinaryConfig.name;
 
     if (!cloudName) {
-      this.logger.error(MessageLog.CLOUINARY_NAME_NOT_FOUND);
+      this.logger.error(CloudinaryConfigErrorMessage.CLOUINARY_NAME_NOT_FOUND);
       throw new InternalServerErrorException(
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );
@@ -102,7 +104,9 @@ export class AppConfigService {
     const apiKey = this.getCloudinaryConfig.api_key;
 
     if (!apiKey) {
-      this.logger.error(MessageLog.CLOUINARY_API_KEY_NOT_FOUND);
+      this.logger.error(
+        CloudinaryConfigErrorMessage.CLOUINARY_API_KEY_NOT_FOUND,
+      );
       throw new InternalServerErrorException(
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );
@@ -116,7 +120,7 @@ export class AppConfigService {
     const mail = this.getNodeMailerConfig.email;
 
     if (!mail) {
-      this.logger.error(MessageLog.EMAIL_IS_NOT_FOUND);
+      this.logger.error(EmailConfigErrorMessage.EMAIL_IS_NOT_FOUND);
       throw new InternalServerErrorException(
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );
@@ -130,7 +134,7 @@ export class AppConfigService {
     const appPassword = this.getNodeMailerConfig.app_password;
 
     if (!appPassword) {
-      this.logger.error(MessageLog.APP_PASSWORD_IS_NOT_FOUND);
+      this.logger.error(EmailConfigErrorMessage.APP_PASSWORD_IS_NOT_FOUND);
       throw new InternalServerErrorException(
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );
@@ -144,7 +148,7 @@ export class AppConfigService {
     const clientId = this.getPaypalConfig.client_id;
 
     if (!clientId) {
-      this.logger.error(MessageLog.CLIENT_ID_PAYPAL_NOT_FOUND);
+      this.logger.error(PaypalConfigErrorMessage.CLIENT_ID_PAYPAL_NOT_FOUND);
       throw new InternalServerErrorException(
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );
@@ -157,7 +161,7 @@ export class AppConfigService {
     const secret = this.getPaypalConfig.secret;
 
     if (!secret) {
-      this.logger.error(MessageLog.SECRET_PAYPAL_NOT_FOUND);
+      this.logger.error(PaypalConfigErrorMessage.SECRET_PAYPAL_NOT_FOUND);
       throw new InternalServerErrorException(
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );
@@ -167,10 +171,10 @@ export class AppConfigService {
   }
 
   get environmentPaypal(): string {
-    const environment = this.getPaypalConfig.environtment;
+    const environment = this.getPaypalConfig.environment;
 
     if (!environment) {
-      this.logger.error(MessageLog.ENVIRONMENT_PAYPAL_NOT_FOUND);
+      this.logger.error(PaypalConfigErrorMessage.ENVIRONMENT_PAYPAL_NOT_FOUND);
       throw new InternalServerErrorException(
         ErrorMessage.INTERNAL_SERVER_ERROR,
       );
@@ -179,7 +183,29 @@ export class AppConfigService {
     return environment;
   }
 
-  get getStripeConfig(): StripeConfig {
-    return this.getHttpConfig.stripe;
+  get returnUrlPaypal(): string {
+    const returnUrl = this.getPaypalConfig.return_url;
+
+    if (!returnUrl) {
+      this.logger.error(PaypalConfigErrorMessage.RETURN_URL_REQUIRED);
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return returnUrl;
+  }
+
+  get cancelUrlPaypal(): string {
+    const cancelUrl = this.getPaypalConfig.cancel_url;
+
+    if (!cancelUrl) {
+      this.logger.error(PaypalConfigErrorMessage.CANCEL_URL_REQUIRED);
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return cancelUrl;
   }
 }

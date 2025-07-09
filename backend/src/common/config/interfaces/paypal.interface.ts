@@ -1,5 +1,7 @@
 export interface PayPalConfig {
   client_id: string;
   secret: string;
-  environtment: string;
+  environment: string;
+  return_url: string;
+  cancel_url: string;
 }

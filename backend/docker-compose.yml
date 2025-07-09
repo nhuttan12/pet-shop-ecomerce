@@ -1,0 +1,13 @@
+services:
+  db:
+    image: mysql:8.0.32
+    container_name: pet-shop
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/postgresql/data
+
+volumes:
+  mysql_data:

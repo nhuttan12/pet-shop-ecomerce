@@ -25,10 +25,14 @@ export class Image {
   })
   status?: ImageStatus;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   subjectID: number;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   subjectType: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

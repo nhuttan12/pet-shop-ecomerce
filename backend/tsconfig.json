@@ -20,82 +20,88 @@
     "baseUrl": "./src",
     "paths": {
       "@auth": [
-        "auth"
+        "core/auth"
       ],
       "@auth/*": [
-        "auth/*"
+        "core/auth/*"
       ],
       "@cart": [
-        "cart"
+        "core/cart"
       ],
       "@cart/*": [
-        "cart/*"
+        "core/cart/*"
       ],
       "@contact": [
-        "contact"
+        "core/contact"
       ],
       "@contact/*": [
-        "contact/*"
+        "core/contact/*"
       ],
       "@order": [
-        "order"
+        "core/order"
       ],
       "@order/*": [
-        "order/*"
+        "core/order/*"
       ],
       "@product": [
-        "product"
+        "core/product"
       ],
       "@product/*": [
-        "product/*"
+        "core/product/*"
       ],
       "@user": [
-        "user"
+        "core/user"
       ],
       "@user/*": [
-        "user/*"
+        "core/user/*"
       ],
       "@role": [
-        "role"
+        "core/role"
       ],
       "@role/*": [
-        "role/*"
+        "core/role/*"
       ],
       "@category": [
-        "category"
+        "core/category"
       ],
       "@category/*": [
-        "category/*"
+        "core/category/*"
       ],
       "@brand": [
-        "brand"
+        "core/brand"
       ],
       "@brand/*": [
-        "brand/*"
+        "core/brand/*"
       ],
       "@wishlist": [
-        "wishlist"
+        "core/wishlist"
       ],
       "@wishlist/*": [
-        "wishlist/*"
+        "core/wishlist/*"
       ],
       "@voucher": [
-        "voucher"
+        "core/voucher"
       ],
       "@voucher/*": [
-        "voucher/*"
+        "core/voucher/*"
       ],
       "@comment": [
-        "comment"
+        "core/comment"
       ],
       "@comment/*": [
-        "comment/*"
+        "core/comment/*"
       ],
       "@post": [
-        "post"
+        "core/post"
       ],
       "@post/*": [
-        "post/*"
+        "core/post/*"
+      ],
+      "@payment": [
+        "core/payment"
+      ],
+      "@payment/*": [
+        "core/payment/*"
       ],
       "@api-response/*": [
         "common/api-response/*"

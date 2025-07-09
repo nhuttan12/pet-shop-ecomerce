@@ -23,6 +23,7 @@ import { VoucherModule } from '@voucher/voucher.module';
 import { WishlistModule } from '@wishlist/wishlist.module';
 import configuration from 'common/config/configuration';
 import { typeOrmConfig } from 'common/database/typeorm.config';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { typeOrmConfig } from 'common/database/typeorm.config';
     ContactModule,
     WishlistModule,
     PaypalModule,
+    PaymentModule,
   ],
   providers: [
     {
@@ -55,9 +57,9 @@ import { typeOrmConfig } from 'common/database/typeorm.config';
       useValue: new ValidationPipe({
         transform: true,
         transformOptions: { enableImplicitConversion: true },
-        // enableDebugMessages: true,
-        // whitelist: true,
-        // forbidNonWhitelisted: true,
+        enableDebugMessages: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
       }),
     },
     {

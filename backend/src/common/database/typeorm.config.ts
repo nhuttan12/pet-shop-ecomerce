@@ -21,8 +21,9 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
     username: configService.getDatabaseConfig.mysql.username,
     password: configService.getDatabaseConfig.mysql.password,
     database: configService.getDatabaseConfig.mysql.database,
-    entities: [__dirname + '/../**/*.entity{.ts,.js}'], // hoặc đường dẫn entity cụ thể
     synchronize: true,
     autoLoadEntities: true,
+    logging: ['query', 'error', 'warn', 'schema'],
+    logger: 'advanced-console',
   }),
 };
