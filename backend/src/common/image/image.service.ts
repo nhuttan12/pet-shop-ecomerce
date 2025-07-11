@@ -87,13 +87,59 @@ export class ImageService {
   }
 
   async removeImage(imageID: number): Promise<boolean> {
+    // 1. Remove image
     const result: boolean = await this.imageRepo.removeImage(imageID);
 
+    // 2. Check image removing result
     if (!result) {
       this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
       throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
     }
 
+    // 3. Return result
     return result;
+  }
+
+  async updateImage(
+    imageID: number,
+    image: SavedImageDTO,
+    subjectID: number,
+    subjectType: SubjectType,
+  ): Promise<Image> {
+    // 1. Soft delete image
+    const removeImage: boolean = await this.removeImage(imageID);
+
+    // 2. Check image soft delte result
+    if (!removeImage) {
+      this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+      throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
+    }
+
+    // 3. Save new image
+    const newImage: Image = await this.saveImage(image, subjectID, subjectType);
+
+    // 4. Check image saving result
+    if (!newImage) {
+      this.logger.warn(ImageMessageLog.CANNOT_SAVE_IMAGE);
+      throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
+    }
+
+    // 5. Returning new image
+    return newImage;
+  }
+
+  async removeImages(imageIDs: number[]): Promise<boolean> {
+    // 1. Soft delete images
+    const removeResult: boolean = await this.imageRepo.removeImages(imageIDs);
+    this.logger.debug('Remove image result: ', removeResult);
+
+    // 2. Check image soft delte result
+    if (!removeResult) {
+      this.logger.warn(ImageMessageLog.CANNOT_REMOVE_IMAGES);
+      throw new NotFoundException(ImageErrorMessage.CANNOT_REMOVE_IMAGES);
+    }
+
+    // 3. Return soft delete result
+    return removeResult;
   }
 }

@@ -250,4 +250,34 @@ export class ImageRepository {
       return true;
     });
   }
+
+  async removeImages(imageIDs: number[]): Promise<boolean> {
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const update: UpdateResult = await manager.update(
+          Image,
+          {
+            id: In(imageIDs),
+            status: ImageStatus.ACTIVE,
+          },
+          {
+            status: ImageStatus.REMOVED,
+            updatedAt: new Date(),
+          },
+        );
+
+        if (update.affected === 1) {
+          this.logger.error(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+          throw new InternalServerErrorException(
+            ImageErrorMessage.CANNOT_UPDATE_IMAGE,
+          );
+        }
+
+        return true;
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
 }

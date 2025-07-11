@@ -6,6 +6,7 @@ import { CategoryMapping } from '@category/entities/categories-mapping.entity';
 import { Category } from '@category/entities/categories.entity';
 import { CategoryErrorMessages } from '@category/messages/category.error-messages';
 import { CategoryMessagesLog } from '@category/messages/category.messages-log';
+import { SavedImageDTO } from '@images/dto/saved-image.dto';
 import { Image } from '@images/entites/images.entity';
 import { ImageType } from '@images/enums/image-type.enum';
 import { SubjectType } from '@images/enums/subject-type.enum';
@@ -255,13 +256,15 @@ export class ProductService {
     // 1. Check product exist
     const product = await this.getProductByID(request.id);
 
-    // 2. Get thumbnail image and product image from product
+    // 2. Get thumbnail image from product
     const thumbnailImage =
       await this.imageService.getImageBySubjectIdAndSubjectType(
         product.id,
         SubjectType.PRODUCT,
         ImageType.THUMBNAIL,
       );
+
+    // 3. Get product images from product
     const productImages =
       await this.imageService.getImageListBySubjectIdAndSubjectType(
         product.id,
@@ -272,17 +275,9 @@ export class ProductService {
     // 3. Change image type to thumnnail
     if (request.mainImage.url !== thumbnailImage.url) {
       request.mainImage.type = ImageType.THUMBNAIL;
-
-      // 3.1. Soft delete old thumbnail image
-      const result = await this.imageService.removeImage(thumbnailImage.id);
-
-      if (!result) {
-        this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
-        throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
-      }
-
-      // 3.2. Save thumbnail image to db
-      const newThumbnailImage: Image = await this.imageService.saveImage(
+      // 3.1. Soft delete old image and save new thumbnail image information to db
+      const newThumbnailImage: Image = await this.imageService.updateImage(
+        thumbnailImage.id,
         request.mainImage,
         request.id,
         SubjectType.PRODUCT,
@@ -295,48 +290,13 @@ export class ProductService {
       }
     }
 
-    // 4. Change image type to product
+    // 4. Check request sub image exist
     if (request.subImages) {
-      // 4.1. Get current url and request url
-      const currentUrls: string[] = productImages.map((img) => img.url).sort();
-      const requestUrls: string[] = request.subImages
-        .map((img) => img.url)
-        .sort();
-
-      // 4.2. Check difference between two array
-      const isDifferent: boolean =
-        currentUrls.length !== requestUrls.length ||
-        currentUrls.some((url, index) => url !== requestUrls[index]);
-
-      if (isDifferent) {
-        // 4.2.1. Change image type to produc
-        request.subImages.forEach((image) => {
-          image.type = ImageType.PRODUCT;
-        });
-
-        // 4.2.2. Soft delete old sub image
-        for (const img of productImages) {
-          const deleted: boolean = await this.imageService.removeImage(img.id);
-
-          if (!deleted) {
-            this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
-            throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
-          }
-        }
-      }
-
-      // 4.2. Save sub image to db
-      const newProductImages: Image[] = await this.imageService.saveImages(
-        request.subImages,
+      await this.updateProductImages(
         request.id,
-        SubjectType.PRODUCT,
+        productImages,
+        request.subImages,
       );
-
-      // 4.3. Check save sub image result
-      if (!newProductImages) {
-        this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
-        throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
-      }
     }
 
     // 5. Get brand and category by id
@@ -419,41 +379,42 @@ export class ProductService {
     request: GetProductDetailRequestDto,
   ): Promise<GetProductDetailResponseDto> {
     try {
-      // 1. Get pagination information
-      const { skip, take } = this.utilityService.getPagination(
-        request.page,
-        request.limit,
-      );
-      this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
-
+      // 1. Get product detail
       const product: Product | null = await this.productRepo.getProductDetail(
         request.productID,
-        skip,
-        take,
       );
+      this.logger.debug('Product detail: ', product);
 
+      // 2. Check product detail exist
       if (!product) {
         this.logger.warn(ProductMessageLog.PRODUCT_NOT_FOUND);
         throw new NotFoundException(ProductErrorMessage.PRODUCT_NOT_FOUND);
       }
 
+      // 3. Get thumbnail image
       const thumbnailImage: Image =
         await this.imageService.getImageBySubjectIdAndSubjectType(
           product.id,
           SubjectType.PRODUCT,
           ImageType.THUMBNAIL,
         );
+      this.logger.debug('Thumbnail image: ', thumbnailImage);
 
+      // 4. Get product images
       const productImage: Image[] =
         await this.imageService.getImageListBySubjectIdAndSubjectType(
           request.productID,
           SubjectType.PRODUCT,
           ImageType.PRODUCT,
         );
+      this.logger.debug('Product images: ', productImage);
 
+      // 5. Get product rating
       const productRatingList: ProductRating[] =
         await this.productRatingService.getRatingByProductId(request.productID);
+      this.logger.debug('Product rating: ', productRatingList);
 
+      // 6. Calculate average rating
       const avgRating =
         productRatingList.length > 0
           ? productRatingList.reduce(
@@ -461,16 +422,22 @@ export class ProductService {
               0,
             ) / productRatingList.length
           : 0;
+      this.logger.debug('Average rating: ', avgRating);
 
+      // 7. Find category mapping list with product
       const categoryMappingList: CategoryMapping[] =
         await this.categoryMappingService.findCategoryMappingListWithProduct(
           product,
         );
+      this.logger.debug('Category mapping list: ', categoryMappingList);
 
+      // 8. Get brand by prouduct ID
       const brand: Brand = await this.brandService.getBrandById({
         id: product.brand.id,
       });
+      this.logger.debug('Brand: ', brand);
 
+      // 9. Mapping raw response
       const rawResponse = {
         id: product.id,
         name: product.name,
@@ -486,7 +453,9 @@ export class ProductService {
         status: product.status,
         stock: product.stocking,
       };
+      this.logger.debug('Raw response: ', rawResponse);
 
+      // 10. Return product detail
       return plainToInstance(GetProductDetailResponseDto, rawResponse, {
         excludeExtraneousValues: true,
         enableImplicitConversion: true,
@@ -502,19 +471,26 @@ export class ProductService {
   async filterProducts(
     request: ProductFilterParams,
   ): Promise<GetAllProductResponseDto[]> {
+    // 1. Get pagination information
     const { skip, take } = this.utilityService.getPagination(
       request.page,
       request.limit,
     );
+    this.logger.debug('Pagination - skip:', skip, 'take: ', take);
 
-    const productList = await this.productRepo.filterProducts(
+    // 2. Get product list
+    const productList: Product[] = await this.productRepo.filterProducts(
       request,
       skip,
       take,
     );
+    this.logger.debug('Product list: ', productList);
 
+    // 3. Create map for mapping image to product list
     const imageMap: Map<number, Image> = new Map();
+    this.logger.debug('Image map: ', imageMap);
 
+    // 4. Get image for each product
     await Promise.all(
       productList.map(async (product) => {
         const images: Image =
@@ -527,6 +503,7 @@ export class ProductService {
       }),
     );
 
+    // 5. Convert product list to dto
     const rawData = productList.map((product) => ({
       id: product.id,
       name: product.name,
@@ -538,10 +515,77 @@ export class ProductService {
       status: product.status,
       stock: product.stocking,
     }));
+    this.logger.debug('Raw data: ', rawData);
 
+    // 6. Return product list
     return plainToInstance(GetAllProductResponseDto, rawData, {
       excludeExtraneousValues: true,
       enableImplicitConversion: true,
     });
+  }
+
+  async updateProductImages(
+    productID: number,
+    productImages: Image[],
+    productImagesToSave: SavedImageDTO[],
+  ): Promise<Image[]> {
+    // 1. Get current url
+    const currentUrls: string[] = productImages.map((img) => img.url).sort();
+    this.logger.debug('Current urls: ', currentUrls);
+
+    // 2. Get request url
+    const requestUrls: string[] = productImagesToSave
+      .map((img) => img.url)
+      .sort();
+    this.logger.debug('Request urls: ', requestUrls);
+
+    // 3. Check difference between two array
+    const isDifferent: boolean =
+      currentUrls.length !== requestUrls.length ||
+      currentUrls.some((url, index) => url !== requestUrls[index]);
+    this.logger.debug('Is different: ', isDifferent);
+
+    // 4. If two array is different
+    if (!isDifferent) {
+      // 4.1. Change image type to product
+      productImagesToSave.forEach((image) => {
+        image.type = ImageType.PRODUCT;
+      });
+
+      // 4.2. Get product image ids
+      const productImageIds: number[] = productImages.map((img) => img.id);
+      this.logger.debug('Product image ids: ', productImageIds);
+
+      // 4.3. Remove product images
+      const removeProductImagesResult: boolean =
+        await this.imageService.removeImages(productImageIds);
+      this.logger.debug(
+        'Remove product images result: ',
+        removeProductImagesResult,
+      );
+
+      // 4.4. Check remove product images result
+      if (!removeProductImagesResult) {
+        this.logger.warn(ImageMessageLog.CANNOT_REMOVE_IMAGES);
+        throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
+      }
+    }
+
+    // 5. Save sub image to db
+    const newProductImages: Image[] = await this.imageService.saveImages(
+      productImagesToSave,
+      productID,
+      SubjectType.PRODUCT,
+    );
+    this.logger.debug('New product images: ', newProductImages);
+
+    // 6. Check save sub image result
+    if (!newProductImages) {
+      this.logger.warn(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+      throw new NotFoundException(ImageErrorMessage.CANNOT_UPDATE_IMAGE);
+    }
+
+    // 7. Return new sub image
+    return newProductImages;
   }
 }

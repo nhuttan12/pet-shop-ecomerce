@@ -160,11 +160,7 @@ export class ProductRepository {
     }
   }
 
-  async getProductDetail(
-    productID: number,
-    skip: number,
-    take: number,
-  ): Promise<Product | null> {
+  async getProductDetail(productID: number): Promise<Product | null> {
     try {
       return await this.productRepo
         .createQueryBuilder('product')
@@ -173,8 +169,6 @@ export class ProductRepository {
         .leftJoinAndSelect('product.categoriesMapping', 'categoryMapping')
         .leftJoinAndSelect('categoryMapping.category', 'category')
         .where('product.id = :id', { id: productID })
-        .skip(skip)
-        .take(take)
         .orderBy('product.id', 'ASC')
         .getOne();
     } catch (error) {
