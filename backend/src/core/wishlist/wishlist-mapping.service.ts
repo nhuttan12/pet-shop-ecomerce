@@ -1,3 +1,6 @@
+import { Image } from '@images/entites/images.entity';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { ImageService } from '@images/image.service';
 import {
   ConflictException,
   forwardRef,
@@ -6,14 +9,17 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { PaginationResponse } from '@pagination/pagination-response';
 import { UtilityService } from '@services/utility.service';
 import { GetAllWishListMappingDTO } from '@wishlist/dto/get-all-wishlist-mapping-request.dto';
+import { WishlistMappingResponseDto } from '@wishlist/dto/wishlist-response.dto';
 import { WishlistMapping } from '@wishlist/entities/wishlist-mapping.entity';
 import { Wishlist } from '@wishlist/entities/wishlists.entity';
 import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
 import { WishlistMessageLog } from '@wishlist/messages/wishlist.message-logs';
 import { WishlistMappingRepository } from '@wishlist/repositories/wishlist-mapping.repository';
 import { WishlistService } from '@wishlist/wishlist.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class WishListMappingService {
@@ -23,22 +29,83 @@ export class WishListMappingService {
     @Inject(forwardRef(() => WishlistService))
     private readonly wishlistService: WishlistService,
     private readonly utilityService: UtilityService,
+    private readonly imageService: ImageService,
   ) {}
 
-  async getAllWishListMappingByWishListId(request: GetAllWishListMappingDTO) {
+  async getAllWishListMappingByUserID(
+    request: GetAllWishListMappingDTO,
+  ): Promise<PaginationResponse<WishlistMappingResponseDto>> {
     try {
       // 1. Get pagination information
       const { skip, take } = this.utilityService.getPagination(
         request.page,
         request.limit,
       );
+      this.logger.debug(`Pagination - skip: ${skip}, take: ${take}`);
 
       // 2. Get wishlist mapping list by wishlist id
-      return await this.wishlistMappingRepo.getAllWishlistMappingByWishlistId(
-        request.wishlistID,
-        skip,
-        take,
+      const wishlistMappingList: PaginationResponse<WishlistMapping> =
+        await this.wishlistMappingRepo.getAllWishlistMappingByUserID(
+          request.userID,
+          skip,
+          take,
+        );
+      this.logger.debug('Wishlist mapping list: ', wishlistMappingList);
+
+      // 3. Get product id list
+      const productIDs: number[] = wishlistMappingList.data.map((wishlist) => {
+        return wishlist.product.id;
+      });
+      this.logger.debug('Product id list: ', productIDs);
+
+      // 4. Create image map
+      const imageMap = new Map<number, Image[]>();
+      this.logger.debug('Image map: ', imageMap);
+
+      // 5. Get image list product id list
+      for (const productId of productIDs) {
+        const images =
+          await this.imageService.getImageListBySubjectIdAndSubjectType(
+            productId,
+            SubjectType.PRODUCT,
+          );
+        this.logger.debug('Image', images);
+
+        imageMap.set(productId, images);
+      }
+
+      // 6. Return wishlist mapping list
+      const result: WishlistMappingResponseDto[] = wishlistMappingList.data.map(
+        (wishlistMapping) => ({
+          id: wishlistMapping.wishlist.id,
+          userID: wishlistMapping.wishlist.user.id,
+          productName: wishlistMapping.product.name,
+          productPrice: wishlistMapping.product.price,
+          brandName: wishlistMapping.product.brand.name,
+          categoryName:
+            wishlistMapping.product.categoriesMapping[0].category.name,
+          status: wishlistMapping.product.status,
+          thumbnailUrl: (imageMap.get(wishlistMapping.product.id) || [])[0].url,
+          stock: wishlistMapping.product.stocking,
+          createdAt: wishlistMapping.createdAt,
+          updatedAt: wishlistMapping.updatedAt,
+        }),
       );
+
+      // 7. Cast wishlist mapping response
+      const response: WishlistMappingResponseDto[] = plainToInstance(
+        WishlistMappingResponseDto,
+        result,
+        {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true,
+        },
+      );
+
+      return {
+        data: response,
+        meta: wishlistMappingList.meta,
+      };
     } catch (error) {
       this.logger.error(error);
       throw error;

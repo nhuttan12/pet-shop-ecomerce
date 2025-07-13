@@ -20,6 +20,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { PaginationResponse } from '@pagination/pagination-response';
 import { CreateProductRequest } from '@product/dto/create-product-request.dto';
 import { ProductFilterParams } from '@product/dto/filter-product-request.dto';
 import { GetAllProductResponseDto } from '@product/dto/get-all-product-response.dto';
@@ -153,19 +154,19 @@ export class ProductService {
   async getAllProducts(
     limit: number,
     offset: number,
-  ): Promise<GetAllProductResponseDto[]> {
+  ): Promise<PaginationResponse<GetAllProductResponseDto>> {
     // 1. Get pagination information
     const { skip, take } = this.utilityService.getPagination(offset, limit);
 
     // 2. Get product list
-    const productList: Product[] =
+    const productList: PaginationResponse<Product> =
       await this.productRepo.getAllProductWithImageAndCategory(skip, take);
 
     // 3. Create Map for mapping image to product list
     const imageMap: Map<number, Image[]> = new Map();
 
     await Promise.all(
-      productList.map(async (product) => {
+      productList.data.map(async (product) => {
         const images =
           await this.imageService.getImageListBySubjectIdAndSubjectType(
             product.id,
@@ -178,7 +179,7 @@ export class ProductService {
     // 4. Mapping product list to dto using plainToInstance
     const productDtos = plainToInstance(
       GetAllProductResponseDto,
-      productList.map((product) => ({
+      productList.data.map((product) => ({
         id: product.id,
         name: product.name,
         description: product.description,
@@ -195,29 +196,29 @@ export class ProductService {
       },
     );
 
-    return productDtos;
+    return {
+      data: productDtos,
+      meta: productList.meta,
+    };
   }
 
   async findProductByName(
     name: string,
     limit: number,
     offset: number,
-  ): Promise<GetAllProductResponseDto[]> {
+  ): Promise<PaginationResponse<GetAllProductResponseDto>> {
     // 1. Get pagination information
     const { skip, take } = this.utilityService.getPagination(offset, limit);
 
     // 2. Get product list
-    const productList: Product[] = await this.productRepo.findProductByName(
-      name,
-      skip,
-      take,
-    );
+    const productList: PaginationResponse<Product> =
+      await this.productRepo.findProductByName(name, skip, take);
 
     // 3. Create map for mapping image to product list
     const imageMap: Map<number, Image[]> = new Map();
 
     await Promise.all(
-      productList.map(async (product) => {
+      productList.data.map(async (product) => {
         const images =
           await this.imageService.getImageListBySubjectIdAndSubjectType(
             product.id,
@@ -230,7 +231,7 @@ export class ProductService {
     // 4. Convert product list to dto using plainToInstance method
     const productDtos = plainToInstance(
       GetAllProductResponseDto,
-      productList.map((product) => ({
+      productList.data.map((product) => ({
         id: product.id,
         name: product.name,
         description: product.description,
@@ -247,7 +248,10 @@ export class ProductService {
       },
     );
 
-    return productDtos;
+    return {
+      data: productDtos,
+      meta: productList.meta,
+    };
   }
 
   async updateProductInfor(
@@ -470,7 +474,7 @@ export class ProductService {
 
   async filterProducts(
     request: ProductFilterParams,
-  ): Promise<GetAllProductResponseDto[]> {
+  ): Promise<PaginationResponse<GetAllProductResponseDto>> {
     // 1. Get pagination information
     const { skip, take } = this.utilityService.getPagination(
       request.page,
@@ -479,11 +483,8 @@ export class ProductService {
     this.logger.debug('Pagination - skip:', skip, 'take: ', take);
 
     // 2. Get product list
-    const productList: Product[] = await this.productRepo.filterProducts(
-      request,
-      skip,
-      take,
-    );
+    const productList: PaginationResponse<Product> =
+      await this.productRepo.filterProducts(request, skip, take);
     this.logger.debug('Product list: ', productList);
 
     // 3. Create map for mapping image to product list
@@ -492,7 +493,7 @@ export class ProductService {
 
     // 4. Get image for each product
     await Promise.all(
-      productList.map(async (product) => {
+      productList.data.map(async (product) => {
         const images: Image =
           await this.imageService.getImageBySubjectIdAndSubjectType(
             product.id,
@@ -504,24 +505,35 @@ export class ProductService {
     );
 
     // 5. Convert product list to dto
-    const rawData = productList.map((product) => ({
-      id: product.id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      brandName: product.brand?.name ?? '',
-      categoryName: product.categoriesMapping?.[0]?.category?.name ?? '',
-      thumbnailUrl: imageMap.get(product.id)?.url ?? '',
-      status: product.status,
-      stock: product.stocking,
-    }));
+    const rawData: GetAllProductResponseDto[] = productList.data.map(
+      (product) => ({
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        brandName: product.brand?.name ?? '',
+        categoryName: product.categoriesMapping?.[0]?.category?.name ?? '',
+        thumbnailUrl: imageMap.get(product.id)?.url ?? '',
+        status: product.status,
+        stock: product.stocking,
+      }),
+    );
     this.logger.debug('Raw data: ', rawData);
 
     // 6. Return product list
-    return plainToInstance(GetAllProductResponseDto, rawData, {
-      excludeExtraneousValues: true,
-      enableImplicitConversion: true,
-    });
+    const response: GetAllProductResponseDto[] = plainToInstance(
+      GetAllProductResponseDto,
+      rawData,
+      {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      },
+    );
+
+    return {
+      data: response,
+      meta: productList.meta,
+    };
   }
 
   async updateProductImages(

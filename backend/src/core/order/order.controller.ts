@@ -38,7 +38,7 @@ import { GetOrderDetailsByOrderIdResponseDto } from '@order/dto/get-order-detail
 import { OrderDetailService } from '@order/order-detail.service';
 import { OrderService } from '@order/order.service';
 import { RoleName } from '@role/enums/role.enum';
-import { Order } from '@order/entites/orders.entity';
+import { OrderResponseDto } from '@order/dto/order-response.dto';
 
 @Controller('orders')
 @ApiTags('Order')
@@ -122,13 +122,13 @@ export class OrderController {
   @ApiParam({ name: 'id', type: Number, description: 'Order ID' })
   @ApiBody({ type: CancelOrderRequestDto })
   @ApiOkResponse({
-    type: ApiResponse<Order>,
+    type: ApiResponse<OrderResponseDto>,
     description: 'Hủy đơn hàng thành công',
   })
   async cancelOrder(
     @Param() { orderId }: CancelOrderRequestDto,
     @GetUser() userId: JwtPayload,
-  ): Promise<ApiResponse<Order>> {
+  ): Promise<ApiResponse<OrderResponseDto>> {
     const order = await this.orderService.cancelOrder(orderId, userId.sub);
     this.logger.debug(`Order detail: ${JSON.stringify(order)}`);
 
@@ -144,7 +144,7 @@ export class OrderController {
   @ApiOperation({ summary: 'Tạo đơn hàng mới' })
   @ApiBody({ type: CreateOrderRequestDto })
   @ApiOkResponse({
-    type: ApiResponse<Order>,
+    type: ApiResponse<OrderResponseDto>,
     description: 'Tạo đơn hàng thành công',
   })
   async createOrder(
@@ -157,7 +157,7 @@ export class OrderController {
       country,
       address,
     }: CreateOrderRequestDto,
-  ): Promise<ApiResponse<Order>> {
+  ): Promise<ApiResponse<OrderResponseDto>> {
     const order = await this.orderService.createOrder(
       userId.sub,
       paymentMethod,

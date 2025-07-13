@@ -80,6 +80,7 @@ export class WishlistService {
     // 1. Get wishlist
     const wishtlist: Wishlist | null =
       await this.wishlistRepo.getWishlistAndWishlistMappingByUserID(userID);
+    this.logger.debug('Wishlist: ', JSON.stringify(wishtlist));
 
     // 2. Check wishlist exist
     if (!wishtlist) {

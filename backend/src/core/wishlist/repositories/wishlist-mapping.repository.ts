@@ -4,6 +4,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { buildPaginationMeta } from '@pagination/build-pagination-meta';
+import { PaginationResponse } from '@pagination/pagination-response';
 import { WishlistMapping } from '@wishlist/entities/wishlist-mapping.entity';
 import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
 import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
@@ -48,18 +50,38 @@ export class WishlistMappingRepository {
     }
   }
 
-  async getAllWishlistMappingByWishlistId(
-    wishlistID: number,
+  async getAllWishlistMappingByUserID(
+    userID: number,
     skip: number,
     take: number,
-  ): Promise<WishlistMapping[]> {
+  ): Promise<PaginationResponse<WishlistMapping>> {
     try {
-      return await this.repo.find({
-        where: { wishlist: { id: wishlistID, status: WishlistStatus.ACTIVE } },
+      // 1. Get wishlist mapping join wishlist and user
+      const [wishlistMappings, totalItems] = await this.repo.findAndCount({
+        where: {
+          wishlist: { user: { id: userID }, status: WishlistStatus.ACTIVE },
+        },
         order: { id: 'ASC' },
+        relations: {
+          wishlist: {
+            user: true,
+          },
+        },
         skip,
         take,
       });
+
+      // 2. Build pagination meta
+      const meta = buildPaginationMeta(
+        totalItems,
+        Math.floor(take / skip) + 1,
+        take,
+      );
+
+      return {
+        data: wishlistMappings,
+        meta,
+      };
     } catch (error) {
       this.logger.error(error);
       throw error;

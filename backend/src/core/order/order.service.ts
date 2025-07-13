@@ -14,6 +14,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { GetAllOrdersResponseDto } from '@order/dto/get-all-order-response.dto';
+import { OrderResponseDto } from '@order/dto/order-response.dto';
 import { OrderDetail } from '@order/entites/order-details.entity';
 import { Order } from '@order/entites/orders.entity';
 import { OrderStatus } from '@order/enums/order-status.enum';
@@ -83,7 +84,10 @@ export class OrderService {
     return order;
   }
 
-  async cancelOrder(orderID: number, userID: number): Promise<Order> {
+  async cancelOrder(
+    orderID: number,
+    userID: number,
+  ): Promise<OrderResponseDto> {
     // 1. Finding order
     const order: Order = await this.getOrderByOrderID(orderID);
     this.logger.debug('Order:', order);
@@ -123,7 +127,7 @@ export class OrderService {
     address: string,
     city: string,
     country: string,
-  ): Promise<Order> {
+  ): Promise<OrderResponseDto> {
     // 1. Get cart by user ID and active status
     const cart: Cart = await this.cartService.getCartByUserIDAndStatus(
       userID,
@@ -188,6 +192,27 @@ export class OrderService {
     this.logger.debug('Update cart status result:', result);
 
     // 10. Return order created
-    return await this.getOrderByOrderID(orderCreated.id);
+    const newOrder: Order = await this.getOrderByOrderID(orderCreated.id);
+
+    const response: OrderResponseDto = {
+      id: newOrder.id,
+      userID: newOrder.user.id,
+      totalPrice: newOrder.totalPrice,
+      paymentMethod: newOrder.paymentMethod,
+      shippingMethod: newOrder.shippingMethod,
+      voucherID: newOrder.voucher?.id,
+      address: newOrder.address,
+      city: newOrder.city,
+      country: newOrder.country,
+      status: newOrder.status,
+      createdAt: newOrder.createdAt,
+      updatedAt: newOrder.updatedAt,
+    };
+    this.logger.debug('Order created:', response);
+
+    return plainToInstance(OrderResponseDto, response, {
+      excludeExtraneousValues: true,
+      enableImplicitConversion: true,
+    });
   }
 }

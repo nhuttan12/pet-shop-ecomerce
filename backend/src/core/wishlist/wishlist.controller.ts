@@ -9,6 +9,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Logger,
@@ -26,11 +27,12 @@ import {
 import { RoleName } from '@role/enums/role.enum';
 import { CreateWishlistDto } from '@wishlist/dto/create-wishlist.dto';
 import { RemoveWishlistDto } from '@wishlist/dto/remove-wishlist.dto';
-import { WishlistResponseDto } from '@wishlist/dto/wishlist-response.dto';
+import { WishlistMappingResponseDto } from '@wishlist/dto/wishlist-response.dto';
 import { Wishlist } from '@wishlist/entities/wishlists.entity';
 import { WishlistNotifyMessage } from '@wishlist/messages/wishlist.notify-messages';
 import { WishListMappingService } from '@wishlist/wishlist-mapping.service';
 import { WishlistService } from '@wishlist/wishlist.service';
+import { PaginationResponse } from '@pagination/pagination-response';
 
 @Controller('wishlist')
 @ApiTags('Wishlist')
@@ -83,7 +85,7 @@ export class WishlistController {
   @ApiSwaggerResponse({
     status: HttpStatus.OK,
     description: 'Xóa khỏi wishlist thành công',
-    type: WishlistResponseDto,
+    type: Wishlist,
   })
   @ApiSwaggerResponse({
     status: HttpStatus.CONFLICT,
@@ -103,6 +105,34 @@ export class WishlistController {
       statusCode: HttpStatus.OK,
       message: WishlistNotifyMessage.REMOVE_WISHLIST_SUCCESSFUL,
       data: wishlist,
+    };
+  }
+
+  @Get('products')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Lấy danh sách sản phẩm đã được thêm vào danh sách yêu thích',
+  })
+  @ApiSwaggerResponse({
+    status: HttpStatus.OK,
+    description:
+      'Lấy danh sách sản phẩm đã được thêm vào danh sách yêu thích thành công',
+    type: WishlistMappingResponseDto,
+  })
+  async getWishlistProducts(
+    @GetUser() user: JwtPayload,
+  ): Promise<ApiResponse<PaginationResponse<WishlistMappingResponseDto>>> {
+    const wishlistMapping: PaginationResponse<WishlistMappingResponseDto> =
+      await this.wishlistMappingService.getAllWishListMappingByUserID({
+        userID: user.sub,
+        page: 1,
+        limit: 10,
+      });
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: WishlistNotifyMessage.GET_WISHLIST_SUCCESSFUL,
+      data: wishlistMapping,
     };
   }
 }

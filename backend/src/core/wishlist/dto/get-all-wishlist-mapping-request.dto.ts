@@ -9,7 +9,7 @@ export class GetAllWishListMappingDTO {
   @Type(() => Number)
   @IsInt({ message: WishlistErrorMessage.PRODUCT_ID_MUST_BE_INTEGER })
   @Min(1, { message: WishlistErrorMessage.PRODUCT_ID_MUST_BE_POSITIVE_NUMBER })
-  wishlistID: number;
+  userID: number;
 
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
