@@ -1,9 +1,9 @@
-import { Expose, Type } from 'class-transformer';
+import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
+import { OrderStatus } from '@order/enums/order-status.enum';
 import { PaymentMethod } from '@order/enums/payment-method.enum';
 import { ShippingMethod } from '@order/enums/shipping_method.enum';
-import { OrderStatus } from '@order/enums/order-status.enum';
-import { Optional } from '@nestjs/common';
+import { Expose } from 'class-transformer';
 
 export class OrderResponseDto {
   @Expose()

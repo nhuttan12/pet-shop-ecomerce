@@ -1,3 +1,4 @@
+import { AutoMap } from '@automapper/classes';
 import { Cart } from '@cart/entities/carts.entity';
 import { Comment } from '@comment/entities/comments.entity';
 import { Order } from '@order/entites/orders.entity';
@@ -25,38 +26,48 @@ import {
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
+  @AutoMap()
   id: number;
 
   @Column({ length: 45, unique: true })
+  @AutoMap()
   username: string;
 
   @Column({ length: 255 })
+  @AutoMap()
   password: string;
 
   @Column({ length: 100, nullable: true })
+  @AutoMap()
   name?: string;
 
   @Column({ length: 100, unique: true })
+  @AutoMap()
   email: string;
 
   @ManyToOne(() => Role, (role: Role) => role.users, { nullable: false })
   @JoinColumn({ name: 'role_id' })
+  @AutoMap(() => Role)
   role: Role;
 
   @Column({
     type: 'enum',
     enum: UserStatus,
   })
+  @AutoMap()
   status: UserStatus;
 
   @CreateDateColumn({ name: 'created_at' })
+  @AutoMap()
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
+  @AutoMap()
   updatedAt: Date;
 
   // Quan hệ 1-1 với UserDetail
   @OneToOne(() => UserDetail, (userDetail: UserDetail) => userDetail.user)
+  @AutoMap(() => UserDetail)
   userDetail: UserDetail;
 
   // Quan hệ 1-n với Order

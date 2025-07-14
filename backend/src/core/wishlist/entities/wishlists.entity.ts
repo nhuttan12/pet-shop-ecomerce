@@ -11,14 +11,17 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AutoMap } from '@automapper/classes';
 
 @Entity('wishlists')
 export class Wishlist {
   @PrimaryGeneratedColumn()
+  @AutoMap()
   id: number;
 
   @ManyToOne(() => User, (user) => user.wishlists, { nullable: false })
   @JoinColumn({ name: 'user_id' })
+  @AutoMap(() => User)
   user: User;
 
   @OneToMany(
@@ -33,11 +36,14 @@ export class Wishlist {
     type: 'enum',
     enum: WishlistStatus,
   })
+  @AutoMap()
   status: WishlistStatus;
 
   @CreateDateColumn({ name: 'created_at' })
+  @AutoMap()
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
+  @AutoMap()
   updatedAt: Date;
 }
