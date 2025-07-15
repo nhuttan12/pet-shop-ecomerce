@@ -1,5 +1,8 @@
-// src/api/product.api.ts
-import axios from '../api'; // hoặc import axios trực tiếp nếu bạn không cấu hình riêng
+import { PaginationResponse } from '../../common/dto/pagination/pagination-response';
+import { GetAllProductResponseDto } from '../../common/dto/product/get-all-product-response.dto';
+import { ApiResponse } from '../../common/dto/response/api-response.dto';
+import axios from '../api';
+import { GetAllProductsRequest } from '../../common/dto/product/get-all-product-request.dto';
 
 const BASE_URL = '/product';
 
@@ -8,9 +11,14 @@ const BASE_URL = '/product';
  * @param page số trang (tuỳ chọn)
  * @param limit số lượng sản phẩm trên mỗi trang (tuỳ chọn)
  */
-export const getAllProducts = (page?: number, limit?: number) => {
+export const getAllProducts = (
+  request: GetAllProductsRequest
+): Promise<ApiResponse<PaginationResponse<GetAllProductResponseDto>>> => {
   return axios.get(`${BASE_URL}`, {
-    params: { page, limit },
+    params: {
+      page: request.page,
+      limit: request.limit,
+    },
   });
 };
 
@@ -20,7 +28,11 @@ export const getAllProducts = (page?: number, limit?: number) => {
  * @param page số trang (tuỳ chọn)
  * @param limit số lượng sản phẩm trên mỗi trang (tuỳ chọn)
  */
-export const findProductByName = (name: string, page?: number, limit?: number) => {
+export const findProductByName = (
+  name: string,
+  page?: number,
+  limit?: number
+) => {
   return axios.get(`${BASE_URL}/name/${name}`, {
     params: { page, limit },
   });
@@ -32,7 +44,11 @@ export const findProductByName = (name: string, page?: number, limit?: number) =
  * @param page số trang (tuỳ chọn, nếu có liên quan)
  * @param limit số lượng (tuỳ chọn, nếu có liên quan)
  */
-export const getProductDetail = (productId: number, page?: number, limit?: number) => {
+export const getProductDetail = (
+  productId: number,
+  page?: number,
+  limit?: number
+) => {
   return axios.get(`${BASE_URL}/detail`, {
     params: { productId, page, limit },
   });

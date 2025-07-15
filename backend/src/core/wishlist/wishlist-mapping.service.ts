@@ -1,3 +1,5 @@
+import { Mapper } from '@automapper/core';
+import { InjectMapper } from '@automapper/nestjs';
 import { Image } from '@images/entites/images.entity';
 import { SubjectType } from '@images/enums/subject-type.enum';
 import { ImageService } from '@images/image.service';
@@ -19,12 +21,12 @@ import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages
 import { WishlistMessageLog } from '@wishlist/messages/wishlist.message-logs';
 import { WishlistMappingRepository } from '@wishlist/repositories/wishlist-mapping.repository';
 import { WishlistService } from '@wishlist/wishlist.service';
-import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class WishListMappingService {
   private readonly logger = new Logger(WishListMappingService.name);
   constructor(
+    @InjectMapper() private readonly mapper: Mapper,
     private readonly wishlistMappingRepo: WishlistMappingRepository,
     @Inject(forwardRef(() => WishlistService))
     private readonly wishlistService: WishlistService,
@@ -74,36 +76,27 @@ export class WishListMappingService {
         imageMap.set(productId, images);
       }
 
-      // 6. Return wishlist mapping list
-      const result: WishlistMappingResponseDto[] = wishlistMappingList.data.map(
-        (wishlistMapping) => ({
-          id: wishlistMapping.wishlist.id,
-          userID: wishlistMapping.wishlist.user.id,
-          productName: wishlistMapping.product.name,
-          productPrice: wishlistMapping.product.price,
-          brandName: wishlistMapping.product.brand.name,
-          categoryName:
-            wishlistMapping.product.categoriesMapping[0].category.name,
-          status: wishlistMapping.product.status,
-          thumbnailUrl: (imageMap.get(wishlistMapping.product.id) || [])[0].url,
-          stock: wishlistMapping.product.stocking,
-          createdAt: wishlistMapping.createdAt,
-          updatedAt: wishlistMapping.updatedAt,
-        }),
-      );
-
-      // 7. Cast wishlist mapping response
-      const response: WishlistMappingResponseDto[] = plainToInstance(
+      // 6. Map wishlist mapping array to wishlist mapping response array
+      const mappedList: WishlistMappingResponseDto[] = this.mapper.mapArray(
+        wishlistMappingList.data,
+        WishlistMapping,
         WishlistMappingResponseDto,
-        result,
-        {
-          excludeExtraneousValues: true,
-          enableImplicitConversion: true,
-        },
       );
 
+      // 7. Add thumbnail url
+      for (const item of mappedList) {
+        const original = wishlistMappingList.data.find(
+          (x) => x.wishlist.id === item.id,
+        );
+        if (original) {
+          const images = imageMap.get(original.product.id);
+          item.thumbnailUrl = images?.[0]?.url ?? '';
+        }
+      }
+
+      // 8. Returniong mapped list and pagination meta
       return {
-        data: response,
+        data: mappedList,
         meta: wishlistMappingList.meta,
       };
     } catch (error) {

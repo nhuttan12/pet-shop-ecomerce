@@ -63,17 +63,34 @@ export class ProductRepository {
   async getAllProductWithImageAndCategory(
     skip: number,
     take: number,
+    userID?: number,
   ): Promise<PaginationResponse<Product>> {
     try {
       // 1. Get product list join with brand and category
-      const [productList, totalItems] = await this.productRepo
+      const query = this.productRepo
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.brand', 'brand')
-        .leftJoinAndSelect('product.categoriesMapping', 'categoryMapping')
-        .leftJoinAndSelect('categoryMapping.category', 'category')
+        .leftJoinAndSelect('product.categoriesMapping', 'categoriesMapping')
+        .leftJoinAndSelect('categoriesMapping.category', 'category');
+
+      if (userID) {
+        query
+          .leftJoinAndSelect('product.wishlistMappings', 'wishlistMapping')
+          .leftJoinAndSelect('wishlistMapping.wishlist', 'wishlist')
+          .leftJoinAndSelect('wishlist.user', 'user');
+      } else {
+        query.leftJoinAndSelect('product.wishlistMappings', 'wishlistMapping');
+      }
+
+      query
+        .where('product.status = :status', {
+          status: ProductStatus.ACTIVE,
+        })
         .skip(skip)
-        .take(take)
-        .getManyAndCount();
+        .take(take);
+
+      const [productList, totalItems] = await query.getManyAndCount();
+
       this.logger.debug(
         'Product list: ',
         productList,
@@ -81,12 +98,10 @@ export class ProductRepository {
         totalItems,
       );
 
+      const currentPage = Math.floor(skip / take) + 1;
+
       // 2. Calculate meta
-      const meta = buildPaginationMeta(
-        totalItems,
-        Math.floor(take / skip) + 1,
-        take,
-      );
+      const meta = buildPaginationMeta(totalItems, currentPage, take);
 
       return {
         data: productList,

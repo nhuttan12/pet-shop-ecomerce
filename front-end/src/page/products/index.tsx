@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
-import Header from '../../components/layout/header/header';
-import Footer from '../../components/layout/footer/footer';
+import React, { useEffect, useState } from 'react';
 import HeroSection from '../../components/common/HeroSection';
-import FilterSection from './FilterSection';
-import ProductGrid from './ProductGrid';
+import Footer from '../../components/layout/footer/footer';
+import Header from '../../components/layout/header/header';
 import { useProducts } from '../../hooks/product/useProducts';
 import { useWishlist } from '../../hooks/product/useWishlist';
+import FilterSection from './FilterSection';
+import ProductGrid from './ProductGrid';
 
 import {
-  FilterCategory,
   Brand,
+  FilterCategory,
   PetTag,
-  Product,
   PriceRange,
+  Product,
 } from '../../types/Product';
 
+import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 const Products: React.FC = () => {
   const { token, isLoggedIn, isLoading } = useAuth();
@@ -184,12 +185,13 @@ const Products: React.FC = () => {
       }
 
       await fetchWishlist();
-    } catch (e: any) {
-      if (e.response && e.response.status === 409) {
-        // Sản phẩm đã có trong wishlist rồi
-        console.warn('Sản phẩm đã có trong wishlist.');
-      } else {
-        console.error('Failed to toggle favorite:', e);
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        if (e.response && e.response.status === 409) {
+          console.warn('Sản phẩm đã có trong wishlist.');
+        } else {
+          console.error('Failed to toggle favorite:', e);
+        }
       }
     }
   };

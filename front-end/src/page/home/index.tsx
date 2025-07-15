@@ -18,6 +18,7 @@ const HomePage: React.FC = () => {
     window.location.href = '/products';
   };
 
+
  return (
   <div className="min-h-screen flex flex-col">
     <Header />

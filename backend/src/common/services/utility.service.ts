@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class UtilityService {
+  private readonly logger = new Logger(UtilityService.name);
   getPagination(page = 1, limit = 10) {
     return {
       skip: (page - 1) * limit,
@@ -17,5 +18,15 @@ export class UtilityService {
       return value as T[keyof T];
     }
     throw new Error(`Invalid enum value: ${value}`);
+  }
+
+  logPretty(label: string, data: any) {
+    try {
+      const formatted = JSON.stringify(data, null, 2);
+      this.logger.debug(`${label}:\n${formatted}`);
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
   }
 }

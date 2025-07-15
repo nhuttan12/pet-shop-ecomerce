@@ -1,7 +1,10 @@
-// src/hooks/product/useProducts.ts
 import { useEffect, useState } from 'react';
 import { getAllProducts } from '../../service/products/productService';
 import { Product } from '../../types/Product';
+import { ApiResponse } from '../../common/dto/response/api-response.dto';
+import { PaginationResponse } from '../../common/dto/pagination/pagination-response';
+import { GetAllProductResponseDto } from '../../common/dto/product/get-all-product-response.dto';
+import { mapDtoListToProduct } from '../../common/mapper/product/product.mapper';
 
 export const useProducts = (page = 1, limit = 10) => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -12,9 +15,16 @@ export const useProducts = (page = 1, limit = 10) => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await getAllProducts(page, limit);
-        setProducts(res.data.data);
+        const res: ApiResponse<PaginationResponse<GetAllProductResponseDto>> =
+          await getAllProducts({ page, limit });
+
+        const mappedProduct: Product[] = mapDtoListToProduct(
+          res.data?.data || []
+        );
+
+        setProducts(mappedProduct);
       } catch (err) {
+        console.log(err);
         setError('Lỗi khi lấy sản phẩm');
       } finally {
         setLoading(false);

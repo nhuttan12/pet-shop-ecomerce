@@ -10,9 +10,11 @@ import { OrderDetailRepository } from '@order/repositories/order-detail.reposito
 import { OrderDetail } from '@order/entites/order-details.entity';
 import { OrderDetailService } from '@order/order-detail.service';
 import { ImageModule } from '@images/image.module';
+import { MapperModule } from 'common/mapper/mapper.module';
 
 @Module({
   imports: [
+    MapperModule,
     UtilityModule,
     CartModule,
     ImageModule,

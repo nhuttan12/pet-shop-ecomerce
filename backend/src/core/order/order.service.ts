@@ -1,3 +1,5 @@
+import { Mapper } from '@automapper/core';
+import { InjectMapper } from '@automapper/nestjs';
 import { CartDetailService } from '@cart/cart-detail.service';
 import { CartService } from '@cart/cart.service';
 import { CartDetail } from '@cart/entities/cart-details.entity';
@@ -31,6 +33,7 @@ import { plainToInstance } from 'class-transformer';
 export class OrderService {
   private readonly logger = new Logger(OrderService.name);
   constructor(
+    @InjectMapper() private readonly mapper: Mapper,
     private readonly utilityService: UtilityService,
     private readonly orderRepo: OrderRepository,
     private readonly cartService: CartService,
@@ -108,8 +111,11 @@ export class OrderService {
       );
     }
 
-    // 4. Return order after update
-    return this.getOrderByOrderID(orderID);
+    // 4. Get new order after update
+    const newOrder: Order = await this.getOrderByOrderID(orderID);
+
+    // 5. Mapping to Order Response DTO
+    return this.mapper.map(newOrder, Order, OrderResponseDto);
   }
 
   async updateStatusOrderByOrderIDAndUserID(
@@ -194,25 +200,7 @@ export class OrderService {
     // 10. Return order created
     const newOrder: Order = await this.getOrderByOrderID(orderCreated.id);
 
-    const response: OrderResponseDto = {
-      id: newOrder.id,
-      userID: newOrder.user.id,
-      totalPrice: newOrder.totalPrice,
-      paymentMethod: newOrder.paymentMethod,
-      shippingMethod: newOrder.shippingMethod,
-      voucherID: newOrder.voucher?.id,
-      address: newOrder.address,
-      city: newOrder.city,
-      country: newOrder.country,
-      status: newOrder.status,
-      createdAt: newOrder.createdAt,
-      updatedAt: newOrder.updatedAt,
-    };
-    this.logger.debug('Order created:', response);
-
-    return plainToInstance(OrderResponseDto, response, {
-      excludeExtraneousValues: true,
-      enableImplicitConversion: true,
-    });
+    // 11. Mapping to Order Response DTO
+    return this.mapper.map(newOrder, Order, OrderResponseDto);
   }
 }

@@ -1,3 +1,5 @@
+import { Mapper } from '@automapper/core';
+import { InjectMapper } from '@automapper/nestjs';
 import { BrandService } from '@brand/brand.service';
 import { Brand } from '@brand/entities/brands.entity';
 import { CategoryMappingService } from '@category/category-mapping.service';
@@ -24,6 +26,7 @@ import { PaginationResponse } from '@pagination/pagination-response';
 import { CreateProductRequest } from '@product/dto/create-product-request.dto';
 import { ProductFilterParams } from '@product/dto/filter-product-request.dto';
 import { GetAllProductResponseDto } from '@product/dto/get-all-product-response.dto';
+import { GetAllProductWithWishlistFlagWithUserIdDTO } from '@product/dto/get-all-product-with-wishlist-flag-with-user-id.dto';
 import { GetProductDetailRequestDto } from '@product/dto/get-product-detail-request.dto';
 import { GetProductDetailResponseDto } from '@product/dto/get-product-detail-response.dto';
 import { UpdateProductInforRequestDTO } from '@product/dto/update-product-infor-request.dto';
@@ -34,12 +37,14 @@ import { ProductMessageLog } from '@product/messages/product.messages-log';
 import { ProductRatingService } from '@product/product-rating.service';
 import { ProductRepository } from '@product/repositories/product.repository';
 import { UtilityService } from '@services/utility.service';
+import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProductService {
   private readonly logger = new Logger(ProductService.name);
   constructor(
+    @InjectMapper() private readonly mapper: Mapper,
     private readonly imageService: ImageService,
     private readonly utilityService: UtilityService,
     private readonly productRepo: ProductRepository,
@@ -152,15 +157,21 @@ export class ProductService {
   }
 
   async getAllProducts(
-    limit: number,
-    offset: number,
+    request: GetAllProductWithWishlistFlagWithUserIdDTO,
   ): Promise<PaginationResponse<GetAllProductResponseDto>> {
     // 1. Get pagination information
-    const { skip, take } = this.utilityService.getPagination(offset, limit);
+    const { skip, take } = this.utilityService.getPagination(
+      request.page,
+      request.limit,
+    );
 
     // 2. Get product list
     const productList: PaginationResponse<Product> =
-      await this.productRepo.getAllProductWithImageAndCategory(skip, take);
+      await this.productRepo.getAllProductWithImageAndCategory(
+        skip,
+        take,
+        request.userID,
+      );
 
     // 3. Create Map for mapping image to product list
     const imageMap: Map<number, Image[]> = new Map();
@@ -177,23 +188,29 @@ export class ProductService {
     );
 
     // 4. Mapping product list to dto using plainToInstance
-    const productDtos = plainToInstance(
-      GetAllProductResponseDto,
-      productList.data.map((product) => ({
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        brandName: product.brand.name,
-        categoryName: product.categoriesMapping?.[0]?.category?.name,
-        status: product.status,
-        stock: product.stocking,
-        thumbnailUrl: imageMap.get(product.id)?.[0].url,
-      })),
-      {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true,
-      },
+    const productDtos: GetAllProductResponseDto[] = await Promise.all(
+      productList.data.map(async (product) => {
+        const dto: GetAllProductResponseDto = await this.mapper.mapAsync(
+          product,
+          Product,
+          GetAllProductResponseDto,
+        );
+
+        dto.thumbnailUrl = imageMap.get(product.id)?.[0].url ?? '';
+
+        if (request.userID) {
+          dto.isInWishlist = product.wishlistMappings.some(
+            (wm) =>
+              wm.status === WishlistStatus.ACTIVE &&
+              wm.wishlist?.status === WishlistStatus.ACTIVE &&
+              wm.wishlist?.user?.id === request.userID,
+          );
+        } else {
+          dto.isInWishlist = false;
+        }
+
+        return dto;
+      }),
     );
 
     return {
@@ -229,23 +246,18 @@ export class ProductService {
     );
 
     // 4. Convert product list to dto using plainToInstance method
-    const productDtos = plainToInstance(
-      GetAllProductResponseDto,
-      productList.data.map((product) => ({
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        brandName: product.brand.name,
-        categoryName: product.categoriesMapping?.[0]?.category?.name,
-        status: product.status,
-        stock: product.stocking,
-        thumbnailUrl: imageMap.get(product.id)?.[0].url,
-      })),
-      {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true,
-      },
+    const productDtos: GetAllProductResponseDto[] = await Promise.all(
+      productList.data.map(async (product) => {
+        const dto = await this.mapper.mapAsync(
+          product,
+          Product,
+          GetAllProductResponseDto,
+        );
+
+        dto.thumbnailUrl = imageMap.get(product.id)?.[0].url ?? '';
+
+        return dto;
+      }),
     );
 
     return {
@@ -505,31 +517,19 @@ export class ProductService {
     );
 
     // 5. Convert product list to dto
-    const rawData: GetAllProductResponseDto[] = productList.data.map(
-      (product) => ({
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        brandName: product.brand?.name ?? '',
-        categoryName: product.categoriesMapping?.[0]?.category?.name ?? '',
-        thumbnailUrl: imageMap.get(product.id)?.url ?? '',
-        status: product.status,
-        stock: product.stocking,
-      }),
-    );
-    this.logger.debug('Raw data: ', rawData);
-
-    // 6. Return product list
-    const response: GetAllProductResponseDto[] = plainToInstance(
+    const basedMap: GetAllProductResponseDto[] = this.mapper.mapArray(
+      productList.data,
+      Product,
       GetAllProductResponseDto,
-      rawData,
-      {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true,
-      },
     );
 
+    // 6. Adding thumbnail url
+    const response: GetAllProductResponseDto[] = basedMap.map((dto) => ({
+      ...dto,
+      thumbnailUrl: imageMap.get(dto.id)?.url ?? '',
+    }));
+
+    // 7. Return product list
     return {
       data: response,
       meta: productList.meta,

@@ -1,4 +1,3 @@
-import { JwtPayload } from './../auth/interfaces/jwt-payload.interface';
 import { ApiResponse } from '@api-response/ApiResponse';
 import { HasRole } from '@decorators/roles.decorator';
 import { GetUser } from '@decorators/user.decorator';
@@ -24,12 +23,13 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiResponse as ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
-  ApiResponse as ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { PaginationResponse } from '@pagination/pagination-response';
 import { CreateProductRequest } from '@product/dto/create-product-request.dto';
 import { DeleteProductByProductIdRequestDto } from '@product/dto/delete-product-by-product-id-request.dto';
 import { ProductFilterParams } from '@product/dto/filter-product-request.dto';
@@ -44,6 +44,8 @@ import { Product } from '@product/entites/products.entity';
 import { ProductRatingService } from '@product/product-rating.service';
 import { ProductService } from '@product/product.service';
 import { RoleName } from '@role/enums/role.enum';
+import { JwtPayload } from './../auth/interfaces/jwt-payload.interface';
+import { UtilityService } from '@services/utility.service';
 
 @ApiTags('Product')
 @Controller('product')
@@ -52,6 +54,7 @@ import { RoleName } from '@role/enums/role.enum';
 export class ProductController {
   private readonly logger = new Logger(ProductController.name);
   constructor(
+    private readonly utilityService: UtilityService,
     private readonly productService: ProductService,
     private readonly productRatingService: ProductRatingService,
   ) {}
@@ -77,14 +80,20 @@ export class ProductController {
   })
   async getAllProducts(
     @Query() { limit, page }: GetAllProductsRequest,
-  ): Promise<ApiResponse<GetAllProductResponseDto[]>> {
-    const product = await this.productService.getAllProducts(limit, page);
-    this.logger.debug(`Product: ${JSON.stringify(product)}`);
+    @GetUser() user: JwtPayload,
+  ): Promise<ApiResponse<PaginationResponse<GetAllProductResponseDto>>> {
+    const products: PaginationResponse<GetAllProductResponseDto> =
+      await this.productService.getAllProducts({
+        limit,
+        page,
+        userID: user?.sub,
+      });
+    this.utilityService.logPretty('Products:', products);
 
     return {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.GET_PRODUCT_SUCCESSFUL,
-      data: product,
+      data: products,
     };
   }
 
@@ -111,13 +120,13 @@ export class ProductController {
   async findProductByName(
     @Param('name') name: string,
     @Query() { limit, page }: GetProductByNameRequest,
-  ): Promise<ApiResponse<GetAllProductResponseDto[]>> {
+  ): Promise<ApiResponse<PaginationResponse<GetAllProductResponseDto>>> {
     const products = await this.productService.findProductByName(
       name,
       limit,
       page,
     );
-    this.logger.debug(`Product: ${JSON.stringify(products)}`);
+    this.utilityService.logPretty('Product:', products);
 
     return {
       statusCode: HttpStatus.OK,
@@ -155,7 +164,7 @@ export class ProductController {
     @Query() request: GetProductDetailRequestDto,
   ): Promise<ApiResponse<GetProductDetailResponseDto>> {
     const products = await this.productService.getProductDetail(request);
-    this.logger.debug(`Product: ${JSON.stringify(products)}`);
+    this.utilityService.logPretty('Product:', products);
 
     return {
       statusCode: HttpStatus.OK,
@@ -178,7 +187,7 @@ export class ProductController {
     @Body() request: UpdateProductInforRequestDTO,
   ): Promise<ApiResponse<Product>> {
     const product = await this.productService.updateProductInfor(request);
-    this.logger.debug(`Product: ${JSON.stringify(product)}`);
+    this.utilityService.logPretty('Product:', product);
 
     return {
       statusCode: HttpStatus.OK,
@@ -201,7 +210,7 @@ export class ProductController {
     @Body() { productId }: DeleteProductByProductIdRequestDto,
   ): Promise<ApiResponse<Product>> {
     const product = await this.productService.removeProductById(productId);
-    this.logger.debug(`Product: ${JSON.stringify(product)}`);
+    this.utilityService.logPretty('Product:', product);
 
     return {
       statusCode: HttpStatus.OK,
@@ -224,7 +233,7 @@ export class ProductController {
     @Body() request: CreateProductRequest,
   ): Promise<ApiResponse<Product>> {
     const product = await this.productService.createProduct(request);
-    this.logger.debug(`Product: ${JSON.stringify(product)}`);
+    this.utilityService.logPretty('Product:', product);
 
     return {
       statusCode: HttpStatus.OK,
@@ -246,9 +255,9 @@ export class ProductController {
   @HttpCode(HttpStatus.OK)
   async getFilteredProducts(
     @Query() query: ProductFilterParams,
-  ): Promise<ApiResponse<GetAllProductResponseDto[]>> {
+  ): Promise<ApiResponse<PaginationResponse<GetAllProductResponseDto>>> {
     const products = await this.productService.filterProducts(query);
-    this.logger.debug(`Product: ${JSON.stringify(products)}`);
+    this.utilityService.logPretty('Product:', products);
 
     return {
       statusCode: HttpStatus.OK,
@@ -274,7 +283,7 @@ export class ProductController {
   ): Promise<ApiResponse<string>> {
     const ratingNotify: string =
       await this.productRatingService.toggleRatingProduct(user.sub, request);
-    this.logger.debug(`Toggle rating: ${ratingNotify}`);
+    this.utilityService.logPretty('Toggle rating', ratingNotify);
 
     return {
       statusCode: HttpStatus.OK,

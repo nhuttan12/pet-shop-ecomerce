@@ -4,32 +4,21 @@ import {
   removeFromWishlist,
   getWishlistProducts,
 } from '../../service/products/wishlistService';
-import { WishlistStatus } from '../../enum/wishlist-status.enum';
-
-interface WishlistItem {
-  id: number; 
-  userId: number;
-  productId: number;
-  status: WishlistStatus; 
-  created_at: string;
-  updated_at: string;
-  name: string;
-  description: string;
-  price: number;
-  thumbnailUrl: string;
-}
+import { WishlistMappingResponseDto } from '../../common/dto/wishlist/wishlist-response.dto';
+import { PaginationResponse } from '../../common/dto/pagination/pagination-response';
+import { ApiResponse } from '../../common/dto/response/api-response.dto';
 
 interface UseWishlistResult {
-  wishlistItems: WishlistItem[];
+  wishlistItems: WishlistMappingResponseDto[];
   loading: boolean;
   error: Error | null;
-  add: (productId: number) => Promise<WishlistItem | undefined>;
+  add: (productId: number) => Promise<WishlistMappingResponseDto | undefined>;
   remove: (wishlistId: number) => Promise<void>;
   fetch: (page?: number, limit?: number) => Promise<void>;
 }
 
 export function useWishlist(token: string): UseWishlistResult {
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<WishlistMappingResponseDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -38,18 +27,12 @@ export function useWishlist(token: string): UseWishlistResult {
       setLoading(true);
       setError(null);
       try {
-        const res = await getWishlistProducts(token, page, limit);
+        const res: ApiResponse<PaginationResponse<WishlistMappingResponseDto>> =
+          await getWishlistProducts(token, page, limit);
 
-        console.log('📥 Raw wishlist data (1st item):', res.data?.[0]);
+        console.log('📥 Raw wishlist data (1st item):', res.data);
 
-        const mappedItems = (res.data ?? []).map((item: any) => ({
-          ...item,
-          productId: item.product?.id, // Nếu product không tồn tại thì vẫn undefined
-        }));
-
-        console.log('✅ Wishlist items sau khi mapping:', mappedItems);
-
-        setWishlistItems(mappedItems);
+        setWishlistItems(res.data?.data ?? []);
       } catch (err) {
         setError(err as Error);
       } finally {
@@ -60,7 +43,7 @@ export function useWishlist(token: string): UseWishlistResult {
   );
 
   const add = useCallback(
-    async (productId: number): Promise<WishlistItem | undefined> => {
+    async (productId: number): Promise<WishlistMappingResponseDto | undefined> => {
       setLoading(true);
       setError(null);
       try {

@@ -1,5 +1,5 @@
-// src/service/orderService.ts
-import { ApiResponse } from '../../components/dto/response/api-response.dto';
+import { OrderResponseDto } from '../../common/dto/order/order-response.dto';
+import { ApiResponse } from '../../common/dto/response/api-response.dto';
 import api from '../api'; // đường dẫn tới file api của bạn
 
 export interface CreateOrderDTO {
@@ -7,7 +7,7 @@ export interface CreateOrderDTO {
   shippingMethod: string;
 }
 
-export async function createOrder(data: CreateOrderDTO): Promise<ApiResponse<any>> {
+export async function createOrder(data: CreateOrderDTO): Promise<ApiResponse<OrderResponseDto>> {
   try {
     const response = await api.post('/orders/create-order', data);
     return response.data; // trả về ApiResponse<Order>

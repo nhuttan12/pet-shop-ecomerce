@@ -1,4 +1,4 @@
-import { ProductStatus } from '../../../enum/product-status.enum';
+import { ProductStatus } from '../../enum/product-status.enum';
 
 export interface WishlistMappingResponseDto {
   id: number;

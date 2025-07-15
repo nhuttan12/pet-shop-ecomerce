@@ -1,5 +1,6 @@
-import { ApiResponse } from '../../components/dto/response/api-response.dto';
-import { WishlistMappingResponseDto } from '../../components/dto/wishlist/wishlist-response.dto';
+import { PaginationResponse } from '../../common/dto/pagination/pagination-response';
+import { ApiResponse } from '../../common/dto/response/api-response.dto';
+import { WishlistMappingResponseDto } from '../../common/dto/wishlist/wishlist-response.dto';
 import api from '../api';
 
 export async function addToWishlist(productId: string, token: string) {
@@ -30,7 +31,7 @@ export async function getWishlistProducts(
   token: string,
   page: number = 1,
   limit: number = 10
-): Promise<ApiResponse<WishlistMappingResponseDto[]>> {
+): Promise<ApiResponse<PaginationResponse<WishlistMappingResponseDto>>> {
   const response = await api.get('/wishlist/products', {
     headers: {
       Authorization: `Bearer ${token}`,

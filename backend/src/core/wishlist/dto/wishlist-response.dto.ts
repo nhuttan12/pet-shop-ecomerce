@@ -25,7 +25,7 @@ export class WishlistMappingResponseDto {
 
   @Expose()
   @ApiProperty({ example: 'Đồ chơi' })
-  categoryName: string;
+  categoryName: string[];
 
   @Expose()
   @ApiProperty({ example: 'active' })

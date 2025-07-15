@@ -1,3 +1,4 @@
+import { ImageModule } from '@images/image.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UtilityModule } from '@services/utility.module';
@@ -11,6 +12,7 @@ import { WishlistService } from '@wishlist/wishlist.service';
 
 @Module({
   imports: [
+    ImageModule,
     UtilityModule,
     TypeOrmModule.forFeature([Wishlist, WishlistMapping]),
   ],
