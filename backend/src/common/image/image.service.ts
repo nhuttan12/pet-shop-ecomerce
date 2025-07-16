@@ -4,16 +4,21 @@ import { ImageType } from '@images/enums/image-type.enum';
 import { SubjectType } from '@images/enums/subject-type.enum';
 import { ImageErrorMessage } from '@images/messages/image.error-messages';
 import { ImageMessageLog } from '@images/messages/image.messages-log';
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { UtilityService } from '@services/utility.service';
 import { ImageRepository } from 'common/image/repositories/image.repository';
-import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
 export class ImageService {
   private readonly logger = new Logger(ImageService.name);
   constructor(
-    private readonly dataSource: DataSource,
-    private imageRepo: ImageRepository,
+    private readonly utilityService: UtilityService,
+    private readonly imageRepo: ImageRepository,
   ) {}
 
   async saveImage(
@@ -57,21 +62,43 @@ export class ImageService {
   }
 
   async updateImageForSubsject(
-    dataSource: EntityManager,
-    subjectId: number,
-    subjectType: string,
+    subjectID: number,
+    subjectType: SubjectType,
     newImageUrl: string,
     imageType: ImageType,
     folder?: string,
   ): Promise<Image> {
-    return await this.imageRepo.updateImageForSubsject(
-      dataSource,
-      subjectId,
+    // 1. Get image by subject ID and subject type
+    const image: Image = await this.getImageBySubjectIdAndSubjectType(
+      subjectID,
       subjectType,
-      newImageUrl,
-      imageType,
-      folder,
     );
+    this.utilityService.logPretty(
+      'Get image by subject ID and subject type',
+      image,
+    );
+
+    // 2. Remove old image
+    const removeImageResult: boolean = await this.removeImage(image.id);
+    this.utilityService.logPretty('Remove old image', removeImageResult);
+
+    // 3. Insert new image
+    const newImage: Image = await this.saveImage(
+      { url: newImageUrl, type: imageType, folder: folder ?? '' },
+      subjectID,
+      subjectType,
+    );
+    this.utilityService.logPretty('Insert new image', newImage);
+
+    // 4. Check image saving result
+    if (!newImage) {
+      this.logger.error(ImageMessageLog.IMAGE_NOT_FOUND);
+      throw new InternalServerErrorException(
+        ImageErrorMessage.IMAGE_NOT_FOUND_AFTER_CREATED,
+      );
+    }
+
+    return newImage;
   }
 
   async getImageListBySubjectIdAndSubjectType(

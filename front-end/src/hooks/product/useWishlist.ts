@@ -4,9 +4,10 @@ import {
   removeFromWishlist,
   getWishlistProducts,
 } from '../../service/products/wishlistService';
-import { WishlistMappingResponseDto } from '../../common/dto/wishlist/wishlist-response.dto';
+import { WishlistMappingResponseDto } from '../../common/dto/wishlist/wishlist-mapping-response.dto';
 import { PaginationResponse } from '../../common/dto/pagination/pagination-response';
 import { ApiResponse } from '../../common/dto/response/api-response.dto';
+import { AxiosResponse } from 'axios';
 
 interface UseWishlistResult {
   wishlistItems: WishlistMappingResponseDto[];
@@ -18,7 +19,9 @@ interface UseWishlistResult {
 }
 
 export function useWishlist(token: string): UseWishlistResult {
-  const [wishlistItems, setWishlistItems] = useState<WishlistMappingResponseDto[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<
+    WishlistMappingResponseDto[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -27,12 +30,13 @@ export function useWishlist(token: string): UseWishlistResult {
       setLoading(true);
       setError(null);
       try {
-        const res: ApiResponse<PaginationResponse<WishlistMappingResponseDto>> =
-          await getWishlistProducts(token, page, limit);
+        const res: AxiosResponse<
+          ApiResponse<PaginationResponse<WishlistMappingResponseDto>>
+        > = await getWishlistProducts(token, page, limit);
 
         console.log('📥 Raw wishlist data (1st item):', res.data);
 
-        setWishlistItems(res.data?.data ?? []);
+        setWishlistItems(res.data?.data?.data ?? []);
       } catch (err) {
         setError(err as Error);
       } finally {
@@ -43,7 +47,9 @@ export function useWishlist(token: string): UseWishlistResult {
   );
 
   const add = useCallback(
-    async (productId: number): Promise<WishlistMappingResponseDto | undefined> => {
+    async (
+      productId: number
+    ): Promise<WishlistMappingResponseDto | undefined> => {
       setLoading(true);
       setError(null);
       try {
@@ -68,7 +74,7 @@ export function useWishlist(token: string): UseWishlistResult {
       setError(null);
       try {
         const res = await removeFromWishlist(wishlistId.toString(), token);
-        if (res.statusCode === 200) {
+        if (res.data.statusCode === 200) {
           setWishlistItems((prev) =>
             prev.filter((item) => item.id !== wishlistId)
           );

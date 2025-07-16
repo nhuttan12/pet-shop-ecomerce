@@ -115,7 +115,7 @@ const Header: React.FC = () => {
           </div>
 
           <div className="relative cursor-pointer"
-          onClick={() => navigate("/favorites")}>
+          onClick={() => navigate("/wishlist")}>
             <CiHeart className="w-7 h-7" />
             <div className="absolute -top-2 -right-2 bg-[#fd7e14] text-white text-[10px] w-3 h-3 rounded-full flex items-center justify-center ">
               0

@@ -1,15 +1,11 @@
-import { ProductStatus } from '../../enum/product-status.enum';
+import { WishlistStatus } from '../../enum/wishlist-status.enum';
+import { WishlistMappingResponseDto } from './wishlist-mapping-response.dto';
 
-export interface WishlistMappingResponseDto {
+export interface WishlistResponseDto {
   id: number;
   userID: number;
-  productName: string;
-  productPrice: number;
-  brandName: string;
-  categoryName: string;
-  status: ProductStatus;
-  thumbnailUrl: string;
-  stock: number;
+  status: WishlistStatus;
+  wishlistMappings: WishlistMappingResponseDto[];
   createdAt: Date;
   updatedAt: Date;
 }

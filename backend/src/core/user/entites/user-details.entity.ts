@@ -1,5 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { User } from '@user/entites/users.entity';
+import { Gender } from '@user/enums/gender.enum';
 import { Entity, PrimaryColumn, OneToOne, JoinColumn, Column } from 'typeorm';
 
 @Entity('user_details')
@@ -20,4 +21,15 @@ export class UserDetail {
   @Column({ length: 255, nullable: true })
   @AutoMap()
   adress?: string;
+
+  @Column({
+    type: 'enum',
+    enum: Gender,
+  })
+  @AutoMap()
+  gender?: Gender;
+
+  @Column({ length: 255, nullable: true })
+  @AutoMap()
+  birhDate?: Date;
 }

@@ -1,49 +1,30 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { ProductStatus } from '@product/enums/product-status.enum';
+import { AutoMap } from '@automapper/classes';
+import { WishlistMappingResponseDto } from '@wishlist/dto/wishlist-mapping-response.dto';
+import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
 import { Expose } from 'class-transformer';
 
-export class WishlistMappingResponseDto {
+export class WishlistResponseDto {
   @Expose()
-  @ApiProperty({ example: 1 })
+  @AutoMap()
   id: number;
 
   @Expose()
-  @ApiProperty({ example: 2 })
+  @AutoMap()
   userID: number;
 
   @Expose()
-  @ApiProperty({ example: 'Sản phẩm ABC' })
-  productName: string;
+  @AutoMap()
+  status: WishlistStatus;
 
   @Expose()
-  @ApiProperty({ example: 250000 })
-  productPrice: number;
+  @AutoMap(() => [WishlistMappingResponseDto])
+  wishlistMappings: WishlistMappingResponseDto[];
 
   @Expose()
-  @ApiProperty({ example: 'Petmate' })
-  brandName: string;
-
-  @Expose()
-  @ApiProperty({ example: 'Đồ chơi' })
-  categoryName: string[];
-
-  @Expose()
-  @ApiProperty({ example: 'active' })
-  status: ProductStatus;
-
-  @Expose()
-  @ApiProperty({ example: 'https://example.com/image.jpg' })
-  thumbnailUrl: string;
-
-  @Expose()
-  @ApiProperty({ example: 5 })
-  stock: number;
-
-  @Expose()
-  @ApiProperty({ example: '2025-06-05T04:21:21.000Z' })
+  @AutoMap()
   createdAt: Date;
 
   @Expose()
-  @ApiProperty({ example: '2025-06-05T04:21:21.000Z' })
+  @AutoMap()
   updatedAt: Date;
 }

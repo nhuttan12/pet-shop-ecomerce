@@ -2,7 +2,7 @@ import React from "react";
 import Card from "../../components/common/Card";
 
 interface ProductItem {
-  id: number; // ✅ sửa từ string -> number
+  id: number; 
   name: string;
   price: string;
   image: string;
@@ -15,7 +15,7 @@ interface BestsellersSectionProps {
 const BestsellersSection: React.FC<BestsellersSectionProps> = ({
   products,
 }) => {
-  const [wishlist, setWishlist] = React.useState<number[]>([]); // ✅ cũng đổi sang number[]
+  const [wishlist, setWishlist] = React.useState<number[]>([]);
 
   const handleAddToWishlist = (productId: number) => {
     if (wishlist.includes(productId)) {

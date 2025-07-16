@@ -9,10 +9,12 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { RoleModule } from '@role/role.module';
+import { UtilityModule } from '@services/utility.module';
 import { UsersModule } from '@user/user.module';
 
 @Module({
   imports: [
+    UtilityModule,
     PassportModule,
     AppConfigModule,
     UsersModule,

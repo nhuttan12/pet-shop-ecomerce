@@ -1,4 +1,3 @@
-// src/hooks/useRegister.ts
 import { useState } from 'react';
 import { register as registerAPI, RegisterDTO } from '../../service/auth/authService';
 

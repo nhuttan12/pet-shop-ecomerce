@@ -8,9 +8,11 @@ import { UserController } from '@user/user.controller';
 import { UserService } from '@user/user.service';
 import { UserRepository } from '@user/repositories/user.repository';
 import { UserDetail } from '@user/entites/user-details.entity';
+import { MapperModule } from 'common/mapper/mapper.module';
 
 @Module({
   imports: [
+    MapperModule,
     ImageModule,
     RoleModule,
     UtilityModule,

@@ -13,9 +13,9 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UtilityService } from '@services/utility.service';
 import {
   DataSource,
-  EntityManager,
   In,
   InsertResult,
   Repository,
@@ -26,6 +26,7 @@ import {
 export class ImageRepository {
   private readonly logger = new Logger(ImageRepository.name);
   constructor(
+    private readonly utilityService: UtilityService,
     @InjectRepository(Image)
     private readonly imageRepo: Repository<Image>,
     private readonly dataSource: DataSource,
@@ -52,45 +53,6 @@ export class ImageRepository {
 
   async findManyById(ids: number[]): Promise<Image[]> {
     return await this.imageRepo.find({ where: { id: In(ids) } });
-  }
-
-  async updateImageForSubsject(
-    manager: EntityManager,
-    subjectId: number,
-    subjectType: string,
-    newImageUrl: string,
-    imageType: ImageType,
-    folder?: string,
-  ): Promise<Image> {
-    // 1. Remove old image
-    await manager.update(
-      Image,
-      { subjectId, subjectType, status: ImageStatus.ACTIVE },
-      { status: ImageStatus.REMOVED },
-    );
-
-    // 2. Insert new image
-    const imageInserted = manager.create(Image, {
-      url: newImageUrl,
-      folder,
-      type: imageType,
-      status: ImageStatus.ACTIVE,
-      subjectId,
-      subjectType,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    await manager.save(imageInserted);
-
-    if (!imageInserted) {
-      this.logger.error(ImageMessageLog.IMAGE_NOT_FOUND);
-      throw new InternalServerErrorException(
-        ImageErrorMessage.IMAGE_NOT_FOUND_AFTER_CREATED,
-      );
-    }
-
-    return imageInserted;
   }
 
   async saveImages(

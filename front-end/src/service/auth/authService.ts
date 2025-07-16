@@ -1,5 +1,8 @@
 // src/services/authService.ts
+import { AxiosResponse } from 'axios';
 import api from '../api';
+import { ApiResponse } from '../../common/dto/response/api-response.dto';
+import { UserLoginResponseDTO } from '../../common/dto/auth/user-login-response.dto';
 
 export interface RegisterDTO {
   username: string;
@@ -7,7 +10,6 @@ export interface RegisterDTO {
   password: string;
   retypePassword: string;
 }
-
 
 export const register = async (data: RegisterDTO) => {
   const response = await api.post('auth/v1/register', data);
@@ -19,8 +21,11 @@ export interface LoginDTO {
   password: string;
 }
 
-export const login = async (data: LoginDTO) => {
-  const response = await api.post('auth/v1/login', data);
+export const login = async (
+  data: LoginDTO
+): Promise<ApiResponse<UserLoginResponseDTO>> => {
+  const response: AxiosResponse<ApiResponse<UserLoginResponseDTO>> =
+    await api.post('auth/v1/login', data);
   return response.data;
 };
 

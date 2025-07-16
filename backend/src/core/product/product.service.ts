@@ -190,14 +190,17 @@ export class ProductService {
     // 4. Mapping product list to dto using plainToInstance
     const productDtos: GetAllProductResponseDto[] = await Promise.all(
       productList.data.map(async (product) => {
+        // 4.1. Mapping to GetAllProductResponseDto
         const dto: GetAllProductResponseDto = await this.mapper.mapAsync(
           product,
           Product,
           GetAllProductResponseDto,
         );
 
+        // 4.2. Mapping thumbnail url
         dto.thumbnailUrl = imageMap.get(product.id)?.[0].url ?? '';
 
+        // 4.3. Check if user ID is provided
         if (request.userID) {
           dto.isInWishlist = product.wishlistMappings.some(
             (wm) =>

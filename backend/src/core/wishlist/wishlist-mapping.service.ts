@@ -14,7 +14,8 @@ import {
 import { PaginationResponse } from '@pagination/pagination-response';
 import { UtilityService } from '@services/utility.service';
 import { GetAllWishListMappingDTO } from '@wishlist/dto/get-all-wishlist-mapping-request.dto';
-import { WishlistMappingResponseDto } from '@wishlist/dto/wishlist-response.dto';
+import { WishlistMappingResponseDto } from '@wishlist/dto/wishlist-mapping-response.dto';
+import { WishlistResponseDto } from '@wishlist/dto/wishlist-response.dto';
 import { WishlistMapping } from '@wishlist/entities/wishlist-mapping.entity';
 import { Wishlist } from '@wishlist/entities/wishlists.entity';
 import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
@@ -115,11 +116,15 @@ export class WishListMappingService {
     );
   }
 
-  async removeWishList(productID: number, userID: number): Promise<Wishlist> {
+  async removeWishList(
+    productID: number,
+    userID: number,
+  ): Promise<WishlistResponseDto> {
     try {
       // 1. Get wishlist by user id
       const wishlist: Wishlist | null =
         await this.wishlistService.getWishtListByUserID(userID);
+      this.utilityService.logPretty('Get wishlist by user id: ', wishlist);
 
       // 2. Check wishlist exist
       if (!wishlist) {
@@ -132,6 +137,7 @@ export class WishListMappingService {
         userID,
         productID,
       );
+      this.utilityService.logPretty('Remove wishlist result:', result);
 
       // 4. Check removing wishlist mapping result
       if (!result) {

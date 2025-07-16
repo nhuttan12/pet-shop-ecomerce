@@ -5,6 +5,7 @@ import Button from '../../components/ui/Button';
 import Checkbox from '../../components/ui/Checkbox';
 import { useLogin } from '../../hooks/auth/useLogin';
 import { useAuth } from '../../contexts/AuthContext';
+import { RoleName } from '../../common/enum/role/role-name.enum';
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -18,28 +19,33 @@ const LoginForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log('🔍 Login attempt with:', { username, password, rememberMe });
+
     const result = await loginUser({ username, password, rememberMe });
 
+    console.log('📋 Login result:', result);
+    console.log('✅ Success:', result.success);
+    console.log('🔑 Token:', result.token);
+    console.log('👤 User:', result.user);
+
     if (result.success && result.token && result.user) {
-      const role = result.user.role;
+      const role: string = result.user.role;
+      console.log('🎭 User role:', role);
+      console.log('🏢 Available roles:', Object.values(RoleName));
+
       login(
         result.user.id,
         result.user.username,
         result.token,
         result.user.role
-      ); // cập nhật context
-      if (
-        ['admin', 'manager', 'marketing_employee', 'sale_employee'].includes(
-          role
-        )
-      ) {
-        const token = result.token;
-        window.location.href = `http://localhost:3000?token=${token}`;
-      } else {
-        navigate('/');
-      }
+      );
+
+      navigate('/');
+
+      console.log('✅ Login successful, redirecting to home');
     } else {
       console.error('Đăng nhập thất bại:', result.error);
+      console.error('❌ Full result:', result);
     }
   };
 

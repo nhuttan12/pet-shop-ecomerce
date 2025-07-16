@@ -3,6 +3,7 @@ import { GetAllProductResponseDto } from '../../common/dto/product/get-all-produ
 import { ApiResponse } from '../../common/dto/response/api-response.dto';
 import axios from '../api';
 import { GetAllProductsRequest } from '../../common/dto/product/get-all-product-request.dto';
+import { AxiosResponse } from 'axios';
 
 const BASE_URL = '/product';
 
@@ -13,7 +14,7 @@ const BASE_URL = '/product';
  */
 export const getAllProducts = (
   request: GetAllProductsRequest
-): Promise<ApiResponse<PaginationResponse<GetAllProductResponseDto>>> => {
+): Promise<AxiosResponse<ApiResponse<PaginationResponse<GetAllProductResponseDto>>>> => {
   return axios.get(`${BASE_URL}`, {
     params: {
       page: request.page,

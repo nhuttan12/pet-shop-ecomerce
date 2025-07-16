@@ -3,48 +3,55 @@ import { HasRole } from '@decorators/roles.decorator';
 import { CatchEverythingFilter } from '@filters/exception.filter';
 import { JwtAuthGuard } from '@guards/jwt-auth.guard';
 import { RolesGuard } from '@guards/roles.guard';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Param,
+  Put,
+  Query,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PaginationResponse } from '@pagination/pagination-response';
 import { RoleName } from '@role/enums/role.enum';
-import { FindUserById, FindUserByName } from './dto/find-user.dto';
+import { UtilityService } from '@services/utility.service';
+import { FindUserByNameRequest } from '@user/dto/find-user-list-by-name-request.dto';
+import { UserProfileResponseDTO } from '@user/dto/user-profile-response.dto';
+import { UserResponseDTO } from '@user/dto/user-reseponse.dto';
+import { FindUserListById } from './dto/find-user-list-by-id-request.dto';
 import { GetAllUsersResponseDTO } from './dto/get-all-user-response.dto';
 import { GetAllUsersDto } from './dto/get-all-user.dto';
 import { UserUpdateDTO } from './dto/update-user.dto';
 import { User } from './entites/users.entity';
 import { UserNotifyMessage } from './messages/user.notify-messages';
 import { UserService } from './user.service';
-import {
-  Controller,
-  Logger,
-  Get,
-  HttpCode,
-  HttpStatus,
-  UseGuards,
-  UseFilters,
-  Query,
-  Param,
-  Put,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiQuery,
-  ApiOkResponse,
-  ApiParam,
-} from '@nestjs/swagger';
 
 @ApiTags('User')
 @Controller('user')
+@ApiBearerAuth('jwt')
+@UseFilters(CatchEverythingFilter)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController {
   private readonly logger = new Logger(UserController.name);
-  constructor(private userService: UserService) {}
+  constructor(
+    private readonly utilityService: UtilityService,
+    private readonly userService: UserService,
+  ) {}
 
   @Get()
-  @ApiBearerAuth('jwt')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(RoleName.ADMIN)
-  @UseFilters(CatchEverythingFilter)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Lấy danh sách tất cả user (phân trang, chỉ ADMIN)',
   })
@@ -68,13 +75,11 @@ export class UserController {
     @Query() query: GetAllUsersDto,
   ): Promise<ApiResponse<PaginationResponse<GetAllUsersResponseDTO>>> {
     const { page, limit }: GetAllUsersDto = query;
-    this.logger.debug(`Info to get all user ${page} ${limit}`);
+    this.logger.debug('Info to get all user', page, limit);
 
     const userList: PaginationResponse<GetAllUsersResponseDTO> =
       await this.userService.findUserForAdmin({}, limit, page);
-    this.logger.debug(
-      `Get user list in controller ${JSON.stringify(userList)}`,
-    );
+    this.utilityService.logPretty('Get user list in controller: ', userList);
 
     return {
       statusCode: HttpStatus.OK,
@@ -84,11 +89,8 @@ export class UserController {
   }
 
   @Get('id/:id')
-  @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(RoleName.ADMIN)
-  @UseFilters(CatchEverythingFilter)
   @ApiOperation({ summary: 'Tìm user theo ID (chỉ ADMIN)' })
   @ApiParam({ name: 'id', type: Number, description: 'User id' })
   @ApiOkResponse({
@@ -96,11 +98,12 @@ export class UserController {
     description: 'User trả về thành công',
   })
   async findUserById(
-    @Param() findUser: FindUserById,
-  ): Promise<ApiResponse<User>> {
-    const id: number = findUser.id;
-    const user: User = await this.userService.getUserById(id);
-    this.logger.debug(`Get user list in controller ${JSON.stringify(user)}`);
+    @Param() request: FindUserListById,
+  ): Promise<ApiResponse<PaginationResponse<UserResponseDTO>>> {
+    const user: PaginationResponse<UserResponseDTO> =
+      await this.userService.findUserListByID(request);
+
+    this.utilityService.logPretty('Get user list in controller', user);
 
     return {
       statusCode: HttpStatus.OK,
@@ -110,11 +113,8 @@ export class UserController {
   }
 
   @Get('name/:name')
-  @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(RoleName.ADMIN)
-  @UseFilters(CatchEverythingFilter)
   @ApiOperation({ summary: 'Tìm user theo tên (chỉ ADMIN)' })
   @ApiParam({ name: 'name', type: String, description: 'Tên user' })
   @ApiOkResponse({
@@ -122,13 +122,12 @@ export class UserController {
     description: 'Danh sách user trả về thành công',
   })
   async findUserByName(
-    @Param() nameParam: FindUserByName,
-  ): Promise<ApiResponse<User[]>> {
-    const name: string = nameParam.name;
-    const userList: User[] = await this.userService.findUserByName(name);
-    this.logger.debug(
-      `Get user list in controller ${JSON.stringify(userList)}`,
-    );
+    @Param() request: FindUserByNameRequest,
+  ): Promise<ApiResponse<PaginationResponse<UserResponseDTO>>> {
+    const userList: PaginationResponse<UserResponseDTO> =
+      await this.userService.findUserByName(request);
+
+    this.utilityService.logPretty('Get user list in controller', userList);
 
     return {
       statusCode: HttpStatus.OK,
@@ -138,11 +137,8 @@ export class UserController {
   }
 
   @Put()
-  @ApiBearerAuth('jwt')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @HasRole(RoleName.ADMIN)
-  @UseFilters(CatchEverythingFilter)
   @ApiOperation({ summary: 'Cập nhật thông tin user (chỉ ADMIN)' })
   @ApiQuery({ name: 'id', type: Number, description: 'User id' })
   @ApiQuery({
@@ -163,8 +159,9 @@ export class UserController {
   })
   async updateUser(
     @Query() userQuery: UserUpdateDTO,
-  ): Promise<ApiResponse<User>> {
-    const newUser: User = await this.userService.updateUser(userQuery);
+  ): Promise<ApiResponse<UserProfileResponseDTO>> {
+    const newUser: UserProfileResponseDTO =
+      await this.userService.updateUser(userQuery);
 
     this.logger.debug(`Get user list in controller ${JSON.stringify(newUser)}`);
 
@@ -174,4 +171,6 @@ export class UserController {
       data: newUser,
     };
   }
+
+  // @Get('user-profile')
 }

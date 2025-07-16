@@ -7,7 +7,7 @@ import {
 } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { Injectable } from '@nestjs/common';
-import { WishlistMappingResponseDto } from '@wishlist/dto/wishlist-response.dto';
+import { WishlistMappingResponseDto } from '@wishlist/dto/wishlist-mapping-response.dto';
 import { WishlistMapping } from '@wishlist/entities/wishlist-mapping.entity';
 
 @Injectable()
@@ -30,6 +30,10 @@ export class WishlistMappingProfile extends AutomapperProfile {
       forMember(
         (dest: WishlistMappingResponseDto) => dest.userID,
         mapFrom((src: WishlistMapping) => src.wishlist.user.id),
+      ),
+      forMember(
+        (dest: WishlistMappingResponseDto) => dest.productID,
+        mapFrom((src: WishlistMapping) => src.product.id),
       ),
       forMember(
         (dest: WishlistMappingResponseDto) => dest.productName,
