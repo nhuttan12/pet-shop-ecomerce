@@ -36,6 +36,8 @@ import { UserUpdateDTO } from './dto/update-user.dto';
 import { User } from './entites/users.entity';
 import { UserNotifyMessage } from './messages/user.notify-messages';
 import { UserService } from './user.service';
+import { GetUser } from '@decorators/user.decorator';
+import { JwtPayload } from '../../../dist/src/core/auth/interfaces/jwt-payload.interface';
 
 @ApiTags('User')
 @Controller('user')
@@ -172,5 +174,68 @@ export class UserController {
     };
   }
 
-  // @Get('user-profile')
+  @Get('user-profile')
+  @HttpCode(HttpStatus.OK)
+  @HasRole(RoleName.ADMIN, RoleName.CUSTOMER)
+  @ApiOperation({
+    summary: 'Lấy thông tin hồ sơ người dùng',
+    description:
+      'Truy xuất thông tin hồ sơ của người dùng đã xác thực dựa trên JWT payload.',
+  })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Lấy thông tin hồ sơ người dùng thành công',
+    type: () => ApiResponse<UserProfileResponseDTO>,
+    example: {
+      statusCode: 200,
+      message: UserNotifyMessage.GET_USER_SUCCESSFUL,
+      data: {
+        id: 1,
+        name: 'Nguyễn Văn A',
+        email: 'nguyenvana@example.com',
+        avatar: 'https://example.com/avatar.jpg',
+        phone: '0123456789',
+        gender: 'Nam',
+        birthDate: '1990-01-01T00:00:00.000Z',
+      },
+    },
+  })
+  @ApiOkResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Truy cập không được ủy quyền',
+    type: () => ApiResponse<null>,
+    example: {
+      statusCode: 401,
+      message: 'Truy cập không được ủy quyền',
+      error: 'Unauthorized',
+    },
+  })
+  @ApiOkResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Người dùng không có vai trò cần thiết (ADMIN hoặc CUSTOMER)',
+    type: () => ApiResponse<null>,
+    example: {
+      statusCode: 403,
+      message: 'Không có quyền truy cập',
+      error: 'Forbidden',
+    },
+  })
+  async getUserProfile(
+    @GetUser() user: JwtPayload,
+  ): Promise<ApiResponse<UserProfileResponseDTO>> {
+    // 1. Get user profile in controller
+    const userProfile: UserProfileResponseDTO =
+      await this.userService.getUserProfileByUserID({ userID: user.sub });
+
+    this.utilityService.logPretty(
+      'Get user profile in controller',
+      userProfile,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: UserNotifyMessage.GET_USER_PROFILE_SUCCESSFULLY,
+      data: userProfile,
+    };
+  }
 }
