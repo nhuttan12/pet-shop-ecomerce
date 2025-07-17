@@ -4,9 +4,10 @@ import { ImageService } from '@images/image.service';
 import { ImageRepository } from '@images/repositories/image.repository';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UtilityModule } from '@services/utility.module';
 
 @Module({
-  imports: [AppConfigModule, TypeOrmModule.forFeature([Image])],
+  imports: [UtilityModule, AppConfigModule, TypeOrmModule.forFeature([Image])],
   providers: [ImageService, ImageRepository],
   exports: [ImageService],
 })

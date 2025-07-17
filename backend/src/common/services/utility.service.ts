@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { PrettyLoggerService } from '@services/pretty-logger.service';
 
 @Injectable()
 export class UtilityService {
-  private readonly logger = new Logger(UtilityService.name);
+  constructor(private readonly logger: PrettyLoggerService) {}
   getPagination(page = 1, limit = 10) {
     return {
       skip: (page - 1) * limit,
@@ -25,7 +26,7 @@ export class UtilityService {
       const formatted = JSON.stringify(data, null, 2);
       this.logger.debug(`${label}:\n${formatted}`);
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error('Pretty log failed', (error as Error).stack);
       throw error;
     }
   }

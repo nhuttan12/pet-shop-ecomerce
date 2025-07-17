@@ -29,7 +29,7 @@ export class UserDetail {
   @AutoMap()
   gender?: Gender;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ nullable: true })
   @AutoMap()
   birhDate?: Date;
 }

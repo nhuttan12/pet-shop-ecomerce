@@ -4,6 +4,7 @@ import { JwtStrategy } from '@auth/strategy/jwt.strategy';
 import { LocalStrategy } from '@auth/strategy/local.strategy';
 import { AppConfigModule } from '@config/app-config.module';
 import { AppConfigService } from '@config/app-config.service';
+import { ImageModule } from '@images/image.module';
 import { MailModule } from '@mail/mail.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
@@ -16,6 +17,7 @@ import { UsersModule } from '@user/user.module';
   imports: [
     UtilityModule,
     PassportModule,
+    ImageModule,
     AppConfigModule,
     UsersModule,
     RoleModule,

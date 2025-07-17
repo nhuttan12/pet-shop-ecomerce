@@ -4,6 +4,7 @@ import { CatchEverythingFilter } from '@filters/exception.filter';
 import { JwtAuthGuard } from '@guards/jwt-auth.guard';
 import { RolesGuard } from '@guards/roles.guard';
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -33,11 +34,10 @@ import { FindUserListById } from './dto/find-user-list-by-id-request.dto';
 import { GetAllUsersResponseDTO } from './dto/get-all-user-response.dto';
 import { GetAllUsersDto } from './dto/get-all-user.dto';
 import { UserUpdateDTO } from './dto/update-user.dto';
-import { User } from './entites/users.entity';
 import { UserNotifyMessage } from './messages/user.notify-messages';
 import { UserService } from './user.service';
 import { GetUser } from '@decorators/user.decorator';
-import { JwtPayload } from '../../../dist/src/core/auth/interfaces/jwt-payload.interface';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 
 @ApiTags('User')
 @Controller('user')
@@ -70,7 +70,7 @@ export class UserController {
     description: 'Số lượng mỗi trang',
   })
   @ApiOkResponse({
-    type: ApiResponse<GetAllUsersResponseDTO[]>,
+    type: ApiResponse<PaginationResponse<GetAllUsersResponseDTO>>,
     description: 'Danh sách user trả về thành công',
   })
   async getAllUsers(
@@ -96,7 +96,7 @@ export class UserController {
   @ApiOperation({ summary: 'Tìm user theo ID (chỉ ADMIN)' })
   @ApiParam({ name: 'id', type: Number, description: 'User id' })
   @ApiOkResponse({
-    type: ApiResponse<User>,
+    type: ApiResponse<PaginationResponse<UserResponseDTO>>,
     description: 'User trả về thành công',
   })
   async findUserById(
@@ -120,7 +120,7 @@ export class UserController {
   @ApiOperation({ summary: 'Tìm user theo tên (chỉ ADMIN)' })
   @ApiParam({ name: 'name', type: String, description: 'Tên user' })
   @ApiOkResponse({
-    type: ApiResponse<User[]>,
+    type: ApiResponse<PaginationResponse<UserResponseDTO>>,
     description: 'Danh sách user trả về thành công',
   })
   async findUserByName(
@@ -156,14 +156,14 @@ export class UserController {
     description: 'Email user',
   })
   @ApiOkResponse({
-    type: ApiResponse<User>,
+    type: ApiResponse<UserProfileResponseDTO>,
     description: 'Cập nhật user thành công',
   })
   async updateUser(
-    @Query() userQuery: UserUpdateDTO,
+    @Body() request: UserUpdateDTO,
   ): Promise<ApiResponse<UserProfileResponseDTO>> {
     const newUser: UserProfileResponseDTO =
-      await this.userService.updateUser(userQuery);
+      await this.userService.updateUser(request);
 
     this.logger.debug(`Get user list in controller ${JSON.stringify(newUser)}`);
 

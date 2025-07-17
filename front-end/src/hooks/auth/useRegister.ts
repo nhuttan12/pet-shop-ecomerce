@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { register as registerAPI, RegisterDTO } from '../../service/auth/authService';
+import {
+  register as registerAPI,
+  RegisterDTO,
+} from '../../service/auth/authService';
+import { AxiosError } from 'axios';
 
 export const useRegister = () => {
   const [loading, setLoading] = useState(false);
@@ -11,8 +15,12 @@ export const useRegister = () => {
     try {
       const result = await registerAPI(data);
       return result;
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Đăng ký thất bại');
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.message);
+      } else {
+        setError('Đăng ký thất bại');
+      }
       throw err; // Nếu bạn muốn handle ở component
     } finally {
       setLoading(false);

@@ -6,4 +6,6 @@ export enum UserErrorMessage {
   USER_NOT_ACTIVE = 'Tài khoản chưa được kích hoạt',
   USER_ID_MUST_BE_INTEGER = 'Mã số người dùng phải là số nguyên',
   USER_ID_MUST_BE_POSITIVE = 'Mã số người dùng phải lớn hơn 0',
+  GENDER_IS_NOT_VALID = 'Giới tính không hợp lệ',
+  USER_BIRTH_DATE_IS_NOT_VALID = 'Ngày sinh không hợp lệ',
 }

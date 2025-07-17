@@ -6,7 +6,6 @@ import { SubjectType } from '@images/enums/subject-type.enum';
 import { ImageErrorMessage } from '@images/messages/image.error-messages';
 import { ImageMessageLog } from '@images/messages/image.messages-log';
 import { ErrorMessage } from '@messages/error.messages';
-import { MessageLog } from '@messages/log.messages';
 import {
   Injectable,
   InternalServerErrorException,
@@ -14,13 +13,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UtilityService } from '@services/utility.service';
-import {
-  DataSource,
-  In,
-  InsertResult,
-  Repository,
-  UpdateResult,
-} from 'typeorm';
+import { DataSource, In, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class ImageRepository {
@@ -122,54 +115,33 @@ export class ImageRepository {
     subjectID: number,
     subjectType: SubjectType,
   ): Promise<Image> {
-    this.logger.verbose('Save image');
-
-    const value: Partial<Image> = {
-      url: image.url,
-      folder: image.folder,
-      type: image.type,
-      status: ImageStatus.ACTIVE,
-      subjectID,
-      subjectType: subjectType as string,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.logger.debug(`Image value: ${JSON.stringify(value)}`);
-
-    const queryRunner = this.dataSource.createQueryRunner();
-
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
     try {
-      // Insert ảnh mới
-      const insertResult: InsertResult = await queryRunner.manager
-        .createQueryBuilder()
-        .insert()
-        .into(Image)
-        .values(value)
-        .execute();
-
-      const insertImagedId: number = insertResult.identifiers[0].id as number;
-
-      const newImage: Image | null = await this.getByID(insertImagedId);
-
-      if (!newImage || newImage === null) {
-        this.logger.debug(MessageLog.IMAGE_CANNOT_BE_FOUND);
-        throw new InternalServerErrorException(
-          ErrorMessage.INTERNAL_SERVER_ERROR,
+      return await this.dataSource.transaction(async (manager) => {
+        // 1. Create image information
+        const imageInserted: Image = manager.create(Image, {
+          url: image.url,
+          folder: image.folder,
+          type: image.type,
+          status: ImageStatus.ACTIVE,
+          subjectID,
+          subjectType: subjectType as string,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        this.utilityService.logPretty(
+          'Create image information',
+          imageInserted,
         );
-      }
 
-      await queryRunner.commitTransaction();
+        // 2. Save image
+        const imageSaved: Image = await manager.save(imageInserted);
+        this.utilityService.logPretty('Save image', imageSaved);
 
-      return newImage;
+        return imageSaved;
+      });
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      this.logger.error('Failed to save image', (error as Error).stack);
-      throw new InternalServerErrorException('Internal server error');
-    } finally {
-      await queryRunner.release();
+      this.utilityService.logPretty('Error', error);
+      throw error;
     }
   }
 

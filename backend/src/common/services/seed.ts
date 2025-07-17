@@ -113,10 +113,12 @@ export async function main() {
       logger.debug('✅ Inserted roles', roles);
 
       const image: Image = await manager.save(Image, {
+        id: 1,
         url: 'https://res.cloudinary.com/dt3yrf9sx/image/upload/v1747916657/pngegg_1_elsdfw.png',
         type: ImageType.AVATAR,
         folder: 'tmdt-ck',
         status: ImageStatus.ACTIVE,
+        subjectType: SubjectType.USER,
         createdAt: new Date(),
         updatedAt: new Date(),
       });

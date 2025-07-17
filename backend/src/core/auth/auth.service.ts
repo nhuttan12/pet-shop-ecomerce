@@ -27,12 +27,18 @@ import { AuthNotifyMessages } from '@auth/messages/auth.notify-messages';
 import bcrypt from 'bcrypt';
 import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 import { UtilityService } from '@services/utility.service';
+import { ImageService } from '@images/image.service';
+import { Image } from '@images/entites/images.entity';
+import { ImageType } from '@images/enums/image-type.enum';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { SentMessageInfo } from 'nodemailer';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   private readonly saltOrRounds = 10;
   constructor(
+    private readonly imageService: ImageService,
     private readonly utilityService: UtilityService,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
@@ -175,14 +181,27 @@ export class AuthService {
 
       // 9. Check if user is created
       if (userCreated) {
-        // 10. Send mail
-        await this.mailService.sendMail(
+        // 10. Create deffault user image
+        const userImage: Image = await this.imageService.saveImage(
+          {
+            type: ImageType.AVATAR,
+            url: 'https://res.cloudinary.com/dt3yrf9sx/image/upload/v1747916657/pngegg_1_elsdfw.png',
+            folder: 'tmdt-ck',
+          },
+          userCreated.id,
+          SubjectType.USER,
+        );
+        this.utilityService.logPretty('Create deffault user image', userImage);
+
+        // 11. Send mail
+        const messageInfo: SentMessageInfo = await this.mailService.sendMail(
           request.email,
           AuthNotifyMessages.REGISTER_SUCCESSFUL,
           AuthNotifyMessages.YOUR_ACCOUNT_WITH_USERNAME +
             ' ' +
             request.username,
         );
+        this.utilityService.logPretty('Mail sent', messageInfo);
       }
 
       return {
