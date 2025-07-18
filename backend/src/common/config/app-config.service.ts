@@ -16,6 +16,7 @@ import { PayPalConfig } from './interfaces/paypal.interface';
 import { EmailConfigErrorMessage } from '@config/messages/email-config.error-messages';
 import { CloudinaryConfigErrorMessage } from '@config/messages/cloudinary-config.error-messages';
 import { PaypalConfigErrorMessage } from '@config/messages/paypal-config.error-messages';
+import { DatabaseConfigErrorMessage } from '@config/messages/database-config.error-messages';
 
 @Injectable()
 export class AppConfigService {
@@ -35,8 +36,8 @@ export class AppConfigService {
   get getDatabaseConfig(): DatabaseConfig {
     const config = this.configService.get<DatabaseConfig>('db');
     if (!config) {
-      this.logger.error(MessageLog.DB_CONFIG_NOT_FOUND);
-      throw new Error(ErrorMessage.DB_CONFIG_NOT_FOUND);
+      this.logger.error(DatabaseConfigErrorMessage.DB_CONFIG_NOT_FOUND);
+      throw new Error(DatabaseConfigErrorMessage.DB_CONFIG_NOT_FOUND);
     }
     this.logger.debug('database config information', config);
     return config;

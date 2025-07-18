@@ -1,9 +1,15 @@
 import { UserLoginResponseDTO } from '@auth/dto/user-login-response.dto';
 import { UserRegisterResponseDTO } from '@auth/dto/user-register-response.dto';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+import { AuthErrorMessages } from '@auth/messages/auth.error-messages';
 import { AuthMessageLog } from '@auth/messages/auth.messages-log';
+import { AuthNotifyMessages } from '@auth/messages/auth.notify-messages';
 import { AppConfigService } from '@config/app-config.service';
+import { Image } from '@images/entites/images.entity';
+import { ImageType } from '@images/enums/image-type.enum';
+import { SubjectType } from '@images/enums/subject-type.enum';
+import { ImageService } from '@images/image.service';
 import { MailService } from '@mail/mail.service';
-import { ErrorMessage } from '@messages/error.messages';
 import {
   BadRequestException,
   Injectable,
@@ -14,6 +20,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Role } from '@role/entities/roles.entity';
 import { RoleName } from '@role/enums/role.enum';
 import { RoleService } from '@role/role.service';
+import { UtilityService } from '@services/utility.service';
 import { UserForgotPasswordDTO } from '@user/dto/user-forgot-password.dto';
 import { UserRegisterDTO } from '@user/dto/user-register.dto';
 import { UserResetPasswordDTO } from '@user/dto/user-reset-password.dto';
@@ -22,15 +29,7 @@ import { UserStatus } from '@user/enums/user-status.enum';
 import { UserErrorMessage } from '@user/messages/user.error-messages';
 import { UserMessageLog } from '@user/messages/user.messages-log';
 import { UserService } from '@user/user.service';
-import { AuthErrorMessages } from '@auth/messages/auth.error-messages';
-import { AuthNotifyMessages } from '@auth/messages/auth.notify-messages';
 import bcrypt from 'bcrypt';
-import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
-import { UtilityService } from '@services/utility.service';
-import { ImageService } from '@images/image.service';
-import { Image } from '@images/entites/images.entity';
-import { ImageType } from '@images/enums/image-type.enum';
-import { SubjectType } from '@images/enums/subject-type.enum';
 import { SentMessageInfo } from 'nodemailer';
 
 @Injectable()
@@ -328,7 +327,7 @@ export class AuthService {
     // 3. Check token is valid
     if (!decodeInfo || !decodeInfo.sub) {
       this.logger.warn('Invalid or expired reset token');
-      throw new BadRequestException(ErrorMessage.INVALID_RESET_TOKEN);
+      throw new BadRequestException(AuthErrorMessages.INVALID_RESET_TOKEN);
     }
 
     // 4. Get user id from token

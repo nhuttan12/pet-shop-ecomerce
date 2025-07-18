@@ -43,7 +43,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/cart" element={<CartPage />} />
          <Route path="/wishlist" element={<FavoriteProductsPage />} />
         {/* <Route path="/productdetail" element={<ProductDetailPage />} /> */}
-        <Route path="/productdetail/:id" element={<ProductDetailPage />} />
+        <Route path="/product-detail/:id" element={<ProductDetailPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/profile" element={<ProfilePage />} />

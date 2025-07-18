@@ -1,13 +1,14 @@
-import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 import { ApiResponse } from '@api-response/ApiResponse';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 import { CartDetailService } from '@cart/cart-detail.service';
 import { CartService } from '@cart/cart.service';
 import { CartDetailResponse } from '@cart/dto/cart-detail/cart-detail-response.dto';
 import { GetCartDetailByCartId } from '@cart/dto/cart-detail/get-cart-detail-by-cart-id';
 import { RemoveCartDetailDTO } from '@cart/dto/cart-detail/remove-cart-detail.dto';
+import { CartResponseDto } from '@cart/dto/cart/cart-response.dto';
 import { CartCreateDTO } from '@cart/dto/cart/create-cart.dto';
 import { CartDetail } from '@cart/entities/cart-details.entity';
-import { Cart } from '@cart/entities/carts.entity';
+import { CartNotifyMessage } from '@cart/messages/cart.notify-messages';
 import { HasRole } from '@decorators/roles.decorator';
 import { GetUser } from '@decorators/user.decorator';
 import { CatchEverythingFilter } from '@filters/exception.filter';
@@ -29,14 +30,15 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiResponse as ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
-  ApiResponse as ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { PaginationResponse } from '@pagination/pagination-response';
 import { RoleName } from '@role/enums/role.enum';
-import { CartNotifyMessage } from '@cart/messages/cart.notify-messages';
+import { UtilityService } from '@services/utility.service';
 
 @ApiTags('Cart')
 @ApiBearerAuth('jwt')
@@ -46,6 +48,7 @@ import { CartNotifyMessage } from '@cart/messages/cart.notify-messages';
 export class CartController {
   private readonly logger = new Logger();
   constructor(
+    private readonly utilityService: UtilityService,
     private readonly cartService: CartService,
     private readonly cartDetailService: CartDetailService,
   ) {}
@@ -61,13 +64,13 @@ export class CartController {
   async addProductToCart(
     @Body() { productID, quantity }: CartCreateDTO,
     @GetUser() user: JwtPayload,
-  ): Promise<ApiResponse<Cart>> {
-    const newCart = await this.cartService.addToCart(
+  ): Promise<ApiResponse<CartResponseDto>> {
+    const newCart: CartResponseDto = await this.cartService.addToCart(
       user.sub,
       productID,
       quantity,
     );
-    this.logger.debug(`Cart: ${JSON.stringify(newCart)}`);
+    this.utilityService.logPretty('Cart', newCart);
 
     return {
       statusCode: HttpStatus.OK,
@@ -99,22 +102,32 @@ export class CartController {
     description: 'Trang số',
   })
   @ApiOkResponse({
-    type: ApiResponse<CartDetailResponse[]>,
+    type: ApiResponse<PaginationResponse<CartDetailResponse>>,
     description: 'Lấy chi tiết giỏ hàng thành công',
   })
   async getCartDetailsByUserID(
     @Query() request: GetCartDetailByCartId,
     @GetUser() user: JwtPayload,
-  ): Promise<ApiResponse<CartDetailResponse[]>> {
-    const cartDetail = await this.cartService.getAllCartItemsByUserID(
-      request,
-      user.sub,
+  ): Promise<ApiResponse<PaginationResponse<CartDetailResponse>>> {
+    // 1. Get cart details and meta pagination
+    const cartDetail: PaginationResponse<CartDetailResponse> =
+      await this.cartService.getAllCartItemsByUserID(request, user.sub);
+    this.utilityService.logPretty('Cart detail list', cartDetail.data);
+    this.utilityService.logPretty(
+      'Cart detail meta pagination',
+      cartDetail.meta,
     );
-    return {
+
+    // 2. Create response
+    const response: ApiResponse<PaginationResponse<CartDetailResponse>> = {
       statusCode: HttpStatus.OK,
       message: CartNotifyMessage.GET_CART_DETAIL_SUCCESSFUL,
       data: cartDetail,
     };
+    this.utilityService.logPretty('Response to client', response);
+
+    // 3. Returning response
+    return response;
   }
 
   @Delete('/cart-detail/:id')

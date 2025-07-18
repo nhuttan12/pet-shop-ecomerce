@@ -238,7 +238,9 @@ export class UserRepository {
           userUpdateDTO.id,
           {
             phone: userUpdateDTO.phone,
-            adress: userUpdateDTO.address,
+            // adress: userUpdateDTO.address,
+            birhDate: userUpdateDTO.birthDate,
+            gender: userUpdateDTO.gender,
           },
         );
 

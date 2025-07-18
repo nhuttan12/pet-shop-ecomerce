@@ -6,18 +6,28 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useUpdateUserProfile } from '../../hooks/profile/useUpdateUserProfile';
 import AccountMenu from './AccountMenu';
 import ProfileForm from './ProfileForm';
+import { useGetUserProfile } from '../../hooks/profile/useGetUserProfile';
 
 const ProfilePage: React.FC = () => {
   const { token } = useAuth();
 
-  const { userProfile, loading, error, updateProfile } = useUpdateUserProfile(
-    token ?? ''
-  );
+  const { updateProfile: updateProfile, success: updateUserProfileResult } =
+    useUpdateUserProfile(token ?? '');
+
+  const {
+    userProfile: getUserProfile,
+    loading: userProfileLoading,
+    error: userProfileError,
+  } = useGetUserProfile(token ?? '');
 
   const handleSaveProfile = async (updatedProfile: UserProfileResponseDTO) => {
     try {
+      if (!updateProfile) return;
+
       await updateProfile(updatedProfile);
-      alert('Thông tin đã được cập nhật thành công!');
+      if (updateUserProfileResult) {
+        alert('Thông tin đã được cập nhật thành công!');
+      }
     } catch (err) {
       alert(
         'Cập nhật thất bại: ' +
@@ -26,10 +36,25 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!token) return <p>You are not logged in</p>;
-  if (!userProfile) return null;
+  if (userProfileLoading) {
+    console.log('Loading profile...');
+    return <p>Loading...</p>;
+  }
+
+  if (userProfileError) {
+    console.log('Error loading profile:', userProfileError);
+    return <p>Error: {userProfileError}</p>;
+  }
+
+  if (!token) {
+    console.log('No token');
+    return <p>You are not logged in</p>;
+  }
+
+  if (!getUserProfile) {
+    console.log('No user profile loaded');
+    return null;
+  }
 
   return (
     <div className='min-h-screen flex flex-col bg-white'>
@@ -42,7 +67,10 @@ const ProfilePage: React.FC = () => {
           </div>
 
           <div className='md:col-span-3'>
-            <ProfileForm userProfile={userProfile} onSave={handleSaveProfile} />
+            <ProfileForm
+              userProfile={getUserProfile}
+              onSave={handleSaveProfile}
+            />
           </div>
         </div>
       </main>

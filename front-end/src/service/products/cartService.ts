@@ -2,7 +2,7 @@
 import api from '../api';
 
 export interface CartCreateDTO {
-  productId: number;
+  productID: number;
   quantity: number;
 }
 
@@ -11,7 +11,7 @@ export async function addToCart(
   data: CartCreateDTO
 ) {
   const response = await api.post(
-    '/carts/adding',
+    '/carts/add-to-cart',
     data,
     {
       headers: {
@@ -19,7 +19,7 @@ export async function addToCart(
       },
     }
   );
-  return response.data; // trả về ApiResponse<Cart>
+  return response.data;
 }
 
 export async function getAllCarts(
@@ -35,7 +35,7 @@ export async function getAllCarts(
     headers: { Authorization: `Bearer ${token}` },
     params,
   });
-  return response.data; // ApiResponse<Cart[]>
+  return response.data; 
 }
 
 export async function getCartById(

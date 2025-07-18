@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import InputField from '../../components/ui/InputField';
-// import Dropdown from "../../components/ui/Dropdown";
 import { CgProfile } from 'react-icons/cg';
 import { UserProfileResponseDTO } from '../../common/dto/user/user-profile-response.dto';
 
@@ -22,7 +21,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userProfile, onSave }) => {
     { value: 'other', label: 'Khác' },
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setProfile({
       ...profile,
@@ -74,7 +75,17 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userProfile, onSave }) => {
     e.preventDefault();
 
     if (validateForm()) {
-      onSave(profile);
+      const updatePayload = {
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        gender: profile.gender,
+        birthDate: profile.birthDate,
+        phone: profile.phone,
+      };
+
+      console.log('Profile:', updatePayload);
+      onSave(updatePayload as UserProfileResponseDTO);
     }
   };
 
@@ -82,37 +93,24 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userProfile, onSave }) => {
     <div className='bg-[#f8f9fa] p-8 rounded-2xl'>
       <div className='flex items-center mb-8'>
         <div className='w-[68px] h-[68px] bg-[#fd7e14] rounded-full flex items-center justify-center'>
-          <CgProfile className='w-[68px] h-[68px]' />
+          {profile.avatar ? (
+            <img
+              src={profile.avatar}
+              alt='User avatar'
+              className='w-[68px] h-[68px] rounded-full object-cover'
+            />
+          ) : (
+            <CgProfile className='w-[68px] h-[68px] text-gray-400' />
+          )}
         </div>
         <div className='ml-4'>
-          <h2 className='text-xl font-medium'>
-            {/* {profile.firstName} {profile.lastName} */}
-            {profile.name}
-          </h2>
+          <h2 className='text-xl font-medium'>{profile.name}</h2>
           <p className='text-gray-500'>{profile.email}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit}>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4'>
-          {/* <InputField
-            label="Họ"
-            name="firstName"
-            value={profile.firstName}
-            onChange={handleInputChange}
-            placeholder="Họ"
-            error={errors.firstName}
-          />
-
-          <InputField
-            label="Tên"
-            name="lastName"
-            value={profile.lastName}
-            onChange={handleInputChange}
-            placeholder="Tên"
-            error={errors.lastName}
-          /> */}
-
           <div className='md:col-span-2'>
             <InputField
               label='Họ tên'
@@ -137,7 +135,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userProfile, onSave }) => {
 
           <InputField
             label='Số điện thoại'
-            name='phoneNumber'
+            name='phone'
             value={profile.phone}
             onChange={handleInputChange}
             placeholder='Phone number'
@@ -160,7 +158,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userProfile, onSave }) => {
             label='Ngày sinh'
             name='birthDate'
             type='date'
-            value={profile.birthDate}
+            value={
+              profile.birthDate
+                ? new Date(profile.birthDate).toISOString().split('T')[0]
+                : ''
+            }
             onChange={handleInputChange}
             placeholder='birthDate'
             error={errors.birthDate}

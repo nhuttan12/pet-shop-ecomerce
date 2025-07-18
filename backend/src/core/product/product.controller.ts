@@ -135,7 +135,7 @@ export class ProductController {
     };
   }
 
-  @Get('detail')
+  @Get('product-detail')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Lấy chi tiết sản phẩm' })
   @ApiQuery({

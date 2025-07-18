@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { ProductDetailResponse } from "../../types/ProductDetail";
-import { formatCurrency } from "../../utils/formatCurrency";
+import React, { useState } from 'react';
+import { formatCurrency } from '../../utils/formatCurrency';
+import { GetProductDetailResponseDto } from '../../common/dto/product/product-detail.dto';
 
 interface ProductInfoProps {
-  product: ProductDetailResponse;
-  onAddToCart: (product: ProductDetailResponse, quantity: number) => void;
+  product: GetProductDetailResponseDto;
+  onAddToCart: (product: GetProductDetailResponseDto, quantity: number) => void;
 }
 
 const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
@@ -15,42 +15,45 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
   };
 
   return (
-    <div className="bg-white p-4 md:p-6">
-      <h1 className="text-2xl font-bold text-[#522f1f] mb-4 leading-tight">
+    <div className='bg-white p-4 md:p-6'>
+      <h1 className='text-2xl font-bold text-[#522f1f] mb-4 leading-tight'>
         {product.name}
       </h1>
 
-      <div className="text-sm text-gray-700 mb-4">
-        <span className="font-medium">Danh mục:</span> {product.categoryName}{" "}
-        | <span className="font-medium">Thương hiệu:</span> {product.brandName}
+      <div className='text-sm text-gray-700 mb-4'>
+        <span className='font-medium'>Danh mục:</span>{' '}
+        {(product.categoryNames || []).join(', ')} |{' '}
+        <span className='font-medium'>Thương hiệu:</span> {product.brandName}
       </div>
 
-      <div className="text-2xl font-semibold text-red-600 mb-6">
+      <div className='text-2xl font-semibold text-red-600 mb-6'>
         {formatCurrency(product.price)}
       </div>
 
-      <div className="text-sm text-gray-700 mb-6">
+      <div className='text-sm text-gray-700 mb-6'>
         {product.stock > 0 ? (
-          <span className="text-green-600">Còn hàng: {product.stock} sản phẩm</span>
+          <span className='text-green-600'>
+            Còn hàng: {product.stock} sản phẩm
+          </span>
         ) : (
-          <span className="text-red-500">Hết hàng</span>
+          <span className='text-red-500'>Hết hàng</span>
         )}
       </div>
 
       {/* Quantity and Add to Cart */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="flex">
+      <div className='flex items-center gap-4 mb-6'>
+        <div className='flex'>
           <button
-            className="w-[45px] h-[45px] bg-gray-100"
+            className='w-[45px] h-[45px] bg-gray-100'
             onClick={() => quantity > 1 && setQuantity(quantity - 1)}
           >
             -
           </button>
-          <div className="w-[60px] h-[45px] border flex items-center justify-center">
+          <div className='w-[60px] h-[45px] border flex items-center justify-center'>
             {quantity}
           </div>
           <button
-            className="w-[45px] h-[45px] bg-gray-100"
+            className='w-[45px] h-[45px] bg-gray-100'
             onClick={() => setQuantity(quantity + 1)}
           >
             +
@@ -58,7 +61,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
         </div>
 
         <button
-          className="h-[45px] bg-red-600 text-white px-8 uppercase"
+          className='h-[45px] bg-red-600 text-white px-8 uppercase'
           onClick={handleAddToCart}
         >
           Thêm vào giỏ
@@ -69,4 +72,3 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
 };
 
 export default ProductInfo;
-

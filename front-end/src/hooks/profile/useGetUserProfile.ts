@@ -18,9 +18,12 @@ export function useGetUserProfile(token: string): UseGetUserProfileResult {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const profile: ApiResponse<UserProfileResponseDTO> =
+        const profile: UserProfileResponseDTO =
           await userService.getUserProfile(token);
-        setUserProfile(profile.data);
+
+        console.log('User profile:', profile);
+
+        setUserProfile(profile);
 
         setError(null);
       } catch (err) {
@@ -44,6 +47,10 @@ export function useGetUserProfile(token: string): UseGetUserProfileResult {
           }
           setError(errorMessage);
         } else {
+          console.error('Raw error:', err);
+          if (err instanceof AxiosError) {
+            console.error('Axios error:', err.response);
+          }
           setError(
             err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định'
           );

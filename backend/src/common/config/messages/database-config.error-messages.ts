@@ -22,4 +22,5 @@ export enum DatabaseConfigErrorMessage {
   PASSWORD_MUST_BE_STRING = 'Password must be string',
   PASSWORD_IS_REQUIRED = 'Password is required',
   PASSWORD_CANNT_BE_EMPTY = 'Password can not be empty',
+  DB_CONFIG_NOT_FOUND = 'Database configuration information not found',
 }

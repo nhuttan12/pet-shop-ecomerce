@@ -211,15 +211,21 @@ export class ProductRepository {
 
   async getProductDetail(productID: number): Promise<Product | null> {
     try {
-      return await this.productRepo
-        .createQueryBuilder('product')
-        .leftJoinAndSelect('product.brand', 'brand')
-        .leftJoinAndSelect('product.productRating', 'productRating')
-        .leftJoinAndSelect('product.categoriesMapping', 'categoryMapping')
-        .leftJoinAndSelect('categoryMapping.category', 'category')
-        .where('product.id = :id', { id: productID })
-        .orderBy('product.id', 'ASC')
-        .getOne();
+      return await this.productRepo.findOne({
+        where: {
+          id: productID,
+        },
+        relations: {
+          brand: true,
+          productRating: true,
+          categoriesMapping: {
+            category: true,
+          },
+        },
+        order: {
+          id: 'ASC',
+        },
+      });
     } catch (error) {
       this.logger.error(error);
       throw error;

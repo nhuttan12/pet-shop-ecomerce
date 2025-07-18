@@ -4,17 +4,21 @@ import { UserProfileResponseDTO } from '../../common/dto/user/user-profile-respo
 import api from '../api';
 
 export class UserService {
-  async getUserProfile(
-    token: string
-  ): Promise<ApiResponse<UserProfileResponseDTO>> {
+  async getUserProfile(token: string): Promise<UserProfileResponseDTO> {
     try {
-      const response = await api.get<
-        AxiosResponse<ApiResponse<UserProfileResponseDTO>>
-      >('/user/user-profile', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.get<ApiResponse<UserProfileResponseDTO>>(
+        '/user/user-profile',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.data.data) {
+        throw new Error('Không thể tải thông tin hồ sơ');
+      }
+
       return response.data.data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -37,7 +41,8 @@ export class UserService {
         }
         throw new Error(errorMessage);
       }
-      throw new Error('Đã xảy ra lỗi không xác định');
+      console.error(error);
+      throw error;
     }
   }
 
@@ -71,7 +76,7 @@ export class UserService {
             throw parseError;
           }
         }
-        throw new Error(errorMessage);
+        alert(errorMessage);
       }
       throw new Error('Đã xảy ra lỗi không xác định');
     }

@@ -26,6 +26,7 @@ import { OrderErrorMessage } from '@order/messages/order.error-messages';
 import { OrderMessageLog } from '@order/messages/order.message-logs';
 import { OrderDetailService } from '@order/order-detail.service';
 import { OrderRepository } from '@order/repositories/order.repository';
+import { PaginationResponse } from '@pagination/pagination-response';
 import { UtilityService } from '@services/utility.service';
 import { plainToInstance } from 'class-transformer';
 
@@ -148,18 +149,18 @@ export class OrderService {
     }
 
     // 3. Get cart detail by user ID
-    const cartDetailsList: CartDetail[] =
-      await this.cartDetailService.getAllCartDetailByUserID(userID);
+    const cartDetailsList: PaginationResponse<CartDetail> =
+      await this.cartDetailService.getAllCartDetailByUserID(userID, 0, 100);
     this.logger.debug('Get cart detail by user ID result:', cartDetailsList);
 
     // 4. Check if cart detail exist
-    if (cartDetailsList.length === 0) {
+    if (cartDetailsList.data.length === 0) {
       this.logger.warn(CartMessageLog.CART_IS_EMPTY);
       throw new InternalServerErrorException(CartErrorMessage.CART_IS_EMPTY);
     }
 
     // 5. Counting total price
-    const totalPrice: number = cartDetailsList.reduce(
+    const totalPrice: number = cartDetailsList.data.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
@@ -187,7 +188,7 @@ export class OrderService {
 
     // 8. Create order detail for each cart detail
     const orderDetails: OrderDetail[] =
-      await this.orderDetailService.createOrderDetails(cartDetailsList);
+      await this.orderDetailService.createOrderDetails(cartDetailsList.data);
     this.logger.debug('Order details created:', orderDetails);
 
     // 9. Update cart status to orderd

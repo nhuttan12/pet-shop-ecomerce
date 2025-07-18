@@ -9,12 +9,16 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { buildPaginationMeta } from '@pagination/build-pagination-meta';
+import { PaginationResponse } from '@pagination/pagination-response';
+import { UtilityService } from '@services/utility.service';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class CartDetailRepository {
   private readonly logger = new Logger(CartDetailRepository.name);
   constructor(
+    private readonly utilityService: UtilityService,
     private readonly dataSource: DataSource,
     @InjectRepository(CartDetail)
     private readonly repo: Repository<CartDetail>,
@@ -22,11 +26,12 @@ export class CartDetailRepository {
 
   async getAllCartDetailByUserID(
     userID: number,
-    skip?: number,
-    take?: number,
-  ): Promise<CartDetail[]> {
+    skip: number,
+    take: number,
+  ): Promise<PaginationResponse<CartDetail>> {
     try {
-      return this.repo.find({
+      // 1. Get cart details and total items
+      const [cartDetailList, cartTotalItems] = await this.repo.findAndCount({
         where: {
           cart: {
             user: {
@@ -38,6 +43,21 @@ export class CartDetailRepository {
         skip,
         take,
       });
+      this.utilityService.logPretty('Get cart details', cartDetailList);
+      this.utilityService.logPretty('Cart detail total items', cartTotalItems);
+
+      // 2. Calculate current page
+      const currentPage: number = Math.floor(take / skip) + 1;
+      this.utilityService.logPretty('Current page', currentPage);
+
+      // 3. Calculate meta
+      const meta = buildPaginationMeta(cartTotalItems, currentPage, take);
+      this.utilityService.logPretty('Meta', meta);
+
+      return {
+        data: cartDetailList,
+        meta,
+      };
     } catch (error) {
       this.logger.error(error);
       throw error;

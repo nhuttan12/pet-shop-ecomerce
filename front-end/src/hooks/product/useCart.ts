@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import * as cartService from '../../service/products/cartService';
 import { CartDetailResponse } from '../../types/Cart';
 import { useCartContext } from '../../contexts/CartContext';
+import { AxiosError } from 'axios';
 
 export function useCart(token: string) {
   const [carts, setCarts] = useState<CartDetailResponse[]>([]);
@@ -23,47 +24,74 @@ export function useCart(token: string) {
         return;
       }
       const cartId = cartsData[0].id;
-     const cartDetailsResponse = await cartService.getCartDetailByCartId(token, cartId, 10, 1);
+      const cartDetailsResponse = await cartService.getCartDetailByCartId(
+        token,
+        cartId,
+        10,
+        1
+      );
       const cartDetails = cartDetailsResponse.data || [];
       setCarts(cartDetails);
-      const totalQuantity = cartDetails.reduce((sum: number, item:CartDetailResponse) => sum + item.quantity, 0);
+      const totalQuantity = cartDetails.reduce(
+        (sum: number, item: CartDetailResponse) => sum + item.quantity,
+        0
+      );
       setCartCount(totalQuantity); // cập nhật số lượng lên Context
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Lỗi khi lấy giỏ hàng');
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.message || err.message);
+        alert(err.response?.data?.message || err.message);
+      }
+      alert('Lỗi khi lấy giỏ hàng');
+      throw err;
     } finally {
       setLoading(false);
     }
   }, [token, setCartCount]);
 
-  const addToCart = useCallback(async (productId: number, quantity: number) => {
-    if (!token) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await cartService.addToCart(token, { productId, quantity });
-      await fetchCartDetails(); // fetch lại giỏ hàng, update số lượng luôn ở fetchCartDetails
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Lỗi khi thêm giỏ hàng');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [token, fetchCartDetails]);
+  const addToCart = useCallback(
+    async (productID: number, quantity: number) => {
+      if (!token) return;
+      setLoading(true);
+      setError(null);
+      try {
+        await cartService.addToCart(token, { productID, quantity });
+        await fetchCartDetails();
+      } catch (err: unknown) {
+        if (err instanceof AxiosError) {
+          setError(err.response?.data?.message || err.message);
+          alert(err.response?.data?.message || err.message);
+        }
+        alert('Lỗi khi thêm giỏ hàng');
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, fetchCartDetails]
+  );
 
-  const removeCart = useCallback(async (id: number) => {
-    if (!token) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await cartService.removeCart(token, id);
-      await fetchCartDetails(); // cập nhật số lượng sau khi xóa
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Lỗi khi xoá sản phẩm');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [token, fetchCartDetails]);
+  const removeCart = useCallback(
+    async (id: number) => {
+      if (!token) return;
+      setLoading(true);
+      setError(null);
+      try {
+        await cartService.removeCart(token, id);
+        await fetchCartDetails(); // cập nhật số lượng sau khi xóa
+      } catch (err: unknown) {
+        if (err instanceof AxiosError) {
+          setError(err.response?.data?.message || err.message);
+          alert(err.response?.data?.message || err.message);
+        }
+        alert('Lỗi khi thêm giỏ hàng');
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, fetchCartDetails]
+  );
 
   return {
     carts,

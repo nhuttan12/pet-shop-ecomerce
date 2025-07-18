@@ -38,7 +38,6 @@ import { ProductRatingService } from '@product/product-rating.service';
 import { ProductRepository } from '@product/repositories/product.repository';
 import { UtilityService } from '@services/utility.service';
 import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
-import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProductService {
@@ -344,8 +343,8 @@ export class ProductService {
 
     // 8. Get category mapping list with category and product
     const oldCategoryMappings: CategoryMapping[] =
-      await this.categoryMappingService.findCategoryMappingListWithProduct(
-        product,
+      await this.categoryMappingService.findCategoryMappingListWithProductID(
+        product.id,
       );
 
     // 9. Iterate category mapping list and soft delete each of them
@@ -402,7 +401,7 @@ export class ProductService {
       const product: Product | null = await this.productRepo.getProductDetail(
         request.productID,
       );
-      this.logger.debug('Product detail: ', product);
+      this.utilityService.logPretty('Product detail: ', product);
 
       // 2. Check product detail exist
       if (!product) {
@@ -417,7 +416,7 @@ export class ProductService {
           SubjectType.PRODUCT,
           ImageType.THUMBNAIL,
         );
-      this.logger.debug('Thumbnail image: ', thumbnailImage);
+      this.utilityService.logPretty('Thumbnail image: ', thumbnailImage);
 
       // 4. Get product images
       const productImage: Image[] =
@@ -426,12 +425,12 @@ export class ProductService {
           SubjectType.PRODUCT,
           ImageType.PRODUCT,
         );
-      this.logger.debug('Product images: ', productImage);
+      this.utilityService.logPretty('Product images: ', productImage);
 
       // 5. Get product rating
       const productRatingList: ProductRating[] =
         await this.productRatingService.getRatingByProductId(request.productID);
-      this.logger.debug('Product rating: ', productRatingList);
+      this.utilityService.logPretty('Product rating: ', productRatingList);
 
       // 6. Calculate average rating
       const avgRating =
@@ -441,44 +440,36 @@ export class ProductService {
               0,
             ) / productRatingList.length
           : 0;
-      this.logger.debug('Average rating: ', avgRating);
+      this.utilityService.logPretty('Average rating: ', avgRating);
 
       // 7. Find category mapping list with product
       const categoryMappingList: CategoryMapping[] =
-        await this.categoryMappingService.findCategoryMappingListWithProduct(
-          product,
+        await this.categoryMappingService.findCategoryMappingListWithProductID(
+          product.id,
         );
-      this.logger.debug('Category mapping list: ', categoryMappingList);
+      this.utilityService.logPretty(
+        'Category mapping list: ',
+        categoryMappingList,
+      );
 
       // 8. Get brand by prouduct ID
       const brand: Brand = await this.brandService.getBrandById({
         id: product.brand.id,
       });
-      this.logger.debug('Brand: ', brand);
+      this.utilityService.logPretty('Brand: ', brand);
 
-      // 9. Mapping raw response
-      const rawResponse = {
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        brandName: brand,
-        categoryName: categoryMappingList.map(
-          (mapping) => mapping.category.name,
-        ),
-        thumbnailUrl: thumbnailImage.url,
-        imagesUrl: productImage.map((img) => img.url),
-        starRated: avgRating,
-        status: product.status,
-        stock: product.stocking,
-      };
-      this.logger.debug('Raw response: ', rawResponse);
+      // 9. Mapping product detail response by using auto mapping
+      const productDetailResponse: GetProductDetailResponseDto =
+        this.mapper.map(product, Product, GetProductDetailResponseDto);
 
-      // 10. Return product detail
-      return plainToInstance(GetProductDetailResponseDto, rawResponse, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true,
-      });
+      // 10. Mapping manual to product detail response
+      productDetailResponse.thumbnailUrl = thumbnailImage.url;
+      productDetailResponse.imagesUrl = productImage.map((img) => img.url);
+      productDetailResponse.starRated = avgRating;
+      this.utilityService.logPretty('Raw response: ', productDetailResponse);
+
+      // 11. Return product detail after mapping
+      return productDetailResponse;
     } catch (error) {
       this.logger.error(`Error getting product detail: ${error}`);
       throw error;

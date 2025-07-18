@@ -15,4 +15,5 @@ export enum UserMessageLog {
   USER_EMAIL_EXIST = 'User email exist',
   USER_NOT_FOUND_AFTER_UDPATED = 'User not found after updated',
   USER_CREATED_WITH_INFO = 'User created with info',
+  USER_UPDATED_FAILED = 'User updated failed',
 }

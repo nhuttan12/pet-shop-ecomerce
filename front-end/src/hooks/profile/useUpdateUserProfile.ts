@@ -9,6 +9,7 @@ interface UseUpdateUserProfileResult {
   loading: boolean;
   error: string | null;
   updateProfile: (profile: UserProfileResponseDTO) => Promise<void>;
+  success: boolean;
 }
 
 export function useUpdateUserProfile(token: string): UseUpdateUserProfileResult {
@@ -16,14 +17,15 @@ export function useUpdateUserProfile(token: string): UseUpdateUserProfileResult 
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const profile: ApiResponse<UserProfileResponseDTO> =
+        const profile: UserProfileResponseDTO =
           await userService.getUserProfile(token);
 
-        setUserProfile(profile.data);
+        setUserProfile(profile);
         setError(null);
       } catch (err) {
         if (err instanceof AxiosError) {
@@ -46,6 +48,7 @@ export function useUpdateUserProfile(token: string): UseUpdateUserProfileResult 
         await userService.updateUserProfile(token, profile);
       setUserProfile(updatedProfile.data);
       setError(null);
+      setSuccess(true);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định'
@@ -53,5 +56,5 @@ export function useUpdateUserProfile(token: string): UseUpdateUserProfileResult 
     }
   };
 
-  return { userProfile, loading, error, updateProfile };
+  return { userProfile, loading, error, updateProfile, success };
 }

@@ -140,7 +140,7 @@ export class UserController {
 
   @Put()
   @HttpCode(HttpStatus.OK)
-  @HasRole(RoleName.ADMIN)
+  @HasRole(RoleName.ADMIN, RoleName.CUSTOMER)
   @ApiOperation({ summary: 'Cập nhật thông tin user (chỉ ADMIN)' })
   @ApiQuery({ name: 'id', type: Number, description: 'User id' })
   @ApiQuery({

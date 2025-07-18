@@ -4,6 +4,8 @@ import { ApiResponse } from '../../common/dto/response/api-response.dto';
 import axios from '../api';
 import { GetAllProductsRequest } from '../../common/dto/product/get-all-product-request.dto';
 import { AxiosResponse } from 'axios';
+import api from '../api';
+import { GetProductDetailResponseDto } from '../../common/dto/product/product-detail.dto';
 
 const BASE_URL = '/product';
 
@@ -14,7 +16,9 @@ const BASE_URL = '/product';
  */
 export const getAllProducts = (
   request: GetAllProductsRequest
-): Promise<AxiosResponse<ApiResponse<PaginationResponse<GetAllProductResponseDto>>>> => {
+): Promise<
+  AxiosResponse<ApiResponse<PaginationResponse<GetAllProductResponseDto>>>
+> => {
   return axios.get(`${BASE_URL}`, {
     params: {
       page: request.page,
@@ -46,11 +50,9 @@ export const findProductByName = (
  * @param limit số lượng (tuỳ chọn, nếu có liên quan)
  */
 export const getProductDetail = (
-  productId: number,
-  page?: number,
-  limit?: number
-) => {
-  return axios.get(`${BASE_URL}/detail`, {
-    params: { productId, page, limit },
+  productID: number
+): Promise<AxiosResponse<ApiResponse<GetProductDetailResponseDto>>> => {
+  return api.get('/product/product-detail', {
+    params: { productID },
   });
 };

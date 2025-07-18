@@ -9,13 +9,16 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { PaginationResponse } from '@pagination/pagination-response';
 import { Product } from '@product/entites/products.entity';
 import { ProductService } from '@product/product.service';
+import { UtilityService } from '@services/utility.service';
 
 @Injectable()
 export class CartDetailService {
   private readonly logger = new Logger(CartDetailService.name);
   constructor(
+    private readonly utilityService: UtilityService,
     private readonly cartDetailRepo: CartDetailRepository,
     private readonly productService: ProductService,
   ) {}
@@ -27,7 +30,7 @@ export class CartDetailService {
       // 1. Add product to cart detail
       const cartDetail: CartDetail =
         await this.cartDetailRepo.addProductToCartDetails(request);
-      this.logger.debug(`Cart detail: ${JSON.stringify(cartDetail)}`);
+      this.utilityService.logPretty('Cart detail:', cartDetail);
 
       // 2. Check add product to cart detail result
       if (!cartDetail) {
@@ -86,7 +89,7 @@ export class CartDetailService {
         productID,
         cartID,
       );
-    this.logger.debug(`Cart detail: ${JSON.stringify(cartDetail)}`);
+    this.utilityService.logPretty('Cart detail:', cartDetail);
 
     // 2. Check if cart detail exist
     if (!cartDetail) {
@@ -101,9 +104,21 @@ export class CartDetailService {
 
   async getAllCartDetailByUserID(
     userID: number,
-    skip?: number,
-    take?: number,
-  ): Promise<CartDetail[]> {
-    return this.cartDetailRepo.getAllCartDetailByUserID(userID, skip, take);
+    skip: number,
+    take: number,
+  ): Promise<PaginationResponse<CartDetail>> {
+    try {
+      // 1. Get cart details and meta data pagination
+      const response: PaginationResponse<CartDetail> =
+        await this.cartDetailRepo.getAllCartDetailByUserID(userID, skip, take);
+      this.utilityService.logPretty('Cart details', response.data);
+      this.utilityService.logPretty('Meta', response.meta);
+
+      // 2. Response data and meta data
+      return response;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
   }
 }

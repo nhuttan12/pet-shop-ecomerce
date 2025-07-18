@@ -4,8 +4,6 @@ import { Image } from '@images/entites/images.entity';
 import { ImageType } from '@images/enums/image-type.enum';
 import { SubjectType } from '@images/enums/subject-type.enum';
 import { ImageService } from '@images/image.service';
-import { ImageErrorMessage } from '@images/messages/image.error-messages';
-import { ImageMessageLog } from '@images/messages/image.messages-log';
 import {
   BadRequestException,
   Injectable,
@@ -182,43 +180,49 @@ export class UserService {
     this.utilityService.logPretty('Get user by email', userWithEmail);
 
     // 4. Check if user exist with email that email, throw error email already exist
-    if (userWithEmail) {
+    if (userWithEmail?.id !== user.id) {
       this.logger.error(UserMessageLog.USER_EMAIL_EXIST);
       throw new BadRequestException(UserErrorMessage.USER_EMAIL_EXIST);
     }
 
-    // 5. Save new image to database
-    const newImage: Image = await this.imageService.saveImage(
-      userUpdateDTO.image,
-      userUpdateDTO.id,
-      SubjectType.USER,
-    );
-    this.utilityService.logPretty('Save new image to database', newImage);
+    // 5. Update user
+    const updatedUserResult: boolean =
+      await this.userRepo.updateUser(userUpdateDTO);
+    this.utilityService.logPretty('Update user', updatedUserResult);
 
-    // 6. Update user image
-    const updatedImage: Image = await this.imageService.updateImageForSubsject(
-      userUpdateDTO.id,
-      SubjectType.USER,
-      newImage.url,
-      newImage.type,
-      newImage.folder,
-    );
-    this.utilityService.logPretty('Save new image to database', newImage);
-
-    // 7. Check image saving result
-    if (!updatedImage) {
-      this.logger.error(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+    // 6. Check user update result
+    if (!updatedUserResult) {
+      this.logger.error(UserMessageLog.USER_UPDATED_FAILED);
       throw new InternalServerErrorException(
-        ImageErrorMessage.CANNOT_UPDATE_IMAGE,
+        UserErrorMessage.USER_UPDATED_FAILED,
       );
     }
 
-    // 8. Get user profile after updated
+    // 7. Update user image
+    // const updatedImage: Image = await this.imageService.updateImageForSubsject(
+    //   userUpdateDTO.id,
+    //   SubjectType.USER,
+    //   newImage.url,
+    //   newImage.type,
+    //   newImage.folder,
+    // );
+    // this.utilityService.logPretty('Save new image to database', newImage);
+
+    // 8. Check image saving result
+    // if (!updatedImage) {
+    //   this.logger.error(ImageMessageLog.CANNOT_UPDATE_IMAGE);
+    //   throw new InternalServerErrorException(
+    //     ImageErrorMessage.CANNOT_UPDATE_IMAGE,
+    //   );
+    // }
+
+    // 9. Get user profile after updated
     const updatedUser: UserProfileResponseDTO =
       await this.getUserProfileByUserID({
         userID: userUpdateDTO.id,
       });
 
+    // 10. Check user profile after updated
     if (!updatedUser) {
       this.logger.error(UserMessageLog.USER_NOT_FOUND_AFTER_UDPATED);
       throw new InternalServerErrorException(
@@ -226,6 +230,7 @@ export class UserService {
       );
     }
 
+    // 11. Return user after updated
     return updatedUser;
   }
 
