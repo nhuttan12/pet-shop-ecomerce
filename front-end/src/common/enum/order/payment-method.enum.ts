@@ -1,5 +1,5 @@
 export enum PaymentMethod {
-  COD = 'cod',
-  TRANSFER = 'transfer',
-  E_WALLET = 'e-wallet',
+  CREDIT_CARD = 'credit-card',
+  DEBIT_CARD = 'debit-card',
+  PAYPAL = 'paypal',
 }

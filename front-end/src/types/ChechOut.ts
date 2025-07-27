@@ -1,3 +1,4 @@
+import { PaymentMethod } from "../common/enum/order/payment-method.enum";
 
 export interface PersonalInfo {
   name: string;
@@ -16,5 +17,5 @@ export interface CheckoutState {
   personalInfo: PersonalInfo;
   shippingAddress: ShippingAddress;
   discountCode: string;
-  paymentMethod: string;
+  paymentMethod: PaymentMethod;
 }

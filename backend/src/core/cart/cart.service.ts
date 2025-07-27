@@ -52,7 +52,7 @@ export class CartService {
       await this.cartDetailService.getAllCartDetailByUserID(userID, skip, take);
     this.utilityService.logPretty('Cart detail list:', cartDetails.data);
     this.utilityService.logPretty(
-      'Cart detail meta data pagination:',
+      'Cart detail meta data pagination',
       cartDetails.meta,
     );
 

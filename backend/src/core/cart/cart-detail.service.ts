@@ -1,3 +1,6 @@
+import { Mapper } from '@automapper/core';
+import { InjectMapper } from '@automapper/nestjs';
+import { CartDetailResponse } from '@cart/dto/cart-detail/cart-detail-response.dto';
 import { CreateCartDetailDto } from '@cart/dto/cart-detail/create-cart-detail.dto';
 import { RemoveCartDetailDTO } from '@cart/dto/cart-detail/remove-cart-detail.dto';
 import { CartDetail } from '@cart/entities/cart-details.entity';
@@ -18,6 +21,7 @@ import { UtilityService } from '@services/utility.service';
 export class CartDetailService {
   private readonly logger = new Logger(CartDetailService.name);
   constructor(
+    @InjectMapper() private readonly mapper: Mapper,
     private readonly utilityService: UtilityService,
     private readonly cartDetailRepo: CartDetailRepository,
     private readonly productService: ProductService,
@@ -47,20 +51,22 @@ export class CartDetailService {
     }
   }
 
-  async removeCartItem(request: RemoveCartDetailDTO): Promise<CartDetail> {
+  async removeCartItem(
+    request: RemoveCartDetailDTO,
+  ): Promise<CartDetailResponse> {
     try {
       // 1. Get product by product id and check if product exist
       const product: Product = await this.productService.getProductByID(
         request.productID,
       );
-      this.logger.debug(`Product: ${JSON.stringify(product)}`);
+      this.utilityService.logPretty('Get product by product id:', product);
 
       // 2. Remove cart item in cart
       const result: boolean = await this.cartDetailRepo.removeCartItem(
         request.cartID,
         product.id,
       );
-      this.logger.debug(`Delete result: ${JSON.stringify(result)}`);
+      this.utilityService.logPretty('Remove cart item in cart', result);
 
       // 3. Check remove cart item result
       if (!result) {
@@ -70,7 +76,38 @@ export class CartDetailService {
         );
       }
 
-      return this.getCartDetailByProductIDAndCartID(product.id, request.cartID);
+      // 4. Get cart detail after removed
+      const cartDetail: CartDetail =
+        await this.getCartDetailByProductIDAndCartID(
+          product.id,
+          request.cartID,
+        );
+      this.utilityService.logPretty(
+        'Get cart detail after removed',
+        cartDetail,
+      );
+
+      // 5. Check if cart detail exist
+      if (!cartDetail) {
+        this.logger.error(CartMessageLog.CART_CANNOT_BE_DELETED);
+        throw new InternalServerErrorException(
+          CartErrorMessage.REMOVE_CART_DETAIL_FAILED,
+        );
+      }
+
+      // 6. Mapping cart detail to cart detail response
+      const cartDetailResponse: CartDetailResponse = this.mapper.map(
+        cartDetail,
+        CartDetail,
+        CartDetailResponse,
+      );
+      this.utilityService.logPretty(
+        'Mapping cart detail to cart detail response',
+        cartDetailResponse,
+      );
+
+      // 7. Return cart detail response after mapped
+      return cartDetailResponse;
     } catch (error) {
       this.logger.error(`Error removing cart ID ${request.cartID}: ${error}`);
       throw error;

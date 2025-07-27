@@ -15,13 +15,12 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { CreateOrderRequestDto } from '@order/dto/create-order-request.dto';
 import { GetAllOrdersResponseDto } from '@order/dto/get-all-order-response.dto';
 import { OrderResponseDto } from '@order/dto/order-response.dto';
 import { OrderDetail } from '@order/entites/order-details.entity';
 import { Order } from '@order/entites/orders.entity';
 import { OrderStatus } from '@order/enums/order-status.enum';
-import { PaymentMethod } from '@order/enums/payment-method.enum';
-import { ShippingMethod } from '@order/enums/shipping_method.enum';
 import { OrderErrorMessage } from '@order/messages/order.error-messages';
 import { OrderMessageLog } from '@order/messages/order.message-logs';
 import { OrderDetailService } from '@order/order-detail.service';
@@ -53,7 +52,7 @@ export class OrderService {
 
     // 2. Get all orders
     const orderList = await this.orderRepo.getAllOrders(userID, skip, take);
-    this.logger.debug('Order list: ', orderList);
+    this.utilityService.logPretty('Order list: ', orderList);
 
     const result: GetAllOrdersResponseDto[] = orderList.map((o) => ({
       id: o.id,
@@ -65,7 +64,7 @@ export class OrderService {
       createdAt: o.createdAt,
       updatedAt: o.updatedAt,
     }));
-    this.logger.debug('Order list:', result);
+    this.utilityService.logPretty('Order list:', result);
 
     return plainToInstance(GetAllOrdersResponseDto, result, {
       excludeExtraneousValues: true,
@@ -76,7 +75,7 @@ export class OrderService {
   async getOrderByOrderID(orderID: number): Promise<Order> {
     // 1. Get order by order ID
     const order: Order | null = await this.orderRepo.getOrderByOrderID(orderID);
-    this.logger.debug('Order:', order);
+    this.utilityService.logPretty('Order:', order);
 
     // 2. Check order exist
     if (!order) {
@@ -94,7 +93,7 @@ export class OrderService {
   ): Promise<OrderResponseDto> {
     // 1. Finding order
     const order: Order = await this.getOrderByOrderID(orderID);
-    this.logger.debug('Order:', order);
+    this.utilityService.logPretty('Order:', order);
 
     // 2. Update order status to cancel
     const result = await this.updateStatusOrderByOrderIDAndUserID(
@@ -102,7 +101,7 @@ export class OrderService {
       userID,
       OrderStatus.CANCELED,
     );
-    this.logger.debug('Update order status result:', result);
+    this.utilityService.logPretty('Update order status result:', result);
 
     // 3. Checking update status
     if (!result) {
@@ -129,18 +128,17 @@ export class OrderService {
 
   async createOrder(
     userID: number,
-    paymentMethod: PaymentMethod,
-    shippingMethod: ShippingMethod,
-    address: string,
-    city: string,
-    country: string,
+    request: CreateOrderRequestDto,
   ): Promise<OrderResponseDto> {
     // 1. Get cart by user ID and active status
     const cart: Cart = await this.cartService.getCartByUserIDAndStatus(
       userID,
       CartStatus.ACTIVE,
     );
-    this.logger.debug('Get cart by user ID and active status result:', cart);
+    this.utilityService.logPretty(
+      'Get cart by user ID and active status result:',
+      cart,
+    );
 
     // 2. Check if cart exist
     if (!cart) {
@@ -151,7 +149,10 @@ export class OrderService {
     // 3. Get cart detail by user ID
     const cartDetailsList: PaginationResponse<CartDetail> =
       await this.cartDetailService.getAllCartDetailByUserID(userID, 0, 100);
-    this.logger.debug('Get cart detail by user ID result:', cartDetailsList);
+    this.utilityService.logPretty(
+      'Get cart detail by user ID result:',
+      cartDetailsList,
+    );
 
     // 4. Check if cart detail exist
     if (cartDetailsList.data.length === 0) {
@@ -160,23 +161,28 @@ export class OrderService {
     }
 
     // 5. Counting total price
-    const totalPrice: number = cartDetailsList.data.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
-    this.logger.debug('Total price:', totalPrice);
+    let totalPrice: number = 0;
+    if (request.paypalOrderId) {
+      totalPrice = request.amount;
+    } else {
+      totalPrice = cartDetailsList.data.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
+    }
+    this.utilityService.logPretty('Total price:', totalPrice);
 
     // 6. Create new order
     const orderCreated: Order = await this.orderRepo.createOrder(
       userID,
       totalPrice,
-      paymentMethod,
-      shippingMethod,
-      address,
-      city,
-      country,
+      request.paymentMethod,
+      request.shippingMethod,
+      request.address,
+      request.city,
+      request.country,
     );
-    this.logger.debug('Order created:', orderCreated);
+    this.utilityService.logPretty('Order created:', orderCreated);
 
     // 7. Check order create result
     if (!orderCreated) {
@@ -189,14 +195,14 @@ export class OrderService {
     // 8. Create order detail for each cart detail
     const orderDetails: OrderDetail[] =
       await this.orderDetailService.createOrderDetails(cartDetailsList.data);
-    this.logger.debug('Order details created:', orderDetails);
+    this.utilityService.logPretty('Order details created:', orderDetails);
 
     // 9. Update cart status to orderd
     const result: boolean = await this.cartService.updateCartStatus(
       cart.id,
       CartStatus.ORDERED,
     );
-    this.logger.debug('Update cart status result:', result);
+    this.utilityService.logPretty('Update cart status result:', result);
 
     // 10. Return order created
     const newOrder: Order = await this.getOrderByOrderID(orderCreated.id);

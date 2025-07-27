@@ -7,13 +7,13 @@ import CartSection from './CartSection';
 import CartSummary from './CartSummary';
 import { useCart } from '../../hooks/product/useCart';
 import { useAuth } from '../../contexts/AuthContext';
-import { CartDetailResponse } from '../../types/Cart';
+import { removeCartDetail } from '../../service/products/cartService';
 
 const CartCheckOut: React.FC = () => {
   const navigate = useNavigate();
 
   const { token } = useAuth(); // Giả sử AuthContext trả về token
-  const { carts, fetchCartDetails, removeCart, loading } = useCart(token || '');
+  const { carts, fetchCartDetails } = useCart(token || '');
 
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
@@ -33,9 +33,13 @@ const CartCheckOut: React.FC = () => {
     setTotal(newSubtotal);
   }, [carts]);
 
-  const handleRemoveItem = async (id: number) => {
+  const handleRemoveItem = async (cartID: number, productID: number) => {
     try {
-      await removeCart(id);
+      if (!token) {
+        alert('Người dùng chưa đăng nhập');
+        return null;
+      }
+      await removeCartDetail(token, { cartID, productID });
       await fetchCartDetails();
     } catch (err) {
       console.error('Lỗi xóa sản phẩm', err);
@@ -45,10 +49,11 @@ const CartCheckOut: React.FC = () => {
   const handleQuantityChange = async (id: number, quantity: number) => {
     // TODO: Gọi API cập nhật số lượng nếu backend hỗ trợ
     // await updateCartQuantity(token, id, quantity);
-    await fetchCartDetails();
+    fetchCartDetails();
   };
 
   const handleUpdateCart = () => {
+    fetchCartDetails();
     alert('Giỏ hàng đã được cập nhật!');
   };
 
@@ -61,18 +66,17 @@ const CartCheckOut: React.FC = () => {
   };
 
   const handleProceedToCheckout = () => {
-  navigate('/checkout');
-};
-
+    navigate('/checkout');
+  };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className='min-h-screen flex flex-col'>
       <Header />
       <HeroSection />
-      <main className="flex-grow py-8 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
+      <main className='flex-grow py-8 bg-white'>
+        <div className='container mx-auto px-4'>
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+            <div className='lg:col-span-2'>
               <CartSection
                 cartItems={carts}
                 onRemoveItem={handleRemoveItem}
@@ -81,7 +85,7 @@ const CartCheckOut: React.FC = () => {
                 onContinueShopping={handleContinueShopping}
               />
             </div>
-            <div className="lg:col-span-1">
+            <div className='lg:col-span-1'>
               <CartSummary
                 subtotal={subtotal}
                 total={total}

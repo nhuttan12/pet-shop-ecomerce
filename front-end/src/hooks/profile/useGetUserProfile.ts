@@ -8,6 +8,7 @@ interface UseGetUserProfileResult {
   userProfile: UserProfileResponseDTO | undefined;
   loading: boolean;
   error: string | null;
+  // fetchUserProfile: (token: string) => Promise<void>;
 }
 
 export function useGetUserProfile(token: string): UseGetUserProfileResult {

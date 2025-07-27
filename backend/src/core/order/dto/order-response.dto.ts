@@ -23,7 +23,7 @@ export class OrderResponseDto {
   totalPrice: number;
 
   @Expose()
-  @ApiProperty({ enum: PaymentMethod, example: PaymentMethod.COD })
+  @ApiProperty({ enum: PaymentMethod, example: PaymentMethod.CREDIT_CARD })
   @AutoMap()
   paymentMethod: PaymentMethod;
 

@@ -58,6 +58,10 @@ export class Order {
   @AutoMap()
   address: string;
 
+  @Column({ length: 255 })
+  @AutoMap()
+  zipCode: string;
+
   @Column({ length: 45 })
   @AutoMap()
   city: string;

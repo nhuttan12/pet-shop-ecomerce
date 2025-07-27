@@ -5,8 +5,8 @@ export enum OrderErrorMessage {
   ORDER_STATUS_NOT_FOUND = 'Không tìm thấy trạng thái đơn hàng',
   ORDER_ID_MUST_BE_A_POSITIVE_NUMBER = 'Mã hoá đơn số phải là số nguyên dương',
   AMOUNT_MUST_BE_A_POSITIVE_NUMBER = 'Số lượng mua phải là số nguyên dương',
-  AMOUNT_MUST_BE_INTEGER = 'Số lượng số phải là số nguyên',
-  AMOUNT_SHOULD_NOT_BE_EMPTY = 'Số lượng không được để trống',
+  AMOUNT_MUST_BE_INTEGER = 'Số tiền phải là số nguyên',
+  AMOUNT_SHOULD_NOT_BE_EMPTY = 'Số tiền không được để trống',
   PAYMENT_METHOD_INVALID = 'Phương thức thanh toán k hợp lệ',
   PAYMENT_METHOD_IS_NOT_EMPTY = 'Phương thức thanh toán không được để trống',
   SHIPPING_METHOD_INVALID = 'Phương thức giao hàng k hợp lệ',
@@ -15,4 +15,5 @@ export enum OrderErrorMessage {
   CREATE_ORDER_FAILED = 'Tạo đơn hàng thất bại',
   ORDER_ID_IS_NOT_EMPTY = 'Mã hoá đơn số không được sé trống',
   CREATE_ORDER_DETAIL_FAILED = 'Thêm sản phẩm vào hoá đơn thất bại',
+  PAYPAL_ID_MUST_BE_STRING = 'Mã thanh toán paypal phải là dạng chuỗi',
 }

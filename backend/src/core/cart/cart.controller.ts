@@ -22,7 +22,6 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
-  Param,
   Post,
   Query,
   UseFilters,
@@ -130,7 +129,7 @@ export class CartController {
     return response;
   }
 
-  @Delete('/cart-detail/:id')
+  @Delete('/cart-detail')
   @HasRole(RoleName.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Xóa chi tiết giỏ hàng theo ID' })
@@ -140,13 +139,21 @@ export class CartController {
     description: 'Xóa chi tiết giỏ hàng thành công',
   })
   async removeCartDetailByCartIDAndProductID(
-    @Param() request: RemoveCartDetailDTO,
-  ): Promise<ApiResponse<CartDetail>> {
+    @Query() request: RemoveCartDetailDTO,
+  ): Promise<ApiResponse<CartDetailResponse>> {
+    // 1. Remove cart detail
     const cartDetail = await this.cartDetailService.removeCartItem(request);
-    return {
+    this.utilityService.logPretty('Remove cart detail', cartDetail);
+
+    // 2. Create response for client
+    const response: ApiResponse<CartDetailResponse> = {
       statusCode: HttpStatus.OK,
       message: CartNotifyMessage.REMOVE_CART_DETAIL_SUCCESSFUL,
       data: cartDetail,
     };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 3. Return response to client
+    return response;
   }
 }

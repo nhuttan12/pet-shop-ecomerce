@@ -1,42 +1,36 @@
 import { useState, useCallback } from 'react';
 import * as cartService from '../../service/products/cartService';
-import { CartDetailResponse } from '../../types/Cart';
 import { useCartContext } from '../../contexts/CartContext';
 import { AxiosError } from 'axios';
+import { CartDetailResponse } from '../../common/dto/cart/cart-detail-response.dto';
+import { PaginationResponse } from '../../common/dto/pagination/pagination-response';
+import { ApiResponse } from '../../common/dto/response/api-response.dto';
 
 export function useCart(token: string) {
   const [carts, setCarts] = useState<CartDetailResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { setCartCount } = useCartContext(); // lấy hàm cập nhật cartCount trong Context
+  const { setCartCount } = useCartContext();
 
   const fetchCartDetails = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     setError(null);
     try {
-      const cartsResponse = await cartService.getAllCarts(token, 1, 10);
-      const cartsData = cartsResponse.data || [];
+      const cartsResponse: ApiResponse<PaginationResponse<CartDetailResponse>> =
+        await cartService.getCartDetailByUserID(token, 1, 10);
+
+      const cartsData = cartsResponse.data?.data || [];
+
       if (cartsData.length === 0) {
         setCarts([]);
         setCartCount(0); // reset số lượng khi không có giỏ hàng
         return;
       }
-      const cartId = cartsData[0].id;
-      const cartDetailsResponse = await cartService.getCartDetailByCartId(
-        token,
-        cartId,
-        10,
-        1
-      );
-      const cartDetails = cartDetailsResponse.data || [];
-      setCarts(cartDetails);
-      const totalQuantity = cartDetails.reduce(
-        (sum: number, item: CartDetailResponse) => sum + item.quantity,
-        0
-      );
-      setCartCount(totalQuantity); // cập nhật số lượng lên Context
+
+      setCarts(cartsData);
+      setCartCount(cartsData.length);
     } catch (err: unknown) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.message || err.message);
@@ -72,12 +66,12 @@ export function useCart(token: string) {
   );
 
   const removeCart = useCallback(
-    async (id: number) => {
+    async (cartID: number, productID: number) => {
       if (!token) return;
       setLoading(true);
       setError(null);
       try {
-        await cartService.removeCart(token, id);
+        await cartService.removeCartDetail(token, { cartID, productID });
         await fetchCartDetails(); // cập nhật số lượng sau khi xóa
       } catch (err: unknown) {
         if (err instanceof AxiosError) {

@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { createOrder, CreateOrderDTO } from '../../service/products/orderService';
+import {
+  createOrder,
+  CreateOrderDTO,
+} from '../../service/products/orderService';
 
 interface UseCreateOrderResult {
   loading: boolean;
@@ -21,8 +24,12 @@ export function useCreateOrder(): UseCreateOrderResult {
     try {
       await createOrder(data);
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'Có lỗi xảy ra khi tạo đơn hàng');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Có lỗi xảy ra khi tạo đơn hàng');
+      }
     } finally {
       setLoading(false);
     }

@@ -40,6 +40,12 @@ export class CartDetailRepository {
           },
           status: CartDetailStatus.ACTIVE,
         },
+        relations: {
+          cart: {
+            user: true,
+          },
+          product: true,
+        },
         skip,
         take,
       });
@@ -47,7 +53,7 @@ export class CartDetailRepository {
       this.utilityService.logPretty('Cart detail total items', cartTotalItems);
 
       // 2. Calculate current page
-      const currentPage: number = Math.floor(take / skip) + 1;
+      const currentPage: number = skip > 0 ? Math.floor(skip / take) + 1 : 1;
       this.utilityService.logPretty('Current page', currentPage);
 
       // 3. Calculate meta
@@ -142,6 +148,7 @@ export class CartDetailRepository {
         },
         relations: {
           cart: true,
+          product: true,
         },
       });
     } catch (error) {

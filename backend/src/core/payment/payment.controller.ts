@@ -29,6 +29,8 @@ import {
   ApiResponse as SwaggerResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { GetUser } from '@decorators/user.decorator';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
 
 @ApiTags('Payment')
 @Controller('payment')
@@ -77,8 +79,14 @@ export class PaymentController {
       },
     },
   })
-  async capture(@Query() query: CaptureOrderDto): Promise<ApiResponse<Status>> {
-    const result: Order = await this.paymentService.captureOrder(query.token);
+  async capture(
+    @Query() dto: CaptureOrderDto,
+    @GetUser() payload: JwtPayload,
+  ): Promise<ApiResponse<Status>> {
+    const result: Order = await this.paymentService.captureOrder(
+      dto,
+      payload.sub,
+    );
 
     return {
       message: PaymentNotifyMessage.CAPTURE_ORDER_SUCCESSFUL,
