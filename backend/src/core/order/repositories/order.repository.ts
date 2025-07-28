@@ -30,6 +30,7 @@ export class OrderRepository {
     address: string,
     city: string,
     country: string,
+    zipCode: string,
   ): Promise<Order> {
     try {
       return await this.dataSource.transaction(async (manager) => {
@@ -44,6 +45,7 @@ export class OrderRepository {
           city,
           country,
           status: OrderStatus.PENDING,
+          zipCode,
           createdAt: new Date(),
           updatedAt: new Date(),
         });

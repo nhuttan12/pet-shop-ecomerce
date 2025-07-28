@@ -27,5 +27,6 @@ import { MapperModule } from 'common/mapper/mapper.module';
     OrderRepository,
     OrderDetailRepository,
   ],
+  exports: [OrderService, OrderDetailService],
 })
 export class OrderModule {}

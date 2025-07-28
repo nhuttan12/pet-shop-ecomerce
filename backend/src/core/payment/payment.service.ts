@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { OrderResponseDto } from '@order/dto/order-response.dto';
 import { PaymentMethod } from '@order/enums/payment-method.enum';
-import { ShippingMethod } from '@order/enums/shipping_method.enum';
 import { OrderErrorMessage } from '@order/messages/order.error-messages';
 import { OrderMessageLog } from '@order/messages/order.message-logs';
 import { OrderService } from '@order/order.service';
@@ -85,7 +84,7 @@ export class PaymentService {
   async captureOrder(dto: CaptureOrderDto, userID: number): Promise<Order> {
     // 1. Create payment request
     const request: paypal.orders.OrdersCaptureRequest =
-      new paypal.orders.OrdersCaptureRequest(dto.paypalToken);
+      new paypal.orders.OrdersCaptureRequest(dto.token);
     request.requestBody({} as any);
     this.utilityService.logPretty('Create payment request', request);
 
@@ -112,6 +111,7 @@ export class PaymentService {
     this.utilityService.logPretty('Get shipping from result', shipping);
 
     // 6. Create order result
+    this.logger.verbose('Create order result');
     const createOrderResult: OrderResponseDto =
       await this.orderService.createOrder(userID, {
         paymentMethod: PaymentMethod.PAYPAL,
@@ -121,6 +121,7 @@ export class PaymentService {
         address: shipping?.address?.address_line_1 || 'No address',
         amount: Number(result.purchase_units?.[0]?.amount?.value || 0),
         paypalOrderId: result.id,
+        zipCode: shipping?.address?.postal_code || 'Zip code unknown',
       });
     this.utilityService.logPretty('Create order result', createOrderResult);
 

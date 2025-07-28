@@ -18,4 +18,7 @@ export interface CheckoutState {
   shippingAddress: ShippingAddress;
   discountCode: string;
   paymentMethod: PaymentMethod;
+  shippingFee: number;
+  subtotal: number;
+  discount: number;
 }

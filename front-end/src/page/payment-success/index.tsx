@@ -22,11 +22,25 @@ const PaymentSuccess: React.FC = () => {
       return;
     }
 
+    let isCalled = false;
+
     const confirmPayment = async () => {
+      if (isCalled) return; // Prevent multiple calls
+      isCalled = true;
+
       try {
-        const result = await captureOrder({ token: orderToken });
-        setStatus('success');
-        setMessage(`Thanh toán thành công! Trạng thái: ${result}`);
+        const result: string = await captureOrder({ token: orderToken });
+
+        console.log('Capture order result:', result);
+        console.log('Compare result:', result === 'COMPLETED');
+
+        if (result === 'COMPLETED') {
+          setStatus('success');
+          setMessage(`Thanh toán thành công! Trạng thái: ${result}`);
+        } else {
+          setStatus('error');
+          setMessage(`Thanh toán thất bại. Trạng thái: ${result}`);
+        }
       } catch (err: unknown) {
         setStatus('error');
         setMessage('Thanh toán thất bại. Vui lòng thử lại.');
@@ -35,7 +49,7 @@ const PaymentSuccess: React.FC = () => {
     };
 
     confirmPayment();
-  }, [orderToken, captureOrder]);
+  }, [orderToken]);
 
   const renderContent = () => {
     if (loading) {

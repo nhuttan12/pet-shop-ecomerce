@@ -46,6 +46,15 @@ export class CreateOrderRequestDto {
   amount: number;
 
   @ApiProperty({
+    description: 'Mã bưu điện',
+    example: 700000,
+    type: Number,
+  })
+  @IsString({ message: OrderErrorMessage.ZIP_CODE_MUST_BE_STRING })
+  @IsNotEmpty({ message: OrderErrorMessage.ZIP_CODE_REQUIRED })
+  zipCode: string;
+
+  @ApiProperty({
     description: 'ID giao dịch PayPal',
     example: '5O190127TN364715T',
   })

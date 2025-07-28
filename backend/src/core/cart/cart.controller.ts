@@ -111,6 +111,7 @@ export class CartController {
     // 1. Get cart details and meta pagination
     const cartDetail: PaginationResponse<CartDetailResponse> =
       await this.cartService.getAllCartItemsByUserID(request, user.sub);
+
     this.utilityService.logPretty('Cart detail list', cartDetail.data);
     this.utilityService.logPretty(
       'Cart detail meta pagination',

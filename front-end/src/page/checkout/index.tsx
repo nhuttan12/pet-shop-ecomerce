@@ -21,7 +21,6 @@ import currencyService from '../../service/products/currencyService';
 const Checkout: React.FC = () => {
   const { token } = useAuth();
   const { createOrder, loading } = usePayment(token ?? '');
-  const [usdValue, setUsdValue] = useState<number | null>(null);
 
   const {
     carts: cartItems,
@@ -50,9 +49,21 @@ const Checkout: React.FC = () => {
     shippingAddress: { address: '', city: '', postalCode: '', country: '' },
     discountCode: '',
     paymentMethod: PaymentMethod.DEBIT_CARD,
+    shippingFee: 0,
+    subtotal: 0,
+    discount: 0,
   });
 
   useEffect(() => {
+    const subtotal = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    const discount = checkoutState.discountCode ? subtotal * 0.1 : 0;
+
+    const shippingFee = subtotal > 500000 ? 0 : 30000;
+
     if (userProfile) {
       setCheckoutState((prev) => ({
         ...prev,
@@ -61,29 +72,32 @@ const Checkout: React.FC = () => {
           email: userProfile.email ?? '',
           phone: userProfile.phone ?? '',
         },
+        shippingFee: shippingFee,
+        subtotal: subtotal,
+        discount: discount,
       }));
     }
 
-    const fetchCurrency = async () => {
-      try {
-        const totalVND = cartItems.reduce(
-          (sum, item) => sum + item.price * item.quantity,
-          0
-        );
+    // const fetchCurrency = async () => {
+    //   try {
+    //     const totalVND = cartItems.reduce(
+    //       (sum, item) => sum + item.price * item.quantity,
+    //       0
+    //     );
 
-        if (totalVND === 0) return;
+    //     if (totalVND === 0) return;
 
-        const data = await currencyService.getCurrency(totalVND);
+    //     const data: number = await currencyService.getCurrency(totalVND);
 
-        console.log("Currency API response:", data.result);
+    //     console.log('Currency API response:', data);
 
-        setUsdValue(data.result);
-      } catch (err) {
-        console.error('Error fetching currency:', err);
-      }
-    };
+    //     setUsdValue(data);
+    //   } catch (err) {
+    //     console.error('Error fetching currency:', err);
+    //   }
+    // };
 
-    fetchCurrency();
+    // fetchCurrency();
   }, [userProfile]);
 
   // Handle personal info change
@@ -134,15 +148,25 @@ const Checkout: React.FC = () => {
   const handlePlaceOrder = async () => {
     if (checkoutState.paymentMethod === PaymentMethod.PAYPAL) {
       try {
-        console.log('Usd value:', usdValue);
+        const totalVND = cartItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        );
 
-        if (!usdValue) {
+        if (totalVND === 0) {
+          alert('Giỏ hàng rỗng');
+          return;
+        }
+
+        const usdAmount = await currencyService.getCurrency(totalVND);
+
+        if (!usdAmount) {
           alert('Không thể chuyển đổi tiền tệ');
           return;
         }
 
         const approvalUrl = await createOrder({
-          amount: usdValue,
+          amount: usdAmount,
           currency: 'USD',
           return_url: `${window.location.origin}/payment/success`,
           cancel_url: `${window.location.origin}/payment/cancel`,
@@ -209,9 +233,9 @@ const Checkout: React.FC = () => {
                   discountCode={checkoutState.discountCode}
                   paymentMethod={checkoutState.paymentMethod}
                   products={cartItems}
-                  subtotal={200000}
-                  discount={checkoutState.discountCode ? 50000 : 0}
-                  shippingFee={30000}
+                  subtotal={checkoutState.subtotal}
+                  discount={checkoutState.discount}
+                  shippingFee={checkoutState.shippingFee}
                   onPlaceOrder={handlePlaceOrder}
                   loading={loading}
                 />

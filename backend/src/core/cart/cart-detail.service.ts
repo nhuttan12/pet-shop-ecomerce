@@ -4,6 +4,8 @@ import { CartDetailResponse } from '@cart/dto/cart-detail/cart-detail-response.d
 import { CreateCartDetailDto } from '@cart/dto/cart-detail/create-cart-detail.dto';
 import { RemoveCartDetailDTO } from '@cart/dto/cart-detail/remove-cart-detail.dto';
 import { CartDetail } from '@cart/entities/cart-details.entity';
+import { CartDetailStatus } from '@cart/enums/cart-detail-status.enum';
+import { CartStatus } from '@cart/enums/cart-status.enum';
 import { CartErrorMessage } from '@cart/messages/cart.error-messages';
 import { CartMessageLog } from '@cart/messages/cart.message-logs';
 import { CartDetailRepository } from '@cart/repositories/cart-detail.repository';
@@ -139,7 +141,7 @@ export class CartDetailService {
     return cartDetail;
   }
 
-  async getAllCartDetailByUserID(
+  async getAllCartDetailPagingByUserID(
     userID: number,
     skip: number,
     take: number,
@@ -147,7 +149,11 @@ export class CartDetailService {
     try {
       // 1. Get cart details and meta data pagination
       const response: PaginationResponse<CartDetail> =
-        await this.cartDetailRepo.getAllCartDetailByUserID(userID, skip, take);
+        await this.cartDetailRepo.getAllCartDetailPagingByUserID(
+          userID,
+          skip,
+          take,
+        );
       this.utilityService.logPretty('Cart details', response.data);
       this.utilityService.logPretty('Meta', response.meta);
 
@@ -155,6 +161,167 @@ export class CartDetailService {
       return response;
     } catch (error) {
       this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async removeAllCartDetailByUserID(
+    userID: number,
+  ): Promise<CartDetailResponse[]> {
+    try {
+      // 1. Get all cart detail
+      const cartDetailList: CartDetail[] = await this.getAllCartDetailByUserID(
+        userID,
+        CartStatus.ACTIVE,
+        CartDetailStatus.ACTIVE,
+      );
+      this.utilityService.logPretty('Get all cart detail', cartDetailList);
+
+      // 2. Remove all cart detail
+      const removeAllCartDetailResult: boolean =
+        await this.cartDetailRepo.removeAllCartDetailByUserIDAndCartID(
+          userID,
+          cartDetailList[0].cart.id,
+        );
+      this.utilityService.logPretty(
+        'Remove all cart detail',
+        removeAllCartDetailResult,
+      );
+
+      // 3. Check remove all cart detaul result
+      if (!removeAllCartDetailResult) {
+        this.logger.warn(CartMessageLog.REMOVE_CART_DETAIL_FAILED);
+        throw new InternalServerErrorException(
+          CartErrorMessage.REMOVE_CART_DETAIL_FAILED,
+        );
+      }
+
+      // 4. Returning cart detail after removed
+      const cartDetails: CartDetail[] = await this.getAllCartDetailByUserID(
+        userID,
+        CartStatus.REMOVED,
+        CartDetailStatus.REMOVED,
+      );
+      this.utilityService.logPretty(
+        'Returning cart detail after removed',
+        cartDetails,
+      );
+
+      // 5. Mapping cart detail list cart detail response dto list
+      const cartDetailsResponse: CartDetailResponse[] = this.mapper.mapArray(
+        cartDetails,
+        CartDetail,
+        CartDetailResponse,
+      );
+      this.utilityService.logPretty(
+        'Mapping cart detail list cart detail response dto list',
+        cartDetailsResponse,
+      );
+
+      // 6. Returning cart detail response list after mapped
+      return cartDetailsResponse;
+    } catch (error) {
+      this.logger.error('Error removing all cart detail', error);
+      throw error;
+    }
+  }
+
+  async getAllCartDetailByUserID(
+    userID: number,
+    cartStatus: CartStatus,
+    cartDetailStatus: CartDetailStatus,
+  ): Promise<CartDetail[]> {
+    try {
+      // 1. Get all cart detail by user id
+      this.logger.verbose('Get all cart detail by user id');
+      const cartDetailList: CartDetail[] =
+        await this.cartDetailRepo.getAllCartDetailByUserID(
+          userID,
+          cartStatus,
+          cartDetailStatus,
+        );
+      this.utilityService.logPretty(
+        'Get all cart detail by user id',
+        cartDetailList,
+      );
+
+      // 2. Return cart detail list
+      this.logger.verbose('Return cart detail list');
+      return cartDetailList;
+    } catch (error) {
+      this.logger.error('Error get all cart detail', error);
+      throw error;
+    }
+  }
+
+  async updateAllCartDetailStatusByUserID(
+    userID: number,
+    cartStatus: CartStatus,
+    cartDetailStatus: CartDetailStatus,
+  ): Promise<CartDetailResponse[]> {
+    try {
+      // 1. Get all cart detail
+      this.logger.verbose('Get all cart detail');
+      const cartDetailList: CartDetail[] = await this.getAllCartDetailByUserID(
+        userID,
+        cartStatus,
+        CartDetailStatus.ACTIVE,
+      );
+      this.utilityService.logPretty('Get all cart detail', cartDetailList);
+
+      // 2. Update all cart detail status to ordered
+      this.logger.verbose('Update all cart detail status to ordered');
+      const removeAllCartDetailResult: boolean =
+        await this.cartDetailRepo.updateAllCartDetailStatusByUserIDAndCartID(
+          userID,
+          cartDetailList[0].cart.id,
+          cartDetailStatus,
+        );
+      this.utilityService.logPretty(
+        'Remove all cart detail',
+        removeAllCartDetailResult,
+      );
+
+      // 3. Check remove all cart detaul result
+      this.logger.verbose('Check remove all cart detaul result');
+      if (!removeAllCartDetailResult) {
+        this.logger.warn(CartMessageLog.REMOVE_CART_DETAIL_FAILED);
+        throw new InternalServerErrorException(
+          CartErrorMessage.REMOVE_CART_DETAIL_FAILED,
+        );
+      }
+
+      // 4. Returning cart detail after removed
+      this.logger.verbose('Returning cart detail after removed');
+      const cartDetails: CartDetail[] = await this.getAllCartDetailByUserID(
+        userID,
+        CartStatus.ORDERED,
+        CartDetailStatus.ORDERED,
+      );
+      this.utilityService.logPretty(
+        'Returning cart detail after removed',
+        cartDetails,
+      );
+
+      // 5. Mapping cart detail list cart detail response dto list
+      this.logger.verbose(
+        'Mapping cart detail list cart detail response dto list',
+      );
+      const cartDetailsResponse: CartDetailResponse[] = this.mapper.mapArray(
+        cartDetails,
+        CartDetail,
+        CartDetailResponse,
+      );
+      this.utilityService.logPretty(
+        'Mapping cart detail list cart detail response dto list',
+        cartDetailsResponse,
+      );
+
+      // 6. Returning cart detail response list after mapped
+      this.logger.verbose('Returning cart detail response list after mapped');
+      return cartDetailsResponse;
+    } catch (error) {
+      this.logger.error('Error removing all cart detail', error);
       throw error;
     }
   }

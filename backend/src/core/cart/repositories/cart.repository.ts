@@ -3,12 +3,14 @@ import { CartDetailStatus } from '@cart/enums/cart-detail-status.enum';
 import { CartStatus } from '@cart/enums/cart-status.enum';
 import { CartErrorMessage } from '@cart/messages/cart.error-messages';
 import { CartMessageLog } from '@cart/messages/cart.message-logs';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UtilityService } from '@services/utility.service';
 import { UserStatus } from '@user/enums/user-status.enum';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 
@@ -16,6 +18,7 @@ import { DataSource, Repository, UpdateResult } from 'typeorm';
 export class CartRepository {
   private readonly logger = new Logger(CartRepository.name);
   constructor(
+    private readonly utilityService: UtilityService,
     private readonly dataSource: DataSource,
     @InjectRepository(Cart)
     private readonly repo: Repository<Cart>,
@@ -99,6 +102,7 @@ export class CartRepository {
               id: productID,
             },
           },
+          status: CartStatus.ACTIVE,
         },
         relations: {
           cartDetails: {
@@ -137,6 +141,41 @@ export class CartRepository {
       });
     } catch (error) {
       this.logger.error(error);
+      throw error;
+    }
+  }
+
+  async removeCartByUserID(userID: number): Promise<boolean> {
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        // 1. Remove cart by user ID
+        const result: UpdateResult = await manager.update(
+          Cart,
+          {
+            user: {
+              id: userID,
+            },
+          },
+          {
+            status: CartStatus.REMOVED,
+            updatedAt: new Date(),
+          },
+        );
+        this.utilityService.logPretty('Remove cart by user ID', result);
+
+        // 2. Check remove cart result
+        if (result.affected === 0) {
+          this.logger.error(CartMessageLog.REMOVE_CART_FAILED);
+          throw new InternalServerErrorException(
+            ErrorMessage.INTERNAL_SERVER_ERROR,
+          );
+        }
+
+        // 3. Returning true if no error occurred
+        return true;
+      });
+    } catch (error) {
+      this.logger.error('Error in remove cart by user ID', error);
       throw error;
     }
   }

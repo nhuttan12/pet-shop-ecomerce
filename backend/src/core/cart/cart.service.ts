@@ -13,6 +13,7 @@ import { CartRepository } from '@cart/repositories/cart.repository';
 import { ImageType } from '@images/enums/image-type.enum';
 import { SubjectType } from '@images/enums/subject-type.enum';
 import { ImageService } from '@images/image.service';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   Injectable,
   InternalServerErrorException,
@@ -49,7 +50,11 @@ export class CartService {
 
     // 2. Get cart items
     const cartDetails: PaginationResponse<CartDetail> =
-      await this.cartDetailService.getAllCartDetailByUserID(userID, skip, take);
+      await this.cartDetailService.getAllCartDetailPagingByUserID(
+        userID,
+        skip,
+        take,
+      );
     this.utilityService.logPretty('Cart detail list:', cartDetails.data);
     this.utilityService.logPretty(
       'Cart detail meta data pagination',
@@ -99,7 +104,7 @@ export class CartService {
   ): Promise<Cart> {
     // 1. Get cart by user ID and cart status
     const cart = await this.cartRepo.getCartByUserIDAndStatus(userID, status);
-    this.logger.debug('Get cart by user ID and cart status:', cart);
+    this.utilityService.logPretty('Get cart by user ID and cart status:', cart);
 
     // 2. Check if cart exist
     if (!cart) {
@@ -187,5 +192,51 @@ export class CartService {
 
     // 3. Return result
     return result;
+  }
+
+  async removeCartByUserID(userID: number): Promise<CartResponseDto> {
+    try {
+      // 1. Remove cart by user ID
+      const removeCartByUserIDResult: boolean =
+        await this.cartRepo.removeCartByUserID(userID);
+      this.utilityService.logPretty(
+        'Remove cart by user ID result:',
+        removeCartByUserIDResult,
+      );
+
+      // 2. Check remove cart by user ID result
+      if (!removeCartByUserIDResult) {
+        this.logger.error(CartMessageLog.REMOVE_CART_FAILED);
+        throw new InternalServerErrorException(
+          ErrorMessage.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      // 3. Get cart after removed with user ID
+      const cart: Cart | null = await this.getCartByUserIDAndStatus(
+        userID,
+        CartStatus.REMOVED,
+      );
+      this.utilityService.logPretty('Cart after removed:', cart);
+
+      // 4. Check if cart exist
+      if (!cart) {
+        this.logger.error(CartMessageLog.CART_NOT_FOUND);
+        throw new InternalServerErrorException(CartErrorMessage.CART_NOT_FOUND);
+      }
+
+      // 5. Mapping cart to cart reponse dto
+      const cartResponse = this.mapper.map(cart, Cart, CartResponseDto);
+      this.utilityService.logPretty(
+        'Cart response after remove:',
+        cartResponse,
+      );
+
+      // 6. Return cart response dto
+      return cartResponse;
+    } catch (error) {
+      this.logger.error('Error in remove cart by user ID', error);
+      throw error;
+    }
   }
 }

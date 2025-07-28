@@ -7,4 +7,5 @@ export enum CartMessageLog {
   REMOVE_CART_DETAIL_FAILED = 'Remove cart detail failed',
   CART_IS_EMPTY = 'Cart is empty',
   UPDATE_CART_STATUS_FAILED = 'Update cart status failed',
+  REMOVE_CART_FAILED = 'Remove cart failed',
 }
