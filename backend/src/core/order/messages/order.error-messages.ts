@@ -18,4 +18,5 @@ export enum OrderErrorMessage {
   PAYPAL_ID_MUST_BE_STRING = 'Mã thanh toán paypal phải là dạng chuỗi',
   ZIP_CODE_MUST_BE_STRING = 'Mã bưu điện phải là chuỗi',
   ZIP_CODE_REQUIRED = 'Mã bưu điện không được để trống',
+  ID_MUST_BE_A_POSITIVE_NUMBER = 'Mã hoá đơn số phải lớn hơn 0',
 }

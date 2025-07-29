@@ -39,6 +39,8 @@ import { OrderDetailService } from '@order/order-detail.service';
 import { OrderService } from '@order/order.service';
 import { RoleName } from '@role/enums/role.enum';
 import { OrderResponseDto } from '@order/dto/order-response.dto';
+import { UtilityService } from '@services/utility.service';
+import { GetOrderListByOrderIdRequestDto } from '@order/dto/get-order-list-by-order-id-request-dto';
 
 @Controller('orders')
 @ApiTags('Order')
@@ -48,7 +50,9 @@ import { OrderResponseDto } from '@order/dto/order-response.dto';
 @UseFilters(CatchEverythingFilter)
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);
+
   constructor(
+    private readonly utilityService: UtilityService,
     private readonly orderService: OrderService,
     private readonly orderDetailService: OrderDetailService,
   ) {}
@@ -76,19 +80,26 @@ export class OrderController {
     @Query() { limit, page }: GetAllOrderRequestDto,
     @GetUser() userId: JwtPayload,
   ): Promise<ApiResponse<GetAllOrdersResponseDto[]>> {
+    // 1. Get all orders in controller
+    this.logger.verbose('Get all orders in controller');
     const orders = await this.orderService.getAllOrders(
       userId.sub,
       limit,
       page,
     );
+    this.utilityService.logPretty('Orders: ', orders);
 
-    this.logger.debug(`Orders: ${JSON.stringify(orders)}`);
-
-    return {
+    // 2. Create response
+    this.logger.verbose('Create response');
+    const response: ApiResponse<GetAllOrdersResponseDto[]> = {
       statusCode: HttpStatus.OK,
       message: NotifyMessage.GET_ORDER_SUCCESSFUL,
       data: orders,
     };
+
+    // 3. Returning response
+    this.logger.verbose('Returning response');
+    return response;
   }
 
   @Get('/order-detail/:id')
@@ -160,5 +171,43 @@ export class OrderController {
       message: NotifyMessage.CREATE_ORDER_SUCCESSFUL,
       data: order,
     };
+  }
+
+  @Get('/list')
+  @ApiOperation({ summary: 'Get order list by order ID' })
+  @ApiQuery({
+    name: 'orderID',
+    required: true,
+    type: Number,
+    description: 'The ID of the order to search for',
+  })
+  @ApiOkResponse({
+    status: 200,
+    description: 'Successful response',
+    type: [GetAllOrdersResponseDto],
+  })
+  @ApiOkResponse({ status: 400, description: 'Invalid order ID' })
+  @ApiOkResponse({ status: 500, description: 'Internal server error' })
+  async getOrderListByOrderID(
+    @Query() request: GetOrderListByOrderIdRequestDto,
+  ): Promise<ApiResponse<GetAllOrdersResponseDto[]>> {
+    // 1. Get order list from service
+    this.logger.verbose('Get order list from service');
+    const orderList: GetAllOrdersResponseDto[] =
+      await this.orderService.findOrderListByOrderID(request.orderID);
+    this.utilityService.logPretty('Get order list from service', orderList);
+
+    // 2. Create response
+    this.logger.verbose('Create response');
+    const response: ApiResponse<GetAllOrdersResponseDto[]> = {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_ORDER_SUCCESSFUL,
+      data: orderList,
+    };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 3. Return response to client
+    this.logger.verbose('Return response to client');
+    return response;
   }
 }

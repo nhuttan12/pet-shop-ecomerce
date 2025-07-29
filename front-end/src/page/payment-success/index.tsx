@@ -55,7 +55,7 @@ const PaymentSuccess: React.FC = () => {
     if (loading) {
       return (
         <>
-          <Loader2 className='mx-auto animate-spin text-blue-500' size={48} />
+          <Loader2 className='mx-auto animate-spin text-blue-500' size={48}/>
           <h2 className='text-xl font-semibold mt-4'>
             Đang xác nhận thanh toán...
           </h2>
@@ -66,7 +66,7 @@ const PaymentSuccess: React.FC = () => {
     if (status === 'success') {
       return (
         <>
-          <CheckCircle className='mx-auto text-green-500' size={64} />
+          <CheckCircle className='mx-auto text-green-500' size={64}/>
           <h2 className='text-2xl font-bold mt-4 text-green-600'>
             Thanh toán thành công!
           </h2>
@@ -89,7 +89,7 @@ const PaymentSuccess: React.FC = () => {
 
     return (
       <>
-        <XCircle className='mx-auto text-red-500' size={64} />
+        <XCircle className='mx-auto text-red-500' size={64}/>
         <h2 className='text-2xl font-bold mt-4 text-red-600'>
           Thanh toán thất bại
         </h2>

@@ -35,6 +35,7 @@ import { plainToInstance } from 'class-transformer';
 @Injectable()
 export class OrderService {
   private readonly logger = new Logger(OrderService.name);
+
   constructor(
     @InjectMapper() private readonly mapper: Mapper,
     private readonly utilityService: UtilityService,
@@ -44,6 +45,7 @@ export class OrderService {
     @Inject(forwardRef(() => OrderDetailService))
     private readonly orderDetailService: OrderDetailService,
   ) {}
+
   async getAllOrders(
     userID: number,
     limit: number,
@@ -133,6 +135,8 @@ export class OrderService {
     userID: number,
     request: CreateOrderRequestDto,
   ): Promise<OrderResponseDto> {
+    this.utilityService.logPretty('Create order request:', request);
+
     // 1. Get cart by user ID and active status
     this.logger.verbose('Get cart by user ID and active status');
     const cart: Cart = await this.cartService.getCartByUserIDAndStatus(
@@ -173,15 +177,10 @@ export class OrderService {
 
     // 5. Counting total price
     this.logger.verbose('Counting total price');
-    let totalPrice: number = 0;
-    if (request.paypalOrderId) {
-      totalPrice = request.amount;
-    } else {
-      totalPrice = cartDetailsList.data.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      );
-    }
+    const totalPrice: number = cartDetailsList.data.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
     this.utilityService.logPretty('Total price:', totalPrice);
 
     // 6. Create new order
@@ -251,5 +250,27 @@ export class OrderService {
     // 13. Mapping to Order Response DTO
     this.logger.verbose('Mapping to Order Response DTO');
     return this.mapper.map(newOrder, Order, OrderResponseDto);
+  }
+
+  async findOrderListByOrderID(
+    orderID: number,
+  ): Promise<GetAllOrdersResponseDto[]> {
+    // 1. Finding order list by order ID
+    const orderList: Order[] =
+      await this.orderRepo.findOrderListByOrderID(orderID);
+    this.utilityService.logPretty('Order list:', orderList);
+
+    // 2. Mapping to Order Response DTO
+    this.logger.verbose('Mapping to Order Response DTO');
+    const result: GetAllOrdersResponseDto[] = this.mapper.mapArray(
+      orderList,
+      Order,
+      GetAllOrdersResponseDto,
+    );
+    this.utilityService.logPretty('Result:', result);
+
+    // 3. Return result
+    this.logger.verbose('Return result');
+    return result;
   }
 }

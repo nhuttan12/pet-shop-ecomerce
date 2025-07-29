@@ -27,7 +27,7 @@ export class Order {
   @AutoMap()
   user: User;
 
-  @Column('int', { name: 'total_price' })
+  @Column('double', { name: 'total_price' })
   @AutoMap()
   totalPrice: number;
 

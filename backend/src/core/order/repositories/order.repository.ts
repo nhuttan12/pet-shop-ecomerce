@@ -75,6 +75,9 @@ export class OrderRepository {
         },
         take,
         skip,
+        order: {
+          createdAt: 'DESC',
+        },
       });
     } catch (error) {
       this.logger.error(error);
@@ -131,6 +134,24 @@ export class OrderRepository {
     } catch (error) {
       this.logger.error(error);
       throw error;
+    }
+  }
+
+  async findOrderListByOrderID(orderID: number): Promise<Order[]> {
+    try {
+      return await this.repo
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.user', 'user')
+        .where('CAST(order.id AS CHAR) LIKE :orderID', {
+          orderID: `%${orderID}%`,
+        })
+        .orderBy('order.createdAt', 'DESC')
+        .getMany();
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    } finally {
+      this.logger.verbose(`Get order list by order id ${orderID} successfully`);
     }
   }
 }

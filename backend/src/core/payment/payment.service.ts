@@ -26,6 +26,10 @@ import {
 import { LinkDescription } from '@paypal/checkout-server-sdk/lib/payments/lib';
 import paypalhttp from '@paypal/paypalhttp';
 import { UtilityService } from '@services/utility.service';
+import { CartService } from '@cart/cart.service';
+import { Cart } from '@cart/entities/carts.entity';
+import { CartMessageLog } from '@cart/messages/cart.message-logs';
+import { CartErrorMessage } from '@cart/messages/cart.error-messages';
 
 @Injectable()
 export class PaymentService {
@@ -33,6 +37,7 @@ export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
 
   constructor(
+    private readonly cartService: CartService,
     private readonly utilityService: UtilityService,
     private readonly config: AppConfigService,
     private readonly orderService: OrderService,
@@ -110,7 +115,19 @@ export class PaymentService {
     const shipping = result.purchase_units?.[0]?.shipping;
     this.utilityService.logPretty('Get shipping from result', shipping);
 
-    // 6. Create order result
+    // 6. Get cart by user ID
+    this.logger.verbose('Get cart by user ID');
+    const cart: Cart | null = await this.cartService.getCartByUserID(userID);
+    this.utilityService.logPretty('Get cart by user ID result', cart);
+
+    // 7. Check if cart exist
+    this.logger.verbose('Check if cart exist');
+    if (!cart) {
+      this.logger.error(CartMessageLog.CART_NOT_FOUND);
+      throw new InternalServerErrorException(CartErrorMessage.CART_NOT_FOUND);
+    }
+
+    // 8. Create order result
     this.logger.verbose('Create order result');
     const createOrderResult: OrderResponseDto =
       await this.orderService.createOrder(userID, {
@@ -119,7 +136,6 @@ export class PaymentService {
         city: shipping.address.country_code,
         country: shipping?.address?.country_code,
         address: shipping?.address?.address_line_1 || 'No address',
-        amount: Number(result.purchase_units?.[0]?.amount?.value || 0),
         paypalOrderId: result.id,
         zipCode: shipping?.address?.postal_code || 'Zip code unknown',
       });

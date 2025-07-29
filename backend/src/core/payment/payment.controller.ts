@@ -41,6 +41,7 @@ import { UtilityService } from '@services/utility.service';
 @UseFilters(CatchEverythingFilter)
 export class PaymentController {
   private readonly logger = new Logger(PaymentController.name);
+
   constructor(
     private readonly utilityService: UtilityService,
     private readonly paymentService: PaymentService,
@@ -61,12 +62,24 @@ export class PaymentController {
     },
   })
   async createOrder(@Body() dto: CreateOrderDto): Promise<ApiResponse<string>> {
-    const order: string = await this.paymentService.createOrder(dto); // trả về approvalUrl
-    return {
+    this.utilityService.logPretty('Get dto from client', dto);
+
+    // 1. Create order paypal
+    this.logger.verbose('Create order paypal');
+    const order: string = await this.paymentService.createOrder(dto);
+    this.utilityService.logPretty('Create order for paypal result:', order);
+
+    // 2. Create response
+    this.logger.verbose('Create response for paypal order');
+    const response: ApiResponse<string> = {
       statusCode: HttpStatus.OK,
       message: PaymentNotifyMessage.CREATE_ORDER_SUCCESSFUL,
       data: order,
     };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 3. Return response to client
+    return response;
   }
 
   @Get('success')

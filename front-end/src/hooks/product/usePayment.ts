@@ -7,7 +7,7 @@ export function usePayment(token: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const createOrder = async (dto: CreateOrderDto) => {
+  const createOrder = async (dto: CreateOrderDto): Promise<string> => {
     setLoading(true);
     setError(null);
     try {

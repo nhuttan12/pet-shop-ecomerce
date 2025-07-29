@@ -94,8 +94,8 @@ export class CartService {
     };
   }
 
-  async getCartByUserID(cartID: number): Promise<Cart | null> {
-    return await this.cartRepo.getCartByUserID(cartID);
+  async getCartByUserID(userID: number): Promise<Cart | null> {
+    return await this.cartRepo.getCartByUserID(userID);
   }
 
   async getCartByUserIDAndStatus(

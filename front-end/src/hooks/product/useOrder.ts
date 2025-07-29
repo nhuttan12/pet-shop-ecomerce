@@ -1,0 +1,119 @@
+import { useState } from 'react';
+import {
+  createOrder,
+  CreateOrderDTO,
+  getAllOrderForUser,
+  getOrderListByOrderID,
+} from '../../service/products/orderService';
+import {
+  GetAllOrderRequestDto
+} from "../../common/dto/order/get-all-order-request.dto.ts";
+import {
+  GetAllOrdersResponseDto
+} from "../../common/dto/order/get-all-order-response.dto.ts";
+import { ApiResponse } from "../../common/dto/response/api-response.dto.ts";
+import {
+  GetOrderListByOrderIdRequestDto
+} from "../../common/dto/order/get-order-list-by-order-id-request-dto.ts";
+
+interface UseCreateOrderResult {
+  loading: boolean;
+  error: string | null;
+  success: boolean;
+  createOrderHandler: (data: CreateOrderDTO) => Promise<void>;
+  getAllOrdersHandler: (
+    dto: GetAllOrderRequestDto,
+    token: string
+  ) => Promise<GetAllOrdersResponseDto[] | null>;
+  getOrderListByOrderIDHandler: (
+    dto: GetOrderListByOrderIdRequestDto,
+    token: string
+  ) => Promise<GetAllOrdersResponseDto[] | null>;
+}
+
+export function useOrder(): UseCreateOrderResult {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const createOrderHandler = async (data: CreateOrderDTO) => {
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      await createOrder(data);
+      setSuccess(true);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Có lỗi xảy ra khi tạo đơn hàng');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAllOrdersHandler = async (dto: GetAllOrderRequestDto,
+    token: string): Promise<GetAllOrdersResponseDto[]> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response: ApiResponse<GetAllOrdersResponseDto[]> = await getAllOrderForUser(
+        dto,
+        token
+      );
+
+      if (!response || !response.data) {
+        setError('Có lỗi trong lúc lấy toàn bộ hoá đơn!')
+        return [];
+      }
+
+      return response.data ?? [];
+    } catch (error: unknown) {
+      setError(error instanceof Error ?
+        error.message :
+        "Có lỗi xảy ra khi lấy đơn hàng");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const getOrderListByOrderIDHandler = async (
+    dto: GetOrderListByOrderIdRequestDto,
+    token: string): Promise<GetAllOrdersResponseDto[]> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response: ApiResponse<GetAllOrdersResponseDto[]> = await getOrderListByOrderID(
+        dto,
+        token
+      );
+
+      if (!response || !response.data) {
+        setError('Có lỗi trong lúc lấy danh sách hoá đơn!')
+        return [];
+      }
+
+      return response.data ?? [];
+    } catch (error: unknown) {
+      setError(error instanceof Error ?
+        error.message :
+        "Có lỗi xảy ra khi lấy đơn hàng");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return {
+    loading,
+    error,
+    success,
+    createOrderHandler,
+    getAllOrdersHandler,
+    getOrderListByOrderIDHandler
+  };
+}

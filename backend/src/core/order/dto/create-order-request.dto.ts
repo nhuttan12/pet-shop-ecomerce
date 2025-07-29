@@ -39,12 +39,6 @@ export class CreateOrderRequestDto {
   @IsNotEmpty({ message: 'Địa chỉ không được để trống' })
   address: string;
 
-  @ApiProperty({ description: 'Tổng số tiền đơn hàng', example: 120000 })
-  @IsNumber({}, { message: OrderErrorMessage.AMOUNT_MUST_BE_INTEGER })
-  @IsNotEmpty({ message: OrderErrorMessage.AMOUNT_SHOULD_NOT_BE_EMPTY })
-  @Min(1, { message: OrderErrorMessage.AMOUNT_MUST_BE_A_POSITIVE_NUMBER })
-  amount: number;
-
   @ApiProperty({
     description: 'Mã bưu điện',
     example: 700000,

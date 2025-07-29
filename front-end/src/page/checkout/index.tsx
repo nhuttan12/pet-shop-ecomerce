@@ -60,9 +60,13 @@ const Checkout: React.FC = () => {
       0
     );
 
-    const discount = checkoutState.discountCode ? subtotal * 0.1 : 0;
+    const discount = checkoutState.discountCode ?
+      subtotal * 0.1 :
+      0;
 
-    const shippingFee = subtotal > 500000 ? 0 : 30000;
+    const shippingFee = subtotal > 500000 ?
+      0 :
+      30000;
 
     if (userProfile) {
       setCheckoutState((prev) => ({
@@ -158,7 +162,12 @@ const Checkout: React.FC = () => {
           return;
         }
 
-        const usdAmount = await currencyService.getCurrency(totalVND);
+        const usdAmount: number = await currencyService.getCurrency(
+          totalVND,
+          "VND",
+          "USD"
+        );
+        console.log('Usd amount', usdAmount);
 
         if (!usdAmount) {
           alert('Không thể chuyển đổi tiền tệ');
@@ -184,23 +193,27 @@ const Checkout: React.FC = () => {
 
   return (
     <div className='min-h-screen flex flex-col'>
-      <Header />
+      <Header/>
 
       <main className='flex-grow'>
         <div className='container mx-auto px-4 py-8'>
           <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
             <div className='lg:col-span-2'>
               {/* Personal Info Form */}
-              {userProfileLoadingStatus ? (
-                <p>Đang tải...</p>
-              ) : userProfileErrorStatus ? (
-                <p>Có lỗi xảy ra...</p>
-              ) : (
-                <PersonalInfoForm
-                  personalInfo={checkoutState.personalInfo}
-                  onPersonalInfoChange={handlePersonalInfoChange}
-                />
-              )}
+              {userProfileLoadingStatus ?
+                (
+                  <p>Đang tải...</p>
+                ) :
+                userProfileErrorStatus ?
+                  (
+                    <p>Có lỗi xảy ra...</p>
+                  ) :
+                  (
+                    <PersonalInfoForm
+                      personalInfo={checkoutState.personalInfo}
+                      onPersonalInfoChange={handlePersonalInfoChange}
+                    />
+                  )}
               {/* Shipping Address Form */}
               <ShippingAddressForm
                 shippingAddress={checkoutState.shippingAddress}
@@ -222,30 +235,34 @@ const Checkout: React.FC = () => {
 
             <div className='lg:col-span-1'>
               {/* Order Summary */}
-              {cartLoadingStatus ? (
-                <p>Đang tải...</p>
-              ) : cartErrorStatus ? (
-                <p>Có lỗi xảy ra...</p>
-              ) : (
-                <OrderSummary
-                  personalInfo={checkoutState.personalInfo}
-                  shippingAddress={checkoutState.shippingAddress}
-                  discountCode={checkoutState.discountCode}
-                  paymentMethod={checkoutState.paymentMethod}
-                  products={cartItems}
-                  subtotal={checkoutState.subtotal}
-                  discount={checkoutState.discount}
-                  shippingFee={checkoutState.shippingFee}
-                  onPlaceOrder={handlePlaceOrder}
-                  loading={loading}
-                />
-              )}
+              {cartLoadingStatus ?
+                (
+                  <p>Đang tải...</p>
+                ) :
+                cartErrorStatus ?
+                  (
+                    <p>Có lỗi xảy ra...</p>
+                  ) :
+                  (
+                    <OrderSummary
+                      personalInfo={checkoutState.personalInfo}
+                      shippingAddress={checkoutState.shippingAddress}
+                      discountCode={checkoutState.discountCode}
+                      paymentMethod={checkoutState.paymentMethod}
+                      products={cartItems}
+                      subtotal={checkoutState.subtotal}
+                      discount={checkoutState.discount}
+                      shippingFee={checkoutState.shippingFee}
+                      onPlaceOrder={handlePlaceOrder}
+                      loading={loading}
+                    />
+                  )}
             </div>
           </div>
         </div>
       </main>
 
-      <Footer />
+      <Footer/>
     </div>
   );
 };

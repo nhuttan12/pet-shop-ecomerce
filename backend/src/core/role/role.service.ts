@@ -6,6 +6,7 @@ import { UtilityService } from '@services/utility.service';
 @Injectable()
 export class RoleService {
   private readonly logger = new Logger(RoleService.name);
+
   constructor(
     private readonly utilityService: UtilityService,
     private readonly roleRepo: RoleRepository,
