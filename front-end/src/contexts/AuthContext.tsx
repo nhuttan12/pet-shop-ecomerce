@@ -7,13 +7,18 @@ interface AuthContextType {
   role: string | null;
   isLoggedIn: boolean;
   isLoading: boolean;
-  login: (userId: number, username: string, token: string, role: string) => void;
+  login: (userId: number,
+    username: string,
+    token: string,
+    role: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{
+  children: React.ReactNode
+}> = ({ children }) => {
   const [userId, setUserId] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -34,7 +39,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  const login = (userId: number, username: string, token: string, role: string) => {
+  const login = (userId: number,
+    username: string,
+    token: string,
+    role: string) => {
     localStorage.setItem('userId', String(userId));
     localStorage.setItem('username', username);
     localStorage.setItem('token', token);
@@ -43,6 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUsername(username);
     setToken(token);
     setRole(role);
+
+    setIsLoading(false);
   };
 
   const logout = () => {
@@ -54,20 +64,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-      <AuthContext.Provider
-          value={{
-            userId,
-            username,
-            token,
-            role,
-            isLoggedIn: !!token,
-            isLoading,
-            login,
-            logout,
-          }}
-      >
-        {children}
-      </AuthContext.Provider>
+    <AuthContext.Provider
+      value={{
+        userId,
+        username,
+        token,
+        role,
+        isLoggedIn: !!token,
+        isLoading,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
   );
 };
 

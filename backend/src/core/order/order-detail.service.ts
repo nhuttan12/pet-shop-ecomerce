@@ -2,7 +2,7 @@ import { CartDetail } from '@cart/entities/cart-details.entity';
 import { ImageType } from '@images/enums/image-type.enum';
 import { SubjectType } from '@images/enums/subject-type.enum';
 import { ImageService } from '@images/image.service';
-import { GetOrderDetailsByOrderIdResponseDto } from './dto/get-order-details-by-order-id-response.dto';
+import { GetOrderDetailsByOrderIDResponseDto } from './dto/get-order-details-by-order-i-d-response.dto';
 import { OrderDetail } from './entites/order-details.entity';
 import { OrderErrorMessage } from './messages/order.error-messages';
 import { OrderMessageLog } from './messages/order.message-logs';
@@ -13,21 +13,23 @@ import { Image } from '@images/entites/images.entity';
 @Injectable()
 export class OrderDetailService {
   private readonly logger = new Logger(OrderDetailService.name);
+
   constructor(
     private readonly orderDetailRepo: OrderDetailRepository,
     private readonly imageService: ImageService,
   ) {}
-  async getOrderDetailByOrderId(
+
+  async getOrderDetailByOrderID(
     orderID: number,
     userID: number,
-  ): Promise<GetOrderDetailsByOrderIdResponseDto[]> {
+  ): Promise<GetOrderDetailsByOrderIDResponseDto[]> {
     // 1. Get all order detail by user ID
     const orderDetailList =
       await this.orderDetailRepo.getAllOrderDetailByOrderID(orderID, userID);
     this.logger.debug('Order detail list:', orderDetailList);
 
     // 2. Mapping to DTO
-    const orderDetailDtos: GetOrderDetailsByOrderIdResponseDto[] =
+    const orderDetailDtos: GetOrderDetailsByOrderIDResponseDto[] =
       await Promise.all(
         orderDetailList.map(async (detail: OrderDetail) => {
           // 3. Get image by product ID
@@ -42,7 +44,7 @@ export class OrderDetailService {
           // 4. Returning and mapping to dto
           return {
             id: detail.id,
-            orderId: detail.order.id,
+            orderID: detail.order.id,
             productname: detail.product.name,
             imageUrl: image.url,
             quantity: detail.quantity,

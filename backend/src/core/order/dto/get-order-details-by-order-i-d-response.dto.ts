@@ -1,24 +1,32 @@
 import { Expose } from 'class-transformer';
+import { AutoMap } from '@automapper/classes';
 
-export class GetOrderDetailsByOrderIdResponseDto {
+export class GetOrderDetailsByOrderIDResponseDto {
   @Expose()
+  @AutoMap()
   id: number;
 
   @Expose()
-  orderId: number;
+  @AutoMap()
+  orderID: number;
 
   @Expose()
+  @AutoMap()
   productname: string;
 
   @Expose()
+  @AutoMap()
   imageUrl: string;
 
   @Expose()
+  @AutoMap()
   quantity: number;
 
   @Expose()
+  @AutoMap()
   price: number;
 
   @Expose()
+  @AutoMap()
   totalPrice: number;
 }

@@ -11,12 +11,14 @@ import { ShippingMethod } from '@order/enums/shipping_method.enum';
 import { OrderErrorMessage } from '@order/messages/order.error-messages';
 import { OrderMessageLog } from '@order/messages/order.message-logs';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
+import { UtilityService } from '@services/utility.service';
 
 @Injectable()
 export class OrderRepository {
   private readonly logger = new Logger(OrderRepository.name);
 
   constructor(
+    private readonly utilityService: UtilityService,
     private readonly dataSource: DataSource,
     @InjectRepository(Order)
     private readonly repo: Repository<Order>,
@@ -152,6 +154,47 @@ export class OrderRepository {
       throw error;
     } finally {
       this.logger.verbose(`Get order list by order id ${orderID} successfully`);
+    }
+  }
+
+  async findOrderListByOrderStatusAndUserID(
+    orderStatus: OrderStatus,
+    userID: number,
+  ): Promise<Order[]> {
+    try {
+      // 1. Get order list from database by order status
+      this.logger.verbose(
+        `Get order list from database by order status ${orderStatus}`,
+      );
+      const ordersList: Order[] = await this.repo.find({
+        where: {
+          status: orderStatus,
+          user: {
+            id: userID,
+          },
+        },
+        relations: {
+          user: true,
+        },
+        order: {
+          createdAt: 'DESC',
+        },
+      });
+      this.utilityService.logPretty(
+        'Get order list from database by order status',
+        ordersList,
+      );
+
+      // 2. Return order list
+      this.logger.verbose('Return order list');
+      return ordersList;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    } finally {
+      this.logger.verbose(
+        `Get order list by order status ${orderStatus} successfully`,
+      );
     }
   }
 }

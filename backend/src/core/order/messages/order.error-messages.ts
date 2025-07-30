@@ -19,4 +19,5 @@ export enum OrderErrorMessage {
   ZIP_CODE_MUST_BE_STRING = 'Mã bưu điện phải là chuỗi',
   ZIP_CODE_REQUIRED = 'Mã bưu điện không được để trống',
   ID_MUST_BE_A_POSITIVE_NUMBER = 'Mã hoá đơn số phải lớn hơn 0',
+  ORDER_STATUS_IS_NOT_EMPTY = 'Trạng thái đơn hàng không được để trống',
 }

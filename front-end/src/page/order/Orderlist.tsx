@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   GetAllOrdersResponseDto
 } from "../../common/dto/order/get-all-order-response.dto";
+import OrderDetailModal from "./OrderDetailModal.tsx";
+import {
+  GetOrderDetailsByOrderIDResponseDto
+} from "../../common/dto/order/get-order-details-by-order-i-d-response.dto.ts";
+import { useOrder } from "../../hooks/product/useOrder.ts";
 
 interface OrderListProps {
+  token: string;
   orders: GetAllOrdersResponseDto[];
 }
 
@@ -20,7 +26,30 @@ const getStatusColor = (status: string) => {
   }
 };
 
-export const OrderList: React.FC<OrderListProps> = ({ orders }) => {
+export const OrderList: React.FC<OrderListProps> = ({ orders, token }) => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [orderDetails, setOrderDetails] = useState<GetOrderDetailsByOrderIDResponseDto[]>(
+    []);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+
+  const { getOrderDetailByOrderIDHandler } = useOrder();
+
+  const handleOpenModal = async (orderID: number) => {
+    setLoadingDetails(true);
+    setIsModalOpen(true);
+
+    try {
+      const details = await getOrderDetailByOrderIDHandler({ orderID }, token);
+
+      setOrderDetails(details ?? []);
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+      setOrderDetails([]);
+    } finally {
+      setLoadingDetails(false);
+    }
+  }
+
   if (!orders || orders.length === 0) {
     return <p className="text-gray-500 text-sm text-center py-6">No orders
       found.</p>;
@@ -74,9 +103,23 @@ export const OrderList: React.FC<OrderListProps> = ({ orders }) => {
           {/* Action Buttons */}
           <div className="flex gap-3 mt-4">
             <button
+              onClick={() => handleOpenModal(order.id)}
               className="px-4 py-2 text-sm border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition">
               Chi tiết đơn hàng
             </button>
+
+            <OrderDetailModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              isLoading={loadingDetails}
+              orderItems={orderDetails.map((detail: GetOrderDetailsByOrderIDResponseDto) => ({
+                image: detail.imageUrl,
+                id: detail.id.toString(),
+                name: detail.productname,
+                price: detail.totalPrice,
+                quantity: detail.quantity,
+              }))}
+            />
           </div>
         </div>
       ))}

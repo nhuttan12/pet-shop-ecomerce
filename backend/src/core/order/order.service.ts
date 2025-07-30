@@ -31,6 +31,7 @@ import { OrderRepository } from '@order/repositories/order.repository';
 import { PaginationResponse } from '@pagination/pagination-response';
 import { UtilityService } from '@services/utility.service';
 import { plainToInstance } from 'class-transformer';
+import { FindOrderListByOrderStatusRequestDto } from '@order/dto/find-order-list-by-order-status-request.dto';
 
 @Injectable()
 export class OrderService {
@@ -262,6 +263,36 @@ export class OrderService {
 
     // 2. Mapping to Order Response DTO
     this.logger.verbose('Mapping to Order Response DTO');
+    const result: GetAllOrdersResponseDto[] = this.mapper.mapArray(
+      orderList,
+      Order,
+      GetAllOrdersResponseDto,
+    );
+    this.utilityService.logPretty('Result:', result);
+
+    // 3. Return result
+    this.logger.verbose('Return result');
+    return result;
+  }
+
+  async findOrderListByOrderStatusAndUserID(
+    request: FindOrderListByOrderStatusRequestDto,
+    userID: number,
+  ): Promise<GetAllOrdersResponseDto[]> {
+    // 1. Finding order list by order status
+    this.logger.verbose('Finding order list by order status');
+    const orderList: Order[] =
+      await this.orderRepo.findOrderListByOrderStatusAndUserID(
+        request.status,
+        userID,
+      );
+    this.utilityService.logPretty(
+      'Get order list by order status result:',
+      orderList,
+    );
+
+    // 2. Mapping to Get All Order Response DTO
+    this.logger.verbose('Mapping to Get All Order Response DTO');
     const result: GetAllOrdersResponseDto[] = this.mapper.mapArray(
       orderList,
       Order,

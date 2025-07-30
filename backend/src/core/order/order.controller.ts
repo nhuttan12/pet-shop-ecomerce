@@ -21,8 +21,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiInternalServerErrorResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -33,14 +35,16 @@ import { CancelOrderRequestDto } from '@order/dto/cancel-order-request.dto';
 import { CreateOrderRequestDto } from '@order/dto/create-order-request.dto';
 import { GetAllOrderRequestDto } from '@order/dto/get-all-order-request.dto';
 import { GetAllOrdersResponseDto } from '@order/dto/get-all-order-response.dto';
-import { GetOrderDetailsByOrderIdRequestDto } from '@order/dto/get-order-details-by-order-id-request.dto';
-import { GetOrderDetailsByOrderIdResponseDto } from '@order/dto/get-order-details-by-order-id-response.dto';
+import { GetOrderDetailsByOrderIDRequestDto } from '@order/dto/get-order-details-by-order-i-d-request.dto';
+import { GetOrderDetailsByOrderIDResponseDto } from '@order/dto/get-order-details-by-order-i-d-response.dto';
 import { OrderDetailService } from '@order/order-detail.service';
 import { OrderService } from '@order/order.service';
 import { RoleName } from '@role/enums/role.enum';
 import { OrderResponseDto } from '@order/dto/order-response.dto';
 import { UtilityService } from '@services/utility.service';
 import { GetOrderListByOrderIdRequestDto } from '@order/dto/get-order-list-by-order-id-request-dto';
+import { FindOrderListByOrderStatusRequestDto } from '@order/dto/find-order-list-by-order-status-request.dto';
+import { OrderStatus } from '@order/enums/order-status.enum';
 
 @Controller('orders')
 @ApiTags('Order')
@@ -102,21 +106,21 @@ export class OrderController {
     return response;
   }
 
-  @Get('/order-detail/:id')
+  @Get('/order-detail/:orderID')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Lấy chi tiết đơn hàng theo orderId' })
+  @ApiOperation({ summary: 'Lấy chi tiết đơn hàng theo orderID' })
   @ApiParam({ name: 'id', type: Number, description: 'Order ID' })
   @ApiOkResponse({
-    type: ApiResponse<GetOrderDetailsByOrderIdResponseDto[]>,
+    type: ApiResponse<GetOrderDetailsByOrderIDResponseDto[]>,
     description: 'Chi tiết đơn hàng trả về thành công',
   })
-  async getOrderDetailByOrderId(
-    @Param() { orderId }: GetOrderDetailsByOrderIdRequestDto,
-    @GetUser() userId: JwtPayload,
-  ): Promise<ApiResponse<GetOrderDetailsByOrderIdResponseDto[]>> {
-    const orderDetails = await this.orderDetailService.getOrderDetailByOrderId(
-      orderId,
-      userId.sub,
+  async getOrderDetailByOrderID(
+    @Param() { orderID }: GetOrderDetailsByOrderIDRequestDto,
+    @GetUser() payload: JwtPayload,
+  ): Promise<ApiResponse<GetOrderDetailsByOrderIDResponseDto[]>> {
+    const orderDetails = await this.orderDetailService.getOrderDetailByOrderID(
+      orderID,
+      payload.sub,
     );
     this.logger.debug(`Order detail: ${JSON.stringify(orderDetails)}`);
 
@@ -195,6 +199,52 @@ export class OrderController {
     this.logger.verbose('Get order list from service');
     const orderList: GetAllOrdersResponseDto[] =
       await this.orderService.findOrderListByOrderID(request.orderID);
+    this.utilityService.logPretty('Get order list from service', orderList);
+
+    // 2. Create response
+    this.logger.verbose('Create response');
+    const response: ApiResponse<GetAllOrdersResponseDto[]> = {
+      statusCode: HttpStatus.OK,
+      message: NotifyMessage.GET_ORDER_SUCCESSFUL,
+      data: orderList,
+    };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 3. Return response to client
+    this.logger.verbose('Return response to client');
+    return response;
+  }
+
+  @Get('/list-by-status')
+  @ApiOperation({ summary: 'Get order list by status' })
+  @ApiQuery({
+    name: 'status',
+    required: true,
+    enum: OrderStatus,
+    description: 'Order status to filter orders by',
+  })
+  @ApiOkResponse({
+    description: 'Successful response with a list of orders',
+    type: GetAllOrdersResponseDto,
+    isArray: true,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid or missing order status',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+  })
+  async findOrderListByOrderStatus(
+    @Query() request: FindOrderListByOrderStatusRequestDto,
+    @GetUser() payload: JwtPayload,
+  ): Promise<ApiResponse<GetAllOrdersResponseDto[]>> {
+    // 1. Get order list from service
+    this.logger.verbose('Get order list from service');
+    const orderList: GetAllOrdersResponseDto[] =
+      await this.orderService.findOrderListByOrderStatusAndUserID(
+        request,
+        payload.sub,
+      );
     this.utilityService.logPretty('Get order list from service', orderList);
 
     // 2. Create response

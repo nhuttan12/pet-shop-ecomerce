@@ -10,7 +10,16 @@ import {
 import { AxiosResponse } from "axios";
 import {
   GetOrderListByOrderIdRequestDto
-} from "../../common/dto/order/get-order-list-by-order-id-request-dto.ts"; // đường dẫn tới file api của bạn
+} from "../../common/dto/order/get-order-list-by-order-id-request-dto.ts";
+import {
+  FindOrderListByOrderStatusRequestDto
+} from "../../common/dto/order/find-order-list-by-order-status-request.dto.ts";
+import {
+  GetOrderDetailsByOrderIDRequestDto
+} from "../../common/dto/order/get-order-details-by-order-i-d-request.dto.ts";
+import {
+  GetOrderDetailsByOrderIDResponseDto
+} from "../../common/dto/order/get-order-details-by-order-i-d-response.dto.ts"; // đường dẫn tới file api của bạn
 
 export interface CreateOrderDTO {
   paymentMethod: string;
@@ -64,6 +73,50 @@ export async function getOrderListByOrderID(
         params: {
           orderID: dto.orderID,
         },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating order:', error);
+    throw error;
+  }
+}
+
+export async function findOrderListByOrderStatus(
+  request: FindOrderListByOrderStatusRequestDto,
+  token: string): Promise<ApiResponse<GetAllOrdersResponseDto[]>> {
+  try {
+    const response: AxiosResponse<ApiResponse<GetAllOrdersResponseDto[]>> = await api.get<ApiResponse<GetAllOrdersResponseDto[]>>(
+      '/orders/list-by-status',
+      {
+        params: {
+          status: request.status,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating order:', error);
+    throw error;
+  }
+}
+
+export async function getOrderDetailByOrderID(
+  request: GetOrderDetailsByOrderIDRequestDto,
+  token: string
+): Promise<ApiResponse<GetOrderDetailsByOrderIDResponseDto[]>> {
+  try {
+    const response: AxiosResponse<ApiResponse<GetOrderDetailsByOrderIDResponseDto[]>> = await api.get<ApiResponse<GetOrderDetailsByOrderIDResponseDto[]>>(
+      `/orders/order-detail/${request.orderID}`,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
         }

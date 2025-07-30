@@ -5,36 +5,65 @@ import {
 } from "../../common/dto/order/get-all-order-response.dto.ts";
 import { OrderList } from "./Orderlist.tsx";
 import { useAuth } from "../../contexts/AuthContext.tsx";
+import OrderStatusFilter from "./OrderStatusFilter.tsx";
+import { OrderStatus } from "../../common/enum/order/order-status.enum.ts";
+import { useNavigate } from "react-router-dom";
 
 const MyOrders: React.FC = () => {
   const {
     error,
     loading,
     getAllOrdersHandler,
-    getOrderListByOrderIDHandler
+    getOrderListByOrderIDHandler,
+    findOrderListByOrderStatusHandler
   } = useOrder();
-  const { token } = useAuth();
+  const { token, isLoading } = useAuth();
   const [orders, setOrders] = useState<GetAllOrdersResponseDto[]>([]);
   const [searchID, setSearchID] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchOrder = async () => {
-      if (!token) return;
+    if (!token && !isLoading) {
+      alert('Vui lòng đăng nhập trên trang chính');
+      navigate('/');
+    }
+  }, [token, isLoading, navigate]);
 
-      const data: GetAllOrdersResponseDto[] | null = await getAllOrdersHandler({
-        page: 1,
-        limit: 10
-      }, token);
+  useEffect(() => {
+    if (token) {
+      fetchOrder();
+    }
+  }, [token]);
 
-      if (data === null) {
-        return;
-      }
+  if (isLoading) return <p>Đang kiểm tra đăng nhập...</p>;
 
-      setOrders(data);
+  const fetchOrder = async () => {
+    if (!token) return;
+
+    const data: GetAllOrdersResponseDto[] | null = await getAllOrdersHandler({
+      page: 1,
+      limit: 10
+    }, token);
+
+    if (data === null) {
+      return;
     }
 
-    fetchOrder();
-  }, [token]);
+    setOrders(data);
+  }
+
+  const handleStatusSelect = async (status: OrderStatus | null) => {
+    if (!token) return;
+
+    if (!status) {
+      await fetchOrder();
+      return;
+    }
+
+    const data = await findOrderListByOrderStatusHandler({ status }, token);
+    setOrders(data ?? []);
+  };
 
   // Handle search
   const handleSearch = async () => {
@@ -75,29 +104,11 @@ const MyOrders: React.FC = () => {
       <div className="container mx-auto px-4">
         {/* Bộ lọc trạng thái đơn hàng */}
         <div className="mb-4">
-          <div
-            className="flex flex-wrap items-center gap-4 border-b border-gray-200 pb-2 text-sm font-medium text-gray-600">
-            {[
-              "Tất cả",
-              "Chờ thanh toán",
-              "Vận chuyển",
-              "Chờ giao hàng",
-              "Hoàn thành",
-              "Đã hủy",
-              "Trả hàng/Hoàn tiền",
-            ].map((status, idx) => (
-              <button
-                key={idx}
-                className={`px-2 pb-2 border-b-2 ${
-                  idx === 0 ?
-                    "border-orange-500 text-black" :
-                    "border-transparent"
-                }`}
-              >
-                {status}
-              </button>
-            ))}
-          </div>
+          <OrderStatusFilter
+            selectedStatus={selectedStatus}
+            onChange={(status: OrderStatus | null) => setSelectedStatus(status)}
+            onStatusSelect={handleStatusSelect}
+          />
         </div>
 
         {/* Thanh tìm kiếm đơn hàng */}
@@ -127,7 +138,7 @@ const MyOrders: React.FC = () => {
           (<p>'Đang tải đơn hàng'</p>) :
           error ?
             (<p>Có lỗi xảy ra khi tải đơn hàng</p>) :
-            (<OrderList orders={orders}/>)
+            (<OrderList orders={orders} token={token!}/>)
         }
       </div>
     </div>
