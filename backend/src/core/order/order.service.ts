@@ -1,10 +1,15 @@
+import { Mapper } from '@automapper/core';
+import { InjectMapper } from '@automapper/nestjs';
 import { CartDetailService } from '@cart/cart-detail.service';
 import { CartService } from '@cart/cart.service';
+import { CartDetailResponse } from '@cart/dto/cart-detail/cart-detail-response.dto';
 import { CartDetail } from '@cart/entities/cart-details.entity';
 import { Cart } from '@cart/entities/carts.entity';
+import { CartDetailStatus } from '@cart/enums/cart-detail-status.enum';
 import { CartStatus } from '@cart/enums/cart-status.enum';
 import { CartErrorMessage } from '@cart/messages/cart.error-messages';
 import { CartMessageLog } from '@cart/messages/cart.message-logs';
+import { ErrorMessage } from '@messages/error.messages';
 import {
   forwardRef,
   Inject,
@@ -13,23 +18,27 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { CreateOrderRequestDto } from '@order/dto/create-order-request.dto';
 import { GetAllOrdersResponseDto } from '@order/dto/get-all-order-response.dto';
+import { OrderResponseDto } from '@order/dto/order-response.dto';
 import { OrderDetail } from '@order/entites/order-details.entity';
 import { Order } from '@order/entites/orders.entity';
 import { OrderStatus } from '@order/enums/order-status.enum';
-import { PaymentMethod } from '@order/enums/payment-method.enum';
-import { ShippingMethod } from '@order/enums/shipping_method.enum';
 import { OrderErrorMessage } from '@order/messages/order.error-messages';
 import { OrderMessageLog } from '@order/messages/order.message-logs';
 import { OrderDetailService } from '@order/order-detail.service';
 import { OrderRepository } from '@order/repositories/order.repository';
+import { PaginationResponse } from '@pagination/pagination-response';
 import { UtilityService } from '@services/utility.service';
 import { plainToInstance } from 'class-transformer';
+import { FindOrderListByOrderStatusRequestDto } from '@order/dto/find-order-list-by-order-status-request.dto';
 
 @Injectable()
 export class OrderService {
   private readonly logger = new Logger(OrderService.name);
+
   constructor(
+    @InjectMapper() private readonly mapper: Mapper,
     private readonly utilityService: UtilityService,
     private readonly orderRepo: OrderRepository,
     private readonly cartService: CartService,
@@ -37,6 +46,7 @@ export class OrderService {
     @Inject(forwardRef(() => OrderDetailService))
     private readonly orderDetailService: OrderDetailService,
   ) {}
+
   async getAllOrders(
     userID: number,
     limit: number,
@@ -48,7 +58,7 @@ export class OrderService {
 
     // 2. Get all orders
     const orderList = await this.orderRepo.getAllOrders(userID, skip, take);
-    this.logger.debug('Order list: ', orderList);
+    this.utilityService.logPretty('Order list: ', orderList);
 
     const result: GetAllOrdersResponseDto[] = orderList.map((o) => ({
       id: o.id,
@@ -60,7 +70,7 @@ export class OrderService {
       createdAt: o.createdAt,
       updatedAt: o.updatedAt,
     }));
-    this.logger.debug('Order list:', result);
+    this.utilityService.logPretty('Order list:', result);
 
     return plainToInstance(GetAllOrdersResponseDto, result, {
       excludeExtraneousValues: true,
@@ -71,7 +81,7 @@ export class OrderService {
   async getOrderByOrderID(orderID: number): Promise<Order> {
     // 1. Get order by order ID
     const order: Order | null = await this.orderRepo.getOrderByOrderID(orderID);
-    this.logger.debug('Order:', order);
+    this.utilityService.logPretty('Order:', order);
 
     // 2. Check order exist
     if (!order) {
@@ -83,10 +93,13 @@ export class OrderService {
     return order;
   }
 
-  async cancelOrder(orderID: number, userID: number): Promise<Order> {
+  async cancelOrder(
+    orderID: number,
+    userID: number,
+  ): Promise<OrderResponseDto> {
     // 1. Finding order
     const order: Order = await this.getOrderByOrderID(orderID);
-    this.logger.debug('Order:', order);
+    this.utilityService.logPretty('Order:', order);
 
     // 2. Update order status to cancel
     const result = await this.updateStatusOrderByOrderIDAndUserID(
@@ -94,7 +107,7 @@ export class OrderService {
       userID,
       OrderStatus.CANCELED,
     );
-    this.logger.debug('Update order status result:', result);
+    this.utilityService.logPretty('Update order status result:', result);
 
     // 3. Checking update status
     if (!result) {
@@ -104,8 +117,11 @@ export class OrderService {
       );
     }
 
-    // 4. Return order after update
-    return this.getOrderByOrderID(orderID);
+    // 4. Get new order after update
+    const newOrder: Order = await this.getOrderByOrderID(orderID);
+
+    // 5. Mapping to Order Response DTO
+    return this.mapper.map(newOrder, Order, OrderResponseDto);
   }
 
   async updateStatusOrderByOrderIDAndUserID(
@@ -118,56 +134,72 @@ export class OrderService {
 
   async createOrder(
     userID: number,
-    paymentMethod: PaymentMethod,
-    shippingMethod: ShippingMethod,
-    address: string,
-    city: string,
-    country: string,
-  ): Promise<Order> {
+    request: CreateOrderRequestDto,
+  ): Promise<OrderResponseDto> {
+    this.utilityService.logPretty('Create order request:', request);
+
     // 1. Get cart by user ID and active status
+    this.logger.verbose('Get cart by user ID and active status');
     const cart: Cart = await this.cartService.getCartByUserIDAndStatus(
       userID,
       CartStatus.ACTIVE,
     );
-    this.logger.debug('Get cart by user ID and active status result:', cart);
+    this.utilityService.logPretty(
+      'Get cart by user ID and active status result:',
+      cart,
+    );
 
     // 2. Check if cart exist
+    this.logger.verbose('Check if cart exist');
     if (!cart) {
       this.logger.error(CartMessageLog.CART_NOT_FOUND);
       throw new InternalServerErrorException(CartErrorMessage.CART_NOT_FOUND);
     }
 
     // 3. Get cart detail by user ID
-    const cartDetailsList: CartDetail[] =
-      await this.cartDetailService.getAllCartDetailByUserID(userID);
-    this.logger.debug('Get cart detail by user ID result:', cartDetailsList);
+    this.logger.verbose('Get cart detail by user ID');
+    const cartDetailsList: PaginationResponse<CartDetail> =
+      await this.cartDetailService.getAllCartDetailPagingByUserID(
+        userID,
+        0,
+        100,
+      );
+    this.utilityService.logPretty(
+      'Get cart detail by user ID result:',
+      cartDetailsList,
+    );
 
     // 4. Check if cart detail exist
-    if (cartDetailsList.length === 0) {
+    this.logger.verbose('Check if cart detail exist');
+    if (cartDetailsList.data.length === 0) {
       this.logger.warn(CartMessageLog.CART_IS_EMPTY);
       throw new InternalServerErrorException(CartErrorMessage.CART_IS_EMPTY);
     }
 
     // 5. Counting total price
-    const totalPrice: number = cartDetailsList.reduce(
+    this.logger.verbose('Counting total price');
+    const totalPrice: number = cartDetailsList.data.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
-    this.logger.debug('Total price:', totalPrice);
+    this.utilityService.logPretty('Total price:', totalPrice);
 
     // 6. Create new order
+    this.logger.verbose('Create new order');
     const orderCreated: Order = await this.orderRepo.createOrder(
       userID,
       totalPrice,
-      paymentMethod,
-      shippingMethod,
-      address,
-      city,
-      country,
+      request.paymentMethod,
+      request.shippingMethod,
+      request.address,
+      request.city,
+      request.country,
+      request.zipCode,
     );
-    this.logger.debug('Order created:', orderCreated);
+    this.utilityService.logPretty('Order created:', orderCreated);
 
     // 7. Check order create result
+    this.logger.verbose('Check order create result');
     if (!orderCreated) {
       this.logger.error(OrderMessageLog.CREATE_ORDER_FAILED);
       throw new InternalServerErrorException(
@@ -176,18 +208,100 @@ export class OrderService {
     }
 
     // 8. Create order detail for each cart detail
+    this.logger.verbose('Create order detail for each cart detail');
     const orderDetails: OrderDetail[] =
-      await this.orderDetailService.createOrderDetails(cartDetailsList);
-    this.logger.debug('Order details created:', orderDetails);
+      await this.orderDetailService.createOrderDetails(cartDetailsList.data);
+    this.utilityService.logPretty('Order details created:', orderDetails);
 
     // 9. Update cart status to orderd
+    this.logger.verbose('Update cart status to orderd');
     const result: boolean = await this.cartService.updateCartStatus(
       cart.id,
       CartStatus.ORDERED,
     );
-    this.logger.debug('Update cart status result:', result);
+    this.utilityService.logPretty('Update cart status result:', result);
 
     // 10. Return order created
-    return await this.getOrderByOrderID(orderCreated.id);
+    this.logger.verbose('Return order created');
+    const newOrder: Order = await this.getOrderByOrderID(orderCreated.id);
+    this.utilityService.logPretty('Order created:', newOrder);
+
+    // 11. Update cart detail status to orderd
+    this.logger.verbose('Update cart detail status to orderd');
+    const cartDetail: CartDetailResponse[] =
+      await this.cartDetailService.updateAllCartDetailStatusByUserID(
+        userID,
+        CartStatus.ORDERED,
+        CartDetailStatus.ORDERED,
+      );
+    this.utilityService.logPretty(
+      'Update cart detail status to orderd',
+      cartDetail,
+    );
+
+    // 12. Check remove old cart detail result
+    this.logger.verbose('Check remove old cart detail result');
+    if (!cartDetail) {
+      this.logger.error(CartMessageLog.REMOVE_CART_DETAIL_FAILED);
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    // 13. Mapping to Order Response DTO
+    this.logger.verbose('Mapping to Order Response DTO');
+    return this.mapper.map(newOrder, Order, OrderResponseDto);
+  }
+
+  async findOrderListByOrderID(
+    orderID: number,
+  ): Promise<GetAllOrdersResponseDto[]> {
+    // 1. Finding order list by order ID
+    const orderList: Order[] =
+      await this.orderRepo.findOrderListByOrderID(orderID);
+    this.utilityService.logPretty('Order list:', orderList);
+
+    // 2. Mapping to Order Response DTO
+    this.logger.verbose('Mapping to Order Response DTO');
+    const result: GetAllOrdersResponseDto[] = this.mapper.mapArray(
+      orderList,
+      Order,
+      GetAllOrdersResponseDto,
+    );
+    this.utilityService.logPretty('Result:', result);
+
+    // 3. Return result
+    this.logger.verbose('Return result');
+    return result;
+  }
+
+  async findOrderListByOrderStatusAndUserID(
+    request: FindOrderListByOrderStatusRequestDto,
+    userID: number,
+  ): Promise<GetAllOrdersResponseDto[]> {
+    // 1. Finding order list by order status
+    this.logger.verbose('Finding order list by order status');
+    const orderList: Order[] =
+      await this.orderRepo.findOrderListByOrderStatusAndUserID(
+        request.status,
+        userID,
+      );
+    this.utilityService.logPretty(
+      'Get order list by order status result:',
+      orderList,
+    );
+
+    // 2. Mapping to Get All Order Response DTO
+    this.logger.verbose('Mapping to Get All Order Response DTO');
+    const result: GetAllOrdersResponseDto[] = this.mapper.mapArray(
+      orderList,
+      Order,
+      GetAllOrdersResponseDto,
+    );
+    this.utilityService.logPretty('Result:', result);
+
+    // 3. Return result
+    this.logger.verbose('Return result');
+    return result;
   }
 }

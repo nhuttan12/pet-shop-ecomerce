@@ -1,24 +1,30 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { AutoMap } from '@automapper/classes';
+import { WishlistMappingResponseDto } from '@wishlist/dto/wishlist-mapping-response.dto';
+import { WishlistStatus } from '@wishlist/enums/wishlist-status.enum';
 import { Expose } from 'class-transformer';
 
 export class WishlistResponseDto {
   @Expose()
-  @ApiProperty({ example: 1 })
+  @AutoMap()
   id: number;
 
   @Expose()
-  @ApiProperty({ example: 2 })
-  userId: number;
+  @AutoMap()
+  userID: number;
 
   @Expose()
-  @ApiProperty({ example: 10 })
-  productId: number;
+  @AutoMap()
+  status: WishlistStatus;
 
   @Expose()
-  @ApiProperty({ example: '2025-06-05T04:21:21.000Z' })
-  created_at: Date;
+  @AutoMap(() => [WishlistMappingResponseDto])
+  wishlistMappings: WishlistMappingResponseDto[];
 
   @Expose()
-  @ApiProperty({ example: '2025-06-05T04:21:21.000Z' })
-  updated_at: Date;
+  @AutoMap()
+  createdAt: Date;
+
+  @Expose()
+  @AutoMap()
+  updatedAt: Date;
 }

@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ShippingMethod } from '@order/enums/shipping_method.enum';
+import { OrderErrorMessage } from '@order/messages/order.error-messages';
 import { PaymentErrorMessages } from '@payment/messages/payment.error-messages';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class CaptureOrderDto {
   @ApiProperty({
@@ -8,7 +10,18 @@ export class CaptureOrderDto {
       'Token được trả về từ PayPal sau khi người dùng chấp nhận thanh toán',
     example: 'EC-2A12345678901234L',
   })
-  @IsString({ message: PaymentErrorMessages.TOKEN_MUST_BE_STRING })
-  @IsNotEmpty({ message: PaymentErrorMessages.TOKEN_IS_REQUIRED })
+  @IsString({ message: PaymentErrorMessages.PAYPAL_TOKEN_MUST_BE_STRING })
+  @IsNotEmpty({ message: PaymentErrorMessages.PAYPAL_TOKEN_IS_REQUIRED })
   token: string;
+
+  @ApiProperty({
+    enum: ShippingMethod,
+    default: ShippingMethod.PICK_UP_AT_STORE,
+    description: 'Phương thức giao hàng',
+  })
+  @IsEnum(ShippingMethod, {
+    message: OrderErrorMessage.SHIPPING_METHOD_INVALID,
+  })
+  @IsNotEmpty({ message: OrderErrorMessage.SHIPPING_METHOD_IS_NOT_EMPTY })
+  shippingMethod: ShippingMethod = ShippingMethod.PICK_UP_AT_STORE;
 }

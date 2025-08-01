@@ -22,6 +22,7 @@ import { WishlistModule } from '@wishlist/wishlist.module';
 import configuration from 'common/config/configuration';
 import { typeOrmConfig } from 'common/database/typeorm.config';
 import { PaymentModule } from '@payment/payment.module';
+import { MapperModule } from './common/mapper/mapper.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { PaymentModule } from '@payment/payment.module';
     ContactModule,
     WishlistModule,
     PaymentModule,
+    MapperModule,
   ],
   providers: [
     {

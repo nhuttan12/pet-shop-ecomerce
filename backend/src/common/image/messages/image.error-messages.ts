@@ -4,4 +4,5 @@ export enum ImageErrorMessage {
   IMAGE_INVALID_FORMAT = 'Hình ảnh không hợp lệ',
   IMAGE_NOT_FOUND = 'Không tìm thấy hình ảnh',
   CANNOT_UPDATE_IMAGE = 'Không thể cập nhật hình ảnh',
+  CANNOT_REMOVE_IMAGES = 'Không thể xoá hình ảnh',
 }

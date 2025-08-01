@@ -3,6 +3,7 @@ import { CategoryErrorMessages } from '@category/messages/category.error-message
 import { SavedImageDTO } from '@images/dto/saved-image.dto';
 import { ErrorMessage } from '@messages/error.messages';
 import { ApiProperty } from '@nestjs/swagger';
+import { ProductErrorMessage } from '@product/messages/product.error-messages';
 import { Type } from 'class-transformer';
 import {
   IsString,
@@ -19,12 +20,12 @@ export class CreateProductRequest {
   @ApiProperty()
   name: string;
 
-  @IsString({ message: ErrorMessage.NAME_MUST_BE_STRING })
+  @IsString({ message: ProductErrorMessage.DESCRIPTION_MUST_BE_STRING })
   @IsNotEmpty()
   @ApiProperty()
   description: string;
 
-  @IsInt({ message: ErrorMessage.PRICE_MUST_BE_INTEGER })
+  @IsInt({ message: ProductErrorMessage.PRICE_MUST_BE_INTEGER })
   @IsNotEmpty()
   @Min(0, { message: ErrorMessage.PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER })
   @ApiProperty()
@@ -36,13 +37,14 @@ export class CreateProductRequest {
   @ApiProperty()
   brandID: number;
 
-  @IsInt({ message: ErrorMessage.PRICE_MUST_BE_INTEGER })
-  @IsNotEmpty()
+  @IsInt({ message: ProductErrorMessage.QUANTITY_MUST_BE_INTEGER })
+  @IsNotEmpty({ message: ProductErrorMessage.QUANTITY_IS_REQUIRED })
   @Min(1, { message: ErrorMessage.PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER })
   @ApiProperty()
   quantity: number;
 
-  @IsInt({ message: ErrorMessage.PRICE_MUST_BE_INTEGER })
+  @IsInt({ message: ProductErrorMessage.DISCOUNT_MUST_BE_INTEGER })
+  @IsNotEmpty()
   @Min(0, { message: ErrorMessage.PARAM_SHOULD_NOT_BE_A_NEGATIVE_NUMBER })
   @ApiProperty()
   discount: number = 0;

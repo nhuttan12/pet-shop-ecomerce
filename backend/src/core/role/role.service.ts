@@ -1,11 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RoleRepository } from '@role/repositories/role.repository';
 import { Role } from '@role/entities/roles.entity';
+import { UtilityService } from '@services/utility.service';
 
 @Injectable()
 export class RoleService {
   private readonly logger = new Logger(RoleService.name);
-  constructor(private readonly roleRepo: RoleRepository) {}
+
+  constructor(
+    private readonly utilityService: UtilityService,
+    private readonly roleRepo: RoleRepository,
+  ) {}
 
   /**
    * @description: get role information with the
@@ -15,7 +20,7 @@ export class RoleService {
    */
   async getRoleById(id: number): Promise<Role> {
     const role: Role = await this.roleRepo.getRoleById(id);
-    this.logger.debug('Role: ', role);
+    this.utilityService.logPretty('Role: ', role);
 
     return role;
   }
@@ -28,7 +33,7 @@ export class RoleService {
    */
   async getRoleByName(name: string): Promise<Role> {
     const role: Role = await this.roleRepo.getRoleByName(name);
-    this.logger.debug('Role: ', role);
+    this.utilityService.logPretty('Role: ', role);
 
     return role;
   }

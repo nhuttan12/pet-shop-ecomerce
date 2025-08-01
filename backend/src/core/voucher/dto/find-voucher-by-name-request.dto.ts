@@ -1,6 +1,7 @@
 import { NotUrlValidator } from '@class-validator/not-url.validator';
 import { ErrorMessage } from '@messages/error.messages';
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
+import { VoucherErrorMessage } from '@voucher/messages/voucher.error-messages';
 import { Type } from 'class-transformer';
 import {
   IsOptional,
@@ -26,7 +27,7 @@ export class FindVoucherByCodeRequestDto {
   @Min(10, { message: ErrorMessage.LIMIT_HAVE_AT_LEAST_10 })
   limit: number;
 
-  @IsString({ message: ErrorMessage.NAME_MUST_BE_STRING })
+  @IsString({ message: VoucherErrorMessage.VOUCHER_CODE_MUST_BE_STRING })
   @Validate(NotUrlValidator)
   @IsNotEmpty()
   @ApiProperty()

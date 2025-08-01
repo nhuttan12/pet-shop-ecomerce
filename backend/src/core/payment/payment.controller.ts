@@ -29,6 +29,9 @@ import {
   ApiResponse as SwaggerResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { GetUser } from '@decorators/user.decorator';
+import { JwtPayload } from '@auth/interfaces/jwt-payload.interface';
+import { UtilityService } from '@services/utility.service';
 
 @ApiTags('Payment')
 @Controller('payment')
@@ -38,7 +41,11 @@ import {
 @UseFilters(CatchEverythingFilter)
 export class PaymentController {
   private readonly logger = new Logger(PaymentController.name);
-  constructor(private readonly paymentService: PaymentService) {}
+
+  constructor(
+    private readonly utilityService: UtilityService,
+    private readonly paymentService: PaymentService,
+  ) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Tạo đơn hàng PayPal' })
@@ -55,12 +62,24 @@ export class PaymentController {
     },
   })
   async createOrder(@Body() dto: CreateOrderDto): Promise<ApiResponse<string>> {
-    const order: string = await this.paymentService.createOrder(dto); // trả về approvalUrl
-    return {
+    this.utilityService.logPretty('Get dto from client', dto);
+
+    // 1. Create order paypal
+    this.logger.verbose('Create order paypal');
+    const order: string = await this.paymentService.createOrder(dto);
+    this.utilityService.logPretty('Create order for paypal result:', order);
+
+    // 2. Create response
+    this.logger.verbose('Create response for paypal order');
+    const response: ApiResponse<string> = {
       statusCode: HttpStatus.OK,
       message: PaymentNotifyMessage.CREATE_ORDER_SUCCESSFUL,
       data: order,
     };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 3. Return response to client
+    return response;
   }
 
   @Get('success')
@@ -77,13 +96,30 @@ export class PaymentController {
       },
     },
   })
-  async capture(@Query() query: CaptureOrderDto): Promise<ApiResponse<Status>> {
-    const result: Order = await this.paymentService.captureOrder(query.token);
+  async capture(
+    @Query() dto: CaptureOrderDto,
+    @GetUser() payload: JwtPayload,
+  ): Promise<ApiResponse<Status>> {
+    // 1. Get dto and payload from client
+    this.utilityService.logPretty('Get dto from client:', dto);
+    this.utilityService.logPretty('Get payload from client:', payload);
 
-    return {
+    // 2. Capture order
+    const result: Order = await this.paymentService.captureOrder(
+      dto,
+      payload.sub,
+    );
+    this.utilityService.logPretty('Capture order', result);
+
+    // 3. Create response
+    const response: ApiResponse<Status> = {
       message: PaymentNotifyMessage.CAPTURE_ORDER_SUCCESSFUL,
       statusCode: HttpStatus.OK,
       data: result.status,
     };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 4. Return response to client
+    return response;
   }
 }

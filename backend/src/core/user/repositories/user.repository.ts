@@ -1,13 +1,9 @@
-import { Image } from '@images/entites/images.entity';
-import { SubjectType } from '@images/enums/subject-type.enum';
 import { ImageService } from '@images/image.service';
 import { ErrorMessage } from '@messages/error.messages';
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { buildPaginationMeta } from '@pagination/build-pagination-meta';
@@ -21,7 +17,7 @@ import { UserStatus } from '@user/enums/user-status.enum';
 import { UserErrorMessage } from '@user/messages/user.error-messages';
 import { UserMessageLog } from '@user/messages/user.messages-log';
 import { plainToInstance } from 'class-transformer';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, In, Like, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class UserRepository {
@@ -32,6 +28,34 @@ export class UserRepository {
     private readonly dataSource: DataSource,
     private readonly imageService: ImageService,
   ) {}
+
+  async findUserListByID(
+    id: number,
+    skip: number,
+    take: number,
+  ): Promise<PaginationResponse<User>> {
+    // 1. Convert id from number to string
+    const idString: string = id.toString();
+
+    // 2. Use LIKE operator to get users
+    const [userList, totalUsers] = await this.userRepo
+      .createQueryBuilder('user')
+      .where('CAST(user.id AS CHAR) like :pattern', {
+        pattern: `%${idString}%`,
+      })
+      .getManyAndCount();
+
+    // 3. Calculate current page
+    const currentPage: number = Math.floor(skip / take) + 1;
+
+    // 4. Calculate meta
+    const meta = buildPaginationMeta(totalUsers, currentPage, take);
+
+    return {
+      data: userList,
+      meta,
+    };
+  }
 
   async getUserById(id: number): Promise<User | null> {
     return this.userRepo.findOne({ where: { id }, relations: { role: true } });
@@ -50,11 +74,31 @@ export class UserRepository {
   }
 
   async findUsersByUsername(username: string): Promise<User[]> {
-    return this.userRepo.findBy({ username });
+    return this.userRepo.find({ where: { username } });
   }
 
-  async findUsersByName(name: string): Promise<User[]> {
-    return this.userRepo.findBy({ name });
+  async findUsersByName(
+    name: string,
+    take: number,
+    skip: number,
+  ): Promise<PaginationResponse<User>> {
+    // 1. Get user list and total users
+    const [userList, totalUsers] = await this.userRepo.findAndCount({
+      where: { name: Like(`%${name}%`) },
+      take,
+      skip,
+    });
+
+    // 2. Calculate current page
+    const currentPage: number = Math.floor(skip / take) + 1;
+
+    // 3. Calculate meta
+    const meta = buildPaginationMeta(totalUsers, currentPage, take);
+
+    return {
+      data: userList,
+      meta,
+    };
   }
 
   async findUsersByEmail(email: string): Promise<User[]> {
@@ -176,63 +220,43 @@ export class UserRepository {
     });
   }
 
-  async updateUser(userUpdateDTO: UserUpdateDTO): Promise<User> {
-    return await this.dataSource.transaction(async (manager) => {
-      const user: User | null = await this.getUserById(userUpdateDTO.id);
-
-      if (!user) {
-        this.logger.error(UserMessageLog.USER_NOT_FOUND);
-        throw new NotFoundException(UserErrorMessage.USER_NOT_FOUND);
-      }
-
-      const userWithEmail: User | null = await this.getUserByEmail(
-        userUpdateDTO.email,
-      );
-
-      if (userWithEmail) {
-        this.logger.error(UserMessageLog.USER_EMAIL_EXIST);
-        throw new BadRequestException(UserErrorMessage.USER_EMAIL_EXIST);
-      }
-
-      await manager.update(User, userUpdateDTO.id, {
-        name: userUpdateDTO.name,
-        email: userUpdateDTO.email,
-        updatedAt: new Date(),
-      });
-
-      const newImage: Image = await this.imageService.saveImage(
-        userUpdateDTO.image,
-        userUpdateDTO.id,
-        SubjectType.USER,
-      );
-
-      await manager.update(UserDetail, userUpdateDTO.id, {
-        phone: userUpdateDTO.phone,
-        adress: userUpdateDTO.address,
-      });
-
-      await this.imageService.updateImageForSubsject(
-        manager,
-        userUpdateDTO.id,
-        SubjectType.USER,
-        newImage.url,
-        newImage.type,
-        newImage.folder,
-      );
-
-      const updatedUser: User | null = await this.getUserWithUserDetailAndRole(
-        userUpdateDTO.id,
-      );
-
-      if (!updatedUser) {
-        this.logger.error(UserMessageLog.USER_NOT_FOUND_AFTER_UDPATED);
-        throw new InternalServerErrorException(
-          UserErrorMessage.USER_NOT_FOUND_AFTER_UDPATED,
+  async updateUser(userUpdateDTO: UserUpdateDTO): Promise<boolean> {
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const userUpdateResult: UpdateResult = await manager.update(
+          User,
+          userUpdateDTO.id,
+          {
+            name: userUpdateDTO.name,
+            email: userUpdateDTO.email,
+            updatedAt: new Date(),
+          },
         );
-      }
 
-      return updatedUser;
-    });
+        const userDetailUpdateResult: UpdateResult = await manager.update(
+          UserDetail,
+          userUpdateDTO.id,
+          {
+            phone: userUpdateDTO.phone,
+            // adress: userUpdateDTO.address,
+            birhDate: userUpdateDTO.birthDate,
+            gender: userUpdateDTO.gender,
+          },
+        );
+
+        if (
+          userUpdateResult.affected !== 1 ||
+          userDetailUpdateResult.affected !== 1
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+    } catch (error) {
+      this.logger.error('Error', error);
+      throw error;
+    }
   }
 
   async updatePassword(id: number, password: string) {
@@ -254,5 +278,22 @@ export class UserRepository {
         .where('user.id = :id', { id: userID })
         .getOne();
     });
+  }
+
+  async getUserProfileByUserID(userID: number): Promise<User | null> {
+    try {
+      return this.userRepo.findOne({
+        where: {
+          id: userID,
+        },
+        relations: {
+          userDetail: true,
+          role: true,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Error', error);
+      throw error;
+    }
   }
 }

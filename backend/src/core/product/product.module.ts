@@ -12,9 +12,11 @@ import { ProductRatingRepository } from '@product/repositories/product-rating.re
 import { ProductRepository } from '@product/repositories/product.repository';
 import { UtilityModule } from '@services/utility.module';
 import { UsersModule } from '@user/user.module';
+import { MapperModule } from 'common/mapper/mapper.module';
 
 @Module({
   imports: [
+    MapperModule,
     UtilityModule,
     ImageModule,
     UsersModule,

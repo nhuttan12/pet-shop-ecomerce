@@ -3,11 +3,13 @@ import { Category } from '@category/entities/categories.entity';
 import { CategoryMappingRepository } from '@category/repositories/category-mapping.repository';
 import { Injectable, Logger } from '@nestjs/common';
 import { Product } from '@product/entites/products.entity';
+import { UtilityService } from '@services/utility.service';
 
 @Injectable()
 export class CategoryMappingService {
   private readonly logger = new Logger(CategoryMappingService.name);
   constructor(
+    private readonly utilityService: UtilityService,
     private readonly categoryMappingRepo: CategoryMappingRepository,
   ) {}
 
@@ -25,14 +27,21 @@ export class CategoryMappingService {
     return await this.categoryMappingRepo.removeCategoryMapping(id);
   }
 
-  async findCategoryMappingListWithProduct(
-    product: Product,
+  async findCategoryMappingListWithProductID(
+    productID: number,
   ): Promise<CategoryMapping[]> {
-    const categoryMapping: CategoryMapping[] =
-      await this.categoryMappingRepo.findCategoryMappingListWithProduct(
-        product,
-      );
+    try {
+      // 1. Get category mapping list with product
+      const categoryMapping: CategoryMapping[] =
+        await this.categoryMappingRepo.findCategoryMappingListWithProductID(
+          productID,
+        );
+      this.utilityService.logPretty('Category mapping list: ', categoryMapping);
 
-    return categoryMapping;
+      return categoryMapping;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
   }
 }

@@ -35,5 +35,7 @@ export enum ProductErrorMessage {
   STAR_RATED_MUST_BE_POSITIVE = 'Số sao đánh giá phải lớn hơn 0.',
   STAR_RATED_REQUIRED = 'Số sao đánh giá là bắt buộc.',
   QUANTITY_IS_REQUIRED = 'Số lượng không được để trống',
-  QUANTITY_MUST_BE_POSITIVE = 'Số lượng phải là số nguyên',
+  QUANTITY_MUST_BE_POSITIVE = 'Số lượng phải là số dương',
+  DISCOUNT_MUST_BE_INTEGER = 'Tỉ lệ chiết khấu phải là số nguyên',
+  QUANTITY_MUST_BE_INTEGER = 'Số lượng phải là số nguyên',
 }

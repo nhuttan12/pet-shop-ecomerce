@@ -10,9 +10,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductModule } from '@product/product.module';
 import { UtilityModule } from '@services/utility.module';
+import { MapperModule } from 'common/mapper/mapper.module';
 
 @Module({
   imports: [
+    MapperModule,
     UtilityModule,
     ProductModule,
     ImageModule,

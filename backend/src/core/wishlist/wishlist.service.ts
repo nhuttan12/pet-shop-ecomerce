@@ -1,3 +1,5 @@
+import { Mapper } from '@automapper/core';
+import { InjectMapper } from '@automapper/nestjs';
 import {
   ConflictException,
   forwardRef,
@@ -6,6 +8,8 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { UtilityService } from '@services/utility.service';
+import { WishlistResponseDto } from '@wishlist/dto/wishlist-response.dto';
 import { Wishlist } from '@wishlist/entities/wishlists.entity';
 import { WishlistErrorMessage } from '@wishlist/messages/wishlist.error-messages';
 import { WishlistMessageLog } from '@wishlist/messages/wishlist.message-logs';
@@ -16,6 +20,8 @@ import { WishListMappingService } from '@wishlist/wishlist-mapping.service';
 export class WishlistService {
   private readonly logger = new Logger(WishlistService.name);
   constructor(
+    @InjectMapper() private readonly mapper: Mapper,
+    private readonly utility: UtilityService,
     private readonly wishlistRepo: WishlistRepository,
     @Inject(forwardRef(() => WishListMappingService))
     private readonly wishlistMappingService: WishListMappingService,
@@ -29,12 +35,15 @@ export class WishlistService {
    * @throws ConflictException if the product already exists in the wishlist
    * @throws InternalServerErrorException if creation fails
    */
-  async createWishList(userID: number, productID: number): Promise<Wishlist> {
+  async createWishList(
+    userID: number,
+    productID: number,
+  ): Promise<WishlistResponseDto> {
     try {
       // 1. Get wishlist
       let wishlist: Wishlist | null =
         await this.wishlistRepo.getWishtListByUserID(userID);
-      this.logger.debug(`Wishlist: ${JSON.stringify(wishlist)}`);
+      this.utility.logPretty('Wishlist: ', wishlist);
 
       // 2. Check wishlist exist
       if (!wishlist) {
@@ -76,18 +85,28 @@ export class WishlistService {
    */
   async getWishlistAndWishlistMappingByUserID(
     userID: number,
-  ): Promise<Wishlist> {
+  ): Promise<WishlistResponseDto> {
     // 1. Get wishlist
-    const wishtlist: Wishlist | null =
+    const wishlist: Wishlist | null =
       await this.wishlistRepo.getWishlistAndWishlistMappingByUserID(userID);
+    this.utility.logPretty('Wishlist: ', wishlist);
 
     // 2. Check wishlist exist
-    if (!wishtlist) {
+    if (!wishlist) {
       this.logger.warn(WishlistMessageLog.WISHLIST_NOT_FOUND);
       throw new NotFoundException(WishlistErrorMessage.WISHLIST_NOT_FOUND);
     }
 
-    return wishtlist;
+    // 3. Mapping to wishlist response
+    const wishlistResponse: WishlistResponseDto = this.mapper.map(
+      wishlist,
+      Wishlist,
+      WishlistResponseDto,
+    );
+    this.utility.logPretty('WishlistResponse: ', wishlistResponse);
+
+    // 4. Return wishlist mapped
+    return wishlistResponse;
   }
 
   async getWishtListByUserID(userID: number): Promise<Wishlist | null> {

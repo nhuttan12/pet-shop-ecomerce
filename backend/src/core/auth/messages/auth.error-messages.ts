@@ -23,4 +23,6 @@ export enum AuthErrorMessages {
 
   USER_IS_FORBIDDEN_TO_APPROACH_THE_RESOURCE = 'Bạn không có quyền để truy cập tài nguyên này',
   USER_NOT_EXISTS = 'Tài khoản không tồn tại',
+  INVALID_RESET_TOKEN = 'Token không hợp lệ',
+  TOKEN_IS_REQUIRED = 'Token không được để trống'
 }

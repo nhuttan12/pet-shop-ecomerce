@@ -1,3 +1,4 @@
+import { AutoMap } from '@automapper/classes';
 import { Brand } from '@brand/entities/brands.entity';
 import { CartDetail } from '@cart/entities/cart-details.entity';
 import { CategoryMapping } from '@category/entities/categories-mapping.entity';
@@ -19,37 +20,47 @@ import {
 @Entity('products')
 export class Product {
   @PrimaryGeneratedColumn()
+  @AutoMap()
   id: number;
 
   @Column({ type: 'varchar', length: 100 })
+  @AutoMap()
   name: string;
 
   @Column('text')
+  @AutoMap()
   description: string;
 
   @Column('int')
+  @AutoMap()
   price: number;
 
   @ManyToOne(() => Brand, { nullable: false })
   @JoinColumn({ name: 'brand_id' })
+  @AutoMap(() => Brand)
   brand: Brand;
 
   @Column({
     type: 'enum',
     enum: ProductStatus,
   })
+  @AutoMap()
   status: ProductStatus;
 
   @Column('int')
+  @AutoMap()
   stocking: number;
 
   @Column('int')
+  @AutoMap()
   discount: number;
 
   @CreateDateColumn({ name: 'created_at' })
+  @AutoMap()
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
+  @AutoMap()
   updatedAt: Date;
 
   @OneToMany(
@@ -62,6 +73,7 @@ export class Product {
     () => CategoryMapping,
     (categoryMapping: CategoryMapping) => categoryMapping.product,
   )
+  @AutoMap()
   categoriesMapping: CategoryMapping[];
 
   @OneToMany(() => CartDetail, (cartDetail: CartDetail) => cartDetail.product)

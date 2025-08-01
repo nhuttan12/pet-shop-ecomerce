@@ -69,17 +69,23 @@ export class CategoryMappingRepository {
     }
   }
 
-  async findCategoryMappingListWithProduct(
-    product: Product,
+  async findCategoryMappingListWithProductID(
+    productID: number,
   ): Promise<CategoryMapping[]> {
     try {
-      // return await this.categoryMappingRepo.findBy({ product });
-      return await this.categoryMappingRepo
-        .createQueryBuilder('categoryMapping')
-        .leftJoinAndSelect('categoryMapping.category', 'category')
-        .orderBy('categoryMapping.id', 'ASC')
-        .where('product.id = :id', { id: product.id })
-        .getMany();
+      return await this.categoryMappingRepo.find({
+        where: {
+          product: {
+            id: productID,
+          },
+        },
+        relations: {
+          category: true,
+        },
+        order: {
+          id: 'ASC',
+        },
+      });
     } catch (error) {
       this.logger.error(error);
       throw error;
