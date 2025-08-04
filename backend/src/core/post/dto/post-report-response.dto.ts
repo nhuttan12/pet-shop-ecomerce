@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PostReportStatus } from '@post/enums/post-report-status.enum';
 import { Expose } from 'class-transformer';
+import { AutoMap } from '@automapper/classes';
 
 export class PostReportResponseDto {
   @ApiProperty({
@@ -9,6 +10,7 @@ export class PostReportResponseDto {
     type: Number,
   })
   @Expose()
+  @AutoMap()
   id: number;
 
   @ApiProperty({
@@ -17,6 +19,7 @@ export class PostReportResponseDto {
     type: String,
   })
   @Expose()
+  @AutoMap()
   postTitle: string;
 
   @ApiProperty({
@@ -25,6 +28,7 @@ export class PostReportResponseDto {
     type: String,
   })
   @Expose()
+  @AutoMap()
   userName: string;
 
   @ApiProperty({
@@ -33,6 +37,7 @@ export class PostReportResponseDto {
     type: String,
   })
   @Expose()
+  @AutoMap()
   status: PostReportStatus | string;
 
   @ApiProperty({
@@ -41,6 +46,7 @@ export class PostReportResponseDto {
     type: String,
   })
   @Expose()
+  @AutoMap()
   description: string;
 
   @ApiProperty({
@@ -49,5 +55,6 @@ export class PostReportResponseDto {
     type: String,
   })
   @Expose()
+  @AutoMap()
   createdAt: Date | string;
 }

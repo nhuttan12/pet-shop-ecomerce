@@ -9,7 +9,7 @@ export class RemoveCommentRequestDto {
   })
   @IsInt({ message: CommentErrorMessage.COMMENT_ID_MUST_BE_INTEGER })
   @Min(1, { message: CommentErrorMessage.COMMENT_ID_MUST_BE_POSITIVE })
-  commentId: number;
+  commentID: number;
 
   @ApiProperty({
     example: 1,
@@ -17,5 +17,5 @@ export class RemoveCommentRequestDto {
   })
   @IsInt({ message: CommentErrorMessage.POST_ID_MUST_BE_INTEGER })
   @Min(1, { message: CommentErrorMessage.POST_ID_MUST_BE_POSITIVE })
-  postId: number;
+  postID: number;
 }

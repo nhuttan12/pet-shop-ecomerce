@@ -1,16 +1,23 @@
-import { useEffect } from "react";
-import { useGetComments } from "../../../hooks/forum/comment/useGetComments";
+import { useEffect } from 'react';
+import { useGetComments } from '../../../hooks/forum/comment/useGetComments';
 
 interface CommentListProps {
-  postId: number;
+  postID: number;
   reloadTrigger?: boolean;
 }
 
-const CommentList: React.FC<CommentListProps> = ({ postId, reloadTrigger }) => {
-  const { comments = [], loading, error } = useGetComments(postId, reloadTrigger);
+const CommentList: React.FC<CommentListProps> = ({ postID, reloadTrigger }) => {
+  const {
+    comments = [],
+    loading,
+    error,
+    refetch,
+  } = useGetComments(postID, reloadTrigger);
 
   useEffect(() => {
-    // Trigger re-fetch by re-calling hook logic — in this setup, useGetComments needs to accept reloadTrigger as dependency
+    if(reloadTrigger) {
+      refetch();
+    }
   }, [reloadTrigger]);
 
   if (loading) return <p>Đang tải bình luận...</p>;
@@ -25,7 +32,8 @@ const CommentList: React.FC<CommentListProps> = ({ postId, reloadTrigger }) => {
           <div key={comment.id} className="border p-2 rounded">
             <p className="text-sm">{comment.content}</p>
             <p className="text-xs text-gray-500">
-              bởi <strong>{comment.author}</strong> - {comment.createdAt}
+              bởi <strong>{comment.authorName}</strong> -{' '}
+              {comment.createdAt.toString()}
             </p>
           </div>
         ))

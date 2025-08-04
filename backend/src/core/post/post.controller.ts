@@ -36,13 +36,14 @@ import { GetAllPostReportsRequestDto } from '@post/dto/get-all-post-report-reque
 import { GetAllPostsRequestDto } from '@post/dto/get-all-posts-request.dto';
 import { PostReportResponseDto } from '@post/dto/post-report-response.dto';
 import { PostResponse } from '@post/dto/post-response.dto';
-import { ReportPostDto } from '@post/dto/report-post-request.dto';
+import { ReportPostRequestDto } from '@post/dto/report-post-request.dto';
 import { SendRequestChangingPostDto } from '@post/dto/send-request-edit.post.dto';
 import { PostNotifyMessage } from '@post/messages/post.notify-message';
 import { PostEditRequestService } from '@post/post-edit-request.service';
 import { PostReportService } from '@post/post-report.service';
 import { PostService } from '@post/post.service';
 import { RoleName } from '@role/enums/role.enum';
+import { UtilityService } from '@services/utility.service';
 
 @Controller('/post')
 @ApiTags('Post')
@@ -51,7 +52,9 @@ import { RoleName } from '@role/enums/role.enum';
 @UseFilters(CatchEverythingFilter)
 export class PostController {
   private readonly logger = new Logger(PostController.name);
+
   constructor(
+    private readonly utilityService: UtilityService,
     private readonly postService: PostService,
     private readonly postEditRequestSerivce: PostEditRequestService,
     private readonly postReportService: PostReportService,
@@ -78,12 +81,23 @@ export class PostController {
   async getAllPosts(
     @Query() request: GetAllPostsRequestDto,
   ): Promise<ApiResponse<PostResponse[]>> {
-    const posts = await this.postService.getAllPosts(request);
-    return {
+    // 1. Call get all posts in service
+    this.logger.verbose('Call get all posts in service');
+    const posts: PostResponse[] = await this.postService.getAllPosts(request);
+    this.utilityService.logPretty('Call get all posts in service', posts);
+
+    // 2. Create response
+    this.logger.verbose('Create response for client');
+    const response: ApiResponse<PostResponse[]> = {
       statusCode: HttpStatus.OK,
       message: PostNotifyMessage.GET_POST_SUCCESSFUL,
       data: posts,
     };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 3. Return response to client
+    this.logger.verbose('Return response to client');
+    return response;
   }
 
   @Post('/create')
@@ -95,21 +109,33 @@ export class PostController {
     description: PostNotifyMessage.CREATE_POST_SUCCESSFUL,
   })
   async createPost(
-    @GetUser() authorId: JwtPayload,
     @Body() dto: CreatePostRequestDto,
+    @GetUser() user: JwtPayload,
   ): Promise<ApiResponse<PostResponse>> {
-    this.logger.debug(`Author: ${JSON.stringify(authorId)}`);
-    const post = await this.postService.createPost(authorId.sub, dto);
-    this.logger.debug(`Post: ${JSON.stringify(post)}`);
+    // 1. Get user from token
+    this.logger.verbose('Get user from token');
+    this.utilityService.logPretty('Get user from token', user);
 
-    return {
+    // 2. Create post
+    this.logger.verbose('Create post');
+    const post: PostResponse = await this.postService.createPost(user.sub, dto);
+    this.utilityService.logPretty('Create post', post);
+
+    // 3. Create response
+    this.logger.verbose('Create response for client');
+    const response: ApiResponse<PostResponse> = {
       statusCode: HttpStatus.CREATED,
       message: PostNotifyMessage.CREATE_POST_SUCCESSFUL,
       data: post,
     };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 4. Return response to client
+    this.logger.verbose('Return response to client');
+    return response;
   }
 
-  @Patch('edit/:postId')
+  @Patch('edit')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Chỉnh sửa bài viết' })
   @ApiParam({ name: 'postId', type: Number, description: 'ID bài viết' })
@@ -119,21 +145,37 @@ export class PostController {
     description: PostNotifyMessage.UPDATE_POST_SUCCESSFUL,
   })
   async editPost(
-    @Param('postId', ParseIntPipe) postId: number,
-    @GetUser() user: JwtPayload,
     @Body() editPostDto: EditPostRequestDto,
+    @GetUser() user: JwtPayload,
   ): Promise<ApiResponse<PostResponse>> {
-    const post = await this.postService.editPost(user.sub, editPostDto);
-    this.logger.debug(`Post: ${JSON.stringify(post)}`);
+    // 1. Get user from token
+    this.logger.verbose('Get user from token');
+    this.utilityService.logPretty('Get user from token', user);
 
-    return {
+    // 2. Edit post
+    this.logger.verbose('Update post');
+    const post: PostResponse = await this.postService.editPost(
+      user.sub,
+      editPostDto,
+    );
+    this.utilityService.logPretty('Update post', post);
+
+    // 3. Create response
+    this.logger.verbose('Create response for client');
+    const response: ApiResponse<PostResponse> = {
       statusCode: HttpStatus.OK,
       message: PostNotifyMessage.UPDATE_POST_SUCCESSFUL,
       data: post,
     };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 4. Return response to client
+    this.logger.verbose('Return response to client');
+    return response;
   }
 
-  @Delete('remove/:postId')
+  @Delete('remove')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Xoá (ẩn) bài viết' })
   @ApiBody({ type: DeletePostRequestDto })
   @SwaggerApiResponse({
@@ -141,16 +183,34 @@ export class PostController {
     description: PostNotifyMessage.DELETE_POST_SUCCESSFUL,
   })
   async removePost(
-    @Body() { postID }: DeletePostRequestDto,
+    @Body() request: DeletePostRequestDto,
+    @GetUser() user: JwtPayload,
   ): Promise<ApiResponse<PostResponse>> {
-    const post = await this.postService.removePost(postID);
-    this.logger.debug(`Post: ${JSON.stringify(post)}`);
+    // 1. Get request from client
+    this.logger.verbose('Get request from client');
+    this.utilityService.logPretty('Get request from client', request);
 
-    return {
+    // 2. Get user from token
+    this.logger.verbose('Get user from token');
+    this.utilityService.logPretty('Get user from token', user);
+
+    // 3. Call remove post in service
+    this.logger.verbose('Call remove post in service');
+    const post = await this.postService.removePost(request.postID, user.sub);
+    this.utilityService.logPretty('Call remove post in service result', post);
+
+    // 4. Create response
+    this.logger.verbose('Create response for client');
+    const response: ApiResponse<PostResponse> = {
       statusCode: HttpStatus.OK,
       message: PostNotifyMessage.DELETE_POST_SUCCESSFUL,
       data: post,
     };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 5. Return response to client
+    this.logger.verbose('Return response to client');
+    return response;
   }
 
   @Post('request-edit')
@@ -194,7 +254,7 @@ export class PostController {
     description:
       'Report a specific post by its ID with a description of the issue.',
   })
-  @ApiBody({ type: ReportPostDto })
+  @ApiBody({ type: ReportPostRequestDto })
   @SwaggerApiResponse({
     status: 200,
     description: 'Report submitted successfully',
@@ -211,22 +271,38 @@ export class PostController {
     description: 'You have already reported this post',
   })
   async postReport(
+    @Body() request: ReportPostRequestDto,
     @GetUser() user: JwtPayload,
-    @Body() { postId, description }: ReportPostDto,
-  ): Promise<ApiResponse<string>> {
-    const reportPost = await this.postReportService.reportPost(
-      postId,
-      description,
-      user.sub,
-    );
-    this.logger.debug(`Report Post: ${reportPost}`);
+  ): Promise<ApiResponse<PostReportResponseDto>> {
+    // 1. Get request from client
+    this.logger.verbose('Get request from client');
+    this.utilityService.logPretty('Get request from client', request);
 
-    return {
+    // 2. Get user from token
+    this.logger.verbose('Get user from token');
+    this.utilityService.logPretty('Get user from token', user);
+
+    // 3. Call report post in service
+    this.logger.verbose('Call report post in service');
+    const reportPost: PostReportResponseDto =
+      await this.postReportService.reportPost(request, user.sub);
+    this.utilityService.logPretty(
+      'Call report post in service result',
+      reportPost,
+    );
+
+    // 4. Create response
+    this.logger.verbose('Create response for client');
+    const response: ApiResponse<PostReportResponseDto> = {
       statusCode: HttpStatus.OK,
-      message: reportPost
-        ? PostNotifyMessage.POST_REPORT_SUCCESSFUL
-        : PostNotifyMessage.POST_REPORT_FAIL,
+      message: PostNotifyMessage.POST_REPORT_SUCCESSFUL,
+      data: reportPost,
     };
+    this.utilityService.logPretty('Create response for client', response);
+
+    // 5. Return response to client
+    this.logger.verbose('Return response to client');
+    return response;
   }
 
   @Get('post-report')

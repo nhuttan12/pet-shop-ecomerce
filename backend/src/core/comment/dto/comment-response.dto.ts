@@ -1,14 +1,10 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { AutoMap } from '@automapper/classes';
 
-export class PostResponse {
+export class CommentResponseDto {
   @Expose()
   @AutoMap()
   id: number;
-
-  @Expose()
-  @AutoMap()
-  title: string;
 
   @Expose()
   @AutoMap()
@@ -24,17 +20,14 @@ export class PostResponse {
 
   @Expose()
   @AutoMap()
-  status: string;
-
-  @Expose()
-  @AutoMap()
-  hasPendingEditRequest: boolean;
-
-  @Expose()
-  @AutoMap()
   createdAt: Date;
 
   @Expose()
   @AutoMap()
-  updatedAt: Date;
+  parentID: number | null;
+
+  @Expose()
+  @AutoMap(() => [CommentResponseDto])
+  @Type(() => CommentResponseDto)
+  replies: CommentResponseDto[];
 }

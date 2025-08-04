@@ -1,10 +1,10 @@
 // src/hooks/forum/post/useGetPosts.tsx
 import { useState, useEffect } from 'react';
-import { getPosts } from '../../../service/forum/postService'; 
-import { Post } from '../../../types/Forum';
+import { getPosts } from '../../../service/forum/postService';
+import { PostResponse } from '../../../common/dto/post/post-response.dto';
 
 export const useGetPosts = (page = 1, limit = 10, refresh = false) => {
-  const [data, setData] = useState<Post[]>([]);  
+  const [data, setData] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -12,7 +12,7 @@ export const useGetPosts = (page = 1, limit = 10, refresh = false) => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const result = await getPosts(limit, page);
+        const result = await getPosts({ limit, page });
         console.log('Posts fetched:', result.data);
         setData(result.data || []);
       } catch (err) {
@@ -23,7 +23,7 @@ export const useGetPosts = (page = 1, limit = 10, refresh = false) => {
     };
 
     fetchPosts();
-  }, [page, limit, refresh]);  // <-- thêm refresh vào dependency
+  }, [page, limit, refresh]); 
 
   return { data, loading, error };
 };

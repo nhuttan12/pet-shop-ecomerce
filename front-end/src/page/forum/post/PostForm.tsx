@@ -10,9 +10,17 @@ interface Props {
   submitting?: boolean;
 }
 
-const PostForm: React.FC<Props> = ({ title, content, error, onChange, onSubmit, isLoggedIn, submitting }) => {
+const PostForm: React.FC<Props> = ({
+  title,
+  content,
+  error,
+  onChange,
+  onSubmit,
+  isLoggedIn,
+  submitting
+}) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
+    <div>
       <h2 className="text-lg font-semibold mb-4">Tạo bài viết mới</h2>
       {isLoggedIn ? (
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
@@ -24,6 +32,7 @@ const PostForm: React.FC<Props> = ({ title, content, error, onChange, onSubmit, 
             className="border p-2 rounded"
             disabled={submitting}
           />
+
           <textarea
             name="content"
             value={content}
@@ -33,10 +42,12 @@ const PostForm: React.FC<Props> = ({ title, content, error, onChange, onSubmit, 
             className="border p-2 rounded"
             disabled={submitting}
           />
+
           {error && <p className="text-red-500 text-sm">{error}</p>}
+
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+            className="bg-orange-600 text-white px-4 py-2 rounded disabled:opacity-50"
             disabled={submitting}
           >
             {submitting ? 'Đang đăng...' : 'Đăng bài'}

@@ -1,6 +1,7 @@
 // src/components/forum/comment/CommentForm.tsx
-import { useState } from "react";
-import { useCreateComment } from "../../../hooks/forum/comment/useCreateComment";
+import { useState } from 'react';
+import { useCreateComment } from '../../../hooks/forum/comment/useCreateComment';
+import { useAuth } from '../../../contexts/AuthContext.tsx';
 
 interface CommentFormProps {
   postId: number;
@@ -8,8 +9,9 @@ interface CommentFormProps {
 }
 
 const CommentForm: React.FC<CommentFormProps> = ({ postId, onSuccess }) => {
-  const [content, setContent] = useState("");
-  const { submit, loading, error } = useCreateComment();
+  const [content, setContent] = useState('');
+  const { token } = useAuth();
+  const { submit, loading, error } = useCreateComment(token ?? '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +19,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ postId, onSuccess }) => {
 
     try {
       await submit(content, postId);
-      setContent(""); // Clear input
+      setContent(''); // Clear input
       onSuccess?.(); // Callback reload comments nếu có
     } catch (err) {
       // lỗi đã xử lý trong hook, không cần làm gì thêm
@@ -40,7 +42,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ postId, onSuccess }) => {
         className="bg-blue-500 text-white px-4 py-1 rounded w-fit"
         disabled={loading}
       >
-        {loading ? "Đang gửi..." : "Gửi bình luận"}
+        {loading ? 'Đang gửi...' : 'Gửi bình luận'}
       </button>
     </form>
   );
