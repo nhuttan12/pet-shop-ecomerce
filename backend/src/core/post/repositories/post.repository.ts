@@ -11,57 +11,53 @@ import { Post } from '@post/entities/posts.entity';
 import { PostStatus } from '@post/enums/posts-status.enum';
 import { PostMessageLog } from '@post/messages/post.messages-log';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
+import { UtilityService } from '@services/utility.service';
 
 @Injectable()
 export class PostRepository {
   private readonly logger = new Logger(PostRepository.name);
+
   constructor(
+    private readonly utilityService: UtilityService,
     @InjectRepository(Post)
     private readonly postRepo: Repository<Post>,
     private readonly dataSource: DataSource,
   ) {}
 
-  async getAllPosts(
-    skip: number,
-    take: number,
-    userID?: number,
-  ): Promise<Post[]> {
+  async getAllPosts(skip: number, take: number): Promise<Post[]> {
     try {
-      const query = this.postRepo
-        .createQueryBuilder('post')
-        .leftJoinAndSelect('post.author', 'author');
+      // 1. Get all posts from database
+      this.logger.verbose('Get all posts from database');
+      const posts: Post[] = await this.postRepo.find({
+        where: {
+          status: PostStatus.ACTIVE,
+        },
+        relations: {
+          author: true,
+        },
+        skip,
+        take,
+        order: {
+          createdAt: 'DESC',
+        },
+      });
+      this.utilityService.logPretty('Get all posts from database', posts);
 
-      if (userID) {
-        query.where('author.id = :userId', { userID });
-      }
-
-      return query.skip(skip).take(take).getMany();
+      // 2. Return posts
+      this.logger.verbose('Return posts');
+      return posts;
     } catch (error) {
       this.logger.error(error);
       throw error;
     }
   }
 
-  // async getAllPostsOfUser(
-  //   userID: number,
-  //   skip: number,
-  //   take: number,
-  // ): Promise<Post[]> {
-  //   try {
-  //     return await this.postRepo.find({
-  //       where: { author: { id: userID } },
-  //       skip,
-  //       take,
-  //     });
-  //   } catch (error) {
-  //     this.logger.error(error);
-  //     throw error;
-  //   }
-  // }
-
-  async getPostById(postID: number): Promise<Post | null> {
+  async getPostByPostID(postID: number): Promise<Post | null> {
     try {
-      return await this.postRepo.findOneBy({ id: postID });
+      return await this.postRepo.findOne({
+        where: { id: postID },
+        relations: { author: true },
+      });
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -131,7 +127,8 @@ export class PostRepository {
     try {
       return await this.dataSource.transaction(async (manager) => {
         const result: UpdateResult = await manager.update(Post, dto.postID, {
-          ...dto,
+          title: dto.title,
+          content: dto.content,
           updatedAt: new Date(),
         });
 

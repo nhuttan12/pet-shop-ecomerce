@@ -9,7 +9,7 @@ export class CreateCommentRequestDto {
   })
   @IsInt({ message: CommentErrorMessage.POST_ID_MUST_BE_INTEGER })
   @Min(1, { message: CommentErrorMessage.POST_ID_MUST_BE_POSITIVE })
-  postId: number;
+  postID: number;
 
   @ApiProperty({
     example: 'Bài viết rất hay!',

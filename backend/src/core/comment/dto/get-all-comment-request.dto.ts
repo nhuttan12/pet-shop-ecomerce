@@ -7,7 +7,7 @@ export class GetAllCommentRequest {
   @ApiProperty({ description: 'ID bài viết', example: 1 })
   @Type(() => Number)
   @IsInt()
-  postId: number;
+  postID: number;
 
   @ApiProperty({
     description: 'Số lượng bình luận/trang',

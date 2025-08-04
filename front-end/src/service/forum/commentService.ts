@@ -1,38 +1,100 @@
-// src/service/forum/commentService.ts
 import api from '../api';
-import {
-  CreateCommentPayload,
-  ReplyCommentPayload,
-  UpdateCommentPayload,
-  RemoveCommentPayload,
-} from '../../types/Forum';
+import { CreateCommentRequestDto } from '../../common/dto/comment/create-comment-request.dto.ts';
+import { ApiResponse } from '../../common/dto/response/api-response.dto.ts';
+import { CommentResponseDto } from '../../common/dto/comment/comment-response.dto.ts';
+import { AxiosResponse } from 'axios';
+import { RemoveCommentRequestDto } from '../../common/dto/comment/remove-comment-request.dto.ts';
+import { UpdateCommentRequestDto } from '../../common/dto/comment/update-comment-request.dto.ts';
+import { GetAllCommentRequest } from '../../common/dto/comment/get-all-comment-request.dto.ts';
 
-export const createComment = async (payload: CreateCommentPayload) => {
-  const response = await api.post('/comment/create', payload);
-  return response.data;
+export const createComment = async (
+  request: CreateCommentRequestDto,
+  token: string,
+): Promise<CommentResponseDto> => {
+  const response: AxiosResponse<ApiResponse<CommentResponseDto>> =
+    await api.post('/comment/create', request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+  if (!response.data.data) {
+    throw new Error('Không thể bình luận');
+  }
+
+  return response.data.data;
 };
 
-export const replyComment = async (payload: ReplyCommentPayload) => {
-  const response = await api.post('/comment/reply', payload);
-  return response.data;
+export const replyComment = async (
+  request: CreateCommentRequestDto,
+  token: string,
+): Promise<CommentResponseDto> => {
+  const response: AxiosResponse<ApiResponse<CommentResponseDto>> =
+    await api.post('/comment/reply', request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+  if (!response.data.data) {
+    throw new Error('Không thể phản hồi bình luận');
+  }
+
+  return response.data.data;
 };
 
-export const updateComment = async (payload: UpdateCommentPayload) => {
-  const response = await api.patch('/comment/edit', payload);
-  return response.data;
+export const updateComment = async (
+  request: UpdateCommentRequestDto,
+  token: string,
+): Promise<CommentResponseDto> => {
+  const response: AxiosResponse<ApiResponse<CommentResponseDto>> =
+    await api.patch('/comment/edit', request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+  if (!response.data.data) {
+    throw new Error('Không thể cập nhật bình luận');
+  }
+
+  return response.data.data;
 };
 
-export const removeComment = async (payload: RemoveCommentPayload) => {
-  const response = await api.delete('/comment/remove', { data: payload });
-  return response.data;
+export const removeComment = async (
+  request: RemoveCommentRequestDto,
+  token: string,
+): Promise<CommentResponseDto> => {
+  const response: AxiosResponse<ApiResponse<CommentResponseDto>> =
+    await api.delete('/comment/remove', {
+      data: request,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+  if (!response.data.data) {
+    throw new Error('Không thể xóa bình luận');
+  }
+
+  return response.data.data;
 };
 
-export const getComments = async (postId: number, page: number, limit: number) => {
-  const response = await api.get(`/comment`, {
-    params: { postId, page, limit }
-  });
-  console.log("Raw API response:", response);
-  return response.data.data;  // Trả về mảng comment nằm trong response.data.data
+export const getComments = async (
+  request: GetAllCommentRequest,
+): Promise<CommentResponseDto[]> => {
+  const response: AxiosResponse<ApiResponse<CommentResponseDto[]>> =
+    await api.get(`/comment`, {
+      params: {
+        postID: request.postID,
+        page: request.page,
+        limit: request.limit,
+      },
+    });
+
+  if (!response.data.data) {
+    throw new Error('Không thể lấy bình luận');
+  }
+
+  return response.data.data;
 };
-
-

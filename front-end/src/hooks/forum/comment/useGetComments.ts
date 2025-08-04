@@ -1,32 +1,42 @@
-import { useEffect, useState, useCallback } from "react";
-import { getComments } from "../../../service/forum/commentService";
-import { Comment } from "../../../types/Forum";
+import { useCallback, useEffect, useState } from 'react';
+import { getComments } from '../../../service/forum/commentService';
+import { CommentResponseDto } from '../../../common/dto/comment/comment-response.dto.ts';
 
-export const useGetComments = (postId: number, reloadTrigger?: boolean) => {
-  const [comments, setComments] = useState<Comment[]>([]);
+export const useGetComments = (postID: number, reloadTrigger?: boolean) => {
+  const [comments, setComments] = useState<CommentResponseDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchComments = useCallback(async () => {
-    if (!postId) return;
+    if (!postID) return;
 
     setLoading(true);
     setError(null);
     try {
-      const comments = await getComments(postId, 1, 20);
-      console.log("API comments data:", comments);
+      const comments: CommentResponseDto[] = await getComments({
+        postID,
+        page: 1,
+        limit: 20,
+      });
+      console.log('API comments data:', comments);
+
       setComments(Array.isArray(comments) ? comments : []);
-    } catch (err: any) {
-      setError(err);
+    } catch (err: unknown) {
+      setError(err as Error);
       setComments([]);
     } finally {
       setLoading(false);
     }
-  }, [postId]);
+  }, [postID]);
 
   useEffect(() => {
     fetchComments();
   }, [fetchComments, reloadTrigger]);
 
-  return { comments, loading, error, refetch: fetchComments };
+  return {
+    comments,
+    loading,
+    error,
+    refetch: fetchComments,
+  };
 };

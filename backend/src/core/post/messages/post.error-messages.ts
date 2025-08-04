@@ -15,4 +15,6 @@ export enum PostErrorMessage {
   POST_DESCRIPTION_SHOULD_NOT_BE_EMPTY = 'Nguyên nhân báo cáo không được để trống',
   POST_ALREADY_REPORTED = 'Bạn đã báo cáo bài viết này rồi',
   EDIT_REQUEST_NOT_FOUND = 'Không tìm thấy yêu cầu chỉnh sửa bài viết',
+  YOU_DONT_HAVE_PERMISSION_TO_DELETE_THIS_POST = 'Bạn không có quyền xoá bài viết này',
+  YOU_DONT_HAVE_PERMISSION_TO_UPDATE_THIS_POST = 'Bạn không có quyền chỉnh sửa bài viết này',
 }

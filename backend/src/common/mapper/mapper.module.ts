@@ -9,6 +9,9 @@ import { ProductProfile } from 'common/mapper/product/product.profile';
 import { UserProfile } from 'common/mapper/user/user.profile';
 import { WishlistMappingProfile } from 'common/mapper/wishlist/wishlist-mapping.profile';
 import { WishlistProfile } from 'common/mapper/wishlist/wishlist.profile';
+import { PostProfile } from './post/post.profile';
+import { PostReportProfile } from './post/post-report.profile';
+import { CommentProfile } from './comment/comment.profile';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { WishlistProfile } from 'common/mapper/wishlist/wishlist.profile';
     UserProfile,
     CartProfile,
     CartDetailProfile,
+    PostProfile,
+    PostReportProfile,
+    CommentProfile,
   ],
   exports: [AutomapperModule],
 })

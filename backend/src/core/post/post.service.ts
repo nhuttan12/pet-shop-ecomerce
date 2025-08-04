@@ -11,68 +11,57 @@ import { PostErrorMessage } from './messages/post.error-messages';
 import { PostMessageLog } from './messages/post.messages-log';
 import { PostRepository } from './repositories/post.repository';
 import {
+  ConflictException,
+  ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
-  InternalServerErrorException,
-  ForbiddenException,
-  ConflictException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+import { UserErrorMessage } from '@user/messages/user.error-messages';
+import { RoleName } from '@role/enums/role.enum';
 
 @Injectable()
 export class PostService {
   private readonly logger = new Logger(PostService.name);
+
   constructor(
+    @InjectMapper() private readonly mapper: Mapper,
     private userService: UserService,
     private utilityService: UtilityService,
     private readonly postRepo: PostRepository,
   ) {}
 
-  async getAllPosts(
-    request: GetAllPostsRequestDto,
-    userID?: number,
-  ): Promise<PostResponse[]> {
+  async getAllPosts(request: GetAllPostsRequestDto): Promise<PostResponse[]> {
     try {
       // 1. Get pagination
+      this.logger.verbose('Get pagination');
       const { skip, take } = this.utilityService.getPagination(
         request.page,
         request.limit,
       );
+      this.logger.debug('Skip: ', skip, 'Take: ', take);
 
-      // 2. Check condition to get post each user or all user
-      const postList = await this.postRepo.getAllPosts(skip, take, userID);
+      // 2. Get all posts for customer
+      this.logger.verbose('Get all posts for user with customer role');
+      const postList: Post[] = await this.postRepo.getAllPosts(skip, take);
+      this.utilityService.logPretty('Get all posts: ', postList);
 
-      if (postList.length === 0) {
-        return [];
-      }
+      // 3. Mapping to post response
+      this.logger.verbose('Mapping to post response');
+      const postResponseList: PostResponse[] = this.mapper.mapArray(
+        postList,
+        Post,
+        PostResponse,
+      );
+      this.utilityService.logPretty('Post response list: ', postResponseList);
 
-      // 3. Get author id of each post
-      const authorIds: number[] = postList.map((post) => post.author.id);
-
-      // 5. Get author from author id list
-      const authorList: User[] =
-        await this.userService.findUsersById(authorIds);
-
-      // 6. Map post and author
-      const authorMap = new Map<number, User>();
-
-      for (const user of authorList) {
-        authorMap.set(user.id, user);
-      }
-
-      const mergedPost = postList.map((post) => {
-        return {
-          ...post,
-          authorID: post.author.id,
-          authorName: post.author.name,
-        };
-      });
-
-      return plainToInstance(PostResponse, mergedPost, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true,
-      });
+      // 4. Return post response list
+      this.logger.verbose('Return post response list');
+      return postResponseList;
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -81,24 +70,31 @@ export class PostService {
 
   async getPostByIdWithAuthor(postId: number): Promise<PostResponse> {
     try {
+      // 1. Get post by ID with author
+      this.logger.verbose('Get post by ID with author');
       const post: Post | null =
         await this.postRepo.getPostByIdWithAuthor(postId);
+      this.utilityService.logPretty('Get post by ID with author', post);
 
+      // 2. Check post exist
+      this.logger.verbose('Check post exist');
       if (!post) {
-        this.logger.error(PostMessageLog.POST_NOT_FOUND);
+        this.logger.warn(PostMessageLog.POST_NOT_FOUND);
         throw new NotFoundException(PostErrorMessage.POST_NOT_FOUND);
       }
 
-      const merge = {
-        ...post,
-        authorID: post.author.id,
-        authorName: post.author.name,
-      };
+      // 3. Mapping to post response
+      this.logger.verbose('Mapping to post response');
+      const postResponse: PostResponse = this.mapper.map(
+        post,
+        Post,
+        PostResponse,
+      );
+      this.utilityService.logPretty('Post response: ', postResponse);
 
-      return plainToInstance(PostResponse, merge, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true,
-      });
+      // 4. Return post response
+      this.logger.verbose('Return post response');
+      return postResponse;
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -166,17 +162,62 @@ export class PostService {
     }
   }
 
-  async removePost(postID: number): Promise<PostResponse> {
+  async removePost(postID: number, userID: number): Promise<PostResponse> {
     try {
-      const post = await this.postRepo.getPostById(postID);
+      // 1. Get param from request
+      this.logger.verbose(
+        'Get param from request, post ID',
+        postID,
+        'user ID',
+        userID,
+      );
 
+      // 2. Get post from repo
+      this.logger.verbose('Get post from repo');
+      const post: Post | null = await this.postRepo.getPostByPostID(postID);
+      this.utilityService.logPretty('Get post: ', post);
+
+      // 3. Check post exist
+      this.logger.verbose('Check post exist');
       if (!post) {
         this.logger.warn(PostMessageLog.POST_NOT_FOUND);
         throw new NotFoundException(PostErrorMessage.POST_NOT_FOUND);
       }
 
-      const result: boolean = await this.postRepo.removePost(postID);
+      // 4. Get user by ID from user service
+      this.logger.verbose('Get user by ID from user service');
+      const user: User | null = await this.userService.getUserById(userID);
+      this.utilityService.logPretty('Get user: ', user);
 
+      // 5. Check user exist
+      this.logger.verbose('Check user exist');
+      if (!user) {
+        this.logger.warn(UserErrorMessage.USER_NOT_FOUND);
+        throw new NotFoundException(UserErrorMessage.USER_NOT_FOUND);
+      }
+
+      // 6. Check user is admin or author
+      this.logger.verbose('Check user is admin or author');
+      if (
+        post.author.id !== userID &&
+        user.role.name !== (RoleName.ADMIN as string)
+      ) {
+        // 7. Throw error
+        this.logger.warn(
+          PostMessageLog.SOMEONE_IS_NOT_EMPLOYEE_OR_AUTHOR_REMOVE_POST,
+        );
+        throw new ForbiddenException(
+          PostErrorMessage.YOU_DONT_HAVE_PERMISSION_TO_DELETE_THIS_POST,
+        );
+      }
+
+      // 8. Remove post
+      this.logger.verbose('Remove post');
+      const result: boolean = await this.postRepo.removePost(postID);
+      this.utilityService.logPretty('Remove post result: ', result);
+
+      // 9. Check result
+      this.logger.verbose('Check result');
       if (!result) {
         this.logger.warn(PostMessageLog.CANNOT_UPDATE_POST);
         throw new InternalServerErrorException(
@@ -184,7 +225,15 @@ export class PostService {
         );
       }
 
-      return await this.getPostByIdWithAuthor(postID);
+      // 10. Get post after remove
+      this.logger.verbose('Get post after remove');
+      const postAfterRemove: PostResponse =
+        await this.getPostByIdWithAuthor(postID);
+      this.utilityService.logPretty('Get post after remove: ', postAfterRemove);
+
+      // 11. Return post
+      this.logger.verbose('Return post');
+      return postAfterRemove;
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -192,35 +241,80 @@ export class PostService {
   }
 
   async editPost(
-    authorId: number,
+    userID: number,
     dto: EditPostRequestDto,
   ): Promise<PostResponse> {
-    const post: PostResponse = await this.getPostByIdWithAuthor(dto.postID);
+    // 0. Get param from request
+    this.logger.verbose('Get param from request, user ID', userID);
+    this.utilityService.logPretty('Get param from request', dto);
 
-    if (post.authorId !== authorId) {
-      this.logger.error(PostErrorMessage.POST_NOT_FOUND);
-      throw new ForbiddenException(PostErrorMessage.POST_NOT_FOUND);
+    // 1. Get post from post service
+    this.logger.verbose('Get post from post service');
+    const post: PostResponse = await this.getPostByIdWithAuthor(dto.postID);
+    this.utilityService.logPretty('Update post: ', post);
+
+    // 2. Get user by ID from user service
+    this.logger.verbose('Get user by ID from user service');
+    const user: User | null = await this.userService.getUserById(userID);
+    this.utilityService.logPretty('Get user: ', user);
+
+    // 3. Check user exist
+    this.logger.verbose('Check user exist');
+    if (!user) {
+      this.logger.warn(UserErrorMessage.USER_NOT_FOUND);
+      throw new NotFoundException(UserErrorMessage.USER_NOT_FOUND);
     }
 
-    const result: boolean = await this.postRepo.editPost(dto);
+    // 4. Check user is author
+    this.logger.verbose('Check user is author');
+    if (post.authorID !== userID) {
+      // 5. Throw error
+      this.logger.warn(PostMessageLog.SOMEONE_IS_NOT_AUTHOR_EDIT_POST);
+      throw new ForbiddenException(
+        PostErrorMessage.YOU_DONT_HAVE_PERMISSION_TO_UPDATE_THIS_POST,
+      );
+    }
 
+    // 6. Update post
+    this.logger.verbose('Update post');
+    const result: boolean = await this.postRepo.editPost(dto);
+    this.utilityService.logPretty('Update post result: ', result);
+
+    // 7. Check update post result
+    this.logger.verbose('Check update post result');
     if (!result) {
-      this.logger.error(PostErrorMessage.CANNOT_UPDATE_POST);
+      this.logger.warn(PostErrorMessage.CANNOT_UPDATE_POST);
       throw new ConflictException(PostMessageLog.CANNOT_UPDATE_POST);
     }
 
-    return await this.getPostByIdWithAuthor(dto.postID);
+    // 8. Get post after update
+    this.logger.verbose('Get post after update');
+    const postAfterUpdate: PostResponse = await this.getPostByIdWithAuthor(
+      dto.postID,
+    );
+    this.utilityService.logPretty('Get post after update: ', postAfterUpdate);
+
+    // 9. Return post after update
+    this.logger.verbose('Return post after update');
+    return postAfterUpdate;
   }
 
-  async getPostById(postID: number): Promise<Post> {
+  async getPostByPostID(postID: number): Promise<Post> {
     try {
-      const post = await this.postRepo.getPostById(postID);
+      // 1. Get post from repository
+      this.logger.verbose('Get post from repository');
+      const post = await this.postRepo.getPostByPostID(postID);
+      this.utilityService.logPretty('Get post from repository', post);
 
+      // 2. Check post exist
+      this.logger.verbose('Check post exist');
       if (!post) {
         this.logger.warn(PostMessageLog.POST_NOT_FOUND);
         throw new NotFoundException(PostErrorMessage.POST_NOT_FOUND);
       }
 
+      // 3. Return post
+      this.logger.verbose('Return post');
       return post;
     } catch (error) {
       this.logger.error(error);

@@ -9,7 +9,7 @@ export class ReplyCommentRequestDto {
   })
   @IsInt({ message: CommentErrorMessage.POST_ID_MUST_BE_INTEGER })
   @Min(1, { message: CommentErrorMessage.POST_ID_MUST_BE_POSITIVE })
-  postId: number;
+  postID: number;
 
   @ApiProperty({
     example: 10,
@@ -17,7 +17,7 @@ export class ReplyCommentRequestDto {
   })
   @IsInt({ message: CommentErrorMessage.PARENT_COMMENT_ID_MUST_BE_INTEGER })
   @Min(1, { message: CommentErrorMessage.PARENT_COMMENT_ID_MUST_BE_POSITIVE })
-  parentCommentId: number;
+  parentCommentID: number;
 
   @ApiProperty({
     example: 'Tôi đồng ý với ý kiến này!',

@@ -13,13 +13,14 @@ import { DataSource, Repository } from 'typeorm';
 @Injectable()
 export class PostReportRepository {
   private readonly logger = new Logger(PostReportRepository.name);
+
   constructor(
     @InjectRepository(PostReport)
     private readonly postReportRepo: Repository<PostReport>,
     private readonly dataSource: DataSource,
   ) {}
 
-  async getPostReportsWithUserId(
+  async getPostReportsWithUserIDAndPostID(
     userID: number,
     postID: number,
   ): Promise<PostReport | null> {
@@ -29,6 +30,10 @@ export class PostReportRepository {
           user: { id: userID },
           post: { id: postID },
           status: PostReportStatus.PENDING,
+        },
+        relations: {
+          user: true,
+          post: true,
         },
       });
     } catch (error) {

@@ -3,7 +3,7 @@ import { ApiResponse } from '@api-response/ApiResponse';
 import { CommentService } from '@comment/comment.service';
 import { CreateCommentRequestDto } from '@comment/dto/create-comment-request.dto';
 import { GetAllCommentRequest } from '@comment/dto/get-all-comment-request.dto';
-import { GetCommentResponseDto } from '@comment/dto/get-all-comment-response.dto';
+import { CommentResponseDto } from '@comment/dto/comment-response.dto';
 import { RemoveCommentRequestDto } from '@comment/dto/remove-comment-request.dto';
 import { ReplyCommentRequestDto } from '@comment/dto/reply-comment-request.dto';
 import { UpdateCommentRequestDto } from '@comment/dto/update-comment-request.dto';
@@ -35,6 +35,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { RoleName } from '@role/enums/role.enum';
+import { UtilityService } from '@services/utility.service';
 
 @Controller('comment')
 @ApiBearerAuth('jwt')
@@ -44,7 +45,10 @@ import { RoleName } from '@role/enums/role.enum';
 export class CommentController {
   private readonly logger = new Logger(CommentController.name);
 
-  constructor(private commentService: CommentService) {}
+  constructor(
+    private readonly utilityService: UtilityService,
+    private readonly commentService: CommentService,
+  ) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Tạo bình luận cho bài viết' })
@@ -67,13 +71,34 @@ export class CommentController {
     },
   })
   async createComment(
-    @Body() { content, postId }: CreateCommentRequestDto,
+    @Body() request: CreateCommentRequestDto,
     @GetUser() user: JwtPayload,
-  ) {
-    this.logger.debug(
-      `Creating comment for post ${postId} by user ${user.sub}`,
+  ): Promise<ApiResponse<CommentResponseDto>> {
+    // 1. Get request data from body
+    this.logger.verbose('Get request data from body');
+    this.utilityService.logPretty('Request data', request);
+
+    // 2. Get user data from token
+    this.logger.verbose('Get user data from token');
+    this.utilityService.logPretty('User data', user);
+
+    // 3. Create comment
+    const comment: CommentResponseDto = await this.commentService.createComment(
+      request,
+      user.sub,
     );
-    return this.commentService.createComment(postId, user.sub, content);
+
+    // 4. Create response
+    this.logger.verbose('Create response');
+    const response: ApiResponse<CommentResponseDto> = {
+      statusCode: HttpStatus.CREATED,
+      message: CommentNotifyMessage.CREATE_COMMENT_SUCCESSFUL,
+      data: comment,
+    };
+    this.utilityService.logPretty('Response', response);
+
+    // 5. Returning response to client
+    return response;
   }
 
   @Post('reply')
@@ -97,19 +122,36 @@ export class CommentController {
     },
   })
   async replyComment(
-    @Body()
-    { content, parentCommentId, postId }: ReplyCommentRequestDto,
+    @Body() request: ReplyCommentRequestDto,
     @GetUser() user: JwtPayload,
-  ) {
-    this.logger.debug(
-      `Replying to comment ${parentCommentId} for post ${postId} by user ${user.sub}`,
-    );
-    return this.commentService.replyComment(
-      postId,
+  ): Promise<ApiResponse<CommentResponseDto>> {
+    // 1. Get request data from body
+    this.logger.verbose('Get request data from body');
+    this.utilityService.logPretty('Request data', request);
+
+    // 2. Get user data from token
+    this.logger.verbose('Get user data from token');
+    this.utilityService.logPretty('User data', user);
+
+    // 3. Reply comment in service
+    this.logger.verbose('Reply comment in service');
+    const comment: CommentResponseDto = await this.commentService.replyComment(
+      request,
       user.sub,
-      parentCommentId,
-      content,
     );
+    this.utilityService.logPretty('Reply comment in service', comment);
+
+    // 4. Create response
+    this.logger.verbose('Create response');
+    const response: ApiResponse<CommentResponseDto> = {
+      statusCode: HttpStatus.CREATED,
+      message: CommentNotifyMessage.REPLY_COMMENT_SUCCESSFUL,
+      data: comment,
+    };
+    this.utilityService.logPretty('Response', response);
+
+    // 5. Returning response to client
+    return response;
   }
 
   @Patch('edit')
@@ -132,11 +174,37 @@ export class CommentController {
     },
   })
   async updateComment(
-    @Body() { content, commentId }: UpdateCommentRequestDto,
+    @Body() request: UpdateCommentRequestDto,
     @GetUser() user: JwtPayload,
-  ) {
-    this.logger.debug(`Updating comment ${commentId} by user ${user.sub}`);
-    return this.commentService.updateComment(commentId, content, user.sub);
+  ): Promise<ApiResponse<CommentResponseDto>> {
+    // 1. Get request data from body
+    this.logger.verbose('Get request data from body');
+    this.utilityService.logPretty('Request data', request);
+
+    // 2. Get user data from token
+    this.logger.verbose('Get user data from token');
+    this.utilityService.logPretty('User data', user);
+
+    // 3. Update comment in service
+    this.logger.verbose('Update comment in service');
+    const comment: CommentResponseDto = await this.commentService.updateComment(
+      request,
+      user.sub,
+    );
+    this.utilityService.logPretty('Update comment in service', comment);
+
+    // 4. Create response
+    this.logger.verbose('Create response');
+    const response: ApiResponse<CommentResponseDto> = {
+      statusCode: HttpStatus.OK,
+      message: CommentNotifyMessage.UPDATE_COMMENT_SUCCESSFUL,
+      data: comment,
+    };
+    this.utilityService.logPretty('Response', response);
+
+    // 5. Returning response to client
+    this.logger.verbose('Returning response to client');
+    return response;
   }
 
   @Delete('remove')
@@ -161,13 +229,37 @@ export class CommentController {
   })
   @HttpCode(HttpStatus.OK)
   async removeComment(
-    @Body() { commentId, postId }: RemoveCommentRequestDto,
+    @Body() request: RemoveCommentRequestDto,
     @GetUser() user: JwtPayload,
-  ) {
-    this.logger.debug(
-      `Removing comment ${commentId} for post ${postId} by user ${user.sub}`,
+  ): Promise<ApiResponse<CommentResponseDto>> {
+    // 1. Get request data from body
+    this.logger.verbose('Get request data from body');
+    this.utilityService.logPretty('Request data', request);
+
+    // 2. Get user data from token
+    this.logger.verbose('Get user data from token');
+    this.utilityService.logPretty('User data', user);
+
+    // 3. Remove comment in service
+    this.logger.verbose('Remove comment in service');
+    const comment: CommentResponseDto = await this.commentService.removeComment(
+      request,
+      user.sub,
     );
-    return this.commentService.removeComment(commentId, postId, user.sub);
+    this.utilityService.logPretty('Remove comment in service', comment);
+
+    // 4. Create response
+    this.logger.verbose('Create response');
+    const response: ApiResponse<CommentResponseDto> = {
+      statusCode: HttpStatus.OK,
+      message: CommentNotifyMessage.DELETE_COMMENT_SUCCESSFUL,
+      data: comment,
+    };
+    this.utilityService.logPretty('Response', response);
+
+    // 5. Returning response to client
+    this.logger.verbose('Returning response to client');
+    return response;
   }
 
   @Get()
@@ -175,16 +267,29 @@ export class CommentController {
     summary: 'Lấy tất cả bình luận của bài viết (bao gồm replies)',
   })
   async getComments(
-    @Query() { limit, page, postId }: GetAllCommentRequest,
-  ): Promise<ApiResponse<GetCommentResponseDto[]>> {
-    const comment: GetCommentResponseDto[] =
-      await this.commentService.getCommentsByPost(postId, limit, page);
-    this.logger.debug(`Comment: ${JSON.stringify(comment)}`);
+    @Query() request: GetAllCommentRequest,
+  ): Promise<ApiResponse<CommentResponseDto[]>> {
+    // 1. Get request data from query
+    this.logger.verbose('Get request data from query');
+    this.utilityService.logPretty('Request data', request);
 
-    return {
+    // 2. Get comments in service
+    this.logger.verbose('Get comments in service');
+    const comment: CommentResponseDto[] =
+      await this.commentService.getCommentsByPost(request);
+    this.utilityService.logPretty('Get comments in service', comment);
+
+    // 3. Create response
+    this.logger.verbose('Create response');
+    const response: ApiResponse<CommentResponseDto[]> = {
       statusCode: HttpStatus.OK,
       message: CommentNotifyMessage.GET_COMMENT_SUCCESSFUL,
       data: comment,
     };
+    this.utilityService.logPretty('Response', response);
+
+    // 4. Returning response to client
+    this.logger.verbose('Returning response to client');
+    return response;
   }
 }

@@ -1,16 +1,26 @@
-// src/hooks/forum/post/useCreateComment.tsx
 import { useState } from 'react';
 import { createComment } from '../../../service/forum/commentService';
 
-export const useCreateComment = () => {
+export const useCreateComment = (token: string) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const submit = async (content: string, postId: number) => {
+  if (!token) {
+    alert('Vui lòng đăng nhập');
+    throw new Error('Người dùng chưa đăng nhập');
+  }
+
+  const submit = async (content: string, postID: number) => {
     setLoading(true);
     setError(null);
     try {
-      await createComment({ content, postId });
+      await createComment(
+        {
+          content,
+          postID,
+        },
+        token,
+      );
     } catch (err) {
       setError(err as Error);
       throw err;
@@ -19,5 +29,9 @@ export const useCreateComment = () => {
     }
   };
 
-  return { submit, loading, error };
+  return {
+    submit,
+    loading,
+    error,
+  };
 };

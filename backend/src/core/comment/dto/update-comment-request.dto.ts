@@ -9,7 +9,7 @@ export class UpdateCommentRequestDto {
   })
   @IsInt({ message: CommentErrorMessage.COMMENT_ID_MUST_BE_INTEGER })
   @Min(1, { message: CommentErrorMessage.COMMENT_ID_MUST_BE_POSITIVE })
-  commentId: number;
+  commentID: number;
 
   @ApiProperty({
     example: 'Cập nhật nội dung bình luận',
